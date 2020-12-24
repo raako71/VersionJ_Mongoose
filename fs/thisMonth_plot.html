@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<script type="text/javascript" src="/chart.js@2.8.0.js"></script>
+    <script type="text/javascript" src="/d3-dsv.v1.min.js"></script>
+    <script type="text/javascript" src="/d3-fetch.v1.min.js"></script>
+        <title>esp32 | this month</title>
+        <style>
+            body{
+                background-color: black;
+                color: rgb(255, 167, 0);
+                font-family: monospace, sans-serif;
+            }
+            a{
+                color: rgb(255, 167, 0);
+            }
+            .btn-group button {
+                background-color: #4CAF50; /* Green background */
+                border: 1px solid green; /* Green border */
+                color: white; /* White text */
+                padding: 10px 24px; /* Some padding */
+                cursor: pointer; /* Pointer/hand icon */
+                float: left; /* Float the buttons side by side */
+                margin: 20px;
+            }
+
+            .btn-group button:not(:last-child) {
+                border-right: none; /* Prevent double borders */
+            }
+
+            /* Clear floats (clearfix hack) */
+            .btn-group:after {
+                content: "";
+                clear: both;
+                display: table;
+            }
+
+            /* Add a background color on hover */
+            .btn-group button:hover {
+                background-color: #3e8e41;
+            }
+            .demoFont {
+                font-family: "Arial Black", sans-serif;
+                font-size: 25px;
+                text-align: center;
+                padding-bottom: 10px;
+            }
+            .Graph{
+                width:72%;
+                margin: auto;
+                
+                float: left;
+            }
+            .column {
+                float: left;
+                width: 14%;
+                padding-top: 150px;
+            }
+            .row:after {
+                content: "";
+                display: table;
+                clear: both;
+            }
+			.checkbox1{
+				text-align:center;
+			}
+        </style>
+    </head>
+
+    <body>
+
+        <div class="btn-group">
+            <form method="get" action="/">
+                <button type="submit">Home</button>
+            </form>
+        </div>
+		
+		<div class="demoFont" id = "hour_text">
+			
+		</div>
+        <div class="demoFont">Latest Month Data</div>
+		<div class="row">
+            <div class="column">
+                <p><a href="./longterm_plot.html">Long Term Data &#60;-</a></p>
+            </div>
+            <div class="Graph">
+                <canvas id="main_chart"></canvas>
+            </div>
+            <div class="column">
+                <p><a href="./thisWeek_plot.html">Latest Week Data -&#62;</a></p></div>
+           
+			
+        </div>
+		
+		<div class="row">
+			<br><br><br>
+            <div class="column">
+                <p><a href="./longterm_plot.html">Long Term Data &#60;-</a></p>
+            </div>
+            <div class="Graph">
+                <canvas id="sec_chart"></canvas>
+            </div>
+            <div class="column">
+                <p><a href="./thisWeek_plot.html">Latest Week Data -&#62;</a></p></div>
+           
+			
+        </div>
+           
+		<div class="row">
+			<br><br><br>
+            <div class="column">
+                <p><a href="./longterm_plot.html">Long Term Data &#60;-</a></p>
+            </div>
+            <div class="Graph">
+                <canvas id="trd_chart"></canvas>
+            </div>
+            <div class="column">
+                <p><a href="./thisWeek_plot.html">Latest Week Data -&#62;</a></p></div>
+           
+			
+        </div>
+        
+       
+
+
+    </body>
+    <script>
+        function addData(chart, label, data1, data2, data3,data4, data5) {
+            chart.data.labels =(label);
+            chart.data.datasets[0].data = data1;
+            chart.data.datasets[1].data = data2;
+            chart.data.datasets[2].data = data3;
+            chart.data.datasets[3].data = data4;
+			if (data5 != '-'){
+			chart.data.datasets[4].data = data5;
+            }
+			chart.update();
+        }
+        var ctx = document.getElementById('main_chart').getContext('2d');
+        var chart_one = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'line',
+
+            // The data for our dataset
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Relay 1',
+                    backgroundColor: 'rgb(255, 167, 0)',
+                    borderColor: 'rgb(255, 167, 0)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'Relay 2',
+                    backgroundColor: 'rgb(234, 1, 1)',
+                    borderColor: 'rgb(234, 1, 1)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'Voltage',
+                    backgroundColor: 'rgb(0, 39, 255)',
+                    borderColor: 'rgb(0, 39, 255)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'Power',
+                    backgroundColor: 'rgb(238, 255, 109)',
+                    borderColor: 'rgb(238, 255, 109)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },
+				{
+                    label: 'Current',
+                    backgroundColor: 'rgb(173, 33, 171)',
+                    borderColor: 'rgb(173, 33, 171)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                }]
+            },
+
+            // Configuration options go here
+            options: {
+                scales: {
+                    xAxes: [{
+                        gridLines:{
+                            color:'rgb(0, 255, 137)'
+                        },
+                        ticks:{
+                            fontColor:'rgb(0, 255, 137)'
+                        }
+                    }],
+                    yAxes: [{
+                        gridLines:{
+                            color:'rgb(0, 255, 137)'
+                        },
+                        ticks:{
+                            fontColor:'rgb(0, 255, 137)'
+                        }
+                    }]
+
+                },
+                legend: {
+                    labels: {
+                        // This more specific font property overrides the global property
+                        fontColor: 'rgb(0, 255, 137)'
+                    }
+                }
+
+
+            }
+        });
+		var ctx1 = document.getElementById('sec_chart').getContext('2d');
+        var chart_two = new Chart(ctx1, {
+            // The type of chart we want to create
+            type: 'line',
+
+            // The data for our dataset
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'S1 Temp',
+                    backgroundColor: 'rgb(255, 167, 0)',
+                    borderColor: 'rgb(255, 167, 0)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'S1 Hum',
+                    backgroundColor: 'rgb(234, 1, 1)',
+                    borderColor: 'rgb(234, 1, 1)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'S1 Press',
+                    backgroundColor: 'rgb(0, 39, 255)',
+                    borderColor: 'rgb(0, 39, 255)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'S1 light',
+                    backgroundColor: 'rgb(238, 255, 109)',
+                    borderColor: 'rgb(238, 255, 109)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                }]
+            },
+
+            // Configuration options go here
+            options: {
+                scales: {
+                    xAxes: [{
+                        gridLines:{
+                            color:'rgb(0, 255, 137)'
+                        },
+                        ticks:{
+                            fontColor:'rgb(0, 255, 137)'
+                        }
+                    }],
+                    yAxes: [{
+                        gridLines:{
+                            color:'rgb(0, 255, 137)'
+                        },
+                        ticks:{
+                            fontColor:'rgb(0, 255, 137)'
+                        }
+                    }]
+
+                },
+                legend: {
+                    labels: {
+                        // This more specific font property overrides the global property
+                        fontColor: 'rgb(0, 255, 137)'
+                    }
+                }
+
+
+            }
+        });
+		var ctx2 = document.getElementById('trd_chart').getContext('2d');
+        var chart_three = new Chart(ctx2, {
+            // The type of chart we want to create
+            type: 'line',
+
+            // The data for our dataset
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'S2 Temp',
+                    backgroundColor: 'rgb(255, 167, 0)',
+                    borderColor: 'rgb(255, 167, 0)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'S2 Hum',
+                    backgroundColor: 'rgb(234, 1, 1)',
+                    borderColor: 'rgb(234, 1, 1)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'S2 Press',
+                    backgroundColor: 'rgb(0, 39, 255)',
+                    borderColor: 'rgb(0, 39, 255)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                },{
+                    label: 'S2 light',
+                    backgroundColor: 'rgb(238, 255, 109)',
+                    borderColor: 'rgb(238, 255, 109)',
+                    data: [],
+					spanGaps:true,
+                    fill: false
+                }]
+            },
+
+            // Configuration options go here
+            options: {
+                scales: {
+                    xAxes: [{
+                        gridLines:{
+                            color:'rgb(0, 255, 137)'
+                        },
+                        ticks:{
+                            fontColor:'rgb(0, 255, 137)'
+                        }
+                    }],
+                    yAxes: [{
+                        gridLines:{
+                            color:'rgb(0, 255, 137)'
+                        },
+                        ticks:{
+                            fontColor:'rgb(0, 255, 137)'
+                        }
+                    }]
+
+                },
+                legend: {
+                    labels: {
+                        // This more specific font property overrides the global property
+                        fontColor: 'rgb(0, 255, 137)'
+                    }
+                }
+
+
+            }
+        });
+        function epochToJsDate(ts){
+            // ts = epoch timestamp
+            // returns date obj
+            var a = new Date(ts*1000);
+            var ret = (a.getHours() < 10 ? '0' + a.getHours() : a.getHours()) + ':' +(a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes())  + ':' + (a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds())  + ", ";
+			ret +=  a.getDate() + '/' + (a.getMonth() + 1) + '/' + a.getFullYear();
+            return ret; 
+        }
+		
+        function update_graph(){
+			
+            var doc = '/thisMonth.csv';
+            d3.dsv(";", doc).then(function(mewmew){
+			
+				var base = mewmew.map(function(e){
+                    return e.epoch;
+                });
+
+                var converted_epoch = [];
+
+                function myFunction(value) {
+                    ret = epochToJsDate(value);
+                    converted_epoch.push(ret);
+                }
+
+                base.forEach(myFunction);
+
+				var mul50_result = [];
+				function mul50(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						ret = value*50;
+					}
+					mul50_result.push(ret);
+					
+				}
+							
+                var col1 = mewmew.map(function(e){
+                    return e.column1;
+                });
+				
+				col1.forEach(mul50);
+				
+				
+				var mul60_result = [];
+				function mul60(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						ret = value*60;
+					}
+					mul60_result.push(ret);
+					
+				}
+                var col2 = mewmew.map(function(e){
+                    return e.column2;
+                });
+				col2.forEach(mul60);
+			
+				var col3_conv_ret = [];
+                function col3_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col3_conv_ret.push(ret);
+				}
+				var col3 = mewmew.map(function(e){
+                    return e.column3;
+                });
+				col3.forEach(col3_conv);
+				
+                var col4_conv_ret = [];
+                function col4_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col4_conv_ret.push(ret);
+				}
+				var col4 = mewmew.map(function(e){
+                    return e.column4;
+                });
+				col4.forEach(col4_conv);
+				
+				var col5_conv_ret = [];
+                function col5_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col5_conv_ret.push(ret);
+				}
+				var col5 = mewmew.map(function(e){
+					return e.column5;
+				});
+				col5.forEach(col5_conv);
+				
+				var col6_conv_ret = [];
+                function col6_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col6_conv_ret.push(ret);
+				}
+				var col6 = mewmew.map(function(e){
+					return e.column6;
+				});
+				col6.forEach(col6_conv);
+				
+				var col7_conv_ret = [];
+                function col7_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col7_conv_ret.push(ret);
+				}
+				var col7 = mewmew.map(function(e){
+					return e.column7;
+				});
+				col7.forEach(col7_conv);
+				
+				var col8_conv_ret = [];
+                function col8_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col8_conv_ret.push(ret);
+				}
+				var col8 = mewmew.map(function(e){
+					return e.column8;
+				});
+				col8.forEach(col8_conv);
+				
+				var col9_conv_ret = [];
+                function col9_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col9_conv_ret.push(ret);
+				}
+				var col9 = mewmew.map(function(e){
+					return e.column9;
+				});
+				col9.forEach(col9_conv);
+				
+				var col10_conv_ret = [];
+                function col10_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col10_conv_ret.push(ret);
+				}
+				var col10 = mewmew.map(function(e){
+					return e.column10;
+				});
+				col10.forEach(col10_conv);
+				
+				var col11_conv_ret = [];
+                function col11_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col11_conv_ret.push(ret);
+				}
+				var col11 = mewmew.map(function(e){
+					return e.column11;
+				});
+				col11.forEach(col11_conv);
+				
+				var col12_conv_ret = [];
+                function col12_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col12_conv_ret.push(ret);
+				}
+				var col12 = mewmew.map(function(e){
+					return e.column12;
+				});
+				col12.forEach(col12_conv);
+				
+				var col13_conv_ret = [];
+                function col13_conv(value){
+					if(value == ''){
+						ret = null;
+					}else{
+						 ret = value;
+					}
+					col13_conv_ret.push(ret);
+				}
+				var col13 = mewmew.map(function(e){
+					return e.column13;
+				});
+				col13.forEach(col13_conv);
+				
+                addData(chart_one, converted_epoch, mul50_result, mul60_result, col3_conv_ret,col4_conv_ret,col5_conv_ret);
+				addData(chart_two, converted_epoch, col6_conv_ret, col7_conv_ret, col8_conv_ret, col9_conv_ret, '-');
+				addData(chart_three, converted_epoch, col10_conv_ret, col11_conv_ret, col12_conv_ret, col13_conv_ret, '-');
+			})
+        }
+		
+		
+		function update_time(){
+			var xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = function(){
+				if(xhr.readyState == 4){
+					var x = xhr.responseText;
+					var d = new Date();
+					var offset = d.getTimezoneOffset();
+					
+					var pub_string = "Device Time: " + epochToJsDate(x)+  (offset < 0 ? " (+": " (-") + Math.abs(offset)/60 + ")";					
+					
+					document.getElementById("hour_text").innerHTML = pub_string;
+				
+				}
+		
+			};
+			xhr.open("GET", "/getTime", true);
+			xhr.send();
+		}
+		
+        
+		//check_global_setting();
+		//delay500ms to update graph on first load
+		setTimeout(update_graph(), 500);
+		update_time();
+		/*
+        setInterval(function () {
+            update_graph();
+        }, 10000 ) ;
+		*/
+		setInterval(function() {
+			update_time();
+		}, 1000);
+
+
+    </script>
+</html>
