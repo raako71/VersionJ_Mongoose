@@ -1,0 +1,51 @@
+author: mongoose-os
+description: A Mongoose OS app skeleton
+version: 1.0
+
+libs_version: ${mos.version}
+modules_version: ${mos.version}
+mongoose_os_version: ${mos.version}
+
+# Optional. List of tags for online search.
+tags:
+  - c
+
+# List of files / directories with C sources. No slashes at the end of dir names.
+sources:
+  - src
+
+# List of dirs. Files from these dirs will be copied to the device filesystem
+filesystem:
+  - fs
+
+config_schema:
+  - ["fstab.fs0.dev", "data"]
+  - ["fstab.fs0.type", "LFS"]
+  - ["fstab.fs0.opts", '{"bs": 4096}']
+  - ["fstab.fs0.path", "/data"]
+  - ["fstab.fs0.create", true]
+
+libs:
+  - origin: https://github.com/mongoose-os-libs/boards
+  - origin: https://github.com/mongoose-os-libs/ca-bundle
+  - origin: https://github.com/mongoose-os-libs/rpc-service-config
+  - origin: https://github.com/mongoose-os-libs/rpc-service-fs
+  - origin: https://github.com/mongoose-os-libs/rpc-uart
+  - origin: https://github.com/mongoose-os-libs/wifi
+  - origin: https://github.com/mongoose-os-libs/http-server
+  - origin: https://github.com/mongoose-os-libs/fstab
+  - origin: https://github.com/mongoose-os-libs/vfs-fs-lfs
+  
+conds:
+  # It's not that we can't work with multicore
+  # but we cannot afford it because of space (32K).
+  - when: mos.platform == "esp32"
+    apply:
+      build_vars:
+        ESP_IDF_SDKCONFIG_OPTS: >
+          ${build_vars.ESP_IDF_SDKCONFIG_OPTS}
+          CONFIG_FREERTOS_UNICORE=y
+        ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K
+
+# Used by the mos tool to catch mos binaries incompatible with this file format
+manifest_version: 2017-09-29
