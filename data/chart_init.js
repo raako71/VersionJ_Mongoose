@@ -226,7 +226,7 @@ chart.update();
 }
 function check_global_setting(){
 var col_bool;
-fetch('/setting.json')
+fetch('mnt/setting.json')
 .then(function (response){ return response.json();})
 .then(function(data){
 // Work with JSON data here
@@ -255,7 +255,7 @@ document.getElementById("col13_checkbox").checked = col_bool.col13_en;
 }
 function checkcol_func(){
 var old_json;
-fetch('/setting.json')
+fetch('mnt/setting.json')
 .then(function (response){ return response.json();})
 .then(function(data){
 old_json = data;
@@ -479,7 +479,7 @@ var pub_string = "Device Time: " + epochToJsDate(x)+  (offset < 0 ? " (+": " (-"
 document.getElementById("hour_text").innerHTML = pub_string;
 }
 };
-xhr.open("GET", "/getTime", true);
+xhr.open("GET", "/rpc/getTime", true);
 xhr.send();
 }
 function onLoad(event) { //function when dom is loaded

@@ -47,7 +47,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/thisHour">
+            <form method="get" action="/thisHour.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -65,7 +65,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/1970Hour">
+            <form method="get" action="/1970Hour.csv">
                 <button type="submit">View Raw</button>
             </form>            
             <button onClick = "download(5)">Download CSV</button>
@@ -85,7 +85,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/thisDay">
+            <form method="get" action="/thisDay.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -104,7 +104,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/1970Day">
+            <form method="get" action="/1970Day.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -125,7 +125,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/thisWeek">
+            <form method="get" action="/thisWeek.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -143,7 +143,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/1970Week">
+            <form method="get" action="/1970Week.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -164,7 +164,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/thisMonth">
+            <form method="get" action="/thisMonth.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -183,7 +183,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/1970Month">
+            <form method="get" action="/1970Month.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -203,7 +203,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/longTermData">
+            <form method="get" action="/longTermData.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -222,7 +222,7 @@
                 <button type="submit">View Graph</button>
             </form>
 
-            <form method="get" action="/1970longTermData">
+            <form method="get" action="/1970longTermData.csv">
                 <button type="submit">View Raw</button>
             </form>
 
@@ -419,11 +419,16 @@
 		
 		if (con == true){
 			var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");
-			console.log(data);
+			
 			//proceed to send request to esp
+			jsonobj = {comm:data};
+			var string = JSON.stringify(jsonobj);
+			console.log(string);
 			var xhr = new XMLHttpRequest();
-			xhr.open("GET", "/delReq?value="+data, true);
-			xhr.send();
+			xhr.open("POST", "/rpc/delReq", true);
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.send(string);
+			hour = false; day = false; week = false; month = false; hour_1970 = false; day_1970 = false; week_1970 = false; month_1970 = false; longterm_1970 = false;
 		}
 		}
 	}
@@ -458,12 +463,15 @@
 					//need confirmation 
 					var conText = "Time will change from " + time_dev_string + " to " + pub_time_string + (offset < 0 ? " (+": " (-") + Math.abs(offset)/60 + "), OK?"; 
 					var con = confirm(conText);
-					
 					if(con == true){
 						a = Math.floor(Date.now() / 1000); //recapture epoch
+						var jsonobj = {epoch: a};
+						var string = JSON.stringify(jsonobj);
+						console.log(string);
 						var xhttp = new XMLHttpRequest();
-						xhttp.open("GET", "/pushTime?value="+a, true);
-						xhttp.send();
+						xhttp.open("POST", "/rpc/pushTime", true);
+						xhttp.setRequestHeader('Content-Type', 'application/json');
+						xhttp.send(string);
 					}
 				}else{
 					alert("time already set");			
@@ -471,7 +479,7 @@
 				
 			}
 		};
-		xhr.open("GET", "/getTime", true);
+		xhr.open("GET", "/rpc/getTime", true);
 		xhr.send();
 	}
 </script>
