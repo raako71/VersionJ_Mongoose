@@ -118,7 +118,7 @@ static void logging_cb(void *arg){
 }
 
 // don't forget to state the ssid and pass
-const struct mgos_config_wifi_sta cfg = {.enable = true, .ssid = "Aguan", .pass = "25051969"};
+//const struct mgos_config_wifi_sta cfg = {.enable = true, .ssid = "Aguan", .pass = "25051969"};
 
 enum mgos_app_init_result mgos_app_init(void) {
 #ifdef LED_PIN
@@ -135,7 +135,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
   //wifi configuration
-  mgos_wifi_setup_sta(&cfg);
+  //mgos_wifi_setup_sta(&cfg);
   
   	//RPC handler function
 	mg_rpc_add_handler(mgos_rpc_get_global(), "setting"

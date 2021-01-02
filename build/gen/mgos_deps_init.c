@@ -14,6 +14,7 @@ extern bool mgos_vfs_common_init(void);
 extern bool mgos_vfs_fs_lfs_init(void);
 extern bool mgos_vfs_fs_spiffs_init(void);
 extern bool mgos_core_init(void);
+extern bool mgos_arduino_compat_init(void);
 extern bool mgos_i2c_init(void);
 extern bool mgos_atca_init(void);
 extern bool mgos_fstab_init(void);
@@ -24,6 +25,7 @@ extern bool mgos_rpc_common_init(void);
 extern bool mgos_rpc_service_config_init(void);
 extern bool mgos_rpc_service_fs_init(void);
 extern bool mgos_rpc_uart_init(void);
+extern bool mgos_sntp_init(void);
 
 #ifndef MGOS_LIB_INFO_VERSION
 struct mgos_lib_info {
@@ -52,6 +54,9 @@ const struct mgos_lib_info mgos_libs_info[] = {
 
     // "core". deps: [ "freertos" "mongoose" "vfs-common" "vfs-fs-lfs" "vfs-fs-spiffs" ]
     {.name = "core", .version = "1.0", .init = mgos_core_init},
+
+    // "arduino-compat". deps: [ "core" ]
+    {.name = "arduino-compat", .version = "1.0", .init = mgos_arduino_compat_init},
 
     // "i2c". deps: [ "core" ]
     {.name = "i2c", .version = "1.0", .init = mgos_i2c_init},
@@ -82,6 +87,9 @@ const struct mgos_lib_info mgos_libs_info[] = {
 
     // "rpc-uart". deps: [ "core" "rpc-common" ]
     {.name = "rpc-uart", .version = "1.0", .init = mgos_rpc_uart_init},
+
+    // "sntp". deps: [ "core" ]
+    {.name = "sntp", .version = "1.0", .init = mgos_sntp_init},
 
     // Last entry.
     {.name = NULL},

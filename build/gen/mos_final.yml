@@ -1,126 +1,139 @@
-name: Harry_power_monitor_mos
+name: VersionJ
 type: app
 version: "1.0"
 platform: esp32
 platforms:
-- cc3200
-- cc3220
 - esp32
 - esp8266
-- rs14100
-- stm32
-- ubuntu
 author: mongoose-os
 description: A Mongoose OS app skeleton
 sources:
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/src/main.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/build/gen/mgos_deps_init.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/freertos/src/mgos_freertos.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/freertos/src/mgos_freertos_core_dump.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/i2c/src/mgos_i2c_master.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/i2c/src/esp32/esp32_i2c_master.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/src/mgos_atca.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/src/mgos_atca_hal.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_cfgs.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_command.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_device.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_execution.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_iface.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_cbc.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_cmac.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_ctr.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_gcm.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_checkmac.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_counter.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_derivekey.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_ecdh.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_gendig.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_genkey.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_hmac.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_info.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_kdf.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_lock.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_mac.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_nonce.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_privwrite.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_random.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_read.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_secureboot.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_selftest.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_sha.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_sign.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_updateextra.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_verify.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_write.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_helpers.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/host/atca_host.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/mbedtls/atca_mbedtls_wrap.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/mgos_vfs.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/mgos_vfs_dev.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/mgos_vfs_internal.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/esp32/esp32_fs.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/esp32/esp32_fs_crypt.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/esp32/esp32_vfs_dev_partition.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/src/mgos_vfs_lfs.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs/lfs.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs/lfs_util.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs1/lfs1.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs1/lfs1_util.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/mgos_vfs_fs_spiffs.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_cache.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_check.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_gc.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_hydrogen.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_nucleus.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/core/src/mgos_core.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/fstab/src/mgos_fstab.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/http-server/src/mgos_http_server.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/src/mg_rpc.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/src/mg_rpc_channel.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/src/mg_rpc_channel_http.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/src/mgos_rpc.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-service-config/src/mgos_service_config.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-service-fs/src/mgos_service_fs.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-uart/src/mgos_rpc_channel_uart.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi/src/mgos_wifi.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi/src/mjs_wifi.c
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi/src/esp32/esp32_wifi.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/src/main.cpp
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/build/gen/mgos_deps_init.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/freertos/src/mgos_freertos.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/freertos/src/mgos_freertos_core_dump.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/i2c/src/mgos_i2c_master.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/i2c/src/esp32/esp32_i2c_master.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/src/mgos_atca.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/src/mgos_atca_hal.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_cfgs.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_command.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_device.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_execution.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_iface.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_cbc.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_cmac.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_ctr.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_gcm.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_checkmac.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_counter.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_derivekey.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_ecdh.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_gendig.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_genkey.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_hmac.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_info.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_kdf.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_lock.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_mac.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_nonce.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_privwrite.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_random.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_read.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_secureboot.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_selftest.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_sha.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_sign.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_updateextra.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_verify.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_write.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_helpers.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/host/atca_host.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/mbedtls/atca_mbedtls_wrap.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/mgos_vfs.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/mgos_vfs_dev.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/mgos_vfs_internal.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/esp32/esp32_fs.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/esp32/esp32_fs_crypt.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/esp32/esp32_vfs_dev_partition.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/src/mgos_vfs_lfs.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs/lfs.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs/lfs_util.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs1/lfs1.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs1/lfs1_util.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/mgos_vfs_fs_spiffs.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_cache.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_check.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_gc.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_hydrogen.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_nucleus.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/core/src/mgos_core.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat/src/Print.cpp
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat/src/WString.cpp
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat/src/mgos_arduino.cpp
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/fstab/src/mgos_fstab.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/http-server/src/mgos_http_server.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/src/mg_rpc.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/src/mg_rpc_channel.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/src/mg_rpc_channel_http.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/src/mgos_rpc.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-service-config/src/mgos_service_config.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-service-fs/src/mgos_service_fs.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-uart/src/mgos_rpc_channel_uart.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/sntp/src/mgos_sntp.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi/src/mgos_wifi.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi/src/mjs_wifi.c
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi/src/esp32/esp32_wifi.c
 includes:
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/freertos/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/freertos/include/esp32
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/i2c/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/crypto
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/hal
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/mbedtls/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/mbedtls/include/esp32
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/mbedtls/mbedtls/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/include/esp32
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/mongoose/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs1
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/include/spiffs
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/include/esp32
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/core/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/core/include/esp32
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/http-server/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-service-config/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-service-fs/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-uart/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi/include
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi/include/esp32
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/freertos/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/freertos/include/esp32
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/i2c/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/crypto
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/hal
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/mbedtls/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/mbedtls/include/esp32
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/mbedtls/mbedtls/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/include/esp32
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/mongoose/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs1
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/include/spiffs
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/include/esp32
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/core/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/core/include/esp32
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat/include/sys
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/http-server/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-service-config/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-service-fs/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-uart/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi/include
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi/include/esp32
 filesystem:
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/ca-bundle/fs/ca.pem
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/ca-bundle/fs/ca.pem
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/1970Day_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/1970Hour_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/1970Month_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/1970Week_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/1970longterm_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/favicon.ico
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/index.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/longterm_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/thisDay_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/thisHour_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/thisMonth_plot.html
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/fs/thisWeek_plot.html
 binary_libs:
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/build/objs/libmbedtls-esp32-2.18.0.a
-- /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/build/objs/libmongoose-esp32-2.18.0.a
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/build/objs/libmbedtls-esp32-2.18.0.a
+- /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/build/objs/libmongoose-esp32-2.18.0.a
 config_schema:
 - - i2c
   - o
@@ -546,6 +559,29 @@ config_schema:
   - s
   - ""
   - title: Destination reachable via this channel
+- - sntp
+  - o
+  - title: SNTP settings
+- - sntp.enable
+  - b
+  - true
+  - title: Enable SNTP
+- - sntp.server
+  - s
+  - time.google.com
+  - title: Server address
+- - sntp.retry_min
+  - i
+  - 1
+  - title: Minimum retry interval
+- - sntp.retry_max
+  - i
+  - 30
+  - title: Maximum retry interval
+- - sntp.update_interval
+  - i
+  - 7200
+  - title: Update interval. If 0, performs a one-off sync
 - - wifi
   - o
   - hide: true
@@ -762,6 +798,8 @@ config_schema:
   - 0
 - - provision.btn.pull_up
   - true
+- - debug.level
+  - 2
 - - fstab.fs0.dev
   - data
 - - fstab.fs0.type
@@ -769,17 +807,29 @@ config_schema:
 - - fstab.fs0.opts
   - '{"bs": 4096}'
 - - fstab.fs0.path
-  - /data
+  - /mnt
 - - fstab.fs0.create
   - true
+- - sntp.retry_min
+  - i
+  - 10
+  - title: Minimum retry interval
+- - sntp.retry_max
+  - i
+  - 30
+  - title: Maximum retry interval
+- - sntp.update_interval
+  - i
+  - 3600
+  - title: Update interval. If 0, performs a one-off sync
 build_vars:
   BOARD: ""
   ESP_IDF_EXTRA_COMPONENTS: ""
-  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K
+  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,256K
   ESP_IDF_SDKCONFIG_OPTS: |2
      CONFIG_SUPPORT_STATIC_ALLOCATION=y
-     CONFIG_FREERTOS_UNICORE=y
   MGOS: "1"
+  MGOS_HAVE_ARDUINO_COMPAT: "1"
   MGOS_HAVE_ATCA: "1"
   MGOS_HAVE_CA_BUNDLE: "1"
   MGOS_HAVE_CORE: "1"
@@ -793,6 +843,7 @@ build_vars:
   MGOS_HAVE_RPC_SERVICE_CONFIG: "1"
   MGOS_HAVE_RPC_SERVICE_FS: "1"
   MGOS_HAVE_RPC_UART: "1"
+  MGOS_HAVE_SNTP: "1"
   MGOS_HAVE_VFS_COMMON: "1"
   MGOS_HAVE_VFS_FS_LFS: "1"
   MGOS_HAVE_VFS_FS_SPIFFS: "1"
@@ -803,7 +854,10 @@ build_vars:
   MGOS_ROOT_FS_OPTS_SPIFFS: '{"bs":4096,"ps":256,"es":4096}'
   MGOS_WIFI_ENABLE_AP_STA: "0"
 cdefs:
+  ARDUINO: "150"
   ATCA_HAL_I2C: "1"
+  ESP32: "1"
+  F_CPU: "160000000"
   LFS_NO_DEBUG: "1"
   MBEDTLS_AES_ATCA: "1"
   MBEDTLS_ECP_ATCA: "1"
@@ -823,6 +877,7 @@ cdefs:
   MGOS_ENABLE_SYS_SERVICE: "1"
   MGOS_ENABLE_WEB_CONFIG: "0"
   MGOS_ESP8266_WIFI_ENABLE_WPAENT: "0"
+  MGOS_HAVE_ARDUINO_COMPAT: "1"
   MGOS_HAVE_ATCA: "1"
   MGOS_HAVE_CA_BUNDLE: "1"
   MGOS_HAVE_CORE: "1"
@@ -836,6 +891,7 @@ cdefs:
   MGOS_HAVE_RPC_SERVICE_CONFIG: "1"
   MGOS_HAVE_RPC_SERVICE_FS: "1"
   MGOS_HAVE_RPC_UART: "1"
+  MGOS_HAVE_SNTP: "1"
   MGOS_HAVE_VFS_COMMON: "1"
   MGOS_HAVE_VFS_FS_LFS: "1"
   MGOS_HAVE_VFS_FS_SPIFFS: "1"
@@ -846,7 +902,7 @@ cdefs:
   MGOS_ROOT_FS_OPTS_SPIFFS: '{"bs":4096,"ps":256,"es":4096}'
   MGOS_WIFI_ENABLE_AP_STA: "1"
 tags:
-- c
+- cpp
 libs_version: 2.18.0
 modules_version: 2.18.0
 mongoose_os_version: 2.18.0
@@ -856,128 +912,128 @@ libs_handled:
     origin: https://github.com/mongoose-os-libs/freertos
     location: https://github.com/mongoose-os-libs/freertos
     name: freertos
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/freertos
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/freertos
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/freertos/src/mgos_freertos.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/freertos/src/mgos_freertos_core_dump.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/freertos/src/mgos_freertos.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/freertos/src/mgos_freertos_core_dump.c
   version: 10.2.0
 - lib:
     origin: https://github.com/mongoose-os-libs/i2c
     location: https://github.com/mongoose-os-libs/i2c
     name: i2c
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/i2c
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/i2c
   init_deps:
   - core
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/i2c/src/mgos_i2c_master.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/i2c/src/esp32/esp32_i2c_master.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/i2c/src/mgos_i2c_master.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/i2c/src/esp32/esp32_i2c_master.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/atca
     location: https://github.com/mongoose-os-libs/atca
     name: atca
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca
   init_deps:
   - i2c
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/src/mgos_atca.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/src/mgos_atca_hal.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_cfgs.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_command.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_device.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_execution.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/atca_iface.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_cbc.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_cmac.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_ctr.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_gcm.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_checkmac.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_counter.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_derivekey.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_ecdh.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_gendig.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_genkey.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_hmac.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_info.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_kdf.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_lock.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_mac.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_nonce.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_privwrite.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_random.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_read.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_secureboot.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_selftest.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_sha.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_sign.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_updateextra.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_verify.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_basic_write.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/basic/atca_helpers.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/host/atca_host.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/atca/cryptoauthlib/lib/mbedtls/atca_mbedtls_wrap.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/src/mgos_atca.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/src/mgos_atca_hal.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_cfgs.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_command.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_device.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_execution.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/atca_iface.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_cbc.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_cmac.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_ctr.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_aes_gcm.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_checkmac.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_counter.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_derivekey.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_ecdh.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_gendig.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_genkey.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_hmac.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_info.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_kdf.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_lock.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_mac.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_nonce.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_privwrite.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_random.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_read.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_secureboot.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_selftest.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_sha.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_sign.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_updateextra.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_verify.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_basic_write.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/basic/atca_helpers.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/host/atca_host.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/atca/cryptoauthlib/lib/mbedtls/atca_mbedtls_wrap.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/mbedtls
     location: https://github.com/mongoose-os-libs/mbedtls
     name: mbedtls
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/mbedtls
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/mbedtls
   version: 2.16.6-cesanta1
 - lib:
     origin: https://github.com/mongoose-os-libs/vfs-common
     location: https://github.com/mongoose-os-libs/vfs-common
     name: vfs-common
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/mgos_vfs.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/mgos_vfs_dev.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/mgos_vfs_internal.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/esp32/esp32_fs.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/esp32/esp32_fs_crypt.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-common/src/esp32/esp32_vfs_dev_partition.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/mgos_vfs.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/mgos_vfs_dev.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/mgos_vfs_internal.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/esp32/esp32_fs.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/esp32/esp32_fs_crypt.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-common/src/esp32/esp32_vfs_dev_partition.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/mongoose
     location: https://github.com/mongoose-os-libs/mongoose
     name: mongoose
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/mongoose
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/mongoose
   version: "6.16"
 - lib:
     origin: https://github.com/mongoose-os-libs/vfs-fs-lfs
     location: https://github.com/mongoose-os-libs/vfs-fs-lfs
     name: vfs-fs-lfs
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs
   init_deps:
   - vfs-common
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/src/mgos_vfs_lfs.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs/lfs.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs/lfs_util.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs1/lfs1.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-lfs/littlefs1/lfs1_util.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/src/mgos_vfs_lfs.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs/lfs.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs/lfs_util.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs1/lfs1.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-lfs/littlefs1/lfs1_util.c
   version: 2.2.0
 - lib:
     origin: https://github.com/mongoose-os-libs/vfs-fs-spiffs
     location: https://github.com/mongoose-os-libs/vfs-fs-spiffs
     name: vfs-fs-spiffs
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs
   init_deps:
   - vfs-common
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/mgos_vfs_fs_spiffs.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_cache.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_check.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_gc.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_hydrogen.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/vfs-fs-spiffs/src/spiffs/spiffs_nucleus.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/mgos_vfs_fs_spiffs.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_cache.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_check.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_gc.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_hydrogen.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/vfs-fs-spiffs/src/spiffs/spiffs_nucleus.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/core
     location: https://github.com/mongoose-os-libs/core
     name: core
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/core
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/core
   init_deps:
   - freertos
   - mongoose
@@ -985,13 +1041,25 @@ libs_handled:
   - vfs-fs-lfs
   - vfs-fs-spiffs
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/core/src/mgos_core.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/core/src/mgos_core.c
+  version: "1.0"
+- lib:
+    origin: https://github.com/mongoose-os-libs/arduino-compat
+    location: https://github.com/mongoose-os-libs/arduino-compat
+    name: arduino-compat
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat
+  init_deps:
+  - core
+  sources:
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat/src/Print.cpp
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat/src/WString.cpp
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/arduino-compat/src/mgos_arduino.cpp
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/ca-bundle
     location: https://github.com/mongoose-os-libs/ca-bundle
     name: ca-bundle
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/ca-bundle
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/ca-bundle
   init_deps:
   - core
   version: "1.0"
@@ -999,7 +1067,7 @@ libs_handled:
     origin: https://github.com/mongoose-os-libs/fstab
     location: https://github.com/mongoose-os-libs/fstab
     name: fstab
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/fstab
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/fstab
   init_deps:
   - core
   - i2c
@@ -1007,85 +1075,95 @@ libs_handled:
   - vfs-fs-lfs
   - vfs-fs-spiffs
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/fstab/src/mgos_fstab.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/fstab/src/mgos_fstab.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/http-server
     location: https://github.com/mongoose-os-libs/http-server
     name: http-server
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/http-server
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/http-server
   init_deps:
   - atca
   - core
   - wifi
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/http-server/src/mgos_http_server.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/http-server/src/mgos_http_server.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/rpc-common
     location: https://github.com/mongoose-os-libs/rpc-common
     name: rpc-common
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common
   init_deps:
   - core
   - http-server
   - mongoose
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/src/mg_rpc.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/src/mg_rpc_channel.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/src/mg_rpc_channel_http.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-common/src/mgos_rpc.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/src/mg_rpc.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/src/mg_rpc_channel.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/src/mg_rpc_channel_http.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-common/src/mgos_rpc.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/rpc-service-config
     location: https://github.com/mongoose-os-libs/rpc-service-config
     name: rpc-service-config
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-service-config
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-service-config
   init_deps:
   - core
   - rpc-common
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-service-config/src/mgos_service_config.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-service-config/src/mgos_service_config.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/rpc-service-fs
     location: https://github.com/mongoose-os-libs/rpc-service-fs
     name: rpc-service-fs
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-service-fs
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-service-fs
   init_deps:
   - core
   - rpc-common
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-service-fs/src/mgos_service_fs.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-service-fs/src/mgos_service_fs.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/rpc-uart
     location: https://github.com/mongoose-os-libs/rpc-uart
     name: rpc-uart
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-uart
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-uart
   init_deps:
   - core
   - rpc-common
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/rpc-uart/src/mgos_rpc_channel_uart.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/rpc-uart/src/mgos_rpc_channel_uart.c
+  version: "1.0"
+- lib:
+    origin: https://github.com/mongoose-os-libs/sntp
+    location: https://github.com/mongoose-os-libs/sntp
+    name: sntp
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/sntp
+  init_deps:
+  - core
+  sources:
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/sntp/src/mgos_sntp.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/wifi
     location: https://github.com/mongoose-os-libs/wifi
     name: wifi
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi
   init_deps:
   - core
   sources:
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi/src/mgos_wifi.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi/src/mjs_wifi.c
-  - /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/wifi/src/esp32/esp32_wifi.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi/src/mgos_wifi.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi/src/mjs_wifi.c
+  - /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/wifi/src/esp32/esp32_wifi.c
   version: "1.0"
 - lib:
     origin: https://github.com/mongoose-os-libs/boards
     location: https://github.com/mongoose-os-libs/boards
     name: zz_boards
-  path: /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/deps/boards
+  path: /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/deps/boards
 init_deps:
 - freertos
 - mongoose
@@ -1093,6 +1171,7 @@ init_deps:
 - vfs-fs-lfs
 - vfs-fs-spiffs
 - core
+- arduino-compat
 - i2c
 - atca
 - ca-bundle
@@ -1104,4 +1183,5 @@ init_deps:
 - rpc-service-config
 - rpc-service-fs
 - rpc-uart
+- sntp
 - zz_boards

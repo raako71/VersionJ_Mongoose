@@ -1,6 +1,6 @@
 {
   "arch": "esp32",
   "platform": "esp32",
-  "app_name": "Harry_power_monitor_mos",
-  "build_time_ms": 50584
+  "app_name": "VersionJ",
+  "build_time_ms": 54464
 }

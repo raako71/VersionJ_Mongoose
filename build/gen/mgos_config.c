@@ -1,7 +1,7 @@
 /* clang-format off */
 /*
  * Generated file - do not edit.
- * Command: /mongoose-os/tools/mgos_gen_config.py --c_name=mgos_config --c_global_name=mgos_sys_config --dest_dir=/data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/build/gen/ /mongoose-os/src/mgos_debug_udp_config.yaml /mongoose-os/platforms/esp32/src/esp32_sys_config.yaml /data/fwbuild-volumes/2.18.0/apps/Harry_power_monitor_mos/esp32/build_contexts/build_ctx_763148874/build/gen/mos_conf_schema.yml
+ * Command: /mongoose-os/tools/mgos_gen_config.py --c_name=mgos_config --c_global_name=mgos_sys_config --dest_dir=/data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/build/gen/ /mongoose-os/src/mgos_debug_udp_config.yaml /mongoose-os/platforms/esp32/src/esp32_sys_config.yaml /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_538420700/build/gen/mos_conf_schema.yml
  */
 
 #include "mgos_config.h"
@@ -10,8 +10,8 @@
 
 #include "mgos_config_util.h"
 
-const struct mgos_conf_entry mgos_config_schema_[211] = {
-  {.type = CONF_TYPE_OBJECT, .key = "", .offset = 0, .num_desc = 210},
+const struct mgos_conf_entry mgos_config_schema_[217] = {
+  {.type = CONF_TYPE_OBJECT, .key = "", .offset = 0, .num_desc = 216},
   {.type = CONF_TYPE_OBJECT, .key = "debug", .offset = offsetof(struct mgos_config, debug), .num_desc = 10},
   {.type = CONF_TYPE_STRING, .key = "udp_log_addr", .offset = offsetof(struct mgos_config, debug.udp_log_addr)},
   {.type = CONF_TYPE_INT, .key = "udp_log_level", .offset = offsetof(struct mgos_config, debug.udp_log_level)},
@@ -132,6 +132,12 @@ const struct mgos_conf_entry mgos_config_schema_[211] = {
   {.type = CONF_TYPE_INT, .key = "baud_rate", .offset = offsetof(struct mgos_config, rpc.uart.baud_rate)},
   {.type = CONF_TYPE_INT, .key = "fc_type", .offset = offsetof(struct mgos_config, rpc.uart.fc_type)},
   {.type = CONF_TYPE_STRING, .key = "dst", .offset = offsetof(struct mgos_config, rpc.uart.dst)},
+  {.type = CONF_TYPE_OBJECT, .key = "sntp", .offset = offsetof(struct mgos_config, sntp), .num_desc = 5},
+  {.type = CONF_TYPE_BOOL, .key = "enable", .offset = offsetof(struct mgos_config, sntp.enable)},
+  {.type = CONF_TYPE_STRING, .key = "server", .offset = offsetof(struct mgos_config, sntp.server)},
+  {.type = CONF_TYPE_INT, .key = "retry_min", .offset = offsetof(struct mgos_config, sntp.retry_min)},
+  {.type = CONF_TYPE_INT, .key = "retry_max", .offset = offsetof(struct mgos_config, sntp.retry_max)},
+  {.type = CONF_TYPE_INT, .key = "update_interval", .offset = offsetof(struct mgos_config, sntp.update_interval)},
   {.type = CONF_TYPE_OBJECT, .key = "wifi", .offset = offsetof(struct mgos_config, wifi), .num_desc = 70},
   {.type = CONF_TYPE_OBJECT, .key = "ap", .offset = offsetof(struct mgos_config, wifi.ap), .num_desc = 17},
   {.type = CONF_TYPE_BOOL, .key = "enable", .offset = offsetof(struct mgos_config, wifi.ap.enable)},
@@ -289,7 +295,7 @@ const struct mgos_config mgos_config_defaults = {
   .fstab.fs0.dev = "data",
   .fstab.fs0.type = "LFS",
   .fstab.fs0.opts = "{\"bs\": 4096}",
-  .fstab.fs0.path = "/data",
+  .fstab.fs0.path = "/mnt",
   .fstab.fs0.create = 1,
   .fstab.fs0.optional = 0,
   .fstab.fs0.created = 0,
@@ -331,6 +337,11 @@ const struct mgos_config mgos_config_defaults = {
   .rpc.uart.baud_rate = 115200,
   .rpc.uart.fc_type = 2,
   .rpc.uart.dst = NULL,
+  .sntp.enable = 1,
+  .sntp.server = "time.google.com",
+  .sntp.retry_min = 10,
+  .sntp.retry_max = 30,
+  .sntp.update_interval = 3600,
   .wifi.ap.enable = 1,
   .wifi.ap.ssid = "Mongoose_??????",
   .wifi.ap.pass = "Mongoose",
@@ -1777,6 +1788,75 @@ const char * mgos_config_get_rpc_uart_dst(struct mgos_config *cfg) {
 }
 void mgos_config_set_rpc_uart_dst(struct mgos_config *cfg, const char * v) {
   mgos_conf_set_str(&cfg->rpc.uart.dst, v);
+}
+
+/* sntp */
+#define MGOS_CONFIG_HAVE_SNTP
+#define MGOS_SYS_CONFIG_HAVE_SNTP
+const struct mgos_config_sntp * mgos_config_get_sntp(struct mgos_config *cfg) {
+  return &cfg->sntp;
+}
+const struct mgos_conf_entry *mgos_config_schema_sntp(void) {
+  return mgos_conf_find_schema_entry("sntp", mgos_config_schema());
+}
+bool mgos_config_parse_sntp(struct mg_str json, struct mgos_config_sntp *cfg) {
+  return mgos_conf_parse_sub(json, mgos_config_schema(), cfg);
+}
+bool mgos_config_copy_sntp(const struct mgos_config_sntp *src, struct mgos_config_sntp *dst) {
+  return mgos_conf_copy(mgos_config_schema_sntp(), src, dst);
+}
+void mgos_config_free_sntp(struct mgos_config_sntp *cfg) {
+  return mgos_conf_free(mgos_config_schema_sntp(), cfg);
+}
+
+/* sntp.enable */
+#define MGOS_CONFIG_HAVE_SNTP_ENABLE
+#define MGOS_SYS_CONFIG_HAVE_SNTP_ENABLE
+int mgos_config_get_sntp_enable(struct mgos_config *cfg) {
+  return cfg->sntp.enable;
+}
+void mgos_config_set_sntp_enable(struct mgos_config *cfg, int v) {
+  cfg->sntp.enable = v;
+}
+
+/* sntp.server */
+#define MGOS_CONFIG_HAVE_SNTP_SERVER
+#define MGOS_SYS_CONFIG_HAVE_SNTP_SERVER
+const char * mgos_config_get_sntp_server(struct mgos_config *cfg) {
+  return cfg->sntp.server;
+}
+void mgos_config_set_sntp_server(struct mgos_config *cfg, const char * v) {
+  mgos_conf_set_str(&cfg->sntp.server, v);
+}
+
+/* sntp.retry_min */
+#define MGOS_CONFIG_HAVE_SNTP_RETRY_MIN
+#define MGOS_SYS_CONFIG_HAVE_SNTP_RETRY_MIN
+int mgos_config_get_sntp_retry_min(struct mgos_config *cfg) {
+  return cfg->sntp.retry_min;
+}
+void mgos_config_set_sntp_retry_min(struct mgos_config *cfg, int v) {
+  cfg->sntp.retry_min = v;
+}
+
+/* sntp.retry_max */
+#define MGOS_CONFIG_HAVE_SNTP_RETRY_MAX
+#define MGOS_SYS_CONFIG_HAVE_SNTP_RETRY_MAX
+int mgos_config_get_sntp_retry_max(struct mgos_config *cfg) {
+  return cfg->sntp.retry_max;
+}
+void mgos_config_set_sntp_retry_max(struct mgos_config *cfg, int v) {
+  cfg->sntp.retry_max = v;
+}
+
+/* sntp.update_interval */
+#define MGOS_CONFIG_HAVE_SNTP_UPDATE_INTERVAL
+#define MGOS_SYS_CONFIG_HAVE_SNTP_UPDATE_INTERVAL
+int mgos_config_get_sntp_update_interval(struct mgos_config *cfg) {
+  return cfg->sntp.update_interval;
+}
+void mgos_config_set_sntp_update_interval(struct mgos_config *cfg, int v) {
+  cfg->sntp.update_interval = v;
 }
 
 /* wifi */
