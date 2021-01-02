@@ -6,3 +6,15 @@ GUIDE
 3. you must put file in data folder to mnt foler (in device) with this command: "mos put data/webstyle.css mnt/webstyle.css", do that to all files
 4. restart the device.
 5. good to go
+
+Files:
+mos put data/webstyle.css mnt/webstyle.css
+mos put data/chart.js@2.8.0.js mnt/chart.js@2.8.0.js
+mos put data/chart_init.js mnt/chart_init.js
+mos put data/d3-dsv.v1.min.js mnt/d3-dsv.v1.min.js
+mos put data/d3-fetch.v1.min.js mnt/d3-fetch.v1.min.js
+mos put data/setting.json mnt/setting.json
+
+WiFi:
+mos wifi WIFI_NETWORK_NAME WIFI_PASSWORD
+mos wifi DODO-A609 C7LWMPVNCP
