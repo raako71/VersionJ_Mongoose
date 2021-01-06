@@ -15,3 +15,5 @@ mos put data/d3-fetch.v1.min.js mnt/d3-fetch.v1.min.js
 WiFi:
 mos wifi WIFI_NETWORK_NAME WIFI_PASSWORD
 mos wifi DODO-A609 C7LWMPVNCP
+ethernet:
+mos config-set eth.enable=true
