@@ -12,8 +12,8 @@ mos put data/chart.js@2.8.0.js mnt/chart.js@2.8.0.js
 mos put data/d3-dsv.v1.min.js mnt/d3-dsv.v1.min.js
 mos put data/d3-fetch.v1.min.js mnt/d3-fetch.v1.min.js
 
-WiFi:
+1. WiFi:
 mos wifi WIFI_NETWORK_NAME WIFI_PASSWORD
 mos wifi DODO-A609 C7LWMPVNCP
-ethernet:
+2. ethernet:
 mos config-set eth.enable=true
