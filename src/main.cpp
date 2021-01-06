@@ -19,7 +19,9 @@
 #include "mgos_rpc.h"
 #include "mgos_wifi.h"
 #include "mgos_http_server.h"
+#include "mgos_dns_sd.h"
 #include "WString.h"
+#include "ACS71020.h"
 
 #define LED_PIN 2
 //longtermdata trimmer variable
@@ -117,8 +119,6 @@ static void logging_cb(void *arg){
 	NTPflag_z = NTPflag;
 }
 
-// don't forget to state the ssid and pass
-//const struct mgos_config_wifi_sta cfg = {.enable = true, .ssid = "Aguan", .pass = "25051969"};
 
 enum mgos_app_init_result mgos_app_init(void) {
 #ifdef LED_PIN
@@ -128,14 +128,12 @@ enum mgos_app_init_result mgos_app_init(void) {
 	header_column_logging(logColumn);
   	oldcheck_onboot();
   	
-	if(exists("mnt/setting.json")){
+	if(exists("setting.json")){
 		LOG(LL_INFO, ("json checking"));
 		checkJSONsetting();
   	}	
   mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
-  //wifi configuration
-  //mgos_wifi_setup_sta(&cfg);
   
   	//RPC handler function
 	mg_rpc_add_handler(mgos_rpc_get_global(), "setting"
@@ -144,10 +142,10 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
-
-	
+	 mgos_dns_sd_advertise();
   	return MGOS_APP_INIT_SUCCESS;
 }
+
 void appendFile(const char* path, const char* message){ //append message to a file (tested)
 	FILE * file = fopen(path, "a");
 	fprintf(file, "%s", message);
@@ -789,7 +787,7 @@ static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg, struc
   if (json_scanf(args.p, args.len, ri->args_fmt, &colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday) == 15) {
     mg_rpc_send_responsef(ri, "OK");
 	LOG(LL_WARN, ("setting json file received"));
-	json_fprintf("/data/setting.json", "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}", colen[0], colen[1], colen[2], colen[3], colen[4], colen[5], colen[6], colen[7], colen[8], colen[9], colen[10], colen[11], colen[12], rc_1970day, rc_thisday);
+	json_fprintf("setting.json", "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}", colen[0], colen[1], colen[2], colen[3], colen[4], colen[5], colen[6], colen[7], colen[8], colen[9], colen[10], colen[11], colen[12], rc_1970day, rc_thisday);
   } else {
     mg_rpc_send_errorf(ri, -1, "Bad request");
   }
@@ -804,7 +802,7 @@ static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_f
 	(void) fi;
 }
 void checkJSONsetting(){
-	char* buff = json_fread("mnt/setting.json");
+	char* buff = json_fread("setting.json");
 	json_scanf(buff, strlen(buff), "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
 	,&colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday);
 }

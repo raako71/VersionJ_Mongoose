@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="mnt/chart.js@2.8.0.js"></script>
-<script type="text/javascript" src="mnt/d3-dsv.v1.min.js"></script>
-<script type="text/javascript" src="mnt/d3-fetch.v1.min.js"></script>
-<link rel="stylesheet" type="text/css" href="mnt/webstyle.css">	
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script type="text/javascript" src="https://d3js.org/d3-dsv.v1.min.js"></script>
+<script type="text/javascript" src="https://d3js.org/d3-fetch.v1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/webstyle.css">	
 <title>esp32 | this hour</title>
+
 </head>
 <body>
 <div class="btn-group">
@@ -88,8 +89,13 @@
 		<p></p></div>
 </div>
 </body>
+<?php
+	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+	header("Cache-Control: post-check=0, pre-check=0", false);
+	header("Pragma: no-cache");
+?>
 <script>
 var doc = '/thisHour.csv';
 </script>
-<script src="mnt/chart_init.js" defer></script>
+<script src="/chart_init.js?n=1234"></script>
 </html>
