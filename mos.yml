@@ -20,14 +20,15 @@ filesystem:
  ## 
 config_schema:
   - ["debug.level", 2]
-  - ["fstab.fs0.dev", "data"]
-  - ["fstab.fs0.type", "LFS"]
-  - ["fstab.fs0.opts", '{"bs": 4096}']
-  - ["fstab.fs0.path", "/mnt"]
-  - ["fstab.fs0.create", true]
+ ## - ["fstab.fs0.dev", "data"]
+ ## - ["fstab.fs0.type", "LFS"]
+ ## - ["fstab.fs0.opts", '{"bs": 4096}']
+ ## - ["fstab.fs0.path", "/mnt"]
+ ## - ["fstab.fs0.create", true]
   - ["sntp.retry_min", "i", 10, {title: "Minimum retry interval"}]
   - ["sntp.retry_max", "i", 30, {title: "Maximum retry interval"}]
   - ["sntp.update_interval", "i", 3600, {title: "Update interval. If 0, performs a one-off sync"}]
+  - ["dns_sd.host_name", "esp32-mos"]
 
 libs:
   - origin: https://github.com/mongoose-os-libs/boards
@@ -35,16 +36,15 @@ libs:
   - origin: https://github.com/mongoose-os-libs/rpc-service-config
   - origin: https://github.com/mongoose-os-libs/rpc-service-fs
   - origin: https://github.com/mongoose-os-libs/rpc-uart
-  - origin: https://github.com/mongoose-os-libs/wifi
   - origin: https://github.com/mongoose-os-libs/http-server
   - origin: https://github.com/mongoose-os-libs/fstab
   - origin: https://github.com/mongoose-os-libs/vfs-fs-lfs
   - origin: https://github.com/mongoose-os-libs/arduino-compat
   - origin: https://github.com/mongoose-os-libs/sntp
+  - origin: https://github.com/mongoose-os-libs/dns-sd
+  - origin: https://github.com/mongoose-os-libs/arduino-wire
+  https://github.com/mongoose-os-libs/ethernet
+  
 
-  
-build_vars:
-  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,256K
-  
 # Used by the mos tool to catch mos binaries incompatible with this file format
 manifest_version: 2017-09-29
