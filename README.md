@@ -17,3 +17,6 @@ mos wifi WIFI_NETWORK_NAME WIFI_PASSWORD
 mos wifi DODO-A609 C7LWMPVNCP
 2. ethernet:
 mos config-set eth.enable=true
+
+DNS server
+1. change host name in mos.yml file line 32
