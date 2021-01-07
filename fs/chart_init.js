@@ -226,12 +226,14 @@ chart.update();
 }
 function check_global_setting(){
 var col_bool;
-fetch('setting.json')
-.then(function (response){ return response.json();})
-.then(function(data){
-// Work with JSON data here
-//console.log(data);
-col_bool = data;
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "/rpc/FS.Get", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+var comm = {"filename": "setting.json"};
+xhr.send(JSON.stringify(comm));
+xhr.onload = function() {
+var data = JSON.parse(this.responseText);
+col_bool = JSON.parse(window.atob(data.data));
 if(doc == "/thisHour.csv" || doc == "/1970Hour.csv"){
 document.getElementById("col1_checkbox").checked = col_bool.col1_en;
 document.getElementById("col2_checkbox").checked = col_bool.col2_en;
@@ -250,15 +252,19 @@ document.getElementById("col13_checkbox").checked = col_bool.col13_en;
 	document.getElementById("rec_online_checkbox").checked = col_bool.rc_thisday;	
 }else if (doc == "/1970Day.csv"){
 	document.getElementById("rec_online_checkbox").checked = col_bool.rc_1970day;	
-}
-});
+}}
 }
 function checkcol_func(){
 var old_json;
-fetch('setting.json')
-.then(function (response){ return response.json();})
-.then(function(data){
-old_json = data;
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "/rpc/FS.Get", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+var comm = {"filename": "setting.json"};
+xhr.send(JSON.stringify(comm));
+xhr.onload = function() {
+var data = JSON.parse(this.responseText);
+old_json = JSON.parse(window.atob(data.data));
+if(doc == "/thisHour.csv" || doc == "/1970Hour.csv"){
 old_json.col1_en = document.getElementById("col1_checkbox").checked;		
 old_json.col2_en = document.getElementById("col2_checkbox").checked;			
 old_json.col3_en = document.getElementById("col3_checkbox").checked;	
@@ -272,15 +278,29 @@ old_json.col10_en = document.getElementById("col10_checkbox").checked;
 old_json.col11_en = document.getElementById("col11_checkbox").checked;
 old_json.col12_en = document.getElementById("col12_checkbox").checked;
 old_json.col13_en = document.getElementById("col13_checkbox").checked;
+}else if(doc == "/thisDay.csv"){
+	old_json.rc_thisday = document.getElementById("rec_online_checkbox").checked;	
+}else if (doc == "/1970Day.csv"){
+	old_json.rc_1970day = document.getElementById("rec_online_checkbox").checked;
+}
 var string = JSON.stringify(old_json);
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "/rpc/setting", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-xhr.send(string);
-});
+var xhttp = new XMLHttpRequest();
+xhttp.open("POST", "/rpc/setting", true);
+xhttp.setRequestHeader('Content-Type', 'application/json');
+xhttp.send(string);
+}
 }
 function update_graph(){
-d3.dsv(";", doc).then(function(mewmew){
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "/rpc/FS.Get", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+var comm = {"filename": doc};
+xhr.send(JSON.stringify(comm));
+xhr.onload = function(){
+var data = JSON.parse(this.responseText);
+var csv_str = window.atob(data.data);
+var psv = d3.dsvFormat(";");
+var mewmew =psv.parse(csv_str);
 var base = mewmew.map(function(e){
 return e.epoch;
 });
@@ -466,7 +486,7 @@ col13.forEach(col13_conv);
 addData(chart_one, converted_epoch, mul50_result, mul60_result, col3_conv_ret,col4_conv_ret,col5_conv_ret);
 addData(chart_two, converted_epoch, col6_conv_ret, col7_conv_ret, col8_conv_ret, col9_conv_ret, '-');
 addData(chart_three, converted_epoch, col10_conv_ret, col11_conv_ret, col12_conv_ret, col13_conv_ret, '-');
-})
+}
 }
 function update_time(){
 var xhr = new XMLHttpRequest();
