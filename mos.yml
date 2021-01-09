@@ -46,7 +46,8 @@ libs:
   - origin: https://github.com/mongoose-os-libs/arduino-wire
   - origin: https://github.com/mongoose-os-libs/ethernet
 
-  
+build_vars:
+  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,256K
 
 # Used by the mos tool to catch mos binaries incompatible with this file format
 manifest_version: 2017-09-29
