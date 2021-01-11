@@ -1,7 +1,7 @@
 /* clang-format off */
 /*
  * Generated file - do not edit.
- * Command: /mongoose-os/tools/mgos_gen_config.py --c_name=mgos_config --c_global_name=mgos_sys_config --dest_dir=/data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_678410810/build/gen/ /mongoose-os/src/mgos_debug_udp_config.yaml /mongoose-os/platforms/esp32/src/esp32_sys_config.yaml /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_678410810/build/gen/mos_conf_schema.yml
+ * Command: /mongoose-os/tools/mgos_gen_config.py --c_name=mgos_config --c_global_name=mgos_sys_config --dest_dir=/data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_219148698/build/gen/ /mongoose-os/src/mgos_debug_udp_config.yaml /mongoose-os/platforms/esp32/src/esp32_sys_config.yaml /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_219148698/build/gen/mos_conf_schema.yml
  */
 
 #include "mgos_config.h"
@@ -10,8 +10,8 @@
 
 #include "mgos_config_util.h"
 
-const struct mgos_conf_entry mgos_config_schema_[217] = {
-  {.type = CONF_TYPE_OBJECT, .key = "", .offset = 0, .num_desc = 216},
+const struct mgos_conf_entry mgos_config_schema_[233] = {
+  {.type = CONF_TYPE_OBJECT, .key = "", .offset = 0, .num_desc = 232},
   {.type = CONF_TYPE_OBJECT, .key = "debug", .offset = offsetof(struct mgos_config, debug), .num_desc = 10},
   {.type = CONF_TYPE_STRING, .key = "udp_log_addr", .offset = offsetof(struct mgos_config, debug.udp_log_addr)},
   {.type = CONF_TYPE_INT, .key = "udp_log_level", .offset = offsetof(struct mgos_config, debug.udp_log_level)},
@@ -59,6 +59,22 @@ const struct mgos_conf_entry mgos_config_schema_[217] = {
   {.type = CONF_TYPE_STRING, .key = "public_key", .offset = offsetof(struct mgos_config, device.public_key)},
   {.type = CONF_TYPE_STRING, .key = "sn", .offset = offsetof(struct mgos_config, device.sn)},
   {.type = CONF_TYPE_STRING, .key = "conf_acl", .offset = offsetof(struct mgos_config, conf_acl)},
+  {.type = CONF_TYPE_OBJECT, .key = "dns_sd", .offset = offsetof(struct mgos_config, dns_sd), .num_desc = 5},
+  {.type = CONF_TYPE_BOOL, .key = "enable", .offset = offsetof(struct mgos_config, dns_sd.enable)},
+  {.type = CONF_TYPE_BOOL, .key = "adv_only", .offset = offsetof(struct mgos_config, dns_sd.adv_only)},
+  {.type = CONF_TYPE_STRING, .key = "host_name", .offset = offsetof(struct mgos_config, dns_sd.host_name)},
+  {.type = CONF_TYPE_STRING, .key = "txt", .offset = offsetof(struct mgos_config, dns_sd.txt)},
+  {.type = CONF_TYPE_INT, .key = "ttl", .offset = offsetof(struct mgos_config, dns_sd.ttl)},
+  {.type = CONF_TYPE_OBJECT, .key = "eth", .offset = offsetof(struct mgos_config, eth), .num_desc = 9},
+  {.type = CONF_TYPE_BOOL, .key = "enable", .offset = offsetof(struct mgos_config, eth.enable)},
+  {.type = CONF_TYPE_INT, .key = "phy_addr", .offset = offsetof(struct mgos_config, eth.phy_addr)},
+  {.type = CONF_TYPE_STRING, .key = "ip", .offset = offsetof(struct mgos_config, eth.ip)},
+  {.type = CONF_TYPE_STRING, .key = "netmask", .offset = offsetof(struct mgos_config, eth.netmask)},
+  {.type = CONF_TYPE_STRING, .key = "gw", .offset = offsetof(struct mgos_config, eth.gw)},
+  {.type = CONF_TYPE_INT, .key = "clk_mode", .offset = offsetof(struct mgos_config, eth.clk_mode)},
+  {.type = CONF_TYPE_INT, .key = "mdc_gpio", .offset = offsetof(struct mgos_config, eth.mdc_gpio)},
+  {.type = CONF_TYPE_INT, .key = "mdio_gpio", .offset = offsetof(struct mgos_config, eth.mdio_gpio)},
+  {.type = CONF_TYPE_INT, .key = "phy_pwr_gpio", .offset = offsetof(struct mgos_config, eth.phy_pwr_gpio)},
   {.type = CONF_TYPE_OBJECT, .key = "devtab", .offset = offsetof(struct mgos_config, devtab), .num_desc = 20},
   {.type = CONF_TYPE_OBJECT, .key = "dev0", .offset = offsetof(struct mgos_config, devtab.dev0), .num_desc = 3},
   {.type = CONF_TYPE_STRING, .key = "name", .offset = offsetof(struct mgos_config, devtab.dev0.name)},
@@ -240,7 +256,7 @@ const struct mgos_config mgos_config_defaults = {
   .debug.udp_log_addr = NULL,
   .debug.udp_log_level = 3,
   .debug.mbedtls_level = 1,
-  .debug.level = 2,
+  .debug.level = 1,
   .debug.file_level = NULL,
   .debug.event_level = 2,
   .debug.stdout_uart = 0,
@@ -277,6 +293,20 @@ const struct mgos_config mgos_config_defaults = {
   .device.public_key = NULL,
   .device.sn = NULL,
   .conf_acl = "*",
+  .dns_sd.enable = 1,
+  .dns_sd.adv_only = 0,
+  .dns_sd.host_name = "esp32-mos",
+  .dns_sd.txt = NULL,
+  .dns_sd.ttl = 120,
+  .eth.enable = 0,
+  .eth.phy_addr = 0,
+  .eth.ip = NULL,
+  .eth.netmask = NULL,
+  .eth.gw = NULL,
+  .eth.clk_mode = 3,
+  .eth.mdc_gpio = 23,
+  .eth.mdio_gpio = 18,
+  .eth.phy_pwr_gpio = 5,
   .devtab.dev0.name = NULL,
   .devtab.dev0.type = NULL,
   .devtab.dev0.opts = NULL,
@@ -941,6 +971,184 @@ const char * mgos_config_get_conf_acl(struct mgos_config *cfg) {
 }
 void mgos_config_set_conf_acl(struct mgos_config *cfg, const char * v) {
   mgos_conf_set_str(&cfg->conf_acl, v);
+}
+
+/* dns_sd */
+#define MGOS_CONFIG_HAVE_DNS_SD
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD
+const struct mgos_config_dns_sd * mgos_config_get_dns_sd(struct mgos_config *cfg) {
+  return &cfg->dns_sd;
+}
+const struct mgos_conf_entry *mgos_config_schema_dns_sd(void) {
+  return mgos_conf_find_schema_entry("dns_sd", mgos_config_schema());
+}
+bool mgos_config_parse_dns_sd(struct mg_str json, struct mgos_config_dns_sd *cfg) {
+  return mgos_conf_parse_sub(json, mgos_config_schema(), cfg);
+}
+bool mgos_config_copy_dns_sd(const struct mgos_config_dns_sd *src, struct mgos_config_dns_sd *dst) {
+  return mgos_conf_copy(mgos_config_schema_dns_sd(), src, dst);
+}
+void mgos_config_free_dns_sd(struct mgos_config_dns_sd *cfg) {
+  return mgos_conf_free(mgos_config_schema_dns_sd(), cfg);
+}
+
+/* dns_sd.enable */
+#define MGOS_CONFIG_HAVE_DNS_SD_ENABLE
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_ENABLE
+int mgos_config_get_dns_sd_enable(struct mgos_config *cfg) {
+  return cfg->dns_sd.enable;
+}
+void mgos_config_set_dns_sd_enable(struct mgos_config *cfg, int v) {
+  cfg->dns_sd.enable = v;
+}
+
+/* dns_sd.adv_only */
+#define MGOS_CONFIG_HAVE_DNS_SD_ADV_ONLY
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_ADV_ONLY
+int mgos_config_get_dns_sd_adv_only(struct mgos_config *cfg) {
+  return cfg->dns_sd.adv_only;
+}
+void mgos_config_set_dns_sd_adv_only(struct mgos_config *cfg, int v) {
+  cfg->dns_sd.adv_only = v;
+}
+
+/* dns_sd.host_name */
+#define MGOS_CONFIG_HAVE_DNS_SD_HOST_NAME
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_HOST_NAME
+const char * mgos_config_get_dns_sd_host_name(struct mgos_config *cfg) {
+  return cfg->dns_sd.host_name;
+}
+void mgos_config_set_dns_sd_host_name(struct mgos_config *cfg, const char * v) {
+  mgos_conf_set_str(&cfg->dns_sd.host_name, v);
+}
+
+/* dns_sd.txt */
+#define MGOS_CONFIG_HAVE_DNS_SD_TXT
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_TXT
+const char * mgos_config_get_dns_sd_txt(struct mgos_config *cfg) {
+  return cfg->dns_sd.txt;
+}
+void mgos_config_set_dns_sd_txt(struct mgos_config *cfg, const char * v) {
+  mgos_conf_set_str(&cfg->dns_sd.txt, v);
+}
+
+/* dns_sd.ttl */
+#define MGOS_CONFIG_HAVE_DNS_SD_TTL
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_TTL
+int mgos_config_get_dns_sd_ttl(struct mgos_config *cfg) {
+  return cfg->dns_sd.ttl;
+}
+void mgos_config_set_dns_sd_ttl(struct mgos_config *cfg, int v) {
+  cfg->dns_sd.ttl = v;
+}
+
+/* eth */
+#define MGOS_CONFIG_HAVE_ETH
+#define MGOS_SYS_CONFIG_HAVE_ETH
+const struct mgos_config_eth * mgos_config_get_eth(struct mgos_config *cfg) {
+  return &cfg->eth;
+}
+const struct mgos_conf_entry *mgos_config_schema_eth(void) {
+  return mgos_conf_find_schema_entry("eth", mgos_config_schema());
+}
+bool mgos_config_parse_eth(struct mg_str json, struct mgos_config_eth *cfg) {
+  return mgos_conf_parse_sub(json, mgos_config_schema(), cfg);
+}
+bool mgos_config_copy_eth(const struct mgos_config_eth *src, struct mgos_config_eth *dst) {
+  return mgos_conf_copy(mgos_config_schema_eth(), src, dst);
+}
+void mgos_config_free_eth(struct mgos_config_eth *cfg) {
+  return mgos_conf_free(mgos_config_schema_eth(), cfg);
+}
+
+/* eth.enable */
+#define MGOS_CONFIG_HAVE_ETH_ENABLE
+#define MGOS_SYS_CONFIG_HAVE_ETH_ENABLE
+int mgos_config_get_eth_enable(struct mgos_config *cfg) {
+  return cfg->eth.enable;
+}
+void mgos_config_set_eth_enable(struct mgos_config *cfg, int v) {
+  cfg->eth.enable = v;
+}
+
+/* eth.phy_addr */
+#define MGOS_CONFIG_HAVE_ETH_PHY_ADDR
+#define MGOS_SYS_CONFIG_HAVE_ETH_PHY_ADDR
+int mgos_config_get_eth_phy_addr(struct mgos_config *cfg) {
+  return cfg->eth.phy_addr;
+}
+void mgos_config_set_eth_phy_addr(struct mgos_config *cfg, int v) {
+  cfg->eth.phy_addr = v;
+}
+
+/* eth.ip */
+#define MGOS_CONFIG_HAVE_ETH_IP
+#define MGOS_SYS_CONFIG_HAVE_ETH_IP
+const char * mgos_config_get_eth_ip(struct mgos_config *cfg) {
+  return cfg->eth.ip;
+}
+void mgos_config_set_eth_ip(struct mgos_config *cfg, const char * v) {
+  mgos_conf_set_str(&cfg->eth.ip, v);
+}
+
+/* eth.netmask */
+#define MGOS_CONFIG_HAVE_ETH_NETMASK
+#define MGOS_SYS_CONFIG_HAVE_ETH_NETMASK
+const char * mgos_config_get_eth_netmask(struct mgos_config *cfg) {
+  return cfg->eth.netmask;
+}
+void mgos_config_set_eth_netmask(struct mgos_config *cfg, const char * v) {
+  mgos_conf_set_str(&cfg->eth.netmask, v);
+}
+
+/* eth.gw */
+#define MGOS_CONFIG_HAVE_ETH_GW
+#define MGOS_SYS_CONFIG_HAVE_ETH_GW
+const char * mgos_config_get_eth_gw(struct mgos_config *cfg) {
+  return cfg->eth.gw;
+}
+void mgos_config_set_eth_gw(struct mgos_config *cfg, const char * v) {
+  mgos_conf_set_str(&cfg->eth.gw, v);
+}
+
+/* eth.clk_mode */
+#define MGOS_CONFIG_HAVE_ETH_CLK_MODE
+#define MGOS_SYS_CONFIG_HAVE_ETH_CLK_MODE
+int mgos_config_get_eth_clk_mode(struct mgos_config *cfg) {
+  return cfg->eth.clk_mode;
+}
+void mgos_config_set_eth_clk_mode(struct mgos_config *cfg, int v) {
+  cfg->eth.clk_mode = v;
+}
+
+/* eth.mdc_gpio */
+#define MGOS_CONFIG_HAVE_ETH_MDC_GPIO
+#define MGOS_SYS_CONFIG_HAVE_ETH_MDC_GPIO
+int mgos_config_get_eth_mdc_gpio(struct mgos_config *cfg) {
+  return cfg->eth.mdc_gpio;
+}
+void mgos_config_set_eth_mdc_gpio(struct mgos_config *cfg, int v) {
+  cfg->eth.mdc_gpio = v;
+}
+
+/* eth.mdio_gpio */
+#define MGOS_CONFIG_HAVE_ETH_MDIO_GPIO
+#define MGOS_SYS_CONFIG_HAVE_ETH_MDIO_GPIO
+int mgos_config_get_eth_mdio_gpio(struct mgos_config *cfg) {
+  return cfg->eth.mdio_gpio;
+}
+void mgos_config_set_eth_mdio_gpio(struct mgos_config *cfg, int v) {
+  cfg->eth.mdio_gpio = v;
+}
+
+/* eth.phy_pwr_gpio */
+#define MGOS_CONFIG_HAVE_ETH_PHY_PWR_GPIO
+#define MGOS_SYS_CONFIG_HAVE_ETH_PHY_PWR_GPIO
+int mgos_config_get_eth_phy_pwr_gpio(struct mgos_config *cfg) {
+  return cfg->eth.phy_pwr_gpio;
+}
+void mgos_config_set_eth_phy_pwr_gpio(struct mgos_config *cfg, int v) {
+  cfg->eth.phy_pwr_gpio = v;
 }
 
 /* devtab */

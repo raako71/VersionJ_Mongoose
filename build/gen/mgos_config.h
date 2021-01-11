@@ -1,7 +1,7 @@
 /* clang-format off */
 /*
  * Generated file - do not edit.
- * Command: /mongoose-os/tools/mgos_gen_config.py --c_name=mgos_config --c_global_name=mgos_sys_config --dest_dir=/data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_678410810/build/gen/ /mongoose-os/src/mgos_debug_udp_config.yaml /mongoose-os/platforms/esp32/src/esp32_sys_config.yaml /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_678410810/build/gen/mos_conf_schema.yml
+ * Command: /mongoose-os/tools/mgos_gen_config.py --c_name=mgos_config --c_global_name=mgos_sys_config --dest_dir=/data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_219148698/build/gen/ /mongoose-os/src/mgos_debug_udp_config.yaml /mongoose-os/platforms/esp32/src/esp32_sys_config.yaml /data/fwbuild-volumes/2.18.0/apps/VersionJ/esp32/build_contexts/build_ctx_219148698/build/gen/mos_conf_schema.yml
  */
 
 #pragma once
@@ -64,6 +64,26 @@ struct mgos_config_device {
   const char * mac;
   const char * public_key;
   const char * sn;
+};
+
+struct mgos_config_dns_sd {
+  int enable;
+  int adv_only;
+  const char * host_name;
+  const char * txt;
+  int ttl;
+};
+
+struct mgos_config_eth {
+  int enable;
+  int phy_addr;
+  const char * ip;
+  const char * netmask;
+  const char * gw;
+  int clk_mode;
+  int mdc_gpio;
+  int mdio_gpio;
+  int phy_pwr_gpio;
 };
 
 struct mgos_config_devtab_dev0 {
@@ -277,6 +297,8 @@ struct mgos_config {
   struct mgos_config_sys sys;
   struct mgos_config_device device;
   const char * conf_acl;
+  struct mgos_config_dns_sd dns_sd;
+  struct mgos_config_eth eth;
   struct mgos_config_devtab devtab;
   struct mgos_config_fstab fstab;
   struct mgos_config_http http;
@@ -677,6 +699,138 @@ const char * mgos_config_get_conf_acl(struct mgos_config *cfg);
 static inline const char * mgos_sys_config_get_conf_acl(void) { return mgos_config_get_conf_acl(&mgos_sys_config); }
 void mgos_config_set_conf_acl(struct mgos_config *cfg, const char * v);
 static inline void mgos_sys_config_set_conf_acl(const char * v) { mgos_config_set_conf_acl(&mgos_sys_config, v); }
+
+/* dns_sd */
+#define MGOS_CONFIG_HAVE_DNS_SD
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD
+const struct mgos_config_dns_sd * mgos_config_get_dns_sd(struct mgos_config *cfg);
+static inline const struct mgos_config_dns_sd * mgos_sys_config_get_dns_sd(void) { return mgos_config_get_dns_sd(&mgos_sys_config); }
+const struct mgos_conf_entry *mgos_config_schema_dns_sd(void);
+bool mgos_config_parse_dns_sd(struct mg_str json, struct mgos_config_dns_sd *cfg);
+bool mgos_config_copy_dns_sd(const struct mgos_config_dns_sd *src, struct mgos_config_dns_sd *dst);
+void mgos_config_free_dns_sd(struct mgos_config_dns_sd *cfg);
+
+/* dns_sd.enable */
+#define MGOS_CONFIG_HAVE_DNS_SD_ENABLE
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_ENABLE
+int mgos_config_get_dns_sd_enable(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_dns_sd_enable(void) { return mgos_config_get_dns_sd_enable(&mgos_sys_config); }
+void mgos_config_set_dns_sd_enable(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_dns_sd_enable(int v) { mgos_config_set_dns_sd_enable(&mgos_sys_config, v); }
+
+/* dns_sd.adv_only */
+#define MGOS_CONFIG_HAVE_DNS_SD_ADV_ONLY
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_ADV_ONLY
+int mgos_config_get_dns_sd_adv_only(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_dns_sd_adv_only(void) { return mgos_config_get_dns_sd_adv_only(&mgos_sys_config); }
+void mgos_config_set_dns_sd_adv_only(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_dns_sd_adv_only(int v) { mgos_config_set_dns_sd_adv_only(&mgos_sys_config, v); }
+
+/* dns_sd.host_name */
+#define MGOS_CONFIG_HAVE_DNS_SD_HOST_NAME
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_HOST_NAME
+const char * mgos_config_get_dns_sd_host_name(struct mgos_config *cfg);
+static inline const char * mgos_sys_config_get_dns_sd_host_name(void) { return mgos_config_get_dns_sd_host_name(&mgos_sys_config); }
+void mgos_config_set_dns_sd_host_name(struct mgos_config *cfg, const char * v);
+static inline void mgos_sys_config_set_dns_sd_host_name(const char * v) { mgos_config_set_dns_sd_host_name(&mgos_sys_config, v); }
+
+/* dns_sd.txt */
+#define MGOS_CONFIG_HAVE_DNS_SD_TXT
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_TXT
+const char * mgos_config_get_dns_sd_txt(struct mgos_config *cfg);
+static inline const char * mgos_sys_config_get_dns_sd_txt(void) { return mgos_config_get_dns_sd_txt(&mgos_sys_config); }
+void mgos_config_set_dns_sd_txt(struct mgos_config *cfg, const char * v);
+static inline void mgos_sys_config_set_dns_sd_txt(const char * v) { mgos_config_set_dns_sd_txt(&mgos_sys_config, v); }
+
+/* dns_sd.ttl */
+#define MGOS_CONFIG_HAVE_DNS_SD_TTL
+#define MGOS_SYS_CONFIG_HAVE_DNS_SD_TTL
+int mgos_config_get_dns_sd_ttl(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_dns_sd_ttl(void) { return mgos_config_get_dns_sd_ttl(&mgos_sys_config); }
+void mgos_config_set_dns_sd_ttl(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_dns_sd_ttl(int v) { mgos_config_set_dns_sd_ttl(&mgos_sys_config, v); }
+
+/* eth */
+#define MGOS_CONFIG_HAVE_ETH
+#define MGOS_SYS_CONFIG_HAVE_ETH
+const struct mgos_config_eth * mgos_config_get_eth(struct mgos_config *cfg);
+static inline const struct mgos_config_eth * mgos_sys_config_get_eth(void) { return mgos_config_get_eth(&mgos_sys_config); }
+const struct mgos_conf_entry *mgos_config_schema_eth(void);
+bool mgos_config_parse_eth(struct mg_str json, struct mgos_config_eth *cfg);
+bool mgos_config_copy_eth(const struct mgos_config_eth *src, struct mgos_config_eth *dst);
+void mgos_config_free_eth(struct mgos_config_eth *cfg);
+
+/* eth.enable */
+#define MGOS_CONFIG_HAVE_ETH_ENABLE
+#define MGOS_SYS_CONFIG_HAVE_ETH_ENABLE
+int mgos_config_get_eth_enable(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_eth_enable(void) { return mgos_config_get_eth_enable(&mgos_sys_config); }
+void mgos_config_set_eth_enable(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_eth_enable(int v) { mgos_config_set_eth_enable(&mgos_sys_config, v); }
+
+/* eth.phy_addr */
+#define MGOS_CONFIG_HAVE_ETH_PHY_ADDR
+#define MGOS_SYS_CONFIG_HAVE_ETH_PHY_ADDR
+int mgos_config_get_eth_phy_addr(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_eth_phy_addr(void) { return mgos_config_get_eth_phy_addr(&mgos_sys_config); }
+void mgos_config_set_eth_phy_addr(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_eth_phy_addr(int v) { mgos_config_set_eth_phy_addr(&mgos_sys_config, v); }
+
+/* eth.ip */
+#define MGOS_CONFIG_HAVE_ETH_IP
+#define MGOS_SYS_CONFIG_HAVE_ETH_IP
+const char * mgos_config_get_eth_ip(struct mgos_config *cfg);
+static inline const char * mgos_sys_config_get_eth_ip(void) { return mgos_config_get_eth_ip(&mgos_sys_config); }
+void mgos_config_set_eth_ip(struct mgos_config *cfg, const char * v);
+static inline void mgos_sys_config_set_eth_ip(const char * v) { mgos_config_set_eth_ip(&mgos_sys_config, v); }
+
+/* eth.netmask */
+#define MGOS_CONFIG_HAVE_ETH_NETMASK
+#define MGOS_SYS_CONFIG_HAVE_ETH_NETMASK
+const char * mgos_config_get_eth_netmask(struct mgos_config *cfg);
+static inline const char * mgos_sys_config_get_eth_netmask(void) { return mgos_config_get_eth_netmask(&mgos_sys_config); }
+void mgos_config_set_eth_netmask(struct mgos_config *cfg, const char * v);
+static inline void mgos_sys_config_set_eth_netmask(const char * v) { mgos_config_set_eth_netmask(&mgos_sys_config, v); }
+
+/* eth.gw */
+#define MGOS_CONFIG_HAVE_ETH_GW
+#define MGOS_SYS_CONFIG_HAVE_ETH_GW
+const char * mgos_config_get_eth_gw(struct mgos_config *cfg);
+static inline const char * mgos_sys_config_get_eth_gw(void) { return mgos_config_get_eth_gw(&mgos_sys_config); }
+void mgos_config_set_eth_gw(struct mgos_config *cfg, const char * v);
+static inline void mgos_sys_config_set_eth_gw(const char * v) { mgos_config_set_eth_gw(&mgos_sys_config, v); }
+
+/* eth.clk_mode */
+#define MGOS_CONFIG_HAVE_ETH_CLK_MODE
+#define MGOS_SYS_CONFIG_HAVE_ETH_CLK_MODE
+int mgos_config_get_eth_clk_mode(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_eth_clk_mode(void) { return mgos_config_get_eth_clk_mode(&mgos_sys_config); }
+void mgos_config_set_eth_clk_mode(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_eth_clk_mode(int v) { mgos_config_set_eth_clk_mode(&mgos_sys_config, v); }
+
+/* eth.mdc_gpio */
+#define MGOS_CONFIG_HAVE_ETH_MDC_GPIO
+#define MGOS_SYS_CONFIG_HAVE_ETH_MDC_GPIO
+int mgos_config_get_eth_mdc_gpio(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_eth_mdc_gpio(void) { return mgos_config_get_eth_mdc_gpio(&mgos_sys_config); }
+void mgos_config_set_eth_mdc_gpio(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_eth_mdc_gpio(int v) { mgos_config_set_eth_mdc_gpio(&mgos_sys_config, v); }
+
+/* eth.mdio_gpio */
+#define MGOS_CONFIG_HAVE_ETH_MDIO_GPIO
+#define MGOS_SYS_CONFIG_HAVE_ETH_MDIO_GPIO
+int mgos_config_get_eth_mdio_gpio(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_eth_mdio_gpio(void) { return mgos_config_get_eth_mdio_gpio(&mgos_sys_config); }
+void mgos_config_set_eth_mdio_gpio(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_eth_mdio_gpio(int v) { mgos_config_set_eth_mdio_gpio(&mgos_sys_config, v); }
+
+/* eth.phy_pwr_gpio */
+#define MGOS_CONFIG_HAVE_ETH_PHY_PWR_GPIO
+#define MGOS_SYS_CONFIG_HAVE_ETH_PHY_PWR_GPIO
+int mgos_config_get_eth_phy_pwr_gpio(struct mgos_config *cfg);
+static inline int mgos_sys_config_get_eth_phy_pwr_gpio(void) { return mgos_config_get_eth_phy_pwr_gpio(&mgos_sys_config); }
+void mgos_config_set_eth_phy_pwr_gpio(struct mgos_config *cfg, int v);
+static inline void mgos_sys_config_set_eth_phy_pwr_gpio(int v) { mgos_config_set_eth_phy_pwr_gpio(&mgos_sys_config, v); }
 
 /* devtab */
 #define MGOS_CONFIG_HAVE_DEVTAB

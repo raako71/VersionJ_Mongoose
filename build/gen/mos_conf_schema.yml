@@ -129,6 +129,69 @@
   - s
   - '*'
   - title: Conf ACL
+- - dns_sd
+  - o
+  - title: DNS-SD service discovery
+- - dns_sd.enable
+  - b
+  - false
+  - title: Enable service discovery
+- - dns_sd.adv_only
+  - b
+  - false
+  - title: Only advertise, do not join multicast group
+- - dns_sd.host_name
+  - s
+  - mOS-??????
+  - title: DNS-SD host name. '?' chars will be expanded with MAC address hex digits.
+      If not set, uses device.id
+- - dns_sd.txt
+  - s
+  - ""
+  - title: Extra comma-separated key=value pairs to put into the TXT service record
+- - dns_sd.ttl
+  - i
+  - 120
+  - title: Time-to-live in seconds
+- - dns_sd.host_name
+  - mOS-esp32-??????
+- - eth
+  - o
+  - title: Ethernet settings
+- - eth.enable
+  - b
+  - false
+  - title: Enable Ethernet interface
+- - eth.phy_addr
+  - i
+  - 0
+  - title: (R)MII PHY address
+- - eth.ip
+  - s
+  - title: Static IP Address
+- - eth.netmask
+  - s
+  - title: Static Netmask
+- - eth.gw
+  - s
+  - title: Static Default Gateway
+- - eth.clk_mode
+  - i
+  - 0
+  - title: '50 MHz clock source: 0 in <- GPIO0, 1 out -> GPIO0, 2 out -> GPIO16, 3
+      out -> GPIO17 (inverted)'
+- - eth.mdc_gpio
+  - i
+  - 23
+  - title: GPIO to use for RMII MDC signal
+- - eth.mdio_gpio
+  - i
+  - 18
+  - title: GPIO to use for RMII MDIO signal
+- - eth.phy_pwr_gpio
+  - i
+  - -1
+  - title: GPIO to use for PHY PWR control signal
 - - devtab
   - o
   - title: Devices to initialize
@@ -662,7 +725,7 @@
 - - provision.btn.pull_up
   - true
 - - debug.level
-  - 2
+  - 1
 - - fstab.fs0.dev
   - data
 - - fstab.fs0.type
@@ -685,3 +748,28 @@
   - i
   - 3600
   - title: Update interval. If 0, performs a one-off sync
+- - dns_sd.enable
+  - true
+- - dns_sd.host_name
+  - esp32-mos
+- - eth.clk_mode
+  - i
+  - 3
+  - title: '50 MHz clock source: 0 in <- GPIO0, 1 out -> GPIO0, 2 out -> GPIO16, 3
+      out -> GPIO17 (inverted)'
+- - eth.mdc_gpio
+  - i
+  - 23
+  - title: GPIO to use for RMII MDC signal
+- - eth.mdio_gpio
+  - i
+  - 18
+  - title: GPIO to use for RMII MDIO signal
+- - eth.phy_pwr_gpio
+  - i
+  - 5
+  - title: GPIO to use for PHY PWR control signal
+- - eth.phy_addr
+  - i
+  - 0
+  - title: PHY address

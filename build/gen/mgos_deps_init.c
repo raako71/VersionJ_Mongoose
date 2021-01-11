@@ -16,9 +16,12 @@ extern bool mgos_vfs_fs_spiffs_init(void);
 extern bool mgos_core_init(void);
 extern bool mgos_arduino_compat_init(void);
 extern bool mgos_i2c_init(void);
+extern bool mgos_arduino_wire_init(void);
 extern bool mgos_atca_init(void);
-extern bool mgos_fstab_init(void);
+extern bool mgos_ethernet_init(void);
 extern bool mgos_wifi_init(void);
+extern bool mgos_dns_sd_init(void);
+extern bool mgos_fstab_init(void);
 extern bool mgos_http_server_init(void);
 extern bool mgos_mbedtls_init(void);
 extern bool mgos_rpc_common_init(void);
@@ -40,7 +43,7 @@ const struct mgos_lib_info mgos_libs_info[] = {
     // "freertos". deps: [ ]
     {.name = "freertos", .version = "10.2.0", .init = mgos_freertos_init},
 
-    // "mongoose". deps: [ ]
+    // "mongoose". deps: [ "lwip" ]
     {.name = "mongoose", .version = "6.16", .init = mgos_mongoose_init},
 
     // "vfs-common". deps: [ ]
@@ -52,7 +55,7 @@ const struct mgos_lib_info mgos_libs_info[] = {
     // "vfs-fs-spiffs". deps: [ "vfs-common" ]
     {.name = "vfs-fs-spiffs", .version = "1.0", .init = mgos_vfs_fs_spiffs_init},
 
-    // "core". deps: [ "freertos" "mongoose" "vfs-common" "vfs-fs-lfs" "vfs-fs-spiffs" ]
+    // "core". deps: [ "freertos" "lwip" "mongoose" "vfs-common" "vfs-fs-lfs" "vfs-fs-spiffs" ]
     {.name = "core", .version = "1.0", .init = mgos_core_init},
 
     // "arduino-compat". deps: [ "core" ]
@@ -61,16 +64,25 @@ const struct mgos_lib_info mgos_libs_info[] = {
     // "i2c". deps: [ "core" ]
     {.name = "i2c", .version = "1.0", .init = mgos_i2c_init},
 
+    // "arduino-wire". deps: [ "arduino-compat" "core" "i2c" ]
+    {.name = "arduino-wire", .version = "1.0", .init = mgos_arduino_wire_init},
+
     // "atca". deps: [ "i2c" ]
     {.name = "atca", .version = "1.0", .init = mgos_atca_init},
 
-    // "fstab". deps: [ "core" "i2c" "vfs-common" "vfs-fs-lfs" "vfs-fs-spiffs" ]
-    {.name = "fstab", .version = "1.0", .init = mgos_fstab_init},
+    // "ethernet". deps: [ "core" "lwip" ]
+    {.name = "ethernet", .version = "1.0", .init = mgos_ethernet_init},
 
     // "wifi". deps: [ "core" ]
     {.name = "wifi", .version = "1.0", .init = mgos_wifi_init},
 
-    // "http-server". deps: [ "atca" "core" "wifi" ]
+    // "dns-sd". deps: [ "core" "ethernet" "mongoose" "wifi" ]
+    {.name = "dns-sd", .version = "1.1.0", .init = mgos_dns_sd_init},
+
+    // "fstab". deps: [ "core" "i2c" "vfs-common" "vfs-fs-lfs" "vfs-fs-spiffs" ]
+    {.name = "fstab", .version = "1.0", .init = mgos_fstab_init},
+
+    // "http-server". deps: [ "atca" "core" "ethernet" "wifi" ]
     {.name = "http-server", .version = "1.0", .init = mgos_http_server_init},
 
     // "mbedtls". deps: [ ]
