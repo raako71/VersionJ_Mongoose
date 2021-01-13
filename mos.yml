@@ -10,6 +10,7 @@ mongoose_os_version: ${mos.version}
 tags:
   - cpp
 
+
 # List of files / directories with C sources. No slashes at the end of dir names.
 sources:
   - src
@@ -44,6 +45,13 @@ config_schema:
   - ["eth.mdio_gpio", "i", 18, {title: "GPIO to use for RMII MDIO signal"}]
   - ["eth.phy_pwr_gpio", "i", 5, {title: "GPIO to use for PHY PWR control signal"}]
   - ["eth.phy_addr", "i", 0, {title: "PHY address"}]
+  - ["i2c", "o", {title: "I2C settings"}]
+  - ["i2c.unit_no", "i", 0, {title: "Which hardware unit to use, 0 or 1"}]
+  - ["i2c.enable", "b", true, {title: "Enable I2C"}]
+  - ["i2c.freq", "i", 100000, {title: "Clock frequency"}]
+  - ["i2c.debug", "b", false, {title: "Debug I2C bus activity"}]
+  - ["i2c.sda_gpio", "i", 32, {title: "GPIO to use for SDA"}]
+  - ["i2c.scl_gpio", "i", 33, {title: "GPIO to use for SCL"}]
 
 libs:
   - origin: https://github.com/mongoose-os-libs/boards
@@ -57,8 +65,10 @@ libs:
   - origin: https://github.com/mongoose-os-libs/arduino-compat
   - origin: https://github.com/mongoose-os-libs/sntp
   - origin: https://github.com/mongoose-os-libs/dns-sd
+  - origin: https://github.com/mongoose-os-libs/i2c
   - origin: https://github.com/mongoose-os-libs/arduino-wire
   - origin: https://github.com/mongoose-os-libs/ethernet
+  - origin: https://github.com/mongoose-os-libs/bme280
 
 build_vars:
   ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,256K

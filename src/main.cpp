@@ -21,7 +21,9 @@
 #include "mgos_http_server.h"
 #include "mgos_dns_sd.h"
 #include "WString.h"
+#include "Arduino.h"
 #include "ACS71020.h"
+#include "BME280.h"
 
 #define LED_PIN 2
 //longtermdata trimmer variable
@@ -47,6 +49,15 @@ long offline_epoch  = 0;
 long online_epoch = 0;
 bool NTPflag = false;
 bool NTPflag_z = false;
+
+//i2c and sensor
+int enablei2c = 13;
+
+int Vmax = 611;   //depend on Rsense, what maximum voltage that creates 275mV between the voltage input sensor
+int Imax = 30;    //depend on IC specifications
+ACS71020 mySensor{Vmax, Imax};
+
+BME280 bme(0x77);
 
 //function prototype
 void appendFile(const char* path, const char* message); //append message to a file (tested)
@@ -90,14 +101,30 @@ static void timer_cb(void *arg) {
   (void) arg;
 }
 static void logging_cb(void *arg){
+	
+	//logging code
 	column[1] = rand() % 3;
     column[2] = rand() % 3;
-    column[3] = 20.00;
-    column[4] = 300.1;
-    column[5] = 1;
-    column[6] = (float)(rand() % 3001) * 0.01;
-    column[7] = (float)(rand() % 3001) * 0.01;
-    column[8] = (float)(rand() % 3001) * 0.01;
+    
+    //logging current, voltage, and power
+    int Vrms_measured  = mySensor.getVrms();
+    uint32_t Pavg_rms = mySensor.getPavg(ONE_SEC);
+    int Iavg = mySensor.getIavg(ONE_SEC);
+    float voltMeasurement = Vrms_measured * 0.1;
+    if (voltMeasurement > 5) {
+      column[3] = voltMeasurement;
+      column[4] = Pavg_rms * 0.01;
+      column[5] = Iavg * 0.001;
+    }
+    else {
+      column[3] = 0;
+      column[4] = 0;
+      column[5] = 0;
+    }
+    
+    column[6] = bme.readTemperature();
+    column[7] = bme.readHumidity();
+    column[8] = bme.readPressure() / 100.0F;
     column[9] = (float)(rand() % 3001) * 0.01;
     column[10] = (float)(rand() % 3001) * 0.01;
     column[11] = (float)(rand() % 3001) * 0.01;
@@ -143,7 +170,36 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
-  	return MGOS_APP_INIT_SUCCESS;
+	
+	//i2c and sensor
+	
+	pinMode (enablei2c, OUTPUT);
+  	digitalWrite(enablei2c, HIGH);
+  	
+  	//ACS71020
+  	int err = 0;
+	err = mySensor.begin(0x61);     //change according ic address
+	if (err == 1)LOG(LL_WARN, ("\nPower Sensor is online"));
+	else LOG(LL_WARN, ("\nPower Sensor is offline"));
+	delay(500);
+	err = mySensor.custom_en(); //enable customer Mode (reset to disable)
+	if (err) {
+	LOG(LL_WARN,("customer mode is: en"));
+	} else {
+	LOG(LL_WARN,("customer mode is: dis"));
+	}
+	err = mySensor.shadow_currentSet(13, 229, 2, 1);
+	LOG(LL_WARN,("current setting error code: %d", err));
+	// 0 means no error
+	// 01 error detected and message corrected
+	// 2 uncorrectable error
+	// 3 no meaning
+	err = mySensor.shadow_avgSelen(62, 60);
+	LOG(LL_WARN,("average setting error code: %d", err));
+	
+	bool status = bme.isBME280();
+	LOG(LL_WARN, ("BME280 is: %d", status));
+	return MGOS_APP_INIT_SUCCESS;
 }
 
 void appendFile(const char* path, const char* message){ //append message to a file (tested)
