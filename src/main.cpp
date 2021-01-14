@@ -24,7 +24,9 @@
 #include "WString.h"
 #include "Arduino.h"
 #include "ACS71020.h"
-#include "BME280.h"
+#include "mgos_bme280.h"
+#include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
+
 
 #define LED_PIN 2
 //longtermdata trimmer variable
@@ -58,7 +60,12 @@ int R2 = 12;//Relay2
 int Vmax = 611;   //depend on Rsense, what maximum voltage that creates 275mV between the voltage input sensor
 int Imax = 30;    //depend on IC specifications
 ACS71020 mySensor{Vmax, Imax};
-BME280 bme{0x77, false};
+static struct mgos_bme280 *bme = NULL;
+
+float gain = 0.25;
+SparkFun_Ambient_Light light(0x10);
+int time2 = 100;
+long luxVal = 0;
 
 //function prototype
 void appendFile(const char* path, const char* message); //append message to a file (tested)
@@ -123,10 +130,10 @@ static void logging_cb(void *arg){
       column[5] = 0;
     }
     
-    column[6] = bme.readTemperature();
-    column[7] = bme.readHumidity();
-    column[8] = bme.readPressure() / 100.0F;
-    column[9] = (float)(rand() % 3001) * 0.01;
+    column[6] = mgos_bme280_read_temperature(bme);
+    column[7] = mgos_bme280_read_humidity(bme);
+    column[8] = mgos_bme280_read_pressure(bme);
+    column[9] = light.readLight();
     column[10] = (float)(rand() % 3001) * 0.01;
     column[11] = (float)(rand() % 3001) * 0.01;
     column[12] = (float)(rand() % 3001) * 0.01;
@@ -163,12 +170,13 @@ enum mgos_app_init_result mgos_app_init(void) {
   	}	
 	
 	//i2c and sensor
+	Wire.begin();
 	pinMode (enablei2c, OUTPUT);
   	digitalWrite(enablei2c, HIGH);
   	pinMode(R2, OUTPUT);
   	pinMode(R1, OUTPUT);
-	digitalWrite(R2, HIGH);
-	digitalWrite(R1, HIGH);
+  	digitalWrite(R2, HIGH);
+  	digitalWrite(R1, HIGH);
   	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
@@ -191,8 +199,18 @@ enum mgos_app_init_result mgos_app_init(void) {
 	LOG(LL_WARN,("average setting error code: %d", err));
 	
 	//BME280
-	bool status = bme.isBME280();
-	LOG(LL_WARN, ("BME280 is: %d", status));
+	bme = mgos_bme280_i2c_create(0x77);
+	bool status = mgos_bme280_is_bme280(bme);
+	LOG(LL_WARN, ("BME280 is: %s", (status ? "connected": "disconnected")));
+	
+	//vmel6030
+	if (light.begin()){
+    	LOG(LL_WARN,("Ready to sense some light!"));
+  	}else{
+    	LOG(LL_WARN,("Could not communicate with the Light sensor!"));
+	}
+  	light.setGain(gain);
+  	light.setIntegTime(time2);
 	
 	//timer function
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
