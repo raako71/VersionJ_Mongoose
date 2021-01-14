@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include "mgos.h"
 #include "mgos_rpc.h"
 #include "mgos_wifi.h"
@@ -131,8 +132,8 @@ static void logging_cb(void *arg){
     column[12] = (float)(rand() % 3001) * 0.01;
     column[13] = (float)(rand() % 3001) * 0.01;
     contain_logging(logColumn);
-    LOG(LL_INFO, ("%s", use_contain.c_str()));
-    LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_heap_size()));
+    LOG(LL_WARN, ("%s", use_contain.c_str()));
+   // LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_heap_size()));
     if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -160,16 +161,6 @@ enum mgos_app_init_result mgos_app_init(void) {
 		LOG(LL_INFO, ("json checking"));
 		checkJSONsetting();
   	}	
- 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
-  	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
-  	//RPC handler function
-	mg_rpc_add_handler(mgos_rpc_get_global(), "setting"
-  	,"{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B,  col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
-  	, setting_modifier, NULL);
-  	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
-  	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
-  	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
-	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	
 	//i2c and sensor
 	
@@ -199,6 +190,17 @@ enum mgos_app_init_result mgos_app_init(void) {
 	
 	bool status = bme.isBME280();
 	LOG(LL_WARN, ("BME280 is: %d", status));
+	
+	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
+  	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
+  	//RPC handler function
+	mg_rpc_add_handler(mgos_rpc_get_global(), "setting"
+  	,"{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B,  col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
+  	, setting_modifier, NULL);
+  	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
+  	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
+  	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
+	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	return MGOS_APP_INIT_SUCCESS;
 }
 
