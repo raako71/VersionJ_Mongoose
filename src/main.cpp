@@ -165,8 +165,10 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//i2c and sensor
 	pinMode (enablei2c, OUTPUT);
   	digitalWrite(enablei2c, HIGH);
-  	pinMode(R2, INPUT_PULLUP);
-  	pinMode(R1, INPUT_PULLUP);
+  	pinMode(R2, OUTPUT);
+  	pinMode(R1, OUTPUT);
+	digitalWrite(R2, HIGH);
+	digitalWrite(R1, HIGH);
   	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
