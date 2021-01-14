@@ -53,12 +53,12 @@ bool NTPflag_z = false;
 
 //i2c and sensor
 int enablei2c = 13;
-
+int R1 = 14;//Relay1
+int R2 = 12;//Relay2
 int Vmax = 611;   //depend on Rsense, what maximum voltage that creates 275mV between the voltage input sensor
 int Imax = 30;    //depend on IC specifications
 ACS71020 mySensor{Vmax, Imax};
-
-BME280 bme(0x77);
+BME280 bme{0x77, false};
 
 //function prototype
 void appendFile(const char* path, const char* message); //append message to a file (tested)
@@ -104,8 +104,8 @@ static void timer_cb(void *arg) {
 static void logging_cb(void *arg){
 	
 	//logging code
-	column[1] = rand() % 3;
-    column[2] = rand() % 3;
+	column[1] = digitalRead(R1);
+	column[2] = digitalRead(R2);	
     
     //logging current, voltage, and power
     int Vrms_measured  = mySensor.getVrms();
@@ -163,10 +163,10 @@ enum mgos_app_init_result mgos_app_init(void) {
   	}	
 	
 	//i2c and sensor
-	
 	pinMode (enablei2c, OUTPUT);
   	digitalWrite(enablei2c, HIGH);
-  	
+  	pinMode(R2, INPUT_PULLUP);
+  	pinMode(R1, INPUT_PULLUP);
   	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
@@ -188,9 +188,11 @@ enum mgos_app_init_result mgos_app_init(void) {
 	err = mySensor.shadow_avgSelen(62, 60);
 	LOG(LL_WARN,("average setting error code: %d", err));
 	
+	//BME280
 	bool status = bme.isBME280();
 	LOG(LL_WARN, ("BME280 is: %d", status));
 	
+	//timer function
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
   	//RPC handler function
