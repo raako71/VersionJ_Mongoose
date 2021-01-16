@@ -16,13 +16,12 @@
  */
 
 #include <algorithm>
+#include <string>
 #include "mgos.h"
 #include "mgos_rpc.h"
 #include "mgos_wifi.h"
 #include "mgos_http_server.h"
 #include "mgos_dns_sd.h"
-#include "WString.h"
-#include "Arduino.h"
 #include "ACS71020.h"
 #include "mgos_bme280.h"
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
@@ -44,9 +43,9 @@ float column[20];
 bool rc_1970day = 0, rc_thisday = 0;
 int header_size = 0;
 int logColumn = 13 ;
-String use_contain PROGMEM = "";
-String use_header PROGMEM = "";
-String header_file PROGMEM = "epoch;column1;column2;column3;column4;column5;column6;column7;column8;column9;column10;column11;column12;column13;column14;column15;column16;column17;column18;column19;column20\r\n";
+std::string use_contain = "";
+std::string use_header  = "";
+std::string header_file  = "epoch;column1;column2;column3;column4;column5;column6;column7;column8;column9;column10;column11;column12;column13;column14;column15;column16;column17;column18;column19;column20\r\n";
 
 long offline_epoch  = 0;
 long online_epoch = 0;
@@ -70,10 +69,10 @@ long luxVal = 0;
 //function prototype
 void appendFile(const char* path, const char* message); //append message to a file (tested)
 long getEpoch(const char* data_in); //get epoch value from csv row string (tested)
-String getHeader_file(int desiredCol); //get header string based on desired column and calculate header size including epoch column (tested)
+std::string getHeader_file(int desiredCol); //get header string based on desired column and calculate header size including epoch column (tested)
 long read_epoch_last_entry(const char* path); //read last entry of file and return the epoch (tested)
 int getColumnNum(const char* path); //get column number in file read path including epoch
-String getColumnVal(int column, String data_in); //get column value of selected column from a string, first column is 0 (tested)
+std::string getColumnVal(int column, std::string data_in); //get column value of selected column from a string, first column is 0 (tested)
 long read_epoch_first_entry(const char* path); //read first entry of file and then return the first epoch (tested)
 bool exists(const char* path); //check if file exists or not (tested)
 void migrate(const char* original, const char* destination, int interval, long difference, bool migrate2new);//migrate to destination, keep difference range in origin (tested)
@@ -111,8 +110,8 @@ static void timer_cb(void *arg) {
 static void logging_cb(void *arg){
 	
 	//logging code
-	column[1] = digitalRead(R1);
-	column[2] = digitalRead(R2);	
+	column[1] = mgos_gpio_read_out(R1);
+	column[2] = mgos_gpio_read_out(R2);
     
     //logging current, voltage, and power
     int Vrms_measured  = mySensor.getVrms();
@@ -171,12 +170,10 @@ enum mgos_app_init_result mgos_app_init(void) {
 	
 	//i2c and sensor
 	Wire.begin();
-	pinMode (enablei2c, OUTPUT);
-  	digitalWrite(enablei2c, HIGH);
-  	pinMode(R2, OUTPUT);
-  	pinMode(R1, OUTPUT);
-  	digitalWrite(R2, HIGH);
-  	digitalWrite(R1, HIGH);
+	mgos_gpio_setup_output(enablei2c, 1);
+  	mgos_gpio_setup_output(LED_PIN, 0);
+  	mgos_gpio_setup_output(R1, 1);
+  	mgos_gpio_setup_output(R2, 1);
   	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
@@ -272,7 +269,7 @@ long read_epoch_last_entry(const char* path){//read last entry of file and retur
 	fclose(file);
 	return a;
 }
-String getHeader_file(int desiredCol){//get header string based on desired column and calculate header size including epoch column (tested)
+std::string getHeader_file(int desiredCol){//get header string based on desired column and calculate header size including epoch column (tested)
   int index = 0;
   int semicol = 0;
   while(desiredCol != 0){
@@ -296,8 +293,7 @@ String getHeader_file(int desiredCol){//get header string based on desired colum
     header_size = index+1;
     return header_file;;
   }
-
-  String ret = header_file.substring(0, semicol) + "\r\n";
+  std::string ret = header_file.substr(0, semicol) + "\r\n";
   return ret;
 }
 int getColumnNum(const char* path){ //get column number in file read path including epoch (tested)
@@ -318,19 +314,19 @@ int getColumnNum(const char* path){ //get column number in file read path includ
   column++;
   return column;
 }
-String getColumnVal(int column, String data_in){ //get column value of selected column from a string, first column is 0 (tested)
+std::string getColumnVal(int column, std::string data_in){ //get column value of selected column from a string, first column is 0 (tested)
   int a = 0;
   int a_z = 0;
-  String ret = "";
-  int something = data_in.indexOf('\r');
+  std::string ret = "";
+  int something = data_in.find('\r');
   if(something == -1){
-    something = data_in.indexOf('\n');
+    something = data_in.find('\n');
   }
-  data_in = data_in.substring(0,something);
+  data_in = data_in.substr(0,something);
   while(column != -1){
-    a = data_in.indexOf(';', a_z); 
-    ret = data_in.substring(a_z, a);
-    a_z = a+1;
+    a = data_in.find(';', a_z); 
+    ret = data_in.substr(a_z, a-a_z);
+	a_z = a+1;
     column--;
   }
   return ret;
@@ -421,7 +417,7 @@ void migrate(const char* original, const char* destination, int interval, long d
 		//scanning string line 
 		int col_scan_index = 0;
 		while(col_scan_index < logColumn){
-			String col_val = getColumnVal(col_scan_index+1, buff_ori);
+			std::string col_val = getColumnVal(col_scan_index+1, buff_ori);
 			if(col_val != ""){//not an empty column
 				avg_col[col_scan_index] += atof(col_val.c_str());
 				avg_index[col_scan_index]++;
@@ -523,9 +519,9 @@ void move_old2new(const char* origin, const char* destination, long time_differe
 		long new_epoch = off_epoch + time_difference;
 		fprintf(file_dest, "%ld", new_epoch);
 		
-		String s = buff_ori;
-		int aaaa = s.indexOf(";");
-		fprintf(file_dest, "%s", s.substring(aaaa).c_str());
+		std::string s = buff_ori;
+		int aaaa = s.find(";");
+		fprintf(file_dest, "%s", s.substr(aaaa).c_str());
 	}
 	free(buff_ori);
 	fclose(file_ori);

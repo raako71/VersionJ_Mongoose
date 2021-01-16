@@ -10,7 +10,7 @@
 
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
 
-SparkFun_Ambient_Light::SparkFun_Ambient_Light(uint8_t address){  _address = address; } //Constructor for I2C
+SparkFun_Ambient_Light::SparkFun_Ambient_Light(unsigned char address){  _address = address; } //Constructor for I2C
 
 bool SparkFun_Ambient_Light::begin( TwoWire &wirePort )
 {
@@ -21,7 +21,7 @@ bool SparkFun_Ambient_Light::begin( TwoWire &wirePort )
   powerOn(); 
 
   _i2cPort->beginTransmission(_address);
-  uint8_t _ret = _i2cPort->endTransmission();
+  unsigned char _ret = _i2cPort->endTransmission();
   if( !_ret )
     return true; 
   else 
@@ -36,7 +36,7 @@ bool SparkFun_Ambient_Light::begin( TwoWire &wirePort )
 // dark rooms. The datasheet suggests always leaving it at around 1/4 or 1/8.
 void SparkFun_Ambient_Light::setGain(float gainVal){
 
-  uint16_t bits; 
+  unsigned int bits; 
 
   if (gainVal == 1.00)
     bits = 0; 
@@ -60,7 +60,7 @@ void SparkFun_Ambient_Light::setGain(float gainVal){
 // dark rooms. The datasheet suggests always leaving it at around 1/4 or 1/8.
 float SparkFun_Ambient_Light::readGain(){
  
-  uint16_t regVal = _readRegister(SETTING_REG); // Get register
+  unsigned int regVal = _readRegister(SETTING_REG); // Get register
   regVal &= (~GAIN_MASK); // Invert the gain mask to _keep_ the gain
   regVal = (regVal >> GAIN_POS); // Move values to front of the line. 
    
@@ -81,9 +81,9 @@ float SparkFun_Ambient_Light::readGain(){
 // This function sets the integration time (the saturation time of light on the
 // sensor) of the ambient light sensor. Higher integration time leads to better
 // resolution but slower sensor refresh times. 
-void SparkFun_Ambient_Light::setIntegTime(uint16_t time){ 
+void SparkFun_Ambient_Light::setIntegTime(unsigned int time){ 
  
-  uint16_t bits;
+  unsigned int bits;
 
   if (time == 100) // Default setting.
     bits = 0; 
@@ -101,7 +101,7 @@ void SparkFun_Ambient_Light::setIntegTime(uint16_t time){
     return;
 
   _writeRegister(SETTING_REG, INTEG_MASK, bits, INTEG_POS);  
-  uint8_t regVal = readIntegTime();
+  unsigned char regVal = readIntegTime();
 
 }
 
@@ -109,9 +109,9 @@ void SparkFun_Ambient_Light::setIntegTime(uint16_t time){
 // This function reads the integration time (the saturation time of light on the
 // sensor) of the ambient light sensor. Higher integration time leads to better
 // resolution but slower sensor refresh times. 
-uint16_t SparkFun_Ambient_Light::readIntegTime(){
+unsigned int SparkFun_Ambient_Light::readIntegTime(){
 
-  uint16_t regVal = _readRegister(SETTING_REG); 
+  unsigned int regVal = _readRegister(SETTING_REG); 
   regVal &= (~INTEG_MASK); 
   regVal = (regVal >> INTEG_POS); 
 
@@ -134,9 +134,9 @@ uint16_t SparkFun_Ambient_Light::readIntegTime(){
 
 // REG0x00, bits[5:4]
 // This function sets the persistence protect number. 
-void SparkFun_Ambient_Light::setProtect(uint8_t protVal){
+void SparkFun_Ambient_Light::setProtect(unsigned char protVal){
 
-  uint16_t bits; 
+  unsigned int bits; 
 
   if (protVal == 1)
     bits = 0; 
@@ -155,9 +155,9 @@ void SparkFun_Ambient_Light::setProtect(uint8_t protVal){
 
 // REG0x00, bits[5:4]
 // This function reads the persistence protect number. 
-uint8_t SparkFun_Ambient_Light::readProtect(){
+unsigned char SparkFun_Ambient_Light::readProtect(){
 
-  uint16_t regVal = _readRegister(SETTING_REG); 
+  unsigned int regVal = _readRegister(SETTING_REG); 
   regVal &= (~PERS_PROT_MASK); 
   regVal = (regVal >> PERS_PROT_POS); 
 
@@ -192,9 +192,9 @@ void SparkFun_Ambient_Light::disableInt(){
 
 // REG0x00, bit[1]
 // This function checks if the interrupt is enabled or disabled. 
-uint8_t SparkFun_Ambient_Light::readIntSetting(){
+unsigned char SparkFun_Ambient_Light::readIntSetting(){
 
-  uint16_t regVal = _readRegister(SETTING_REG); 
+  unsigned int regVal = _readRegister(SETTING_REG); 
   regVal &= (~INT_EN_MASK); 
   regVal = (regVal >> INT_EN_POS); 
   return regVal;
@@ -243,9 +243,9 @@ void SparkFun_Ambient_Light::disablePowSave(){
 
 // REG0x03, bit[0]
 // This function checks to see if power save mode is enabled or disabled. 
-uint8_t SparkFun_Ambient_Light::readPowSavEnabled(){
+unsigned char SparkFun_Ambient_Light::readPowSavEnabled(){
 
-  uint16_t regVal = _readRegister(POWER_SAVE_REG); 
+  unsigned int regVal = _readRegister(POWER_SAVE_REG); 
   regVal &= (~POW_SAVE_EN_MASK); 
   return regVal;
 
@@ -256,9 +256,9 @@ uint8_t SparkFun_Ambient_Light::readPowSavEnabled(){
 // incrementally higher value descreases the sampling rate of the sensor and so
 // increases power saving. The datasheet suggests enabling these modes when
 // continually sampling the sensor. 
-void SparkFun_Ambient_Light::setPowSavMode(uint16_t modeVal){
+void SparkFun_Ambient_Light::setPowSavMode(unsigned int modeVal){
 
-  uint16_t bits; 
+  unsigned int bits; 
 
   if (modeVal == 1)
     bits = 0;
@@ -280,9 +280,9 @@ void SparkFun_Ambient_Light::setPowSavMode(uint16_t modeVal){
 // incrementally higher value descreases the sampling rate of the sensor and so
 // increases power saving. The datasheet suggests enabling these modes when
 // continually sampling the sensor. 
-uint8_t SparkFun_Ambient_Light::readPowSavMode(){
+unsigned char SparkFun_Ambient_Light::readPowSavMode(){
 
-  uint16_t regVal = _readRegister(POWER_SAVE_REG); 
+  unsigned int regVal = _readRegister(POWER_SAVE_REG); 
   regVal &= (~POW_SAVE_MASK); 
   regVal = (regVal >> PSM_POS); 
   
@@ -303,9 +303,9 @@ uint8_t SparkFun_Ambient_Light::readPowSavMode(){
 // This function reads the interrupt register to see if an interrupt has been
 // triggered. There are two possible interrupts: a lower limit and upper limit 
 // threshold, both set by the user.  
-uint8_t SparkFun_Ambient_Light::readInterrupt(){
+unsigned char SparkFun_Ambient_Light::readInterrupt(){
 
-  uint16_t regVal = _readRegister(INTERRUPT_REG); 
+  unsigned int regVal = _readRegister(INTERRUPT_REG); 
   regVal &= INT_MASK; 
   regVal = (regVal >> INT_POS); 
 
@@ -323,22 +323,22 @@ uint8_t SparkFun_Ambient_Light::readInterrupt(){
 // REG0x02, bits[15:0]
 // This function sets the lower limit for the Ambient Light Sensor's interrupt. 
 // It takes a lux value as its paramater.
-void SparkFun_Ambient_Light::setIntLowThresh(uint32_t luxVal){
+void SparkFun_Ambient_Light::setIntLowThresh(unsigned long luxVal){
 
   if (luxVal < 0 || luxVal > 120000)
     return;
   
-  uint16_t luxBits = _calculateBits(luxVal); 
+  unsigned int luxBits = _calculateBits(luxVal); 
   _writeRegister(L_THRESH_REG, THRESH_MASK, luxBits, NO_SHIFT);
 
 }
 
 // REG0x02, bits[15:0]
 // This function reads the lower limit for the Ambient Light Sensor's interrupt. 
-uint32_t SparkFun_Ambient_Light::readLowThresh(){
+unsigned long SparkFun_Ambient_Light::readLowThresh(){
 
-  uint16_t threshVal = _readRegister(L_THRESH_REG);
-  uint32_t threshLux = _calculateLux(threshVal); 
+  unsigned int threshVal = _readRegister(L_THRESH_REG);
+  unsigned long threshLux = _calculateLux(threshVal); 
   return threshLux; 
 
 }
@@ -346,22 +346,22 @@ uint32_t SparkFun_Ambient_Light::readLowThresh(){
 // REG0x01, bits[15:0]
 // This function sets the upper limit for the Ambient Light Sensor's interrupt. 
 // It takes a lux value as its paramater.
-void SparkFun_Ambient_Light::setIntHighThresh(uint32_t luxVal){
+void SparkFun_Ambient_Light::setIntHighThresh(unsigned long luxVal){
 
   if (luxVal < 0 || luxVal > 120000)
     return;
 
-  uint16_t luxBits = _calculateBits(luxVal); 
+  unsigned int luxBits = _calculateBits(luxVal); 
   _writeRegister(H_THRESH_REG, THRESH_MASK, luxBits, NO_SHIFT);
 
 }
 
 // REG0x01, bits[15:0]
 // This function reads the upper limit for the Ambient Light Sensor's interrupt. 
-uint32_t SparkFun_Ambient_Light::readHighThresh(){
+unsigned long SparkFun_Ambient_Light::readHighThresh(){
 
-  uint16_t threshVal = _readRegister(H_THRESH_REG);
-  uint32_t threshLux = _calculateLux(threshVal); 
+  unsigned int threshVal = _readRegister(H_THRESH_REG);
+  unsigned long threshLux = _calculateLux(threshVal); 
   return threshLux; 
 
 }
@@ -370,13 +370,13 @@ uint32_t SparkFun_Ambient_Light::readHighThresh(){
 // This function gets the sensor's ambient light's lux value. The lux value is
 // determined based on current gain and integration time settings. If the lux
 // value exceeds 1000 then a compensation formula is applied to it. 
-uint32_t SparkFun_Ambient_Light::readLight(){
+unsigned long SparkFun_Ambient_Light::readLight(){
 
-  uint16_t lightBits =  _readRegister(AMBIENT_LIGHT_DATA_REG); 
-  uint32_t luxVal = _calculateLux(lightBits); 
+  unsigned int lightBits =  _readRegister(AMBIENT_LIGHT_DATA_REG); 
+  unsigned long luxVal = _calculateLux(lightBits); 
 
   if (luxVal > 1000) {
-    uint32_t compLux = _luxCompensation(luxVal); 
+    unsigned long compLux = _luxCompensation(luxVal); 
     return compLux; 
   }
   else
@@ -388,13 +388,13 @@ uint32_t SparkFun_Ambient_Light::readLight(){
 // This function gets the sensor's ambient light's lux value. The lux value is
 // determined based on current gain and integration time settings. If the lux
 // value exceeds 1000 then a compensation formula is applied to it. 
-uint32_t SparkFun_Ambient_Light::readWhiteLight(){
+unsigned long SparkFun_Ambient_Light::readWhiteLight(){
 
-  uint16_t lightBits = _readRegister(WHITE_LIGHT_DATA_REG); 
-  uint32_t luxVal = _calculateLux(lightBits); 
+  unsigned int lightBits = _readRegister(WHITE_LIGHT_DATA_REG); 
+  unsigned long luxVal = _calculateLux(lightBits); 
 
   if (luxVal > 1000) {
-    uint32_t compLux = _luxCompensation(luxVal); 
+    unsigned long compLux = _luxCompensation(luxVal); 
     return compLux; 
   }
   else
@@ -406,10 +406,10 @@ uint32_t SparkFun_Ambient_Light::readWhiteLight(){
 // "Illumination values higher than 1000 lx show non-linearity. This
 // non-linearity is the same for all sensors, so a compensation forumla..."
 // etc. etc. 
-uint32_t SparkFun_Ambient_Light::_luxCompensation(uint32_t _luxVal){ 
+unsigned long SparkFun_Ambient_Light::_luxCompensation(unsigned long _luxVal){ 
 
   // Polynomial is pulled from pg 10 of the datasheet. 
-  uint32_t _compLux = (.00000000000060135 * (pow(_luxVal, 4))) - 
+  unsigned long _compLux = (.00000000000060135 * (pow(_luxVal, 4))) - 
                       (.0000000093924 * (pow(_luxVal, 3))) + 
                       (.000081488 * (pow(_luxVal,2))) + 
                       (1.0023 * _luxVal);
@@ -422,13 +422,13 @@ uint32_t SparkFun_Ambient_Light::_luxCompensation(uint32_t _luxVal){
 // to use by using the bit representation of the gain as an index to look up
 // the conversion value in the correct integration time array. It then converts 
 // the value and returns it.  
-uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits){
+unsigned long SparkFun_Ambient_Light::_calculateLux(unsigned int _lightBits){
 
   float _luxConv; 
-  uint8_t _convPos;  
+  unsigned char _convPos;  
 
   float _gain = readGain(); 
-  uint16_t _integTime = readIntegTime();
+  unsigned int _integTime = readIntegTime();
 
   // Here the gain is checked to get the position of the conversion value
   // within the integration time arrays. These values also represent the bit
@@ -463,7 +463,7 @@ uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits){
 
   // Multiply the value from the 16 bit register to the conversion value and return
   // it. 
-  uint32_t _calculatedLux = (_luxConv * _lightBits);
+  unsigned long _calculatedLux = (_luxConv * _lightBits);
   return _calculatedLux;
 
 }
@@ -474,10 +474,10 @@ uint32_t SparkFun_Ambient_Light::_calculateLux(uint16_t _lightBits){
 // intergration time settings. As a result the lux value needs to be
 // calculated with the current settings and this function accomplishes
 // that.  
-uint16_t SparkFun_Ambient_Light::_calculateBits(uint32_t _luxVal){
+unsigned int SparkFun_Ambient_Light::_calculateBits(unsigned long _luxVal){
 
   float _luxConv; 
-  uint8_t _convPos;  
+  unsigned char _convPos;  
 
   float _gain = readGain();
   float _integTime = readIntegTime();
@@ -514,7 +514,7 @@ uint16_t SparkFun_Ambient_Light::_calculateBits(uint32_t _luxVal){
 
   // Divide the value of lux bythe conversion value and return
   // it. 
-  uint16_t _calculatedBits = (_luxVal/_luxConv);
+  unsigned int _calculatedBits = (_luxVal/_luxConv);
   return _calculatedBits;
 
 }
@@ -522,11 +522,11 @@ uint16_t SparkFun_Ambient_Light::_calculateBits(uint32_t _luxVal){
 // This function writes to a 16 bit register. Paramaters include the register's address, a mask 
 // for bits that are ignored, the bits to write, and the bits' starting
 // position.
-void SparkFun_Ambient_Light::_writeRegister(uint8_t _wReg, uint16_t _mask,\
-                                            uint16_t _bits, uint8_t _startPosition)
+void SparkFun_Ambient_Light::_writeRegister(unsigned char _wReg, unsigned int _mask,\
+                                            unsigned int _bits, unsigned char _startPosition)
 {
   
-  uint16_t _i2cWrite; 
+  unsigned int _i2cWrite; 
 
   _i2cWrite = _readRegister(_wReg); // Get the current value of the register
   _i2cWrite &= _mask; // Mask the position we want to write to.
@@ -541,17 +541,17 @@ void SparkFun_Ambient_Light::_writeRegister(uint8_t _wReg, uint16_t _mask,\
 
 // This function reads a 16 bit register. It takes the register's
 // address as its' parameter.
-uint16_t SparkFun_Ambient_Light::_readRegister(uint8_t _reg)
+unsigned int SparkFun_Ambient_Light::_readRegister(unsigned char _reg)
 {
 
-  uint16_t _regValue; 
+  unsigned int _regValue; 
 
   _i2cPort->beginTransmission(_address); 
   _i2cPort->write(_reg); // Moves pointer to register.
   _i2cPort->endTransmission(false); // 'False' here sends a restart message so that bus is not released
-  _i2cPort->requestFrom(_address, static_cast<uint8_t>(2)); // Two reads for 16 bit registers
+  _i2cPort->requestFrom(_address, static_cast<unsigned char>(2)); // Two reads for 16 bit registers
   _regValue = _i2cPort->read(); // LSB
-  _regValue |= uint16_t(_i2cPort->read()) << 8; //MSB
+  _regValue |= (unsigned int)(_i2cPort->read()) << 8; //MSB
   return(_regValue);
 
 }
