@@ -29,7 +29,7 @@ cdefs:
   MGOS_ETH_PHY_DP83848: 0
   
 config_schema:
-  - ["debug.level", 2]
+  - ["debug.level", 1]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]
   - ["fstab.fs0.opts", '{"bs": 4096}']
