@@ -52,6 +52,8 @@ config_schema:
   - ["i2c.debug", "b", false, {title: "Debug I2C bus activity"}]
   - ["i2c.sda_gpio", "i", 32, {title: "GPIO to use for SDA"}]
   - ["i2c.scl_gpio", "i", 33, {title: "GPIO to use for SCL"}]
+  - ["wifi.ap.ssid", "ESP32_mOS"]
+  - ["wifi.ap.pass", "12345678"]
 
 libs:
   - origin: https://github.com/mongoose-os-libs/boards
@@ -63,6 +65,7 @@ libs:
   - origin: https://github.com/mongoose-os-libs/fstab
   - origin: https://github.com/mongoose-os-libs/vfs-fs-lfs
   - origin: https://github.com/mongoose-os-libs/sntp
+  - origin: https://github.com/mongoose-os-libs/pwm
   - origin: https://github.com/mongoose-os-libs/dns-sd
   - origin: https://github.com/mongoose-os-libs/i2c
   - origin: https://github.com/mongoose-os-libs/arduino-wire

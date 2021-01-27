@@ -22,12 +22,11 @@
 #include "mgos_wifi.h"
 #include "mgos_http_server.h"
 #include "mgos_dns_sd.h"
+#include "mgos_pwm.h"
 #include "ACS71020.h"
 #include "mgos_bme280.h"
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
 
-
-#define LED_PIN 2
 //longtermdata trimmer variable
 #define UPPER_LIMIT_SIZE 12000
 #define LOWER_LIMIT_SIZE 10000
@@ -37,6 +36,33 @@
 #define THISWEEK_INTERVAL 300
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
+
+#define V1  //V2
+
+#ifdef V1
+#define WIFI_LED 16
+#define WIFI_BTN 35
+#define PB1 34
+#define EN_I2C 13
+#define R1 14
+#define R2 12
+#define LED_RED 4
+#define RL_LED_EN 2
+#endif
+
+#ifdef V2
+#define WIFI_LED 15
+#define WIFI_BTN 36
+#define PB1 39
+#define PB2 35
+#define R_PB 34
+#define GPIO14 14
+#define EN_I2C 13
+#define R1 4
+#define R2 12
+#define LED_RED 2
+#define RL_LED_EN 16
+#endif
 
 bool colen[13];
 float column[20];
@@ -54,8 +80,6 @@ bool NTPflag_z = false;
 
 //i2c and sensor
 int enablei2c = 13;
-int R1 = 14;//Relay1
-int R2 = 12;//Relay2
 int Vmax = 611;   //depend on Rsense, what maximum voltage that creates 275mV between the voltage input sensor
 int Imax = 30;    //depend on IC specifications
 ACS71020 mySensor{Vmax, Imax};
@@ -65,6 +89,32 @@ float gain = 0.25;
 SparkFun_Ambient_Light light(0x10);
 int time2 = 100;
 long luxVal = 0;
+
+//addition variable V2
+char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
+void load_wifi_setting();
+void fade_blink(int pin);
+
+mgos_timer_id wifi_blink_timer;
+struct mgos_config_wifi_sta cfg_sta;
+struct mgos_config_wifi_ap cfg_ap;
+
+static void wifi_led_ctrl(void *arg) {
+   	if(wifi_mode == 2){
+   		mgos_gpio_toggle(WIFI_LED);	
+	}else if(wifi_mode == 1){
+		if(mgos_wifi_get_status() != 3){
+			fade_blink(WIFI_LED);
+		}else{
+			mgos_clear_timer(wifi_blink_timer);
+	   		mgos_pwm_set(WIFI_LED, 5000, 1);
+		}
+	}
+    (void) arg;
+}
+
+
+//V2 ///////////////////////////////////////////////////////////////////
 
 //function prototype
 void appendFile(const char* path, const char* message); //append message to a file (tested)
@@ -107,6 +157,7 @@ static void timer_cb(void *arg) {
 #endif
   (void) arg;
 }
+
 static void logging_cb(void *arg){
 	
 	//logging code
@@ -138,8 +189,8 @@ static void logging_cb(void *arg){
     column[12] = (float)(rand() % 3001) * 0.01;
     column[13] = (float)(rand() % 3001) * 0.01;
     contain_logging(logColumn);
-    LOG(LL_WARN, ("%s", use_contain.c_str()));
-   // LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_heap_size()));
+    //LOG(LL_WARN, ("%s", use_contain.c_str()));
+    LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_heap_size()));
     if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -160,6 +211,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   mgos_gpio_setup_output(LED_PIN, 0);
 #endif
 	//file system initiation
+	load_wifi_setting();
 	header_column_logging(logColumn);
   	oldcheck_onboot();
   	
@@ -170,11 +222,13 @@ enum mgos_app_init_result mgos_app_init(void) {
 	
 	//i2c and sensor
 	Wire.begin();
-	mgos_gpio_setup_output(enablei2c, 1);
-  	mgos_gpio_setup_output(LED_PIN, 0);
+	//GPIO init
+	mgos_gpio_setup_output(EN_I2C, 1);
   	mgos_gpio_setup_output(R1, 1);
   	mgos_gpio_setup_output(R2, 1);
-  	//ACS71020
+  	mgos_gpio_setup_output(WIFI_LED, 0);
+  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_UP); //pull up
+	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
 	if (err == 1)LOG(LL_WARN, ("\nPower Sensor is online"));
@@ -213,15 +267,84 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
   	//RPC handler function
-	mg_rpc_add_handler(mgos_rpc_get_global(), "setting"
-  	,"{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B,  col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
-  	, setting_modifier, NULL);
+	mg_rpc_add_handler(mgos_rpc_get_global(), "setting","", setting_modifier, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	return MGOS_APP_INIT_SUCCESS;
 }
+//V2////////////////////////////////////////////////////////////////////////////////////////
+void load_wifi_setting(){
+	struct json_token t;
+  	char* IP;char* SN;char* GW;
+  	int mode;
+  	bool static_en = false;
+	char* buff = json_fread("setting.json");
+	json_scanf(buff, strlen(buff), "{wifi_mode:%d}", &mode );
+	json_scanf_array_elem(buff, strlen(buff), ".static_IP_conf", 0, &t);
+	json_scanf(t.ptr, t.len, "{enable: %B}", &static_en);
+	json_scanf(t.ptr, t.len, "{IP: %Q}", &IP);
+	json_scanf(t.ptr, t.len, "{GW: %Q}", &GW);
+	json_scanf(t.ptr, t.len, "{SN: %Q}", &SN);
+	if(mgos_gpio_read(WIFI_BTN) == 0){
+		LOG(LL_WARN, ("AP mode (button)"));
+		wifi_mode = 2;
+		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		return;	
+	}
+	
+	if(mode == 1){
+		LOG(LL_WARN,("STA mode.."));
+	    cfg_sta.enable = true;
+	    wifi_mode = 1;
+		cfg_sta.ssid = "DODO-A609";
+		cfg_sta.pass = "C7LWMPVNCP";
+		if(static_en){
+			cfg_sta.ip = IP;
+		    cfg_sta.gw = GW;
+			cfg_sta.netmask = SN;
+		}	
+		cfg_ap.enable = false;
+		mgos_wifi_setup_sta(&cfg_sta);
+		mgos_wifi_setup_ap(&cfg_ap); 
+		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+	}else if(mode == 3){
+		wifi_mode = 3;
+		cfg_sta.enable = false;
+		cfg_ap.enable = false;
+		mgos_wifi_setup_sta(&cfg_sta);
+		mgos_wifi_setup_ap(&cfg_ap);
+		mgos_gpio_write(WIFI_LED, false);
+	}else{
+		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		wifi_mode = 2;
+	}
+}
+
+void fade_blink(int pin){
+	static unsigned int PWM_val = 0;
+    static char index = 0;
+    mgos_pwm_set(pin, 5000, (float)PWM_val/65535);
+    if(index == 0){
+      long buff = (long)PWM_val + 300;
+      if(buff >= 30000){
+        //no change value
+        index = 1;
+      }else{
+        PWM_val = (unsigned int)buff;
+      }
+    }else{
+      long buff = (long)PWM_val - 300;
+      if(buff <= 0){
+        PWM_val = 0;
+        index = 0;
+      }else{
+        PWM_val = (unsigned int)buff;
+      }
+    }
+}
+//V2////////////////////////////////////////////////////////////////////////////////////////
 
 void appendFile(const char* path, const char* message){ //append message to a file (tested)
 	FILE * file = fopen(path, "a");
@@ -859,17 +982,10 @@ void oldcheck_onboot() { //check old files adjusts offline epoch (picked from la
   }
 }
 //function RPC function
-static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg, struct mg_rpc_frame_info *fi, struct mg_str args) {
-  if (json_scanf(args.p, args.len, ri->args_fmt, &colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday) == 15) {
-    mg_rpc_send_responsef(ri, "OK");
-	LOG(LL_WARN, ("setting json file received"));
-	json_fprintf("setting.json", "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}", colen[0], colen[1], colen[2], colen[3], colen[4], colen[5], colen[6], colen[7], colen[8], colen[9], colen[10], colen[11], colen[12], rc_1970day, rc_thisday);
-  } else {
-    mg_rpc_send_errorf(ri, -1, "Bad request");
-  }
-  
-  (void) cb_arg;
-  (void) fi;
+static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args) {
+ 	checkJSONsetting();
+	(void) cb_arg;
+	(void) fi;
 }
 static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args) {
  	long ret = (NTPflag == true) ? online_epoch : offline_epoch;

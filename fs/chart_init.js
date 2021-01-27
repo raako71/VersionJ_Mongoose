@@ -1,3 +1,16 @@
+var temp_scale =1;
+function fetch_temp_scale(){
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "/rpc/FS.Get", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+var comm = {"filename": "setting.json"};
+xhr.send(JSON.stringify(comm));
+xhr.onload = function() {
+	var data = JSON.parse(this.responseText);
+	var old_json = JSON.parse(window.atob(data.data));
+	temp_scale = old_json.temp_scale;
+}
+}
 var ctx = document.getElementById('main_chart').getContext('2d');
 var chart_one = new Chart(ctx, {
 // The type of chart we want to create
@@ -283,11 +296,15 @@ old_json.col13_en = document.getElementById("col13_checkbox").checked;
 }else if (doc == "/1970Day.csv"){
 	old_json.rc_1970day = document.getElementById("rec_online_checkbox").checked;
 }
-var string = JSON.stringify(old_json);
+var string = window.btoa(JSON.stringify(old_json));
 var xhttp = new XMLHttpRequest();
-xhttp.open("POST", "/rpc/setting", true);
+xhttp.open("POST", "/rpc/FS.Put", true);
 xhttp.setRequestHeader('Content-Type', 'application/json');
-xhttp.send(string);
+var contain = {"filename": "setting.json", "append":false, "data": string}
+xhttp.send(JSON.stringify(contain));
+var xhttp2 = new XMLHttpRequest();
+xhttp2.open("POST", "/rpc/setting", true);
+xhttp2.send();
 }
 }
 function update_graph(){
@@ -382,7 +399,11 @@ function col6_conv(value){
 if(value == ''){
 	ret = null;
 }else{
-	 ret = value;
+	if(temp_scale == 2){
+		ret = C2F(value);
+	}else{
+		ret = value;
+	}
 }
 col6_conv_ret.push(ret);
 }
@@ -502,8 +523,15 @@ document.getElementById("hour_text").innerHTML = pub_string;
 xhr.open("GET", "/rpc/getTime", true);
 xhr.send();
 }
+
+function C2F(temp){
+var ret = (temp * 9/5)+32;
+return ret;
+}
+
 function onLoad(event) { //function when dom is loaded
 update_time();
+fetch_temp_scale();
 check_global_setting();
 //delay500ms to update graph on first load
 setTimeout(update_graph(), 500);

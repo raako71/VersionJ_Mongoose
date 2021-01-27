@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+	<title> Power Monitor Web Server | Setting</title>
+</head>
+<body>
+	<h1> Settings</h1>
+	
+	<div class="main_container">
+	<label for="mode" ><b>Default WiFi Mode:</b></label>
+		<select name="mode" id="mode">
+		<option value="1">Station</option>
+		<option value="2">AP</option>
+		<option value="3">Off</option>
+	</select>
+	<br><br>
+	<input type="checkbox" id="pwr_sensor_check" name="pwr_sensor_check">	
+	<label for="pwr_sensor_check"><b>Power Sensor Setting</b></label><br>
+		&nbsp;&nbsp;&nbsp; on Development...
+	<br>
+	<input type="checkbox" id="LAN_conf" name="LAN_conf" onClick="LAN_conf()" style="margin-top:15px">	
+	<label for="LAN_conf"><b>Static WiFi IP</b></label><br>
+	<table style="width:60%; padding-left:25px; margin-bottom:10px">
+		<tr height="35px">
+			<td width="35%">IP ADDRESS: </td>
+			<td> <input style="width:92%" 	type = "text" id = "IP" class="input_textbox"  maxlength="15" readonly> </td>
+		</tr>
+		<tr height="35px">
+			<td width="35%">GATEWAY ADDRESS: </td>
+			<td > <input style="width:92%" type = "text" id = "GW" class="input_textbox" maxlength="15" readonly> </td>
+		</tr>
+		<tr height="35px">
+			<td width="35%">SUBNET MASK: </td>
+			<td > <input style="width:92%" type = "text" id = "SN" class="input_textbox" maxlength="15" readonly> </td>
+		</tr>
+	</table>
+	<b>Set Time Zone</b>
+	<br>
+	<table width="300px">
+	<tr >
+		<td rowspan="2" style="width:50px">
+			<input type="radio" id="pos_tz" name="mark_tz" value="+" checked>
+			<label for="pos_tz">+</label><br>
+			<input type="radio" id="neg_tz" name="mark_tz" value="-">
+			<label for="neg_tz">-</label>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:75px">
+		<input type = "number" style="width:50px; font-size:20px" min="0" max="12" id="hour" placeholder="hh"> 
+		<span style="font-size:20px"> &nbsp;: </span>
+		</td>
+		<td style="width:75px">
+			<input type = "number" style="width:50px; font-size:20px" min="0" max="59" id="minute" placeholder="mm">
+		</td>
+		<td style="width:75px">
+			<input type="button" style="width:50px;text-align:center" value="auto" onClick="auto_tz()">
+		</td>
+	</tr>
+	</table>
+	<br>
+	<b>Temperature Scale:</b>
+	<br>
+	<input type="radio" id="temp_C" name="temp" value="1" checked>
+	<label for="temp_C">C</label><br>
+	<input type="radio" id="temp_F" name="temp" value="2">
+	<label for="temp_F">F</label><br>
+	</div>
+	
+	<input type="button" value="SAVE" onClick="save_conf()">
+</body>
+
+<script>
+	window.addEventListener('load', onLoad);	
+	function onLoad(){
+		console.log("DOM loaded");
+		load_conf();
+	}
+	function LAN_conf(){
+		var logic = document.getElementById("LAN_conf").checked;
+		if(logic){
+			document.getElementById("IP").readOnly = false;
+			document.getElementById("GW").readOnly = false;
+			document.getElementById("SN").readOnly = false;
+		}else{
+			document.getElementById("IP").readOnly = false;
+			document.getElementById("GW").readOnly = false;
+			document.getElementById("SN").readOnly = false;
+			document.getElementById("IP").value = "";
+			document.getElementById("GW").value = "";
+			document.getElementById("SN").value = "";
+		}
+	}
+	
+	function ValidateIPaddress(ipaddress) {  
+	  if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {  
+		return (true)  
+	  }  
+	  alert("You have entered an invalid IP address!")  
+	  return (false)  
+	} 
+	function load_conf(){
+		var old_json;
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", "/rpc/FS.Get", true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		var comm = {"filename": "setting.json"};
+		xhr.send(JSON.stringify(comm));
+		xhr.onload = function() {
+			var data = JSON.parse(this.responseText);
+			old_json = JSON.parse(window.atob(data.data));
+			document.getElementById("mode").value = old_json.wifi_mode;
+			document.getElementById("pwr_sensor_check").checked = old_json.pwr_sensor[0].enable;
+			var static_conf = old_json.static_IP_conf[0].enable;
+			if(static_conf){
+				document.getElementById("LAN_conf").checked = true;
+				document.getElementById("IP").value = old_json.static_IP_conf[0].IP;
+				document.getElementById("GW").value = old_json.static_IP_conf[0].GW;
+				document.getElementById("SN").value = old_json.static_IP_conf[0].SN;
+				document.getElementById("IP").readOnly = false;
+				document.getElementById("GW").readOnly = false;
+				document.getElementById("SN").readOnly = false;
+			}
+			var time_zone = old_json.timezone;
+			if(time_zone <0){
+				document.getElementById("neg_tz").checked = true;
+				time_zone = Math.abs(time_zone);
+			}
+			var hour = Math.floor(time_zone/3600);
+			var minute = time_zone - hour*3600; 
+			minute /= 60;
+			document.getElementById("hour").value = hour;
+			document.getElementById("minute").value = minute;
+			var temp = old_json.temp_scale;
+			if(temp == 2){
+				document.getElementById("temp_F").checked = true;
+			}
+		}
+	}
+	function auto_tz(){
+		var d = new Date();
+		var offset = d.getTimezoneOffset();
+		if(offset < 0){//positive
+			document.getElementById("pos_tz").checked = true;
+		}else{
+			document.getElementById("neg_tz").checked = true;
+		}
+		offset = Math.abs(offset);
+		var hour = Math.floor(offset/60);
+		document.getElementById("hour").value = hour;
+		var minute = offset - hour*60;
+		document.getElementById("minute").value = minute;
+	}
+	function save_conf(){
+		var old_json;
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", "/rpc/FS.Get", true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		var comm = {"filename": "setting.json"};
+		xhr.send(JSON.stringify(comm));
+		xhr.onload = function() {
+			var data = JSON.parse(this.responseText);
+			old_json = JSON.parse(window.atob(data.data));
+			var mode = document.getElementById("mode").value;
+			var network_conf = document.getElementById("mode").value;
+			var pwr_sensor_en = document.getElementById("pwr_sensor_check").checked;
+			var net_conf_en = document.getElementById("LAN_conf").checked;
+			var IP ="";var GW ="";var SN ="" ;
+			if(net_conf_en){
+				IP = document.getElementById("IP").value;
+				GW = document.getElementById("GW").value;
+				SN = document.getElementById("SN").value;
+				if(!ValidateIPaddress(IP)){return;}
+				if(!ValidateIPaddress(GW)){return;}
+				if(!ValidateIPaddress(SN)){return;}
+			}
+			var mark_tz = (document.getElementById("pos_tz").checked ? 1 : -1);
+			var hour = document.getElementById("hour").value;
+			var minute = document.getElementById("minute").value;
+			if(hour == "" || minute==""){
+				alert("time zone must not empty");
+				return;
+			}
+			if(!(hour >= 0 && hour <= 12)){
+				alert("invalid hour value ( 0 to 12)");
+				return;
+			}
+			if(!(minute >= 0 && minute <= 59)){
+				alert("invalid minute value (0 to 59)");
+				return;
+			}
+			var time_zone = ((hour * 3600) + (minute * 60)) * mark_tz;
+			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
+			old_json.wifi_mode = mode;
+			old_json.pwr_sensor[0].enable = pwr_sensor_en;
+			old_json.static_IP_conf[0].enable = net_conf_en;
+			old_json.static_IP_conf[0].IP = IP;
+			old_json.static_IP_conf[0].GW = GW;
+			old_json.static_IP_conf[0].SN = SN;
+			old_json.timezone = time_zone;
+			old_json.temp_scale = temp_mode;
+			var conf = confirm("Proceed to save configuraton?");
+			if(conf){
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "/rpc/FS.Put", true);
+			xhttp.setRequestHeader('Content-Type', 'application/json');
+			var string = window.btoa(JSON.stringify(old_json));
+			var contain = {"filename": "setting.json", "append":false, "data": string}
+			xhttp.send(JSON.stringify(contain));
+			xhttp.onload = function(){
+				alert("configuration saved");
+			}
+			}else{
+				return;
+			}
+		}//xhr onload
+	}//save conf function
+	
+	
+	
+</script>
+
+<style>
+	html{
+		font-family: Arial; display: inline-block; text-align: center;
+		-webkit-text-size-adjust:none;
+	}
+	.main_container{
+		width:90%; 
+		text-align:left;  
+		padding-top:15px;
+		margin-left:auto; 
+		margin-right:auto
+	}
+</style>
+</html>
