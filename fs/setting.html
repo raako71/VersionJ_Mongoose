@@ -6,8 +6,13 @@
 </head>
 <body>
 	<h1> Settings</h1>
-	
+
 	<div class="main_container">
+	<b> Ethernet Enable </b><br>
+	<label class="switch" style="margin-bottom:15px; margin-top:15px">
+	<input type="checkbox" id="eth_en">
+	<span class="slider round"></span>
+	</label><br>
 	<label for="mode" ><b>Default WiFi Mode:</b></label>
 		<select name="mode" id="mode">
 		<option value="1">Station</option>
@@ -37,7 +42,7 @@
 	</table>
 	<b>Set Time Zone</b>
 	<br>
-	<table width="300px">
+	<table width="400px">
 	<tr >
 		<td rowspan="2" style="width:50px">
 			<input type="radio" id="pos_tz" name="mark_tz" value="+" checked>
@@ -47,15 +52,15 @@
 		</td>
 	</tr>
 	<tr>
-		<td style="width:75px">
+		<td style="width:80px">
 		<input type = "number" style="width:50px; font-size:20px" min="0" max="12" id="hour" placeholder="hh"> 
 		<span style="font-size:20px"> &nbsp;: </span>
 		</td>
-		<td style="width:75px">
+		<td style="width:80px">
 			<input type = "number" style="width:50px; font-size:20px" min="0" max="59" id="minute" placeholder="mm">
 		</td>
-		<td style="width:75px">
-			<input type="button" style="width:50px;text-align:center" value="auto" onClick="auto_tz()">
+		<td >
+			<input type="button" style="text-align:center" value="Pull from Browser" onClick="auto_tz()">
 		</td>
 	</tr>
 	</table>
@@ -69,6 +74,8 @@
 	</div>
 	
 	<input type="button" value="SAVE" onClick="save_conf()">
+	<br><br>
+	<input type="button" value="Reboot" onClick="reboot()">
 </body>
 
 <script>
@@ -110,6 +117,7 @@
 		xhr.onload = function() {
 			var data = JSON.parse(this.responseText);
 			old_json = JSON.parse(window.atob(data.data));
+			document.getElementById("eth_en").checked = old_json.eth_en;
 			document.getElementById("mode").value = old_json.wifi_mode;
 			document.getElementById("pwr_sensor_check").checked = old_json.pwr_sensor[0].enable;
 			var static_conf = old_json.static_IP_conf[0].enable;
@@ -192,6 +200,7 @@
 			}
 			var time_zone = ((hour * 3600) + (minute * 60)) * mark_tz;
 			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
+			old_json.eth_en = document.getElementById("eth_en").checked;
 			old_json.wifi_mode = mode;
 			old_json.pwr_sensor[0].enable = pwr_sensor_en;
 			old_json.static_IP_conf[0].enable = net_conf_en;
@@ -216,9 +225,14 @@
 			}
 		}//xhr onload
 	}//save conf function
-	
-	
-	
+	function reboot(){
+		var con = confirm("Proceed to reboot?");
+		if(con){
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "/rpc/Sys.Reboot", true);
+			xhr.send();
+		}
+	}
 </script>
 
 <style>
@@ -233,5 +247,15 @@
 		margin-left:auto; 
 		margin-right:auto
 	}
+	.switch { position: relative; display: inline-block; width: 60px; height: 34px;}
+	.switch input { opacity: 0; width: 0; height: 0;}
+	.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s;}
+	.slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s;}
+	input:checked + .slider { background-color: #03b000;}
+	input:focus + .slider { box-shadow: 0 0 1px #2196F3;}
+	input:checked + .slider:before { -webkit-transform: translateX(26px); -ms-transform: translateX(26px); transform: translateX(26px);}
+	/* Rounded sliders */
+	.slider.round { border-radius: 34px;}
+	.slider.round:before { border-radius: 50%;}
 </style>
 </html>

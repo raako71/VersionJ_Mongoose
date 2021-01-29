@@ -175,11 +175,10 @@ static void logging_cb(void *arg){
       column[5] = Iavg * 0.001;
     }
     else {
-      column[3] = 0;
-      column[4] = 0;
-      column[5] = 0;
+      colen[2] = false;
+      colen[3] = false;
+      colen[4] = false;
     }
-    
     column[6] = mgos_bme280_read_temperature(bme);
     column[7] = mgos_bme280_read_humidity(bme);
     column[8] = mgos_bme280_read_pressure(bme);
@@ -207,11 +206,8 @@ static void logging_cb(void *arg){
 
 
 enum mgos_app_init_result mgos_app_init(void) {
-#ifdef LED_PIN
-  mgos_gpio_setup_output(LED_PIN, 0);
-#endif
 	//file system initiation
-	load_wifi_setting();
+	
 	header_column_logging(logColumn);
   	oldcheck_onboot();
   	
@@ -223,6 +219,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//i2c and sensor
 	Wire.begin();
 	//GPIO init
+	
 	mgos_gpio_setup_output(EN_I2C, 1);
   	mgos_gpio_setup_output(R1, 1);
   	mgos_gpio_setup_output(R2, 1);
@@ -272,6 +269,8 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
+	mgos_msleep(1000);
+	load_wifi_setting();
 	return MGOS_APP_INIT_SUCCESS;
 }
 //V2////////////////////////////////////////////////////////////////////////////////////////
@@ -287,8 +286,10 @@ void load_wifi_setting(){
 	json_scanf(t.ptr, t.len, "{IP: %Q}", &IP);
 	json_scanf(t.ptr, t.len, "{GW: %Q}", &GW);
 	json_scanf(t.ptr, t.len, "{SN: %Q}", &SN);
-	if(mgos_gpio_read(WIFI_BTN) == 0){
-		LOG(LL_WARN, ("AP mode (button)"));
+	int a = mgos_gpio_read(WIFI_BTN);
+	
+	if(a == 0){
+		LOG(LL_WARN, ("AP mode (button) %d", a));
 		wifi_mode = 2;
 		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		return;	
@@ -298,8 +299,8 @@ void load_wifi_setting(){
 		LOG(LL_WARN,("STA mode.."));
 	    cfg_sta.enable = true;
 	    wifi_mode = 1;
-		cfg_sta.ssid = "DODO-A609";
-		cfg_sta.pass = "C7LWMPVNCP";
+		cfg_sta.ssid = "Aguan";
+		cfg_sta.pass = "25051969";
 		if(static_en){
 			cfg_sta.ip = IP;
 		    cfg_sta.gw = GW;
@@ -689,6 +690,11 @@ void contain_logging(int desired){//function that modify use_contain variable ba
   }
   strcat(buff, "\n");
   use_contain = buff;
+  
+  char* load = json_fread("setting.json");
+  json_scanf(load, strlen(load), "{col3_en: %B, col4_en: %B, col5_en: %B}", &colen[2], &colen[3], &colen[4]);
+  
+  
 }
 void header_column_logging(int desired){//function that ajusting file column number and header string (picked from last version)
 	desired++;
