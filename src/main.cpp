@@ -215,7 +215,8 @@ enum mgos_app_init_result mgos_app_init(void) {
 		LOG(LL_INFO, ("json checking"));
 		checkJSONsetting();
   	}	
-	
+//	mgos_sys_config_set_eth_enable(true);
+//	mgos_sys_config_set_eth_ip("192.168.100.1");
 	//i2c and sensor
 	Wire.begin();
 	//GPIO init
@@ -276,16 +277,16 @@ enum mgos_app_init_result mgos_app_init(void) {
 //V2////////////////////////////////////////////////////////////////////////////////////////
 void load_wifi_setting(){
 	struct json_token t;
-  	char* IP;char* SN;char* GW;
+  	//char* IP;char* SN;char* GW;
   	int mode;
-  	bool static_en = false;
+  	//bool static_en = false;
 	char* buff = json_fread("setting.json");
 	json_scanf(buff, strlen(buff), "{wifi_mode:%d}", &mode );
-	json_scanf_array_elem(buff, strlen(buff), ".static_IP_conf", 0, &t);
-	json_scanf(t.ptr, t.len, "{enable: %B}", &static_en);
-	json_scanf(t.ptr, t.len, "{IP: %Q}", &IP);
-	json_scanf(t.ptr, t.len, "{GW: %Q}", &GW);
-	json_scanf(t.ptr, t.len, "{SN: %Q}", &SN);
+	//json_scanf_array_elem(buff, strlen(buff), ".static_IP_conf", 0, &t);
+	//json_scanf(t.ptr, t.len, "{enable: %B}", &static_en);
+	//json_scanf(t.ptr, t.len, "{IP: %Q}", &IP);
+	//json_scanf(t.ptr, t.len, "{GW: %Q}", &GW);
+	//json_scanf(t.ptr, t.len, "{SN: %Q}", &SN);
 	int a = mgos_gpio_read(WIFI_BTN);
 	
 	if(a == 0){
@@ -299,17 +300,13 @@ void load_wifi_setting(){
 		LOG(LL_WARN,("STA mode.."));
 	    cfg_sta.enable = true;
 	    wifi_mode = 1;
-		cfg_sta.ssid = "Aguan";
+		cfg_sta.ssid = "RumahOrang";
 		cfg_sta.pass = "25051969";
-		if(static_en){
-			cfg_sta.ip = IP;
-		    cfg_sta.gw = GW;
-			cfg_sta.netmask = SN;
-		}	
 		cfg_ap.enable = false;
 		mgos_wifi_setup_sta(&cfg_sta);
 		mgos_wifi_setup_ap(&cfg_ap); 
 		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		return;
 	}else if(mode == 3){
 		wifi_mode = 3;
 		cfg_sta.enable = false;
@@ -320,6 +317,7 @@ void load_wifi_setting(){
 	}else{
 		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		wifi_mode = 2;
+		return;
 	}
 }
 

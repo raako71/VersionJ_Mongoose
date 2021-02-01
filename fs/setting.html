@@ -13,6 +13,7 @@
 	<input type="checkbox" id="eth_en">
 	<span class="slider round"></span>
 	</label><br>
+	<b style="color:red"> Warning: Plug ethernet first befor enabling it!</b><br><br>
 	<label for="mode" ><b>Default WiFi Mode:</b></label>
 		<select name="mode" id="mode">
 		<option value="1">Station</option>
@@ -25,7 +26,7 @@
 		&nbsp;&nbsp;&nbsp; on Development...
 	<br>
 	<input type="checkbox" id="LAN_conf" name="LAN_conf" onClick="LAN_conf()" style="margin-top:15px">	
-	<label for="LAN_conf"><b>Static WiFi IP</b></label><br>
+	<label for="LAN_conf"><b>Static Eth IP</b></label><br>
 	<table style="width:60%; padding-left:25px; margin-bottom:10px">
 		<tr height="35px">
 			<td width="35%">IP ADDRESS: </td>
@@ -161,6 +162,10 @@
 		document.getElementById("minute").value = minute;
 	}
 	function save_conf(){
+		if(document.getElementById("eth_en").checked && document.getElementById("mode").value != 3){
+			alert("cannot activate both ethernet and wifi, choose one");
+			return;
+		}
 		var old_json;
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "/rpc/FS.Get", true);
@@ -220,11 +225,19 @@
 			xhttp.onload = function(){
 				alert("configuration saved");
 			}
+			save_eth_conf(old_json.eth_en, IP, GW, SN);	
 			}else{
 				return;
 			}
 		}//xhr onload
 	}//save conf function
+	function save_eth_conf(en, ip, gw, netmask){
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST", "/rpc/Config.Set", true);
+		xhttp.setRequestHeader('Content-Type', 'application/json');
+		var contain = {"config": {"eth": {"enable": en, "ip": ip, "gw": gw, "netmask":netmask}}};
+		xhttp.send(JSON.stringify(contain));
+	}
 	function reboot(){
 		var con = confirm("Proceed to reboot?");
 		if(con){
