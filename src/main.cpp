@@ -41,13 +41,13 @@
 
 #ifdef V1
 #define WIFI_LED 16
-#define WIFI_BTN 35
+#define WIFI_BTN 35 //installed
 #define PB1 34
-#define EN_I2C 13
-#define R1 14
+#define EN_I2C 13 //installed
+#define R1 14 //installed
 #define R2 12
-#define LED_RED 4
-#define RL_LED_EN 2
+#define LED_RED 4  //Installed
+#define RL_LED_EN 2 //Installed
 #endif
 
 #ifdef V2
