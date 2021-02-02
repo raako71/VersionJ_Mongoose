@@ -119,7 +119,7 @@
 			var data = JSON.parse(this.responseText);
 			old_json = JSON.parse(window.atob(data.data));
 			document.getElementById("eth_en").checked = old_json.eth_en;
-			document.getElementById("mode").value = old_json.wifi_mode;
+			document.getElementById("mode").value = old_json.wifi[0].mode;
 			document.getElementById("pwr_sensor_check").checked = old_json.pwr_sensor[0].enable;
 			var static_conf = old_json.static_IP_conf[0].enable;
 			if(static_conf){
@@ -206,7 +206,7 @@
 			var time_zone = ((hour * 3600) + (minute * 60)) * mark_tz;
 			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
 			old_json.eth_en = document.getElementById("eth_en").checked;
-			old_json.wifi_mode = mode;
+			old_json.wifi[0].mode = mode;
 			old_json.pwr_sensor[0].enable = pwr_sensor_en;
 			old_json.static_IP_conf[0].enable = net_conf_en;
 			old_json.static_IP_conf[0].IP = IP;

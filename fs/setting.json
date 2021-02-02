@@ -14,7 +14,7 @@
 "rc_1970day": true, 
 "rc_thisday":true,
 "eth_en":false,
-"wifi_mode": 1,
+"wifi": [{"mode":1, "ssid": "DODO-A609", "pass":"C7LWMPVNCP"}], 
 "pwr_sensor":[{"enable":true}],
 "static_IP_conf": [{"enable": false, "IP":"192.168.100.76" , "SN":"255.255.255.0" , "GW":"192.168.100.1"}],
 "timezone":0,

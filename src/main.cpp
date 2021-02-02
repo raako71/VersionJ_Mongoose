@@ -41,13 +41,13 @@
 
 #ifdef V1
 #define WIFI_LED 16
-#define WIFI_BTN 35 //installed
+#define WIFI_BTN 35
 #define PB1 34
-#define EN_I2C 13 //installed
-#define R1 14 //installed
+#define EN_I2C 13
+#define R1 14
 #define R2 12
-#define LED_RED 4  //Installed
-#define RL_LED_EN 2 //Installed
+#define LED_RED 4
+#define RL_LED_EN 2
 #endif
 
 #ifdef V2
@@ -225,7 +225,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mgos_gpio_setup_output(R1, 1);
   	mgos_gpio_setup_output(R2, 1);
   	mgos_gpio_setup_output(WIFI_LED, 0);
-  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_UP); //pull up
+  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); //pull up
 	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
@@ -279,17 +279,18 @@ void load_wifi_setting(){
 	struct json_token t;
   	//char* IP;char* SN;char* GW;
   	int mode;
+  	char* ssid; char* pass;
   	//bool static_en = false;
 	char* buff = json_fread("setting.json");
-	json_scanf(buff, strlen(buff), "{wifi_mode:%d}", &mode );
+	json_scanf_array_elem(buff, strlen(buff), ".wifi",0, &t);
 	//json_scanf_array_elem(buff, strlen(buff), ".static_IP_conf", 0, &t);
 	//json_scanf(t.ptr, t.len, "{enable: %B}", &static_en);
-	//json_scanf(t.ptr, t.len, "{IP: %Q}", &IP);
-	//json_scanf(t.ptr, t.len, "{GW: %Q}", &GW);
-	//json_scanf(t.ptr, t.len, "{SN: %Q}", &SN);
+	json_scanf(t.ptr, t.len, "{mode: %d}", &mode);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
 	int a = mgos_gpio_read(WIFI_BTN);
 	
-	if(a == 0){
+	if(a == 1){
 		LOG(LL_WARN, ("AP mode (button) %d", a));
 		wifi_mode = 2;
 		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
@@ -300,8 +301,8 @@ void load_wifi_setting(){
 		LOG(LL_WARN,("STA mode.."));
 	    cfg_sta.enable = true;
 	    wifi_mode = 1;
-		cfg_sta.ssid = "RumahOrang";
-		cfg_sta.pass = "25051969";
+		cfg_sta.ssid = ssid;
+		cfg_sta.pass = pass;
 		cfg_ap.enable = false;
 		mgos_wifi_setup_sta(&cfg_sta);
 		mgos_wifi_setup_ap(&cfg_ap); 
@@ -315,6 +316,7 @@ void load_wifi_setting(){
 		mgos_wifi_setup_ap(&cfg_ap);
 		mgos_gpio_write(WIFI_LED, false);
 	}else{
+		LOG(LL_WARN, ("AP mode (setting)"));
 		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		wifi_mode = 2;
 		return;
