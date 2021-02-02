@@ -29,6 +29,7 @@ cdefs:
   MGOS_ETH_PHY_DP83848: 0
   
 config_schema:
+  - ["http.hidden_files", "*.json"]
   - ["debug.level", 1]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]
