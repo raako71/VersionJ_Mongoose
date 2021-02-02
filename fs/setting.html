@@ -162,10 +162,6 @@
 		document.getElementById("minute").value = minute;
 	}
 	function save_conf(){
-		if(document.getElementById("eth_en").checked && document.getElementById("mode").value != 3){
-			alert("cannot activate both ethernet and wifi, choose one");
-			return;
-		}
 		var old_json;
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "/rpc/FS.Get", true);

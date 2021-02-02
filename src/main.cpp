@@ -293,7 +293,7 @@ void load_wifi_setting(){
 	if(a == 1){
 		LOG(LL_WARN, ("AP mode (button) %d", a));
 		wifi_mode = 2;
-		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		return;	
 	}
 	
@@ -306,7 +306,8 @@ void load_wifi_setting(){
 		cfg_ap.enable = false;
 		mgos_wifi_setup_sta(&cfg_sta);
 		mgos_wifi_setup_ap(&cfg_ap); 
-		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		
 		return;
 	}else if(mode == 3){
 		wifi_mode = 3;
@@ -317,7 +318,7 @@ void load_wifi_setting(){
 		mgos_gpio_write(WIFI_LED, false);
 	}else{
 		LOG(LL_WARN, ("AP mode (setting)"));
-		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		wifi_mode = 2;
 		return;
 	}
