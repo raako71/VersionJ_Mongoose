@@ -101,13 +101,13 @@ struct mgos_config_wifi_ap cfg_ap;
 
 static void wifi_led_ctrl(void *arg) {
    	if(wifi_mode == 2){
-   		mgos_gpio_toggle(WIFI_LED);	
+   		fade_blink(WIFI_LED);
 	}else if(wifi_mode == 1){
 		if(mgos_wifi_get_status() != 3){
-			fade_blink(WIFI_LED);
+			mgos_gpio_toggle(WIFI_LED);	//blinking searching
 		}else{
 			mgos_clear_timer(wifi_blink_timer);
-	   		mgos_pwm_set(WIFI_LED, 5000, 1);
+	   		mgos_gpio_write(WIFI_LED, true);
 		}
 	}
     (void) arg;
@@ -225,7 +225,12 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mgos_gpio_setup_output(R1, 1);
   	mgos_gpio_setup_output(R2, 1);
   	mgos_gpio_setup_output(WIFI_LED, 0);
-  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); //pull up
+  	mgos_gpio_setup_output(RL_LED_EN, 0);
+  	mgos_gpio_setup_input(0, MGOS_GPIO_PULL_NONE);
+  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); 
+  	if(mgos_gpio_read(0) == 1){
+  		mgos_gpio_write(RL_LED_EN, true);	
+    }
 	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
@@ -306,7 +311,7 @@ void load_wifi_setting(){
 		cfg_ap.enable = false;
 		mgos_wifi_setup_sta(&cfg_sta);
 		mgos_wifi_setup_ap(&cfg_ap); 
-		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		wifi_blink_timer = mgos_set_timer(100, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		
 		return;
 	}else if(mode == 3){
