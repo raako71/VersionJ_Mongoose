@@ -40,13 +40,13 @@
 #define V1  //V2
 
 #ifdef V1
-#define WIFI_LED 16
+#define WIFI_LED 4
 #define WIFI_BTN 35
 #define PB1 34
 #define EN_I2C 13
 #define R1 14
 #define R2 12
-#define LED_RED 4
+#define LED_RED 16
 #define RL_LED_EN 2
 #endif
 
