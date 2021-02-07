@@ -140,6 +140,7 @@ void trimfile(const char* path);//function that trims file when reaching upper l
 void online_HouseKeeping();//(picked from last version)
 void offline_HouseKeeping();//(picked from last version)
 void oldcheck_onboot();//check old files adjusts offline epoch (picked from last version)
+void checking_eth();
 //function prototype
 static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg, struct mg_rpc_frame_info *fi, struct mg_str args);
 static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
@@ -165,7 +166,6 @@ static void timer_cb(void *arg) {
 }
 
 static void logging_cb(void *arg){
-	
 	//logging code
 	column[1] = mgos_gpio_read_out(R1);
 	column[2] = mgos_gpio_read_out(R2);
@@ -213,7 +213,6 @@ static void logging_cb(void *arg){
 
 enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
-	
 	header_column_logging(logColumn);
   	oldcheck_onboot();
   	
@@ -288,6 +287,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	return MGOS_APP_INIT_SUCCESS;
 }
 //V2////////////////////////////////////////////////////////////////////////////////////////
+
 void load_wifi_setting(){
 	struct json_token t;
   	//char* IP;char* SN;char* GW;

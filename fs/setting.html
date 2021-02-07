@@ -116,7 +116,7 @@
 			old_json = JSON.parse(window.atob(data.data));
 			document.getElementById("eth_en").checked = old_json.eth_en;
 			if(old_json.eth_en){
-				getconfig("eth");
+				getconfig();
 			}
 			document.getElementById("mode").value = old_json.wifi[0].mode;
 			document.getElementById("pwr_sensor_check").checked = old_json.pwr_sensor[0].enable;
@@ -241,17 +241,15 @@
 			xhr.send();
 		}
 	}
-	function getconfig(key){
+	function getconfig(){
 		var xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "/rpc/Config.Get", true);
-		xhttp.setRequestHeader('Content-Type', 'application/json');
-		var contain = {"key":key};
-		xhttp.send(JSON.stringify(contain));
+		xhttp.open("POST", "/rpc/Sys.GetInfo", true);
+		//xhttp.setRequestHeader('Content-Type', 'application/json');
+		//var contain = {"key":key};
+		//xhttp.send(JSON.stringify(contain));
 		xhttp.onload = function(){
 			var response = JSON.parse(this.responseText);
-			document.getElementById("IP").value = response.ip;
-			document.getElementById("GW").value = response.gw;
-			document.getElementById("SN").value = response.netmask;
+			document.getElementById("IP").value = response.eth[0].ip;	
 		}
 	}
 </script>
