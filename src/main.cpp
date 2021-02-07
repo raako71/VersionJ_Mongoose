@@ -100,15 +100,21 @@ struct mgos_config_wifi_sta cfg_sta;
 struct mgos_config_wifi_ap cfg_ap;
 
 static void wifi_led_ctrl(void *arg) {
+	static int prescale = 0;
    	if(wifi_mode == 2){
    		fade_blink(WIFI_LED);
 	}else if(wifi_mode == 1){
 		if(mgos_wifi_get_status() != 3){
+			if(prescale >= 10){
+				mgos_wifi_connect();
+				prescale = 0;
+			}
 			mgos_gpio_toggle(WIFI_LED);	//blinking searching
 		}else{
-			mgos_clear_timer(wifi_blink_timer);
+			//mgos_clear_timer(wifi_blink_timer);
 	   		mgos_gpio_write(WIFI_LED, true);
 		}
+		prescale++;
 	}
     (void) arg;
 }
@@ -215,8 +221,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 		LOG(LL_INFO, ("json checking"));
 		checkJSONsetting();
   	}	
-//	mgos_sys_config_set_eth_enable(true);
-//	mgos_sys_config_set_eth_ip("192.168.100.1");
+
 	//i2c and sensor
 	Wire.begin();
 	//GPIO init
@@ -226,11 +231,14 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mgos_gpio_setup_output(R2, 1);
   	mgos_gpio_setup_output(WIFI_LED, 0);
   	mgos_gpio_setup_output(RL_LED_EN, 0);
-  	mgos_gpio_setup_input(0, MGOS_GPIO_PULL_NONE);
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); 
+	
+	
+	mgos_gpio_setup_input(0, MGOS_GPIO_PULL_NONE);
   	if(mgos_gpio_read(0) == 1){
   		mgos_gpio_write(RL_LED_EN, true);	
     }
+	
 	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
