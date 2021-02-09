@@ -245,9 +245,7 @@
 	function getconfig(){
 		var xhttp = new XMLHttpRequest();
 		xhttp.open("POST", "/rpc/Sys.GetInfo", true);
-		//xhttp.setRequestHeader('Content-Type', 'application/json');
-		//var contain = {"key":key};
-		//xhttp.send(JSON.stringify(contain));
+		xhttp.send());
 		xhttp.onload = function(){
 			var response = JSON.parse(this.responseText);
 			document.getElementById("IP").value = response.eth.ip;
