@@ -6,6 +6,7 @@
 </head>
 <body>
 	<h1> Settings</h1>
+	<h1> <a href="./">Home</a></h1>
 
 	<div class="main_container">
 	<b> Ethernet Enable </b><br>
@@ -249,7 +250,7 @@
 		//xhttp.send(JSON.stringify(contain));
 		xhttp.onload = function(){
 			var response = JSON.parse(this.responseText);
-			document.getElementById("IP").value = response.eth[0].ip;	
+			document.getElementById("IP").value = response.eth.ip;
 		}
 	}
 </script>
