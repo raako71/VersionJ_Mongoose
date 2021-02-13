@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script type="text/javascript" src="https://d3js.org/d3-dsv.v1.min.js"></script>
+<script type="text/javascript" src="https://d3js.org/d3-fetch.v1.min.js"></script>
 <script type="text/javascript" src="/mnt/chart.js@2.8.0.js"></script>
 <script type="text/javascript" src="/mnt/d3-dsv.v1.min.js"></script>
 <script type="text/javascript" src="/mnt/d3-fetch.v1.min.js"></script>
@@ -9,53 +12,48 @@
 </head>
 <body>
 <div class="btn-group">
-	<form method="get" action="/">
-		<button type="submit">Home</button>
-	</form>
+<form method="get" action="/">
+<button type="submit">Home</button>
+</form>
 </div>
 <div class="demoFont" id = "hour_text">
 </div>
 <div class="demoFont">Long Term Data</div>
 <div class="row">
-	<div class="column">
-		<p></p>
-	</div>
-	<div class="Graph">
-		<canvas id="main_chart"></canvas>
-	</div>
-	<div class="column">
-		<p><a href="./thisMonth_plot.html">Latest Month Data -&#62;</a></p></div>
+<div class="column">
+<p></p>
+</div>
+<div class="Graph">
+<canvas id="main_chart"></canvas>
+</div>
+<div class="column">
+<p><a href="./thisMonth_plot.html">Latest Month Data -&#62;</a></p></div>
 </div>
 <div class="row">
-	<br><br><br>
-	<div class="column">
-		<p></p>
-	</div>
-	<div class="Graph">
-		<canvas id="sec_chart"></canvas>
-	</div>
-	<div class="column">
-		<p><a href="./thisMonth_plot.html">Latest Month Data -&#62;</a></p></div>
+<br><br><br>
+<div class="column">
+<p></p>
+</div>
+<div class="Graph">
+<canvas id="sec_chart"></canvas>
+</div>
+<div class="column">
+<p><a href="./thisMonth_plot.html">Latest Month Data -&#62;</a></p></div>
 </div>
 <div class="row">
-	<br><br><br>
-	<div class="column">
-		<p></p>
-	</div>
-	<div class="Graph">
-		<canvas id="trd_chart"></canvas>
-	</div>
-	<div class="column">
-		<p><a href="./thisMonth_plot.html">Latest Month Data -&#62;</a></p></div>
+<br><br><br>
+<div class="column">
+<p></p>
+</div>
+<div class="Graph">
+<canvas id="trd_chart"></canvas>
+</div>
+<div class="column">
+<p><a href="./thisMonth_plot.html">Latest Month Data -&#62;</a></p></div>
 </div>
 </body>
-<?php
-	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-	header("Cache-Control: post-check=0, pre-check=0", false);
-	header("Pragma: no-cache");
-?>
 <script src="/chart_init.js" defer></script>
 <script>
-var doc = '/longTermData.csv';
+var doc = 'mnt/longTermData.csv';
 </script>
 </html>

@@ -6,9 +6,9 @@ xhr.setRequestHeader('Content-Type', 'application/json');
 var comm = {"filename": "setting.json"};
 xhr.send(JSON.stringify(comm));
 xhr.onload = function() {
-	var data = JSON.parse(this.responseText);
-	var old_json = JSON.parse(window.atob(data.data));
-	temp_scale = old_json.temp_scale;
+var data = JSON.parse(this.responseText);
+var old_json = JSON.parse(window.atob(data.data));
+temp_scale = old_json.temp_scale;
 }
 }
 var ctx = document.getElementById('main_chart').getContext('2d');
@@ -247,7 +247,7 @@ xhr.send(JSON.stringify(comm));
 xhr.onload = function() {
 var data = JSON.parse(this.responseText);
 col_bool = JSON.parse(window.atob(data.data));
-if(doc == "/thisHour.csv" || doc == "/1970Hour.csv"){
+if(doc == "mnt/thisHour.csv" || doc == "mnt/1970Hour.csv"){
 document.getElementById("col1_checkbox").checked = col_bool.col1_en;
 document.getElementById("col2_checkbox").checked = col_bool.col2_en;
 document.getElementById("col3_checkbox").checked = col_bool.col3_en;
@@ -261,9 +261,9 @@ document.getElementById("col10_checkbox").checked = col_bool.col10_en;
 document.getElementById("col11_checkbox").checked = col_bool.col11_en;
 document.getElementById("col12_checkbox").checked = col_bool.col12_en;
 document.getElementById("col13_checkbox").checked = col_bool.col13_en;
-}else if(doc == "/thisDay.csv"){
+}else if(doc == "mnt/thisDay.csv"){
 	document.getElementById("rec_online_checkbox").checked = col_bool.rc_thisday;	
-}else if (doc == "/1970Day.csv"){
+}else if (doc == "mnt/1970Day.csv"){
 	document.getElementById("rec_online_checkbox").checked = col_bool.rc_1970day;	
 }}
 }

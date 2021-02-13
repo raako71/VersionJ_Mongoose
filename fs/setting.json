@@ -18,5 +18,6 @@
 "pwr_sensor":[{"enable":true}],
 "static_IP_conf": [{"enable": false, "IP":"" , "SN":"" , "GW":""}],
 "timezone":0,
-"temp_scale" : 1	
+"temp_scale" : 1,
+"ctrl_page": {"sensor_input":false, "prog_ctrl":false, "override":1, "ovr_val":"" , "LED" :1, "IO14":false}
 }

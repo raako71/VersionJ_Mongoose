@@ -543,7 +543,7 @@ void migrate(const char* original, const char* destination, int interval, long d
 	}   //failed to open destined file
 	
 	//proceed to create buffer file
-	FILE * file_buff = fopen("/buffer.csv", "a");
+	FILE * file_buff = fopen("/mnt/buffer.csv", "a");
 	if(file_buff == NULL){
 		return;
 	}   //failed to create buffer file
@@ -641,7 +641,7 @@ void migrate(const char* original, const char* destination, int interval, long d
 	
 	//delete original file
 	remove(original);
-	rename("/buffer.csv", original);
+	rename("/mnt/buffer.csv", original);
 }
 void move_old2new(const char* origin, const char* destination, long time_difference){//copy content to destination with epoch offset (tested)
   	//proceed to move
@@ -667,7 +667,7 @@ void move_old2new(const char* origin, const char* destination, long time_differe
   
 }
 void manageOffline_files(){ //function that moves old files to current files with automated time difference (tested);
-      long hour_last_entry = read_epoch_last_entry("/1970Hour.csv");
+      long hour_last_entry = read_epoch_last_entry("/mnt/1970Hour.csv");
       long time_difference = online_epoch - offline_epoch;
       if(hour_last_entry > -1){
         if(hour_last_entry > offline_epoch){
@@ -677,9 +677,9 @@ void manageOffline_files(){ //function that moves old files to current files wit
       //reset offline epoch value
       offline_epoch = 0;
 	  ////////////////////////////////////////////////////////////////////////////////////////
-      if (read_epoch_first_entry("/1970Hour.csv") > -1) { //not empty
-        move_old2new("/1970Hour.csv", "/thisHour.csv", time_difference);
-        remove("/1970Hour.csv");
+      if (read_epoch_first_entry("/mnt/1970Hour.csv") > -1) { //not empty
+        move_old2new("/mnt/1970Hour.csv", "/mnt/thisHour.csv", time_difference);
+        remove("/mnt/1970Hour.csv");
       }
       /////////////////////////////////////////////////////////////////////////////////////
 }
@@ -713,77 +713,77 @@ void contain_logging(int desired){//function that modify use_contain variable ba
 void header_column_logging(int desired){//function that ajusting file column number and header string (picked from last version)
 	desired++;
 	use_header = getHeader_file(desired);
-	if(exists("/thisHour.csv") ){
-		bool thishour_col = (getColumnNum("/thisHour.csv") != desired);
+	if(exists("/mnt/thisHour.csv") ){
+		bool thishour_col = (getColumnNum("/mnt/thisHour.csv") != desired);
 		if(thishour_col){
 			//restart file
-			remove("/thisHour.csv");
-			appendFile("/thisHour.csv", use_header.c_str());
+			remove("/mnt/thisHour.csv");
+			appendFile("/mnt/thisHour.csv", use_header.c_str());
 		}
 	}
-	if(exists("/thisDay.csv")){
-		bool thisday_col = (getColumnNum("/thisDay.csv") != desired);
+	if(exists("/mnt/thisDay.csv")){
+		bool thisday_col = (getColumnNum("/mnt/thisDay.csv") != desired);
 		if(thisday_col){
-			remove("/thisDay.csv");
-			appendFile("/thisDay.csv", use_header.c_str());
+			remove("/mnt/thisDay.csv");
+			appendFile("/mnt/thisDay.csv", use_header.c_str());
 		}
 	}
-	if(exists("/thisWeek.csv") ){
-		bool thisweek_col = (getColumnNum("/thisWeek.csv") != desired);
+	if(exists("/mnt/thisWeek.csv") ){
+		bool thisweek_col = (getColumnNum("/mnt/thisWeek.csv") != desired);
 		if(thisweek_col){
-			remove("/thisWeek.csv");
-			appendFile("/thisWeek.csv", use_header.c_str());
+			remove("/mnt/thisWeek.csv");
+			appendFile("/mnt/thisWeek.csv", use_header.c_str());
 		}
 	}
-	if(exists("/thisMonth.csv")){
-		bool thismonth_col = (getColumnNum("/thisMonth.csv") != desired);
+	if(exists("/mnt/thisMonth.csv")){
+		bool thismonth_col = (getColumnNum("/mnt/thisMonth.csv") != desired);
 		if(thismonth_col){
-			remove("/thisMonth.csv");
-			appendFile("/thisMonth.csv", use_header.c_str());
+			remove("/mnt/thisMonth.csv");
+			appendFile("/mnt/thisMonth.csv", use_header.c_str());
 		}
 	}	
-	if(exists("/longTermData.csv")){
-		bool longterm_col = (getColumnNum("/longTermData.csv") != desired);
+	if(exists("/mnt/longTermData.csv")){
+		bool longterm_col = (getColumnNum("/mnt/longTermData.csv") != desired);
 		if(longterm_col){
-			remove("/longTermData.csv");
-			appendFile("/longTermData.csv", use_header.c_str());
+			remove("/mnt/longTermData.csv");
+			appendFile("/mnt/longTermData.csv", use_header.c_str());
 		}
 	}
 	////////////////////////offline//////////////////////////////////////////////
-	if(exists("/1970Hour.csv")){
-		bool oldhour_col = (getColumnNum("/1970Hour.csv") != desired);
+	if(exists("/mnt/1970Hour.csv")){
+		bool oldhour_col = (getColumnNum("/mnt/1970Hour.csv") != desired);
 		if(oldhour_col){
 			//restart file
-			remove("/1970Hour.csv");
-			appendFile("/1970Hour.csv", use_header.c_str());
+			remove("/mnt/1970Hour.csv");
+			appendFile("/mnt/1970Hour.csv", use_header.c_str());
 		}
 	}
-	if(exists("/1970Day.csv")){
-		bool oldday_col = (getColumnNum("/1970Day.csv") != desired);
+	if(exists("/mnt/1970Day.csv")){
+		bool oldday_col = (getColumnNum("/mnt/1970Day.csv") != desired);
 		if(oldday_col){
-			remove("/1970Day.csv");
-			appendFile("/1970Day.csv", use_header.c_str());
+			remove("/mnt/1970Day.csv");
+			appendFile("/mnt/1970Day.csv", use_header.c_str());
 		}
 	}
-	if(exists("/1970Week.csv")){
-		bool oldweek_col = (getColumnNum("/1970Week.csv") != desired);
+	if(exists("/mnt/1970Week.csv")){
+		bool oldweek_col = (getColumnNum("/mnt/1970Week.csv") != desired);
 		if(oldweek_col){
-			remove("/1970Week.csv");
-			appendFile("/1970Week.csv", use_header.c_str());
+			remove("/mnt/1970Week.csv");
+			appendFile("/mnt/1970Week.csv", use_header.c_str());
 		}
 	}
-	if(exists("/1970Month.csv")){
-		bool oldmonth_col = (getColumnNum("/1970Month.csv") != desired);
+	if(exists("/mnt/1970Month.csv")){
+		bool oldmonth_col = (getColumnNum("/mnt/1970Month.csv") != desired);
 		if(oldmonth_col){
-			remove("/1970Month.csv");
-			appendFile("/1970Month.csv", use_header.c_str());
+			remove("/mnt/1970Month.csv");
+			appendFile("/mnt/1970Month.csv", use_header.c_str());
 		}
 	}	
-	if(exists("/1970longTermData.csv") ){
-		bool oldlongterm_col = (getColumnNum("/1970longTermData.csv") != desired);
+	if(exists("/mnt/1970longTermData.csv") ){
+		bool oldlongterm_col = (getColumnNum("/mnt/1970longTermData.csv") != desired);
 		if(oldlongterm_col){
-			remove("/1970longTermData.csv");
-			appendFile("/1970longTermData.csv", use_header.c_str());
+			remove("/mnt/1970longTermData.csv");
+			appendFile("/mnt/1970longTermData.csv", use_header.c_str());
 		}
 	}
 }
@@ -833,67 +833,67 @@ void online_HouseKeeping(){ //(picked from last version)
 	///////////////////////////////////////////longTermData trimmer /////////////////////////////////////////////////
 	static int timer = 10;
 	if(timer>= TRIMMER_INTERVAL+10){
-		if(!exists("/longTermData.csv")){ //if longTermData doesn't exist, create new one
-		  appendFile("/longTermData.csv", use_header.c_str());
+		if(!exists("/mnt/longTermData.csv")){ //if longTermData doesn't exist, create new one
+		  appendFile("/mnt/longTermData.csv", use_header.c_str());
 		}else{
-		   trimfile("/longTermData.csv");
+		   trimfile("/mnt/longTermData.csv");
 		}    
 		timer = 0;
 	}
 	timer+=10;
 	///////////////////////////////////////////longTermData trimmer /////////////////////////////////////////////////
 	////////////////////////////////////////////thisMonth///////////////////////////////////////////////////////////
-	if(!exists("/thisMonth.csv")){ //if thisMonth doesn't exist (just deleted) make a new file
-		appendFile("/thisMonth.csv", use_header.c_str());
+	if(!exists("/mnt/thisMonth.csv")){ //if thisMonth doesn't exist (just deleted) make a new file
+		appendFile("/mnt/thisMonth.csv", use_header.c_str());
 	}
-	long thisMonth_first = read_epoch_first_entry("/thisMonth.csv");
-	long thisMonth_last = read_epoch_last_entry("/thisMonth.csv");
+	long thisMonth_first = read_epoch_first_entry("/mnt/thisMonth.csv");
+	long thisMonth_last = read_epoch_last_entry("/mnt/thisMonth.csv");
     if(thisMonth_last - thisMonth_first > 2629743 ){ //not a new file
 		//already pass 1 Month
 		//move thisMonth to longTermData with 30mins interval
-		migrate("/thisMonth.csv", "/longTermData.csv", LONGTERM_INTERVAL, 2160000, rc_thisday); //30mins interval, keep first 25 days, migrate the rest
+		migrate("/mnt/thisMonth.csv", "/mnt/longTermData.csv", LONGTERM_INTERVAL, 2160000, rc_thisday); //30mins interval, keep first 25 days, migrate the rest
     }
   	////////////////////////////////////////////thisMonth///////////////////////////////////////////////////////////
 	////////////////////////////////////////////thisWeek///////////////////////////////////////////////////////////
-	if(!exists("/thisWeek.csv")){ //if thisweek doesn't exist (just deleted) make a new file
-		appendFile("/thisWeek.csv", use_header.c_str());
+	if(!exists("/mnt/thisWeek.csv")){ //if thisweek doesn't exist (just deleted) make a new file
+		appendFile("/mnt/thisWeek.csv", use_header.c_str());
 	}
-	long thisWeek_first = read_epoch_first_entry("/thisWeek.csv");
-	long thisWeek_last = read_epoch_last_entry("/thisWeek.csv");
+	long thisWeek_first = read_epoch_first_entry("/mnt/thisWeek.csv");
+	long thisWeek_last = read_epoch_last_entry("/mnt/thisWeek.csv");
     if(thisWeek_last - thisWeek_first > 604800){ //not a new file
 		//already pass 1 week
 		//move thisWeek to thisMonth with 10mins interval
-		migrate("/thisWeek.csv", "/thisMonth.csv", THISMONTH_INTERVAL, 432000, rc_thisday); //10mins interval, keep last 5 days, migrate the rest
+		migrate("/mnt/thisWeek.csv", "/mnt/thisMonth.csv", THISMONTH_INTERVAL, 432000, rc_thisday); //10mins interval, keep last 5 days, migrate the rest
     }
   	////////////////////////////////////////////thisWeek///////////////////////////////////////////////////////////
   	////////////////////////////////////////////thisDay///////////////////////////////////////////////////////////
-	if(!exists("/thisDay.csv")){ //if thisDay doesn't exist (just deleted) make a new file
-		appendFile("/thisDay.csv", use_header.c_str());
+	if(!exists("/mnt/thisDay.csv")){ //if thisDay doesn't exist (just deleted) make a new file
+		appendFile("/mnt/thisDay.csv", use_header.c_str());
 	}
-	long thisDay_first = read_epoch_first_entry("/thisDay.csv");
-	long thisDay_last = read_epoch_last_entry("/thisDay.csv");
+	long thisDay_first = read_epoch_first_entry("/mnt/thisDay.csv");
+	long thisDay_last = read_epoch_last_entry("/mnt/thisDay.csv");
     if(thisDay_last - thisDay_first > 86400){ //already pass 1 day
 		//move thisDay to thisWeek, with 5 mins interval
-		migrate("/thisDay.csv", "/thisWeek.csv", THISWEEK_INTERVAL, 72000, rc_thisday); //5mins interval, keep last 20 hours, migrate the rest  
+		migrate("/mnt/thisDay.csv", "/mnt/thisWeek.csv", THISWEEK_INTERVAL, 72000, rc_thisday); //5mins interval, keep last 20 hours, migrate the rest  
     }
 	////////////////////////////////////////////thisDay///////////////////////////////////////////////////////////
 	/////////////////////////////////////////////thisHour////////////////////////////////////////////////////////////////////
-	if(!exists("/thisHour.csv")){ //if thisDay doesn't exist (just deleted) make a new file
-		appendFile("/thisHour.csv", use_header.c_str());
+	if(!exists("/mnt/thisHour.csv")){ //if thisDay doesn't exist (just deleted) make a new file
+		appendFile("/mnt/thisHour.csv", use_header.c_str());
 	}
-	if(read_epoch_first_entry("/thisHour.csv")  <= -1){
+	if(read_epoch_first_entry("/mnt/thisHour.csv")  <= -1){
 		//fresh file, append immediatelly
-		appendFile("/thisHour.csv", use_contain.c_str());  
+		appendFile("/mnt/thisHour.csv", use_contain.c_str());  
 	}else{ // no fresh file
-		if(online_epoch - read_epoch_first_entry("/thisHour.csv") <= 3600){ //not 1 hour yet, append file
+		if(online_epoch - read_epoch_first_entry("/mnt/thisHour.csv") <= 3600){ //not 1 hour yet, append file
 		  //append file
 		
-		    appendFile("/thisHour.csv", use_contain.c_str());  
+		    appendFile("/mnt/thisHour.csv", use_contain.c_str());  
 		}else{ //passed 1 hour
 		  //migrate thisHour to thisDay with 1 mins interval 
 		  // add current data
-		    appendFile("/thisHour.csv", use_contain.c_str()); 
-		    migrate("/thisHour.csv", "/thisDay.csv", THISDAY_INTERVAL, 2700, rc_thisday); //interval 60 secs, keep last 45 mins, migrate the rest
+		    appendFile("/mnt/thisHour.csv", use_contain.c_str()); 
+		    migrate("/mnt/thisHour.csv", "/thisDay.csv", THISDAY_INTERVAL, 2700, rc_thisday); //interval 60 secs, keep last 45 mins, migrate the rest
 		}
 
   }//end of "no fresh file"
@@ -904,10 +904,10 @@ void offline_HouseKeeping(){ //(picked from last version)
 	///////////////////////////////////////////1970 longTermData trimmer /////////////////////////////////////////////////
 	static int timer =10;
 	if(timer>= TRIMMER_INTERVAL+10){
-		if(!exists("/1970longTermData.csv")){ //if 1970longTermData doesn't exist, create new one
-			appendFile("/1970longTermData.csv", use_header.c_str());
+		if(!exists("/mnt/1970longTermData.csv")){ //if 1970longTermData doesn't exist, create new one
+			appendFile("/mnt/1970longTermData.csv", use_header.c_str());
 		}else{
-			trimfile("/1970longTermData.csv");
+			trimfile("/mnt/1970longTermData.csv");
 		}
 		timer = 0;
 	}
@@ -915,59 +915,59 @@ void offline_HouseKeeping(){ //(picked from last version)
   	///////////////////////////////////////////1970 longTermData trimmer /////////////////////////////////////////////////
   
   	////////////////////////////////////////////1970Month///////////////////////////////////////////////////////////
-  	if(!exists("/1970Month.csv")){ //if 1970Month doesn't exist (just deleted) make a new file
-    	appendFile("/1970Month.csv", use_header.c_str());
+  	if(!exists("/mnt/1970Month.csv")){ //if 1970Month doesn't exist (just deleted) make a new file
+    	appendFile("/mnt/1970Month.csv", use_header.c_str());
   	}
-  	long thisMonth_first = read_epoch_first_entry("/1970Month.csv");
-  	long thisMonth_last = read_epoch_last_entry("/1970Month.csv");
+  	long thisMonth_first = read_epoch_first_entry("/mnt/1970Month.csv");
+  	long thisMonth_last = read_epoch_last_entry("/mnt/1970Month.csv");
   	if(thisMonth_last - thisMonth_first > 2629743 ){
     	//move thisMonth to longTermData with 30mins interval
-      	migrate("/1970Month.csv", "/1970longTermData.csv", LONGTERM_INTERVAL,2160000 , rc_1970day); //30mins interval, keep first 25 days, migrate the rest
+      	migrate("/mnt/1970Month.csv", "/mnt/1970longTermData.csv", LONGTERM_INTERVAL,2160000 , rc_1970day); //30mins interval, keep first 25 days, migrate the rest
     } 
  	////////////////////////////////////////////1970Month///////////////////////////////////////////////////////////
   
   	////////////////////////////////////////////1970Week///////////////////////////////////////////////////////////
-  	if(!exists("/1970Week.csv")){ //if 1970week doesn't exist (just deleted) make a new file
-    	appendFile("/1970Week.csv", use_header.c_str());
+  	if(!exists("/mnt/1970Week.csv")){ //if 1970week doesn't exist (just deleted) make a new file
+    	appendFile("/mnt/1970Week.csv", use_header.c_str());
   	}
-	long thisWeek_first = read_epoch_first_entry("/1970Week.csv");
-	long thisWeek_last = read_epoch_last_entry("/1970Week.csv");
+	long thisWeek_first = read_epoch_first_entry("/mnt/1970Week.csv");
+	long thisWeek_last = read_epoch_last_entry("/mnt/1970Week.csv");
     if(thisWeek_last - thisWeek_first > 604800){ //not a new file
 		//already pass 1 week
 		//move thisWeek to thisMonth with 10mins interval
-		migrate("/1970Week.csv", "/1970Month.csv", THISMONTH_INTERVAL, 432000, rc_1970day); //10mins interval, keep first 5 days, migrate the rest
+		migrate("/mnt/1970Week.csv", "/mnt/1970Month.csv", THISMONTH_INTERVAL, 432000, rc_1970day); //10mins interval, keep first 5 days, migrate the rest
     }
   	////////////////////////////////////////////thisWeek///////////////////////////////////////////////////////////
   
   	////////////////////////////////////////////thisDay///////////////////////////////////////////////////////////
-	if(!exists("/1970Day.csv")){ //if thisDay doesn't exist (just deleted) make a new file
-		appendFile("/1970Day.csv", use_header.c_str());
+	if(!exists("/mnt/1970Day.csv")){ //if thisDay doesn't exist (just deleted) make a new file
+		appendFile("/mnt/1970Day.csv", use_header.c_str());
 	}
-	long thisDay_first = read_epoch_first_entry("/1970Day.csv");
-	long thisDay_last = read_epoch_last_entry("/1970Day.csv");
+	long thisDay_first = read_epoch_first_entry("/mnt/1970Day.csv");
+	long thisDay_last = read_epoch_last_entry("/mnt/1970Day.csv");
     if(thisDay_last - thisDay_first > 86400){ //not a new file
 		//already pass 1 day
 		//move thisDay to thisWeek, with 5 mins interval
-		migrate("/1970Day.csv", "/1970Week.csv", THISWEEK_INTERVAL,72000, rc_1970day); //5mins interval, keep first 20 hours, migrate the rest
+		migrate("/mnt/1970Day.csv", "/mnt/1970Week.csv", THISWEEK_INTERVAL,72000, rc_1970day); //5mins interval, keep first 20 hours, migrate the rest
     }
   	////////////////////////////////////////////thisDay///////////////////////////////////////////////////////////
   
   	//////////////////////////////////////////////thisHour///////////////////////////////////////////////////////////////////
-  	if(!exists("/1970Hour.csv")){ //if thisDay doesn't exist (just deleted) make a new file
-		appendFile("/1970Hour.csv", use_header.c_str());
+  	if(!exists("/mnt/1970Hour.csv")){ //if thisDay doesn't exist (just deleted) make a new file
+		appendFile("/mnt/1970Hour.csv", use_header.c_str());
 	}
-	if(read_epoch_first_entry("/1970Hour.csv") <= -1){
+	if(read_epoch_first_entry("/mnt/1970Hour.csv") <= -1){
     	//fresh file, append immediatelly
-    	appendFile("/1970Hour.csv", use_contain.c_str());  
+    	appendFile("/mnt/1970Hour.csv", use_contain.c_str());  
   	}else{ // no fresh file
-		if(offline_epoch - read_epoch_first_entry("/1970Hour.csv") <= 3600){ //not 1 hour yet, append file
+		if(offline_epoch - read_epoch_first_entry("/mnt/1970Hour.csv") <= 3600){ //not 1 hour yet, append file
       	//append file
-        appendFile( "/1970Hour.csv", use_contain.c_str());  
+        appendFile( "/mnt/1970Hour.csv", use_contain.c_str());  
       
     }else{ //passed 1 hour
-        appendFile("/1970Hour.csv", use_contain.c_str());
+        appendFile("/mnt/1970Hour.csv", use_contain.c_str());
         //migrate thisHour to thisDay with 1 mins interval 
-        migrate("/1970Hour.csv", "/1970Day.csv", THISDAY_INTERVAL,2700, rc_1970day); //interval 60 secs, keep first 45 mins, migrate the rest
+        migrate("/mnt/1970Hour.csv", "/mnt/1970Day.csv", THISDAY_INTERVAL,2700, rc_1970day); //interval 60 secs, keep first 45 mins, migrate the rest
     }
 
   }//end of "no fresh file"
@@ -977,16 +977,16 @@ void offline_HouseKeeping(){ //(picked from last version)
 void oldcheck_onboot() { //check old files adjusts offline epoch (picked from last version)
   long year = -1;
   long year2 = -1;
-  long hour_1970_epoch = read_epoch_last_entry("/1970Hour.csv");
+  long hour_1970_epoch = read_epoch_last_entry("/mnt/1970Hour.csv");
   if (hour_1970_epoch != -1) {
     //find year in 1970 Hour
     year = hour_1970_epoch / (long)31556926;
   }
-  long day_1970_epoch = read_epoch_last_entry("/1970Day.csv");
+  long day_1970_epoch = read_epoch_last_entry("/mnt/1970Day.csv");
   if (day_1970_epoch != -1) {
     year2 = day_1970_epoch /(long) 31556926;
     if(year2 != year) {
-      remove( "/1970Hour.csv");
+      remove( "/mnt/1970Hour.csv");
       year = year2;
     }
   }
@@ -1029,43 +1029,43 @@ void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame
   	}
   	if(command[0] == '1'){
       //delete longtermdata
-      remove("1970longTermData.csv");
+      remove("/mnt/1970longTermData.csv");
     }
     if(command[1] == '1'){
       //delete thismonth
-      remove("1970Month.csv");
+      remove("/mnt/1970Month.csv");
     }
     if(command[2] == '1'){
       //delete thisweek
-      remove("1970Week.csv");
+      remove("/mnt/1970Week.csv");
     }
     if(command[3] == '1'){
       //delete thisDay
-      remove("1970Day.csv");
+      remove("/mnt/1970Day.csv");
     }
     if(command[4] == '1'){
       //delete thishour
-      remove("1970Hour.csv");
+      remove("/mnt/1970Hour.csv");
     }
   if(command[5] == '1'){
       //delete longtermdata
-      remove("longTermData.csv");
+      remove("/mnt/longTermData.csv");
     }
     if(command[6] == '1'){
       //delete thismonth
-      remove("thisMonth.csv");
+      remove("/mnt/thisMonth.csv");
     }
     if(command[7] == '1'){
       //delete thisweek
-      remove("thisWeek.csv");
+      remove("/mnt/thisWeek.csv");
     }
     if(command[8] == '1'){
       //delete thisDay
-      remove("thisDay.csv");
+      remove("/mnt/thisDay.csv");
     }
     if(command[9] == '1'){
       //delete thishour
-      remove("thisHour.csv");
+      remove("/mnt/thisHour.csv");
     }
 }
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){

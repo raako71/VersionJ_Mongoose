@@ -1,0 +1,338 @@
+<!DOCTYPE HTML>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+	<title> Power Monitor Web Server | Control</title>
+</head>
+<body>
+	<h1> Control Logic</h1>
+	<h1> <a href="./">Home</a></h1>
+	<h3 id="uptime"> DEVICE UPTIME: </h3>
+	<div class="main_container">
+	<b> Programs </b><br><br>
+	
+	<b> Remote Push Buttons </b><br><br>
+	<input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
+	<input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
+	<div id="prog_holder" style="padding-left:20px">
+	
+	</div>
+	<div id="override" style="margin-bottom:10px; margin-top:10px; padding-left:20px; display:block">
+		Apply over ride<br>
+		<input type="radio" name="override" id="always" checked><label for="always" id="label_always">Always</label><br>
+		<input type="radio" name="override" id="for"><label for="for" id="label_for" >For</label><br>
+			<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_for_holder">
+				<input type="text" class="greycolor" id="ovr_sec" maxlength="2" >Seconds 
+				<input type="text" class="greycolor" id="ovr_min" maxlength="2">Minutes
+				<input type="text" class="greycolor" id="ovr_hour" maxlength="2">Hours
+				<input type="text" class="greycolor" id="ovr_day" maxlength="2">Days
+			</div>
+		<input type="radio" name="override" id="until"><label for="until" id="label_until">Until</label>
+		<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_until_holder">
+		<input type=time id="until_time"  >
+		</div>
+	</div>
+	<b>Programmable Indicator LED</b>
+	<br>
+	<input type="radio" name="programmable_led" id="as_output" checked><label for="as_output">As Output</label><br>
+	<input type="radio" name="programmable_led" id="output_stat"><label for ="output_stat">Show output status</label><br>
+	<input type="radio" name="programmable_led" id="prog_stat"><label for="prog_stat">Show program status (glowing for schedule active, On for output active, off for program inactive)</label><br>
+	<br>
+	<b>Outputs</b>
+	<br>
+	<div style="margin-bottom:5px; margin-top:5px">
+	A: <span id="relay1_sta"></span>
+	</div>
+	<div style="margin-bottom:5px; margin-top:5px">
+	B: <span id="relay2_sta"></span>
+	</div>
+	<div style="margin-bottom:5px; margin-top:5px">
+	LED: <span id="led_sta"></span>
+	</div>
+	<div style="margin-bottom:5px; margin-top:5px">
+	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> IO14: </label> <span id="IO14_sta"></span>
+	</div>
+	</div>
+	<br>
+	<input type="button" value="SAVE" onClick="save_func()">
+</body>
+
+<script>
+	window.addEventListener('load', onLoad);
+	var dropdown_menu;
+	function onLoad(){
+		console.log("DOM loaded");
+		load_conf();
+		override_func();
+		fetch_uptime();
+		create_dropdown();
+	}
+	function fetch_uptime(){
+		var xhttp = new XMLHttpRequest();	
+		xhttp.open("POST", "/rpc/Sys.GetInfo", true);
+		xhttp.send();
+		xhttp.onload = function(){
+			var response = JSON.parse(this.responseText);
+			var res = Number(response.uptime);		
+			var d = Math.floor(res/86400);
+			var h = Math.floor((res - d*86400)/3600) ; 
+			var s = res%60; 
+			var m = Math.floor((res-(d*86400 + h*3600))/60);
+			document.getElementById("uptime").innerHTML = "Device Uptime: " +s+ " s, " + m+ " mins, " + h + " hrs, " + d + " days";	
+		}
+	}
+	function create_dropdown(){
+	dropdown_menu = '<select id="prog_list" style="padding-left:10px; margin-top:10px; margin-bottom:10px">';
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Get", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": "program1.json"};
+	xhr.send(JSON.stringify(comm));
+	xhr.onload = function() {
+	var data = JSON.parse(this.responseText);
+	var old_json = JSON.parse(window.atob(data.data))
+	console.log(JSON.stringify(old_json))
+	if(old_json.en){
+		dropdown_menu +=  '<option value="1">'+old_json.name+'</option>';
+	}
+	}
+	var xhr1 = new XMLHttpRequest();
+	xhr1.open("POST", "/rpc/FS.Get", true);
+	xhr1.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": "program2.json"};
+	xhr1.send(JSON.stringify(comm));
+	xhr1.onload = function() {
+	var data = JSON.parse(this.responseText);
+	var old_json = JSON.parse(window.atob(data.data))
+	console.log(JSON.stringify(old_json));
+	if(old_json.en){
+		dropdown_menu +=  '<option value="2">'+old_json.name+'</option>';
+	}
+	}
+	var xhr2 = new XMLHttpRequest();
+	xhr2.open("POST", "/rpc/FS.Get", true);
+	xhr2.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": "program3.json"};
+	xhr2.send(JSON.stringify(comm));
+	xhr2.onload = function() {
+	var data = JSON.parse(this.responseText);
+	var old_json = JSON.parse(window.atob(data.data))
+	console.log(JSON.stringify(old_json));
+	if(old_json.en){
+		dropdown_menu +=  '<option value="3">'+old_json.name+'</option>';
+	}
+	}
+	var xhr3 = new XMLHttpRequest();
+	xhr3.open("POST", "/rpc/FS.Get", true);
+	xhr3.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": "program4.json"};
+	xhr3.send(JSON.stringify(comm));
+	xhr3.onload = function() {
+	var data = JSON.parse(this.responseText);
+	var old_json = JSON.parse(window.atob(data.data))
+	console.log(JSON.stringify(old_json));
+	if(old_json.en){
+		dropdown_menu +=  '<option value="4">'+old_json.name+'</option>';
+	}
+	}
+	var xhr4 = new XMLHttpRequest();
+	xhr4.open("POST", "/rpc/FS.Get", true);
+	xhr4.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": "program5.json"};
+	xhr4.send(JSON.stringify(comm));
+	xhr4.onload = function() {
+	var data = JSON.parse(this.responseText);
+	var old_json = JSON.parse(window.atob(data.data))
+	console.log(JSON.stringify(old_json));
+	if(old_json.en){
+		dropdown_menu +=  '<option value="5">'+old_json.name+'</option>';
+	}
+	}
+	}
+	
+	document.getElementById("cont_prog").onclick = function() {
+		var holder = document.getElementById("prog_holder");
+		if(this.checked){
+			holder.innerHTML = dropdown_menu;
+			
+		}else{
+			holder.innerHTML = "";
+		}
+	}
+	function IO14_en_func(halo){
+		if(halo.checked){
+			var conf = confirm("Are you sure want to enable this output?");
+			if(!conf){
+				halo.checked = false;
+			}
+		}
+	}
+	function override_func(){
+		var seconds = document.getElementById("ovr_sec");
+		var min = document.getElementById("ovr_min");
+		var hour = document.getElementById("ovr_hour");
+		var day = document.getElementById("ovr_day");
+		var holder = document.getElementById("ovr_for_holder");
+		var until_holder = document.getElementById("until_time");
+		var label_always = document.getElementById("label_always").style;
+		var label_for = document.getElementById("label_for").style;
+		var label_until= document.getElementById("label_until").style;
+		if(document.getElementById("always").checked){
+			label_always.color ="";
+		}else{
+			label_always.color ="grey";
+		}
+		if(document.getElementById("for").checked){
+			holder.style.color="black";
+			label_for.color="black";
+			seconds.style.border = "2px solid black";
+			min.style.border = "2px solid black";
+			hour.style.border = "2px solid black";
+			day.style.border = "2px solid black";
+			seconds.readOnly = false;min.readOnly = false;day.readOnly = false;			
+		}else{
+			label_for.color="grey";
+			seconds.style.border = "2px solid grey";
+			min.style.border = "2px solid grey";
+			hour.style.border = "2px solid grey";
+			day.style.border = "2px solid grey";
+			seconds.readOnly = true;min.readOnly = true;day.readOnly = true;
+			holder.style.color = "grey";
+			seconds.value = "";
+			min.value = "";
+			hour.value = "";
+			day.value = "";
+		}
+		if(document.getElementById("until").checked){
+			label_until.color="";
+			until_holder.style.border= "2px solid black";
+			until_holder.readOnly = false;
+		}else{
+			label_until.color="grey";
+			until_holder.style.border= "2px solid grey";
+			until_holder.value = "";
+			until_holder.readOnly = true;
+		}
+	}
+	document.getElementById("override").onclick = function() {
+		override_func();
+	}
+	function load_conf(){
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Get", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": "setting.json"};
+	xhr.send(JSON.stringify(comm));
+	xhr.onload = function() {
+	var data = JSON.parse(this.responseText);
+	var old_json = JSON.parse(window.atob(data.data));
+	document.getElementById("sens_in").checked = old_json.ctrl_page.sensor_input;
+	document.getElementById("cont_prog").checked = old_json.ctrl_page.prog_ctrl;
+	var a = old_json.ctrl_page.override;
+	var b = (old_json.ctrl_page.ovr_val);
+	if(a == 1){
+		document.getElementById("always").checked = true;
+	}else if(a == 2){
+		document.getElementById("for").checked = true;
+		b = Number(b);
+		var d = Math.floor(b/86400);
+		var h = Math.floor((b - d*86400)/3600) ; 
+		var s = b%60; 
+		var m = Math.floor((b-(d*86400 + h*3600))/60);
+		document.getElementById("ovr_sec").value = s;
+		document.getElementById("ovr_min").value = m;
+		document.getElementById("ovr_hour").value = h;
+		document.getElementById("ovr_day").value = d;
+	}else{
+		document.getElementById("until").checked = true;
+		document.getElementById("until_time").value = b;
+	}
+	var c = old_json.ctrl_page.LED;
+	if(c == 1){
+		document.getElementById("as_output").checked = true;
+	}else if(c == 2){
+		document.getElementById("output_stat").checked = true;
+	}else{
+		document.getElementById("prog_stat").checked = true;
+	}
+	document.getElementById("IO14_en").checked = old_json.ctrl_page.IO14;
+	}
+	}
+	function save_func(){
+		var a = document.getElementById("sens_in").checked;
+		var b = document.getElementById("cont_prog").checked;
+		var c = document.getElementById("always").checked;
+		var d = document.getElementById("for").checked;
+		var e;
+		var f;
+		if(c){
+			e = 1;
+			f="";
+		}else if(d){
+			e = 2;
+			f = Number(document.getElementById("ovr_sec").value);
+			f += Number(document.getElementById("ovr_min").value) * 60;
+			f += Number(document.getElementById("ovr_hour").value) * 3600;
+			f += Number(document.getElementById("ovr_day").value) *3600 * 24;
+		}else{
+			e = 3;
+			f = document.getElementById("until_time").value;
+		}
+		var g = (document.getElementById("as_output").checked) ? 1 : (document.getElementById("output_stat").checked ? 2 : 3) ;
+		var h = document.getElementById("IO14_en").checked;
+		var old_json;
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", "/rpc/FS.Get", true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		var comm = {"filename": "setting.json"};
+		xhr.send(JSON.stringify(comm));
+		xhr.onload = function() {
+			var data = JSON.parse(this.responseText);
+			old_json = JSON.parse(window.atob(data.data));
+			old_json.ctrl_page.sensor_input = a;
+			old_json.ctrl_page.prog_ctrl = b;
+			old_json.ctrl_page.override=e;
+			old_json.ctrl_page.ovr_val = f;
+			old_json.ctrl_page.LED = g;
+			old_json.ctrl_page.IO14 = h;
+			var conf = confirm("Proceed to save configuraton?");
+			if(conf){
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "/rpc/FS.Put", true);
+			xhttp.setRequestHeader('Content-Type', 'application/json');
+			var string = window.btoa(JSON.stringify(old_json));
+			var contain = {"filename": "setting.json", "append":false, "data": string}
+			xhttp.send(JSON.stringify(contain));
+			xhttp.onload = function(){
+				alert("configuration saved");
+			}
+			}else{
+				return;
+			}
+		}
+		
+	}
+	setInterval(function(){
+		fetch_uptime();
+	},2000);
+</script>
+
+<style>
+	html{
+		font-family: Arial; display: inline-block; text-align: center;
+		-webkit-text-size-adjust:none;
+	}
+	.main_container{
+		width:90%; 
+		text-align:left;  
+		padding-top:15px;
+		margin-left:auto; 
+		margin-right:auto;
+	}
+	.greycolor{
+		border:2px solid grey;
+		color:grey;
+		width:30px;
+	}
+</style>
+</html>
