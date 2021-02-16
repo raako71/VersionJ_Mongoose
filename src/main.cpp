@@ -893,7 +893,7 @@ void online_HouseKeeping(){ //(picked from last version)
 		  //migrate thisHour to thisDay with 1 mins interval 
 		  // add current data
 		    appendFile("/mnt/thisHour.csv", use_contain.c_str()); 
-		    migrate("/mnt/thisHour.csv", "/thisDay.csv", THISDAY_INTERVAL, 2700, rc_thisday); //interval 60 secs, keep last 45 mins, migrate the rest
+		    migrate("/mnt/thisHour.csv", "/mnt/thisDay.csv", THISDAY_INTERVAL, 2700, rc_thisday); //interval 60 secs, keep last 45 mins, migrate the rest
 		}
 
   }//end of "no fresh file"

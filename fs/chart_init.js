@@ -277,7 +277,7 @@ xhr.send(JSON.stringify(comm));
 xhr.onload = function() {
 var data = JSON.parse(this.responseText);
 old_json = JSON.parse(window.atob(data.data));
-if(doc == "/thisHour.csv" || doc == "/1970Hour.csv"){
+if(doc == "mnt/thisHour.csv" || doc == "mnt/1970Hour.csv"){
 old_json.col1_en = document.getElementById("col1_checkbox").checked;		
 old_json.col2_en = document.getElementById("col2_checkbox").checked;			
 old_json.col3_en = document.getElementById("col3_checkbox").checked;	
@@ -291,9 +291,9 @@ old_json.col10_en = document.getElementById("col10_checkbox").checked;
 old_json.col11_en = document.getElementById("col11_checkbox").checked;
 old_json.col12_en = document.getElementById("col12_checkbox").checked;
 old_json.col13_en = document.getElementById("col13_checkbox").checked;
-}else if(doc == "/thisDay.csv"){
+}else if(doc == "mnt/thisDay.csv"){
 	old_json.rc_thisday = document.getElementById("rec_online_checkbox").checked;	
-}else if (doc == "/1970Day.csv"){
+}else if (doc == "mnt/1970Day.csv"){
 	old_json.rc_1970day = document.getElementById("rec_online_checkbox").checked;
 }
 var string = window.btoa(JSON.stringify(old_json));
@@ -309,15 +309,12 @@ xhttp2.send();
 }
 function update_graph(){
 var xhr = new XMLHttpRequest();
-xhr.open("POST", "/rpc/FS.Get", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-var comm = {"filename": doc};
-xhr.send(JSON.stringify(comm));
+xhr.open("POST", doc+"?" + Math.random() * Math.random(), true);
+xhr.send();
 xhr.onload = function(){
-var data = JSON.parse(this.responseText);
-var csv_str = window.atob(data.data);
+var data = xhr.responseText;
 var psv = d3.dsvFormat(";");
-var mewmew =psv.parse(csv_str);
+var mewmew =psv.parse(data);
 var base = mewmew.map(function(e){
 return e.epoch;
 });

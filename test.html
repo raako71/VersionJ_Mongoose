@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+	<div id= "a" style="display:block ; font-size:11px; width:30%"	>
+	</div>
+  <script>
+    var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/mnt/thisHour.csv?" + Math.random() * Math.random(), true);
+	xhr.send();
+	xhr.onload = function(){
+		document.getElementById("a").innerHTML = xhr.responseText;
+		console.log(xhr.responseText);
+	}
+  </script>
+</body>
+</html>	
