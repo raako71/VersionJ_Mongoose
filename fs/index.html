@@ -46,9 +46,7 @@ background-color: #3e8e41;
 <form method="get" action="/thisHour_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/thisHour.csv">
-<button type="submit">View Raw</button>
-</form>
+<button onClick ="open_new_tab('/mnt/thisHour.csv')">View Raw</button>
 <button onClick = "download(0)">Download CSV</button>
 <input type= "checkbox" id="thishour_del" >
 <label for= "thishour_del"> thisHour delete </label>	
@@ -60,9 +58,7 @@ background-color: #3e8e41;
 <form method="get" action="/1970Hour_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/1970Hour.csv">
-<button type="submit">View Raw</button>
-</form>            
+<button onClick="open_new_tab('/mnt/1970Hour.csv')">View Raw</button>            
 <button onClick = "download(5)">Download CSV</button>
 <input type= "checkbox" id="1970hour_del" >
 <label for= "1970hour_del"> 1970Hour delete </label>	
@@ -76,9 +72,7 @@ background-color: #3e8e41;
 <form method="get" action="/thisDay_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/thisDay.csv">
-<button type="submit">View Raw</button>
-</form>
+<button onClick="open_new_tab('/mnt/thisDay.csv')">View Raw</button>
 <button onClick="download(1)">Download CSV</button>
 <input type= "checkbox" id="thisday_del" >
 <label for= "thisday_del"> thisDay delete </label>
@@ -90,9 +84,7 @@ background-color: #3e8e41;
 <form method="get" action="/1970Day_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/1970Day.csv">
-<button type="submit">View Raw</button>
-</form>
+<button onClick="open_new_tab('/mnt/1970Day.csv')">View Raw</button>
 <button onClick= "download(6)">Download CSV</button>
 <input type= "checkbox" id="1970day_del" >
 <label for= "1970day_del"> 1970Day delete </label>
@@ -106,9 +98,7 @@ background-color: #3e8e41;
 <form method="get" action="/thisWeek_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/thisWeek.csv">
-<button type="submit">View Raw</button>
-</form>
+<button onClick="open_new_tab('/mnt/thisweek.csv')">View Raw</button>
 <button onClick = "download(2)">Download CSV</button>
 <input type= "checkbox" id="thisweek_del" >
 <label for= "thisweek_del"> thisWeek delete </label>
@@ -120,9 +110,7 @@ background-color: #3e8e41;
 <form method="get" action="/1970Week_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/1970Week.csv">
-<button type="submit">View Raw</button>
-</form>
+<button  onClick="open_new_tab('/mnt/1970Week.csv')">View Raw</button>
 <button onClick= "download(7)">Download CSV</button>
 <input type= "checkbox" id="1970week_del" >
 <label for= "1970week_del"> 1970Week delete </label>
@@ -136,9 +124,7 @@ background-color: #3e8e41;
 <form method="get" action="/thisMonth_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/thisMonth.csv">
-<button type="submit">View Raw</button>
-</form>
+<button onClick="open_new_tab('/mnt/thisMonth.csv')">View Raw</button>
 <button onClick = "download(3)">Download CSV</button>
 <input type= "checkbox" id="thismonth_del" >
 <label for= "thismonth_del"> thisMonth delete </label>
@@ -150,9 +136,7 @@ background-color: #3e8e41;
 <form method="get" action="/1970Month_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/1970Month.csv">
-<button type="submit">View Raw</button>
-</form>
+<button onClick="open_new_tab('/mnt/1970Month.csv')">View Raw</button>
 <button onClick= "download(8)">Download CSV</button>
 <input type= "checkbox" id="1970month_del" >
 <label for= "1970month_del"> 1970Month delete </label>
@@ -165,9 +149,7 @@ background-color: #3e8e41;
 <form method="get" action="/longterm_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/longTermData.csv">
-<button type="submit">View Raw</button>
-</form>
+<button onClick="open_new_tab('/mnt/longTermData.csv')">View Raw</button>
 <button onClick = "download(4)">Download CSV</button>
 <input type= "checkbox" id="longterm_del" >
 <label for= "longterm_del"> longTermData delete </label>
@@ -179,9 +161,7 @@ background-color: #3e8e41;
 <form method="get" action="/1970longterm_plot.html">
 <button type="submit">View Graph</button>
 </form>
-<form method="get" action="/mnt/1970longTermData.csv">
-<button type="submit">View Raw</button>
-</form>
+<button onClick="open_new_tab('/mnt/1970longTermData.csv')">View Raw</button>
 <button onClick= "download(9)">Download CSV</button>
 
 <input type= "checkbox" id="1970longterm_del" >
@@ -203,148 +183,8 @@ background-color: #3e8e41;
 
 
 <script>
-	function download(index){
-		if(index == 0){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?thishour", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/thisHour.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("thishour file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 1){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?thisday", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/thisDay.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("thisday file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 2){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?thisweek", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/thisWeek.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("thisweek file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 3){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?thismonth", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/thisMonth.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("thismonth file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 4){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?longterm", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/longTermData.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("longterm file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 5){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?1970hour", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/1970Hour.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("1970hour file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 6){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?1970day", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/1970Day.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("1970day file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 7){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?1970week", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/1970Week.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("1970week file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 8){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?1970month", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/1970Month.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("1970month file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}else if(index == 9){
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("GET", "/download?1970longterm", true);
-			xhttp.onreadystatechange = function(){
-				if(xhttp.readyState == 4){
-					
-					if(xhttp.responseText == "OK"){
-						window.location.replace("/1970longTermData.csv");
-					}else if(xhttp.responseText == "FAIL"){
-						alert("1970longterm file doesn't exist or empty");
-					}
-				}
-			};
-			xhttp.send();
-		}
+	function open_new_tab(link){
+		window.open(link+"?"+Math.random() * Math.random(), "_self");
 	}
 	function conDelete(){
 		//check checkboxes
@@ -369,8 +209,8 @@ background-color: #3e8e41;
 		var con = confirm(conText);
 		
 		if (con == true){
-			var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");
 			
+			var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");			
 			//proceed to send request to esp
 			jsonobj = {comm:data};
 			var string = JSON.stringify(jsonobj);
@@ -379,7 +219,10 @@ background-color: #3e8e41;
 			xhr.open("POST", "/rpc/delReq", true);
 			xhr.setRequestHeader('Content-Type', 'application/json');
 			xhr.send(string);
-			hour = false; day = false; week = false; month = false; hour_1970 = false; day_1970 = false; week_1970 = false; month_1970 = false; longterm_1970 = false;
+			document.getElementById("thishour_del").checked = false; document.getElementById("thisday_del").checked =false; document.getElementById("thisweek_del").checked= false;
+			document.getElementById("thismonth_del").checked =false; document.getElementById("longterm_del").checked =false;
+			document.getElementById("1970hour_del").checked = false; document.getElementById("1970day_del").checked =false; document.getElementById("1970week_del").checked= false;
+			document.getElementById("1970month_del").checked =false; document.getElementById("1970longterm_del").checked =false;
 		}
 		}
 	}
