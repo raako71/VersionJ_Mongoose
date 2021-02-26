@@ -9,26 +9,15 @@
 	<h1> <a href="./">Home</a></h1>
 	<h3 id="uptime"> DEVICE UPTIME: </h3>
 	<div class="main_container">
-	<b> Programs </b><br><br>
-	<div id="program_link"></div><br>
-	<b> Remote Push Buttons </b><br><br>
+	<b> Programs</b>
+	<div id="program_link"></div>
+	<b> Remote Push Buttons </b><br>
 	<input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
 	<input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
-	<div id="prog_holder" style="padding-left:20px">
+	<div id="prog_holder" style="padding-left:20px;">
 	
 	</div>
-	<div id="override" style="margin-bottom:10px; margin-top:10px; padding-left:20px; display:block; ">
-		Apply over ride<br>
-		<input type="radio" name="override" id="always" onChange="toogle_override()" checked><label for="always" >Always</label><br>
-		<input type="radio" name="override" id="for" onChange="toogle_override()"><label for="for" >For</label><br>
-			<span id="for_field">
-			
-			</span>
-		<input type="radio" name="override" id="until" onChange="toogle_override()" ><label for="until">Until</label>
-		<span id = "until_field">
-		
-		</span>
-	</div>
+	
 	<b>Programmable Indicator LED</b>
 	<br>
 	<input type="radio" name="programmable_led" id="as_output" checked><label for="as_output">As Output</label><br>
@@ -63,12 +52,23 @@
 						
 	window.addEventListener('load', onLoad);
 	fetch_program_list();
-	var dropdown_menu;
+	var dropdown_menu = '<select id="prog_list" style="padding-left:10px; margin-top:10px; margin-bottom:10px"></select>';
+	dropdown_menu +=  '<div id="override" style="margin-bottom:10px; display:block;">';
+	dropdown_menu += 'Apply over ride<br>';
+	dropdown_menu += '<input type="radio" name="override" id="always" onChange="toogle_override()" checked><label for="always" >Always</label><br>';
+	dropdown_menu += '<input type="radio" name="override" id="for" onChange="toogle_override()"><label for="for" >For</label><br>';
+	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px; color:grey" id="ovr_for_holder">';
+	dropdown_menu += '<input type="text" class="greycolor" id="ovr_sec" maxlength="2" readOnly>Seconds &nbsp';
+	dropdown_menu += '<input type="text" class="greycolor" id="ovr_min" maxlength="2" readOnly>Minutes &nbsp';
+    dropdown_menu += '<input type="text" class="greycolor" id="ovr_hour" maxlength="2" readOnly>Hours &nbsp';
+	dropdown_menu += '<input type="text" class="greycolor" id="ovr_day" maxlength="2">Days</div>';
+	dropdown_menu += '<input type="radio" name="override" id="until" onChange="toogle_override()" ><label for="until">Until</label>';
+	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_until">';
+	dropdown_menu += '<input type=time id="until_time" style="color:grey;" readOnly></div></div>';
 	function onLoad(){
 		console.log("DOM loaded");
 		load_conf();
-		fetch_uptime();
-		
+		fetch_uptime();		
 	}
 	function fetch_program_list(){
 		var i ;
@@ -88,7 +88,7 @@
 			
 		}
 		if(j == 5){
-			create_dropdown();
+			
 			create_program_link();
 		}
 		j++;
@@ -112,26 +112,31 @@
 		}
 	}
 	function create_program_link(){
-		var link = "";
+		var link = '<ul style="padding-left:20px; margin-top:10px">';
 		for(i = 0; i < 5 ; i++){
-			link += program_list[i].name + "&nbsp&nbsp";
+			link += '<li style="margin-bottom:5px"><a href="#">' + program_list[i].name + "</a></li>";
 		}
+		link += '</ul>';
 		document.getElementById("program_link").innerHTML = link;
 	}
 	function create_dropdown(){
-		dropdown_menu = '<select id="prog_list" style="padding-left:10px; margin-top:10px; margin-bottom:10px">';
 		var i;
+		
 		for(i = 0 ; i < 5; i++){
-			dropdown_menu +=  '<option value='+(i+1).toString()+'>' + program_list[i].name+'</option>';
+			var x = document.getElementById("prog_list");
+			var opt = document.createElement("option");
+			opt.text = program_list[i].name;
+			opt.value = i+1;
+			x.add(opt);
 		}
-		console.log(dropdown_menu);
 	}
 	
 	document.getElementById("cont_prog").onclick = function() {
+	
 		var holder = document.getElementById("prog_holder");
 		if(this.checked){
 			holder.innerHTML = dropdown_menu;
-			
+			create_dropdown();
 		}else{
 			holder.innerHTML = "";
 		}
@@ -148,29 +153,28 @@
 		
 	}
 	function toogle_override() {
-		var a = document.getElementById("for_field");
-		var b = document.getElementById("until_field");
-		console.log("override");
 		if(document.getElementById("for").checked){
-		var buff = '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_for_holder">';
-		buff +=	'<input type="text" class="greycolor" id="ovr_sec" maxlength="2" >Seconds &nbsp';
-		buff +=	'<input type="text" class="greycolor" id="ovr_min" maxlength="2">Minutes &nbsp';
-		buff +=	'<input type="text" class="greycolor" id="ovr_hour" maxlength="2">Hours &nbsp';
-		buff += '<input type="text" class="greycolor" id="ovr_day" maxlength="2">Days</div>';
-		a.innerHTML = buff;
+			document.getElementById("ovr_day").readOnly = false;
+			document.getElementById("ovr_hour").readOnly = false;
+			document.getElementById("ovr_sec").readOnly = false;
+			document.getElementById("ovr_min").readOnly = false;
+			document.getElementById("ovr_for_holder").style.color= "";
 		}else{
-			a.innerHTML = "";
+			document.getElementById("ovr_day").readOnly = true;
+			document.getElementById("ovr_hour").readOnly = true;
+			document.getElementById("ovr_sec").readOnly = true;
+			document.getElementById("ovr_min").readOnly = true;
+			document.getElementById("ovr_for_holder").style.color= "grey";
 		}
 		
 		if(document.getElementById("until").checked){
-			var buff = '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_until_f">';
-			buff += '<input type=time id="until_time"  ></div>';
-			b.innerHTML = buff;
+			document.getElementById("until_time").readOnly = false;
 		}else{
-			b.innerHTML = "";
+			document.getElementById("until_time").readOnly = true;
 		}
 	}
 	function load_conf(){
+//	create_dropdown();
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", "/rpc/FS.Get", true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
@@ -183,29 +187,31 @@
 	document.getElementById("cont_prog").checked = old_json.ctrl_page.prog_ctrl;
 	if(old_json.ctrl_page.prog_ctrl){
 		document.getElementById("prog_holder").innerHTML = dropdown_menu;
-		document.getElementById("prog_list").value = old_json.ctrl_page.active_prog;		
+		create_dropdown();
+		document.getElementById("prog_list").value = old_json.ctrl_page.active_prog;
+		var a = old_json.ctrl_page.override;
+		var b = (old_json.ctrl_page.ovr_val);
+		if(a == 1){
+			document.getElementById("always").checked = true;
+		}else if(a == 2){
+			document.getElementById("for").checked = true;
+			toogle_override();
+			b = Number(b);
+			var d = Math.floor(b/86400);
+			var h = Math.floor((b - d*86400)/3600) ; 
+			var s = b%60; 
+			var m = Math.floor((b-(d*86400 + h*3600))/60);
+			document.getElementById("ovr_sec").value = s;
+			document.getElementById("ovr_min").value = m;
+			document.getElementById("ovr_hour").value = h;
+			document.getElementById("ovr_day").value = d;
+		}else{
+			document.getElementById("until").checked = true;
+			toogle_override();
+			document.getElementById("until_time").value = b;
+		}		
 	}
-	var a = old_json.ctrl_page.override;
-	var b = (old_json.ctrl_page.ovr_val);
-	if(a == 1){
-		document.getElementById("always").checked = true;
-	}else if(a == 2){
-		document.getElementById("for").checked = true;
-		toogle_override();
-		b = Number(b);
-		var d = Math.floor(b/86400);
-		var h = Math.floor((b - d*86400)/3600) ; 
-		var s = b%60; 
-		var m = Math.floor((b-(d*86400 + h*3600))/60);
-		document.getElementById("ovr_sec").value = s;
-		document.getElementById("ovr_min").value = m;
-		document.getElementById("ovr_hour").value = h;
-		document.getElementById("ovr_day").value = d;
-	}else{
-		document.getElementById("until").checked = true;
-		toogle_override();
-		document.getElementById("until_time").value = b;
-	}
+	
 	var c = old_json.ctrl_page.LED;
 	if(c == 1){
 		document.getElementById("as_output").checked = true;
@@ -221,24 +227,26 @@
 	function save_func(){
 		var a = document.getElementById("sens_in").checked;
 		var b = document.getElementById("cont_prog").checked;
-		var b1;
+		var b1 =0;
+		var c; var d; var d1;
 		if(b){
 			b1 = document.getElementById("prog_list").value;
+			c = document.getElementById("always").checked;
+			d = document.getElementById("for").checked;
+			d1 = document.getElementById("until").checked;
 		}
-		var c = document.getElementById("always").checked;
-		var d = document.getElementById("for").checked;
-		var e;
-		var f;
+		
+		var e =0;
+		var f ="";
 		if(c){
 			e = 1;
-			f="";
 		}else if(d){
 			e = 2;
 			f = Number(document.getElementById("ovr_sec").value);
 			f += Number(document.getElementById("ovr_min").value) * 60;
 			f += Number(document.getElementById("ovr_hour").value) * 3600;
 			f += Number(document.getElementById("ovr_day").value) *3600 * 24;
-		}else{
+		}else if(d1){
 			e = 3;
 			f = document.getElementById("until_time").value;
 		}
@@ -291,7 +299,6 @@
 	.main_container{
 		width:90%; 
 		text-align:left;  
-		padding-top:15px;
 		margin-left:auto; 
 		margin-right:auto;
 	}
@@ -299,13 +306,6 @@
 		border:1px solid grey;
 		width:30px;
 	}
-	
-	#until:not(:checked)+ label,#for:not(:checked) + label,#always:not(:checked) + label {
-    color: grey;
-	}
-	#as_output:not(:checked)+ label,#output_stat:not(:checked) + label,#prog_stat:not(:checked) + label {
-    color: grey;
-	}
-JSFIDD
+
 </style>
 </html>
