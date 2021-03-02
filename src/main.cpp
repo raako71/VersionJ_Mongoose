@@ -99,22 +99,23 @@ mgos_timer_id wifi_blink_timer;
 struct mgos_config_wifi_sta cfg_sta;
 struct mgos_config_wifi_ap cfg_ap;
 
+int wifi_led_ctrl_psc = 0;
+
 static void wifi_led_ctrl(void *arg) {
-	static int prescale = 0;
    	if(wifi_mode == 2){
    		fade_blink(WIFI_LED);
 	}else if(wifi_mode == 1){
 		if(mgos_wifi_get_status() != 3){
-			if(prescale >= 10){
+			if(wifi_led_ctrl_psc >= 10){
 				mgos_wifi_connect();
-				prescale = 0;
+				wifi_led_ctrl_psc = 0;
 			}
 			mgos_gpio_toggle(WIFI_LED);	//blinking searching
 		}else{
 			//mgos_clear_timer(wifi_blink_timer);
 	   		mgos_gpio_write(WIFI_LED, true);
 		}
-		prescale++;
+		wifi_led_ctrl_psc++;
 	}
     (void) arg;
 }
@@ -194,8 +195,8 @@ static void logging_cb(void *arg){
     column[12] = (float)(rand() % 3001) * 0.01;
     column[13] = (float)(rand() % 3001) * 0.01;
     contain_logging(logColumn);
-    //LOG(LL_WARN, ("%s", use_contain.c_str()));
-    LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_heap_size()));
+    LOG(LL_WARN, ("%s", use_contain.c_str()));
+    //LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_heap_size()));
     if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -294,7 +295,8 @@ void load_wifi_setting(){
   	int mode;
   	char* ssid; char* pass;
   	//bool static_en = false;
-	char* buff = json_fread("setting.json");
+	char* buff = (char*)malloc(1024);
+	buff = json_fread("setting.json");
 	json_scanf_array_elem(buff, strlen(buff), ".wifi",0, &t);
 	//json_scanf_array_elem(buff, strlen(buff), ".static_IP_conf", 0, &t);
 	//json_scanf(t.ptr, t.len, "{enable: %B}", &static_en);
@@ -302,7 +304,7 @@ void load_wifi_setting(){
 	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
 	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
 	int a = mgos_gpio_read(WIFI_BTN);
-	
+	free(buff);
 	if(a == 1){
 		LOG(LL_WARN, ("AP mode (button) %d", a));
 		wifi_mode = 2;
@@ -533,18 +535,21 @@ void migrate(const char* original, const char* destination, int interval, long d
 	//proceed to open origin file
 	FILE * file_ori = fopen(original, "r");
 	if(file_ori == NULL){
+		fclose(file_ori);
 		return;
 	}	//failed to open origin file
 	
 	//proceed to open destination file
 	FILE * file_dest = fopen(destination, "a");
 	if(file_dest == NULL){
+		fclose(file_dest);
 		return;
 	}   //failed to open destined file
 	
 	//proceed to create buffer file
 	FILE * file_buff = fopen("/mnt/buffer.csv", "a");
 	if(file_buff == NULL){
+		fclose(file_buff);
 		return;
 	}   //failed to create buffer file
 	fprintf(file_buff, "%s", use_header.c_str());
@@ -684,31 +689,39 @@ void manageOffline_files(){ //function that moves old files to current files wit
       /////////////////////////////////////////////////////////////////////////////////////
 }
 void contain_logging(int desired){//function that modify use_contain variable based on desired column (tested)
-   	char buff[255];
+   	//char buff[255];
+	std::string buff;
  	if(NTPflag){
-    	sprintf(buff, "%ld", online_epoch);
+		buff = std::to_string(online_epoch);
+    	//sprintf(buff, "%ld", online_epoch);
   	}else{
-    	sprintf(buff, "%ld", offline_epoch);
+		buff = std::to_string(offline_epoch);
+    //	sprintf(buff, "%ld", offline_epoch);
   	}
   	int index = 1;
+	std::string num;
   	while (desired != 0){
-		strcat(buff, ";");
+		buff.append(";");
+		//strcat(buff, ";");
     	if(colen[index-1] == 1){
       	//storage system
-      		char num[20];
-      		sprintf(num, "%.2f", column[index]);
-      		strcat(buff, num);
+      		//char num[20];
+			num = std::to_string(column[index]);
+			num = num.substr(0, num.find(".")+3);
+			buff.append(num);
+      		//sprintf(num, "%.2f", column[index]);
+      		//strcat(buff, num);
     	}
     index++;
     desired--;
   }
-  strcat(buff, "\n");
+  buff.append("\n");
+  //strcat(buff, "\n");
   use_contain = buff;
-  
-  char* load = json_fread("setting.json");
-  json_scanf(load, strlen(load), "{col3_en: %B, col4_en: %B, col5_en: %B}", &colen[2], &colen[3], &colen[4]);
-  
-  
+  char* load = (char*)malloc(1024);
+  load = json_fread("setting.json");
+  json_scanf(load, strlen(load), "{col3_en: %B, col4_en: %B, col5_en: %B}", &colen[2], &colen[3], &colen[4]);  
+  free(load);
 }
 void header_column_logging(int desired){//function that ajusting file column number and header string (picked from last version)
 	desired++;
@@ -1014,9 +1027,11 @@ static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_f
 	(void) fi;
 }
 void checkJSONsetting(){
-	char* buff = json_fread("setting.json");
+	char* buff = (char*)malloc(1024);
+	buff = json_fread("setting.json");
 	json_scanf(buff, strlen(buff), "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
 	,&colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday);
+	free(buff);
 }
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	char *command = (char*)malloc(11);
