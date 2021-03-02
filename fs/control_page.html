@@ -48,7 +48,13 @@
 						{"name": "" }, 
 						{"name": "" }, 
 						{"name": "" }, 
+						{"name": "" },
+						{"name": "" },
+						{"name": "" },
+						{"name": "" },
+						{"name": "" },
 						{"name": "" }];
+	var prog_number =0;
 						
 	window.addEventListener('load', onLoad);
 	fetch_program_list();
@@ -71,30 +77,35 @@
 		fetch_uptime();		
 	}
 	function fetch_program_list(){
+		console.log("fetch program list");
 		var i ;
-		var j = 1;
-		for(i = 0 ; i < 5; i++){
+		var j = 0;
+		for(i = 1 ; i <= 10; i++){
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "/rpc/FS.Get", true);
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		var comm = {"filename": "program"+(i+1)+".json"};
+		var comm = {"filename": "program"+(i)+".json"};
 		xhr.send(JSON.stringify(comm));
 		xhr.onload = function() {
 		var data = JSON.parse(this.responseText);
-		var old_json = JSON.parse(window.atob(data.data))
-		if(old_json.en){
-			var id = old_json.id;
-			program_list[id-1].name = old_json.name;
-			
-		}
-		if(j == 5){
-			
-			create_program_link();
+		if(data.code == 400){
+			console.log("no good");
+		}else{
+			console.log("git gud");
+			var prog_json = JSON.parse(window.atob(data.data));
+			var id = prog_json.id;
+			program_list[id-1].name = prog_json.name;
+			prog_number++;
 		}
 		j++;
+		if(j == 10){
+			create_program_link();
+			console.log(program_list);
 		}
-		
+	
+		}
 		}//for
+		
 		
 	}
 	function fetch_uptime(){
@@ -113,21 +124,27 @@
 	}
 	function create_program_link(){
 		var link = '<ul style="padding-left:20px; margin-top:10px">';
-		for(i = 0; i < 5 ; i++){
+		var i = 0;
+		console.log(prog_number);
+		while(i < 10){
+			if( program_list[i].name != ""){
 			link += '<li style="margin-bottom:5px"><a href="#">' + program_list[i].name + "</a></li>";
+			}
+			i++;
 		}
 		link += '</ul>';
 		document.getElementById("program_link").innerHTML = link;
 	}
 	function create_dropdown(){
 		var i;
-		
-		for(i = 0 ; i < 5; i++){
+		for(i = 0 ; i < 10; i++){
+			if(program_list[i].name != ""){
 			var x = document.getElementById("prog_list");
 			var opt = document.createElement("option");
 			opt.text = program_list[i].name;
 			opt.value = i+1;
 			x.add(opt);
+			}
 		}
 	}
 	

@@ -803,7 +803,7 @@ void trimfile(const char* path){ //function that trims file when reaching upper 
 		//make a new File First
 		long left_size = file_size - LOWER_LIMIT_SIZE;
 		fseek(file, header_size, SEEK_SET);		
-		FILE * file_dest = fopen("buffer.csv", "w");
+		FILE * file_dest = fopen("/mnt/buffer.csv", "w");
 		//make header
 		fprintf(file_dest, "%s", use_header.c_str());
 		//trim header size
@@ -825,7 +825,7 @@ void trimfile(const char* path){ //function that trims file when reaching upper 
       //delete oldfile
       remove(path);
       //rename buffer
-      rename("buffer.csv", path);
+      rename("/mnt/buffer.csv", path);
     }
 }
 void online_HouseKeeping(){ //(picked from last version)
