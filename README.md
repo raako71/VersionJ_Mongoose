@@ -1,8 +1,8 @@
 # VersionJ_Mongoose
 
-Changelog:
-0.2: Issue with memory overflow resolved.
-0.1: Control Page beta finished.
+Changelog:<br />
+0.2: Issue with memory overflow resolved.<br />
+0.1: Control Page beta finished.<br />
 
 GUIDE
 1. you need to build the firmware "mos build"
