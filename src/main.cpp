@@ -195,8 +195,8 @@ static void logging_cb(void *arg){
     column[12] = (float)(rand() % 3001) * 0.01;
     column[13] = (float)(rand() % 3001) * 0.01;
     contain_logging(logColumn);
-    LOG(LL_WARN, ("%s", use_contain.c_str()));
-    //LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_heap_size()));
+    //LOG(LL_WARN, ("%s", use_contain.c_str()));
+    LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
     if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -369,17 +369,12 @@ void appendFile(const char* path, const char* message){ //append message to a fi
 	fclose(file);
 }
 long getEpoch(const char* data_in){//get epoch value from csv row string (tested)
-	char* buff= (char*)malloc(11);
-	char *pos = buff;
-	while (*data_in != ';'){
-		*buff++ = *data_in;
-		data_in++;
-	}
-	//reset pointer position to initial
-	buff = pos;
-    long i = atoi (buff);
-    free(buff);
-    return i;
+	std::string buff;
+	buff = data_in;
+	int a = buff.find(";");
+	buff = buff.substr(0, a);
+	long ret = std::stol(buff);
+	return ret;
 }
 long read_epoch_last_entry(const char* path){//read last entry of file and return the epoch (tested)
 	FILE * file = fopen(path, "r");
@@ -488,16 +483,15 @@ long read_epoch_first_entry(const char* path){//read first entry of file and the
 	//file pointer at beginning
 	fseek (file, header_size, SEEK_SET);
 	char c = fgetc(file);
-	char* buff = (char*)malloc(11);
-	char* pos = buff;
+	std::string buff;
+	//char* pos = buff;
 	while(c != ';'){
-		*buff++ = c;
+		buff+=c;
 		c = fgetc(file);
 	}
 	fclose(file);
-	buff = pos;
-	long ret = atol(buff);
-	free(buff);
+	//buff = pos;
+	long ret = std::stol(buff);
 	return ret;
 }
 bool exists(const char* path){ //check if file exists or not (tested)
@@ -558,6 +552,7 @@ void migrate(const char* original, const char* destination, int interval, long d
     
 	while (fgets(buff_ori, 256, file_ori)){//read file line by line offset with header
 		//scanning string line 
+		mgos_wdt_feed();
 		int col_scan_index = 0;
 		while(col_scan_index < logColumn){
 			std::string col_val = getColumnVal(col_scan_index+1, buff_ori);
@@ -887,6 +882,7 @@ void online_HouseKeeping(){ //(picked from last version)
 	long thisDay_last = read_epoch_last_entry("/mnt/thisDay.csv");
     if(thisDay_last - thisDay_first > 86400){ //already pass 1 day
 		//move thisDay to thisWeek, with 5 mins interval
+		LOG(LL_WARN, ("migrating this day"));
 		migrate("/mnt/thisDay.csv", "/mnt/thisWeek.csv", THISWEEK_INTERVAL, 72000, rc_thisday); //5mins interval, keep last 20 hours, migrate the rest  
     }
 	////////////////////////////////////////////thisDay///////////////////////////////////////////////////////////
@@ -906,6 +902,7 @@ void online_HouseKeeping(){ //(picked from last version)
 		  //migrate thisHour to thisDay with 1 mins interval 
 		  // add current data
 		    appendFile("/mnt/thisHour.csv", use_contain.c_str()); 
+			LOG(LL_WARN, ("migrating this hour"));
 		    migrate("/mnt/thisHour.csv", "/mnt/thisDay.csv", THISDAY_INTERVAL, 2700, rc_thisday); //interval 60 secs, keep last 45 mins, migrate the rest
 		}
 
