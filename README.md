@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.4: add advertise, program editor UI and front end <br/>
 0.3: fix issue crash on migration <br/>
 0.2: Issue with memory overflow resolved.<br />
 0.1: Control Page beta finished.<br />
