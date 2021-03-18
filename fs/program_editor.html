@@ -1,0 +1,224 @@
+<!DOCTYPE HTML>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+	<link rel="stylesheet" href="dtsel.css" />
+	<script src="dtsel.js"></script>
+	<title> Power Monitor Web Server | Editor</title>
+</head>
+<body>
+
+<h1> Program Editor Page </h1>
+<div class="main_container">
+	<input type="text" id="program_name" style="height:20px">
+</div>
+<div class="main_container">
+<table>
+<td style="width:100px">
+Start Date
+</td>
+<td>
+	<label class="switch"> 
+	<input type="checkbox" id="start_date_en" onClick="toggle('start_date')">
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="start_date_container" style="padding-left:20px">
+</td>
+
+</table>
+
+</div>
+<div class="main_container">
+<table>
+<tr>
+<td style="width:100px"> End Date </td>
+<td>
+	<label class="switch">
+	<input type="checkbox" id="end_date_en" onClick="toggle('end_date')">
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="end_date_container" style="padding-left:20px">
+</td>
+</table>
+</div>
+
+<div class="main_container">
+<table>
+<tr>
+<td style="width:100px"> Days per Week </td>
+<td>
+	<label class="switch">
+	<input type="checkbox" id="day_list_en" onClick="toggle_day()" >
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="day_list_container" style="padding-left:20px">
+</td>
+</tr>
+
+</table>
+</div>
+
+<div class="main_container">
+Control Outputs: &nbsp; 
+<input type="checkbox" id="control_output_a"><label for="control_output_a">A</label> &nbsp;
+<input type="checkbox" id="control_output_b"><label for="control_output_b">B</label> &nbsp;
+<input type="checkbox" id="control_output_led_red"><label for="control_output_led_red">LED red</label>&nbsp;
+<input type="checkbox" id="control_output_io14"><label for="control_output_io14">IO14</label> &nbsp;
+</div>
+
+<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" >
+<label for="ctrl_trigger_1">Control Trigger:</label>
+<select name="ctrl_trigger_1" id="ctrl_trigger_1" onClick="load_ctrl_action('1')">
+  <option value=1>Temperature</option>
+  <option value=2>Humidity</option>
+  <option value=3>Light</option>
+  <option value=4>Power</option>
+  <option value=5>MQTT Client</option>
+  <option value=6>Duty Cycle</option>
+  <option value=7>Manual Operation</option>
+</select>
+&nbsp;<!--input type="text" id="ctrl_value_1" style="width:75px"--> &nbsp;
+<select id="switch_mode_1"> 
+	<option value=1> Switched On </option>
+	<option value=2> Switched Off</option>
+</select>
+<span id="ctrl_action_holder_1">
+</span>
+</div>
+
+<span id="ctrl_trigger_holder_2"></span>
+<span id="ctrl_trigger_holder_3"></span>
+<input type="button" value="Add Control Trigger" onClick="add_control_trigger()">
+<input type="button" value="Remove Control Trigger" onClick="del_control_trigger()">
+</body>
+<script>
+load_ctrl_action(1);
+
+function toggle(input){
+	var a = document.getElementById(input+"_en").checked;
+	if(a){
+		document.getElementById(input+"_container").innerHTML = '<input type="text" name="dateTimePicker" style="height:16px;display:inline" id='+input+'></span>';
+		instance = new dtsel.DTS('input[id='+input+']',  {direction: 'BOTTOM',dateFormat: "yyyy-mm-dd",showTime: false,showDate: true});
+	}else{
+		document.getElementById(input+"_container").innerHTML = '';
+	}
+}
+
+function toggle_day(){
+	var a = '<input type="checkbox" id="sunday" > <label for="sunday"> sun </label>	<input type="checkbox" id="monday" > <label for="monday"> mon </label>';
+	a += '<input type="checkbox" id="tuesday" > <label for="tuesday"> tue </label><input type="checkbox" id="wednesday" > <label for="wednesday"> wed </label>';
+	a += '<input type="checkbox" id="thursday" > <label for="thursday"> thu </label><input type="checkbox" id="friday" > <label for="friday"> fri </label>'
+	a += '<input type="checkbox" id="saturday" > <label for="saturday"> sat </label>	<div style="margin-top:10px">ON: <input type="time"> &nbsp; OFF: <input type="time">';
+	a += '</div>';
+	var b = document.getElementById("day_list_en").checked;
+	if(b){
+		document.getElementById("day_list_container").innerHTML = a;
+	}else{
+		document.getElementById("day_list_container").innerHTML = "";
+	}
+}
+
+function load_ctrl_action(input){
+	
+	input = String(input);
+	var action_A = '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	if Value <select id="action_A_cmpr_'+input+'">';
+	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
+	action_A += '<input type="text" id="action_A_value_'+input+'" style="width:100px"><br><input type="checkbox" id="PID_'+input+'_en"> <label for="PID_1_en"> PID </label>';
+	
+	var action_B = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
+	action_B += '<input type="checkbox" id="action_B_en_'+input+'"><span class="slider round"></span></label></td></tr></table></div></div>';
+	
+	var action_C = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px">Switch output on for: &nbsp;<span style="color:grey" id="action_C_holder_'+input+'">';
+	action_C += '<input type="checkbox" id="action_C_duration_en_'+input+'" onClick="toggle_C_duration('+input+')">';
+	action_C += '&nbsp;<input type="text" id="action_C_duration_sec_'+input+'" class="greycolor" placeholder="0" readOnly>Seconds';
+	action_C += '&nbsp;<input type="text" id="action_C_duration_min_'+input+'" class="greycolor" placeholder="0" readOnly>Minutes';
+	action_C += '&nbsp;<input type="text" id="action_C_duration_hour_'+input+'" class="greycolor" placeholder="0" readOnly>Hours';
+	action_C += '&nbsp;<input type="text" id="action_C_duration_day_'+input+'" class="greycolor" placeholder="0" readOnly>Days</span><div style="margin-top:10px">';
+	action_C += 'Initial state: &nbsp;<label class="switch"><input type="checkbox" id="action_C_init_'+input+'"><span class="slider round"></label></div></div>';
+	
+	var selection = document.getElementById("ctrl_trigger_"+input).value;
+	var el = document.getElementById("ctrl_action_holder_"+input);
+	if(selection >= 1 && selection <= 4){
+		el.innerHTML = action_A;
+	}else if( selection == 6){
+		el.innerHTML = action_C;
+	}else if(selection == 7){
+		el.innerHTML = action_B;
+	}else{
+		el.innerHTML = "";
+	}
+}
+
+function toggle_C_duration(input){
+var a = document.getElementById("action_C_duration_en_"+input).checked;
+var col = (a == 1) ? "black": "grey";
+document.getElementById("action_C_holder_"+input).style.color = col;
+document.getElementById("action_C_duration_sec_"+input).readOnly = !a;
+document.getElementById("action_C_duration_min_"+input).readOnly = !a;
+document.getElementById("action_C_duration_hour_"+input).readOnly = !a;
+document.getElementById("action_C_duration_day_"+input).readOnly = !a;
+}
+
+function add_control_trigger(){
+	var input = 0;
+	if(document.getElementById("ctrl_trigger_holder_2").innerHTML == ""){
+		input = 2;
+	}else if(document.getElementById("ctrl_trigger_holder_3").innerHTML == ""){
+		input = 3;
+	}else{
+		return;
+	}
+	var ctrl_el = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" >';
+	ctrl_el += '<label for="ctrl_trigger_'+input+'">Control Trigger:</label>';
+	ctrl_el += '<select name="ctrl_trigger_'+input+'" id="ctrl_trigger_'+input+'" onClick="load_ctrl_action('+input+')">';
+	ctrl_el += '<option value=1>Temperature</option>  <option value=2>Humidity</option> <option value=3>Light</option>';
+	ctrl_el += '<option value=4>Power</option>  <option value=5>MQTT Client</option>  <option value=6>Duty Cycle</option>';
+	ctrl_el += '<option value=7>Manual Operation</option></select>&nbsp; &nbsp;';
+	ctrl_el += '<select id="switch_mode_'+input+'">	<option value=1> Switched On </option>	<option value=2> Switched Off</option>';
+	ctrl_el += '</select><span id="ctrl_action_holder_'+input+'"></span></div>';
+	
+	document.getElementById("ctrl_trigger_holder_"+input).innerHTML = ctrl_el;
+	load_ctrl_action(input);
+}
+
+function del_control_trigger(){
+	var input = 0;
+	if(document.getElementById("ctrl_trigger_holder_3").innerHTML != ""){
+		input = 3;
+	}else if(document.getElementById("ctrl_trigger_holder_2").innerHTML != ""){
+		input = 2;
+	}else{
+		return;
+	}
+	document.getElementById("ctrl_trigger_holder_"+input).innerHTML = "";
+}
+</script>
+<style>
+html{
+	font-family: Arial; display: inline-block; text-align: center;
+	-webkit-text-size-adjust:none;
+}
+.switch { position: relative; display: inline-block; width: 42px; height: 25px;}
+.switch input { opacity: 0; width: 0; height: 0;}
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: red; -webkit-transition: .4s; transition: .4s;}
+.slider:before { position: absolute; content: ""; height: 19px; width: 19px; left: 4px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s;}
+input:checked + .slider { background-color: #03b000;}
+input:focus + .slider { box-shadow: 0 0 1px #2196F3;}
+input:checked + .slider:before { -webkit-transform: translateX(15px); -ms-transform: translateX(15px); transform: translateX(15px);}
+/* Rounded sliders */
+.slider.round { border-radius: 34px;}
+.slider.round:before { border-radius: 50%;}
+
+.main_container{
+	text-align:left; width:90%; margin-left:auto; margin-right:auto; margin-top:7px; margin-bottom:7px; display:inline-block; 
+}
+
+.greycolor{
+	border:1px solid grey;
+	width:30px;
+}
+</style>
+</html>

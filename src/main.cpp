@@ -148,6 +148,12 @@ static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_f
 void checkJSONsetting();
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	//dns_advert = true;
+	mg_rpc_send_responsef(ri, "OK");
+	LOG(LL_WARN,("halo dns advertise"));
+	mgos_dns_sd_advertise();
+}
 //function prototype
 
 static void timer_cb(void *arg) {
@@ -282,6 +288,8 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
+  	mg_rpc_add_handler(mgos_rpc_get_global(), "dnsAdvertise", "", dns_advertise, NULL);
+  	
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	mgos_msleep(1000);
 	load_wifi_setting();
@@ -1016,6 +1024,7 @@ static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg,struct
  	checkJSONsetting();
 	(void) cb_arg;
 	(void) fi;
+	mg_rpc_send_responsef(ri, "OK");
 }
 static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args) {
  	long ret = (NTPflag == true) ? online_epoch : offline_epoch;
