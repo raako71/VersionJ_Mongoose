@@ -91,7 +91,6 @@
 		if(data.code == 400){
 			console.log("no good");
 		}else{
-			console.log("git gud");
 			var prog_json = JSON.parse(window.atob(data.data));
 			var id = prog_json.id;
 			program_list[id-1].name = prog_json.name;
@@ -100,7 +99,6 @@
 		j++;
 		if(j == 10){
 			create_program_link();
-			console.log(program_list);
 		}
 	
 		}
@@ -128,7 +126,7 @@
 		console.log(prog_number);
 		while(i < 10){
 			if( program_list[i].name != ""){
-			link += '<li style="margin-bottom:5px"><a href="#">' + program_list[i].name + "</a></li>";
+			link += '<li style="margin-bottom:5px"><a href="program_editor.html?x=program' + (i+1) +'">' + program_list[i].name + "</a></li>";
 			}
 			i++;
 		}

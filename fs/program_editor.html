@@ -10,7 +10,7 @@
 
 <h1> Program Editor Page </h1>
 <div class="main_container">
-	<input type="text" id="program_name" style="height:20px">
+	<input type="text" id="program_name" placeholder="custom name" style="height:20px">
 </div>
 <div class="main_container">
 <table>
@@ -62,6 +62,36 @@ Start Date
 </div>
 
 <div class="main_container">
+<table>
+<tr>
+<td style="width:100px"> On Time </td>
+<td>
+	<label class="switch">
+	<input type="checkbox" id="on_time_en" onClick="toggle('on_time')">
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="on_time_container" style="padding-left:20px">
+</td>
+</table>
+</div>
+
+<div class="main_container">
+<table>
+<tr>
+<td style="width:100px"> Off Time</td>
+<td>
+	<label class="switch">
+	<input type="checkbox" id="off_time_en" onClick="toggle('off_time')">
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="off_time_container" style="padding-left:20px">
+</td>
+</table>
+</div>
+
+<div class="main_container">
 Control Outputs: &nbsp; 
 <input type="checkbox" id="control_output_a"><label for="control_output_a">A</label> &nbsp;
 <input type="checkbox" id="control_output_b"><label for="control_output_b">B</label> &nbsp;
@@ -69,7 +99,7 @@ Control Outputs: &nbsp;
 <input type="checkbox" id="control_output_io14"><label for="control_output_io14">IO14</label> &nbsp;
 </div>
 
-<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" >
+<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" id="ctrl_trigger_holder_1">
     <div style="float: left">
 <label for="ctrl_trigger_1">Control Trigger:</label>
 <select name="ctrl_trigger_1" id="ctrl_trigger_1" onClick="load_ctrl_action('1')">
@@ -87,36 +117,48 @@ Control Outputs: &nbsp;
 	<option value=2> Switched Off</option>
 </select>
         </div>
-    <div  style="float: right">
-        <a href="#">X</a></div>
+    <div  style="float: right"></div>
 <span id="ctrl_action_holder_1">
 </span>
 </div>
-
+<br>
 <span id="ctrl_trigger_holder_2"></span>
 <span id="ctrl_trigger_holder_3"></span>
-<input type="button" value="Add Control Trigger" onClick="add_control_trigger()">
-<input type="button" value="Remove Control Trigger" onClick="del_control_trigger()">
+<input type="button" value="Add Control Trigger" onClick="add_control_trigger(-1)">
+<br><br>
+<input type="button" value="SAVE" onClick="save_setting()" style="width:100px"> <input type="button" style="width:100px" value="CANCEL">
 </body>
 <script>
 load_ctrl_action(1);
+var program2load = getUrlParam('x','Empty');
+console.log("loading program: " + program2load);
+window.addEventListener('load', onLoad);
+function onLoad(){
+	load_setting();
+}
+//function to detect page param
+function getUrlVars() {var vars = {};var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key] = value;});return vars;}
+function getUrlParam(parameter, defaultvalue){var urlparameter = defaultvalue;if(window.location.href.indexOf(parameter) > -1){urlparameter = getUrlVars()[parameter];}return urlparameter;}
 
 function toggle(input){
 	var a = document.getElementById(input+"_en").checked;
 	if(a){
+		if(input == "on_time" || input == "off_time"){
+		document.getElementById(input + "_container").innerHTML = '<input type="time" id="'+input+'_val">';
+		}else{
 		document.getElementById(input+"_container").innerHTML = '<input type="text" name="dateTimePicker" style="height:16px;display:inline" id='+input+'></span>';
-		instance = new dtsel.DTS('input[id='+input+']',  {direction: 'BOTTOM',dateFormat: "yyyy-mm-dd",showTime: false,showDate: true});
+		instance = new dtsel.DTS('input[id='+input+']',  {direction: 'BOTTOM',dateFormat: "yyyy-mm-dd",showTime: false,showDate: true});}
 	}else{
 		document.getElementById(input+"_container").innerHTML = '';
 	}
 }
 
+
 function toggle_day(){
 	var a = '<input type="checkbox" id="sunday" > <label for="sunday"> sun </label>	<input type="checkbox" id="monday" > <label for="monday"> mon </label>';
 	a += '<input type="checkbox" id="tuesday" > <label for="tuesday"> tue </label><input type="checkbox" id="wednesday" > <label for="wednesday"> wed </label>';
 	a += '<input type="checkbox" id="thursday" > <label for="thursday"> thu </label><input type="checkbox" id="friday" > <label for="friday"> fri </label>'
-	a += '<input type="checkbox" id="saturday" > <label for="saturday"> sat </label>	<div style="margin-top:10px">ON: <input type="time"> &nbsp; OFF: <input type="time">';
-	a += '</div>';
+	a += '<input type="checkbox" id="saturday" > <label for="saturday"> sat </label>';
 	var b = document.getElementById("day_list_en").checked;
 	if(b){
 		document.getElementById("day_list_container").innerHTML = a;
@@ -126,7 +168,6 @@ function toggle_day(){
 }
 
 function load_ctrl_action(input){
-	
 	input = String(input);
 	var action_A = '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	if Value <select id="action_A_cmpr_'+input+'">';
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
@@ -135,13 +176,32 @@ function load_ctrl_action(input){
 	var action_B = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
 	action_B += '<input type="checkbox" id="action_B_en_'+input+'"><span class="slider round"></span></label></td></tr></table></div></div>';
 	
-	var action_C = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px">Switch output on for: &nbsp;<span style="color:grey" id="action_C_holder_'+input+'">';
-	action_C += '<input type="checkbox" id="action_C_duration_en_'+input+'" onClick="toggle_C_duration('+input+')">';
-	action_C += '&nbsp;<input type="text" id="action_C_duration_sec_'+input+'" class="greycolor" placeholder="0" readOnly>Seconds';
-	action_C += '&nbsp;<input type="text" id="action_C_duration_min_'+input+'" class="greycolor" placeholder="0" readOnly>Minutes';
-	action_C += '&nbsp;<input type="text" id="action_C_duration_hour_'+input+'" class="greycolor" placeholder="0" readOnly>Hours';
-	action_C += '&nbsp;<input type="text" id="action_C_duration_day_'+input+'" class="greycolor" placeholder="0" readOnly>Days</span><div style="margin-top:10px">';
-	action_C += 'Initial state: &nbsp;<label class="switch"><input type="checkbox" id="action_C_init_'+input+'"><span class="slider round"></label></div></div>';
+	var action_C = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
+	action_C += '<input type="checkbox" id="action_C_en_sec_on_'+input+'" onClick="toggle_field(this,'+"'action_C_sec_on_"+ input+ "'" +')">';
+	action_C += '<input type="text" id="action_C_sec_on_'+input+'" class="greycolor" readOnly>';
+	action_C += '<span id="action_C_sec_on_label_'+input+'" class="greyed_label">Sec</span>';
+	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_min_on_'+input+'" onClick="toggle_field(this,'+"'action_C_min_on_"+ input+ "'" +')"><input type="text" id="action_C_min_on_'+input+'" class="greycolor" readOnly>';
+	action_C += '<span id="action_C_min_on_label_'+input+'" class="greyed_label">Min</span>';
+	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_hrs_on_'+input+'" onClick="toggle_field(this,'+"'action_C_hrs_on_"+ input+ "'" +')"><input type="text" id="action_C_hrs_on_'+input+'" class="greycolor" readOnly>';
+	action_C += '<span id="action_C_hrs_on_label_'+input+'" class="greyed_label">Hrs</span>';
+	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_day_on_'+input+'" onClick="toggle_field(this,'+"'action_C_day_on_"+ input+ "'" +')"><input type="text" id="action_C_day_on_'+input+'" class="greycolor" readOnly>';
+	action_C += '<span id="action_C_day_on_label_'+input+'" class="greyed_label">Day</span></div>';
+	action_C += '<div style="margin-top:15px">Switch output off for: &nbsp; ';
+	action_C += '<input type="checkbox" id="action_C_en_sec_off_'+input+'" onClick="toggle_field(this,'+"'action_C_sec_off_"+ input+ "'" +')">';
+	action_C += '<input type="text" id="action_C_sec_off_'+input+'" class="greycolor" readOnly>';
+	action_C += '<span id="action_C_sec_off_label_'+input+'" class="greyed_label">Sec</span>';
+	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_min_off_'+input+'" onClick="toggle_field(this,'+"'action_C_min_off_"+ input+ "'" +')">';
+	action_C += '<input type="text" id="action_C_min_off_'+input+'" class="greycolor" readOnly>';
+	action_C += '<span id="action_C_min_off_label_'+input+'" class="greyed_label">Min</span>';
+	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_hrs_off_'+input+'" onClick="toggle_field(this,'+"'action_C_hrs_off_"+ input+ "'" +')">';
+	action_C += '<input type="text" id="action_C_hrs_off_'+input+'" class="greycolor" readOnly>';
+	action_C += '<span id="action_C_hrs_off_label_'+input+'" class="greyed_label">Hrs</span>';
+	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_day_off_'+input+'" onClick="toggle_field(this,'+"'action_C_day_off_"+ input+ "'" +')">';
+	action_C += '<input type="text" id="action_C_day_off_'+input+'" class="greycolor" readOnly>';
+	action_C += '<span id="action_C_day_off_label_'+input+'" class="greyed_label">Day</span></div>';
+	action_C += '<div  style="margin-top:15px">';
+	action_C += 'Initial state: &nbsp;<label class="switch"><input type="checkbox" id="action_C_init_'+input+'"><span class="slider round"></label></div>';
+	action_C += '</div>';
 	
 	var selection = document.getElementById("ctrl_trigger_"+input).value;
 	var el = document.getElementById("ctrl_action_holder_"+input);
@@ -156,18 +216,8 @@ function load_ctrl_action(input){
 	}
 }
 
-function toggle_C_duration(input){
-var a = document.getElementById("action_C_duration_en_"+input).checked;
-var col = (a == 1) ? "black": "grey";
-document.getElementById("action_C_holder_"+input).style.color = col;
-document.getElementById("action_C_duration_sec_"+input).readOnly = !a;
-document.getElementById("action_C_duration_min_"+input).readOnly = !a;
-document.getElementById("action_C_duration_hour_"+input).readOnly = !a;
-document.getElementById("action_C_duration_day_"+input).readOnly = !a;
-}
-
-function add_control_trigger(){
-	var input = 0;
+function add_control_trigger(input){
+	if(input == -1){
 	if(document.getElementById("ctrl_trigger_holder_2").innerHTML == ""){
 		input = 2;
 	}else if(document.getElementById("ctrl_trigger_holder_3").innerHTML == ""){
@@ -175,30 +225,194 @@ function add_control_trigger(){
 	}else{
 		return;
 	}
-	var ctrl_el = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" >';
-	ctrl_el += '<label for="ctrl_trigger_'+input+'">Control Trigger:</label>';
-	ctrl_el += '<select name="ctrl_trigger_'+input+'" id="ctrl_trigger_'+input+'" onClick="load_ctrl_action('+input+')">';
+	}
+	var ctrl_el = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" > <div style="float: left">';
+	ctrl_el += '<label for="ctrl_trigger_'+input+'">Control Trigger:</label> &nbsp;';
+	ctrl_el += '<select name="ctrl_trigger_'+input+'" id="ctrl_trigger_'+input+'" onChange="load_ctrl_action('+input+')">';
 	ctrl_el += '<option value=1>Temperature</option>  <option value=2>Humidity</option> <option value=3>Light</option>';
 	ctrl_el += '<option value=4>Power</option>  <option value=5>MQTT Client</option>  <option value=6>Duty Cycle</option>';
 	ctrl_el += '<option value=7>Manual Operation</option></select>&nbsp; &nbsp;';
-	ctrl_el += '<select id="switch_mode_'+input+'">	<option value=1> Switched On </option>	<option value=2> Switched Off</option>';
-	ctrl_el += '</select><span id="ctrl_action_holder_'+input+'"></span></div>';
+	ctrl_el += '<select id="switch_mode_'+input+'">	<option value=1> Switched On </option>	<option value=2> Switched Off</option></select></div> <div  style="float: right">';
+	ctrl_el += '<a href="javascript:del_control_trigger('+input+')">X</a></div>';
+	ctrl_el += '<span id="ctrl_action_holder_'+input+'"></span></div>';
 	
 	document.getElementById("ctrl_trigger_holder_"+input).innerHTML = ctrl_el;
 	load_ctrl_action(input);
 }
 
-function del_control_trigger(){
-	var input = 0;
-	if(document.getElementById("ctrl_trigger_holder_3").innerHTML != ""){
-		input = 3;
-	}else if(document.getElementById("ctrl_trigger_holder_2").innerHTML != ""){
-		input = 2;
-	}else{
-		return;
-	}
+function del_control_trigger(input){
 	document.getElementById("ctrl_trigger_holder_"+input).innerHTML = "";
 }
+
+function toggle_field(input, action){
+	var logic = input.checked;
+	var RO_logic =true; var color ="grey";
+	if(logic){RO_logic = false;	color = "black";}
+	else{document.getElementById(action).value = "";}
+	document.getElementById(action).readOnly = RO_logic;
+	document.getElementById(action).style.color = color;
+}
+
+function day_list(){ 
+	if(document.getElementById("day_list_en").checked){
+	var day = document.getElementById("sunday").checked ? "1" : "0";
+	day += document.getElementById("monday").checked ? "1" : "0";
+	day += document.getElementById("tuesday").checked ? "1" : "0";
+	day += document.getElementById("wednesday").checked ? "1" : "0";
+	day += document.getElementById("thursday").checked ? "1" : "0";
+	day += document.getElementById("friday").checked ? "1" : "0";
+	day += document.getElementById("saturday").checked ? "1" : "0";
+	return day;
+	}else{
+	return "";
+	}
+	
+}
+
+function save_setting(){
+	var old_json;
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Get", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": program2load+".json"};
+	xhr.send(JSON.stringify(comm));
+	xhr.onload = function() {
+		var data = JSON.parse(this.responseText);
+		old_json = JSON.parse(window.atob(data.data));
+		var a = document.getElementById("program_name").value;
+		old_json.name = (a == "") ? program2load : a;
+		old_json.start_date = (document.getElementById("start_date_en").checked) ? document.getElementById("start_date").value : "";
+		old_json.end_date = (document.getElementById("end_date_en").checked) ? document.getElementById("end_date").value : "";
+		old_json.days_active = day_list();
+		old_json.on_time_global = (document.getElementById("on_time_en").checked) ? document.getElementById("on_time_val").value : "";
+		old_json.off_time_global = (document.getElementById("off_time_en").checked) ? document.getElementById("off_time_val").value : "";
+		old_json.CO_A = document.getElementById("control_output_a").checked;
+		old_json.CO_B = document.getElementById("control_output_b").checked;
+		old_json.CO_LED_RED = document.getElementById("control_output_led_red").checked;
+		old_json.CO_IO14 = document.getElementById("control_output_io14").checked;
+		
+		var index = 0;
+		for (index = 0; index < 3; index++){
+		var k = ""; var l =""; var m = "";
+		if(document.getElementById("ctrl_trigger_holder_"+(index+1)).innerHTML != ""){
+			k = document.getElementById("ctrl_trigger_"+(index+1)).value;
+			l = document.getElementById("switch_mode_"+(index+1)).value;
+			if(k >= 1 && k <= 4){
+				m = String(document.getElementById("action_A_cmpr_"+(index+1)).value)+ "," + String(document.getElementById("action_A_value_"+(index+1)).value)+"," + ((document.getElementById("PID_"+(index+1)+"_en").checked) ? '1' : '0');			
+			}else if(k == 6){
+				m = get_chkbox_val("action_C_en_sec_on_"+(index+1)) + "," + document.getElementById("action_C_sec_on_"+(index+1)).value + ",";
+				m += get_chkbox_val("action_C_en_min_on_"+(index+1)) + "," + document.getElementById("action_C_min_on_"+(index+1)).value + ",";
+				m += get_chkbox_val("action_C_en_hrs_on_"+(index+1)) + "," + document.getElementById("action_C_hrs_on_"+(index+1)).value + ",";
+				m += get_chkbox_val("action_C_en_day_on_"+(index+1)) + "," + document.getElementById("action_C_day_on_"+(index+1)).value + ",";
+				m += get_chkbox_val("action_C_en_sec_off_"+(index+1)) + "," + document.getElementById("action_C_sec_off_"+(index+1)).value + ",";
+				m += get_chkbox_val("action_C_en_min_off_"+(index+1)) + "," + document.getElementById("action_C_min_off_"+(index+1)).value + ",";
+				m += get_chkbox_val("action_C_en_hrs_off_"+(index+1)) + "," + document.getElementById("action_C_hrs_off_"+(index+1)).value + ",";
+				m += get_chkbox_val("action_C_en_day_off_"+(index+1)) + "," + document.getElementById("action_C_day_off_"+(index+1)).value + ",";
+				m += get_chkbox_val("action_C_init_"+(index+1));
+			}else if(k == 7){
+				m = (document.getElementById("action_B_en_"+(index+1)).checked) ? '1':'0';
+			}
+			old_json.control_trigger[index].en = 1;
+			old_json.control_trigger[index].option = k;
+			old_json.control_trigger[index].switched = l;
+			old_json.control_trigger[index].trigger_info = m;
+		}else{
+			old_json.control_trigger[index].en = 0;
+			old_json.control_trigger[index].option = "1";
+			old_json.control_trigger[index].switched = "1";
+			old_json.control_trigger[index].trigger_info = "";
+		}//if
+		}//for
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST", "/rpc/FS.Put", true);
+		xhttp.setRequestHeader('Content-Type', 'application/json');
+		var string = window.btoa(JSON.stringify(old_json));
+		var contain = {"filename": program2load+".json", "append":false, "data": string}
+		xhttp.send(JSON.stringify(contain));
+		xhttp.onload = function(){
+			alert("configuration saved");
+		}
+		
+	}
+}
+
+function get_chkbox_val(input){
+var a = ((document.getElementById(input).checked==true) ? "1" : "0");
+return a;
+}
+function load_setting(){
+	var old_json;
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Get", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": program2load+".json"};
+	xhr.send(JSON.stringify(comm));
+	xhr.onload = function() {
+		var data = JSON.parse(this.responseText);
+		old_json = JSON.parse(window.atob(data.data));
+		document.getElementById("program_name").value = old_json.name;
+		if(old_json.start_date != ""){document.getElementById("start_date_en").checked = true; toggle("start_date"); document.getElementById("start_date").value = old_json.start_date;}
+		if(old_json.end_date != ""){document.getElementById("end_date_en").checked = true; toggle("end_date"); document.getElementById("end_date").value = old_json.end_date;}
+		if(old_json.days_active != ""){document.getElementById("day_list_en").checked = true; toggle_day();
+		var day_list_str = old_json.days_active;
+		document.getElementById("sunday").checked = (day_list_str[0] == 1  ? true: false);
+		document.getElementById("monday").checked = (day_list_str[1] == 1  ? true: false);
+		document.getElementById("tuesday").checked = (day_list_str[2] == 1  ? true: false);
+		document.getElementById("wednesday").checked = (day_list_str[3] == 1  ? true: false);
+		document.getElementById("thursday").checked = (day_list_str[4] == 1  ? true: false);
+		document.getElementById("friday").checked = (day_list_str[5] == 1  ? true: false);
+		document.getElementById("saturday").checked = (day_list_str[6] == 1  ? true: false);}
+		if(old_json.on_time_global != ""){document.getElementById("on_time_en").checked = true; toggle("on_time"); document.getElementById("on_time_val").value = old_json.on_time_global;}
+		if(old_json.off_time_global != ""){document.getElementById("off_time_en").checked = true; toggle("off_time"); document.getElementById("off_time_val").value = old_json.off_time_global;}
+		document.getElementById("control_output_a").checked = old_json.CO_A;
+		document.getElementById("control_output_b").checked = old_json.CO_B;
+		document.getElementById("control_output_led_red").checked = old_json.CO_LED_RED;
+		document.getElementById("control_output_io14").checked = old_json.CO_IO14;
+		var index = 0;
+		for(index = 0; index < 3 ; index++){
+			var a = old_json.control_trigger[index].en;
+			if( a == 1 && index != 0){
+				console.log("hoobla");
+				add_control_trigger(index+1);
+			}
+			if( a == 1){
+			var b = old_json.control_trigger[index].option;
+			document.getElementById("ctrl_trigger_"+(index+1)).value  = b;
+			load_ctrl_action(index+1);
+			document.getElementById("switch_mode_"+(index+1)).value = old_json.control_trigger[index].switched;
+			var d = old_json.control_trigger[index].trigger_info;
+			if(b >= 1 && b <= 4){
+			var i = d.indexOf(",",0);	var a = 0;
+			document.getElementById("action_A_cmpr_"+(index+1)).value = d.substring(0,i);
+			a = i+1;	i = d.indexOf(",", i+1);
+			document.getElementById("action_A_value_"+(index+1)).value = d.substring(a, i);
+			a = i+1; i = d.indexOf(",", i+1);
+			document.getElementById("PID_"+(index+1)+"_en").checked = d.substring(a) == "0" ? false : true;
+			}else if(b == 6){
+			apply_duty_cycle_conf(d, index+1);
+			}else if(b == 7){
+			document.getElementById("action_B_en_"+(index+1)).checked = Number(d) == 1 ? true: false;
+			}}
+		}//for
+	}
+}
+
+function apply_duty_cycle_conf(input, number){
+number = String(number);
+var array = ["sec_on_"+number, "min_on_"+number, "hrs_on_"+number, "day_on_"+number, "sec_off_"+number, "min_off_"+number, "hrs_off_"+number, "day_off_"+number];
+var index = 0;
+var a = 0; var j= 0;
+for (index = 0; index < 8; index++){
+j = input.indexOf(",", a);
+document.getElementById("action_C_en_" + array[index]).checked = (input.substring(a, j) == "1")? true: false;
+a = j+1; j = input.indexOf(",", a);
+document.getElementById("action_C_" + array[index]).value = input.substring(a, j);
+a = j+1;
+}
+document.getElementById("action_C_init_"+number).checked = (input.substring(a) == "1") ? true: false; 
+}
+
+
 </script>
 <style>
 html{
@@ -224,5 +438,43 @@ input:checked + .slider:before { -webkit-transform: translateX(15px); -ms-transf
 	border:1px solid grey;
 	width:30px;
 }
+
+.greyed_label{
+	color:grey;
+}
+
+#day_on_en:checked ~ #day_on_label{color:black;}
+#day_off_en:checked ~ #day_off_label{color:black;}
+#day_on_label, #day_off_label{ color:grey;}
+
+#action_C_en_day_on_1:checked ~ #action_C_day_on_label_1{color:black;}
+#action_C_en_hrs_on_1:checked ~ #action_C_hrs_on_label_1{color:black;}
+#action_C_en_min_on_1:checked ~ #action_C_min_on_label_1{color:black;}
+#action_C_en_sec_on_1:checked ~ #action_C_sec_on_label_1{color:black;}
+
+#action_C_en_day_on_2:checked ~ #action_C_day_on_label_2{color:black;}
+#action_C_en_hrs_on_2:checked ~ #action_C_hrs_on_label_2{color:black;}
+#action_C_en_min_on_2:checked ~ #action_C_min_on_label_2{color:black;}
+#action_C_en_sec_on_2:checked ~ #action_C_sec_on_label_2{color:black;}
+
+#action_C_en_day_on_3:checked ~ #action_C_day_on_label_3{color:black;}
+#action_C_en_hrs_on_3:checked ~ #action_C_hrs_on_label_3{color:black;}
+#action_C_en_min_on_3:checked ~ #action_C_min_on_label_3{color:black;}
+#action_C_en_sec_on_3:checked ~ #action_C_sec_on_label_3{color:black;}
+
+#action_C_en_day_off_1:checked ~ #action_C_day_off_label_1{color:black;}
+#action_C_en_hrs_off_1:checked ~ #action_C_hrs_off_label_1{color:black;}
+#action_C_en_min_off_1:checked ~ #action_C_min_off_label_1{color:black;}
+#action_C_en_sec_off_1:checked ~ #action_C_sec_off_label_1{color:black;}
+
+#action_C_en_day_off_2:checked ~ #action_C_day_off_label_2{color:black;}
+#action_C_en_hrs_off_2:checked ~ #action_C_hrs_off_label_2{color:black;}
+#action_C_en_min_off_2:checked ~ #action_C_min_off_label_2{color:black;}
+#action_C_en_sec_off_2:checked ~ #action_C_sec_off_label_2{color:black;}
+
+#action_C_en_day_off_3:checked ~ #action_C_day_off_label_3{color:black;}
+#action_C_en_hrs_off_3:checked ~ #action_C_hrs_off_label_3{color:black;}
+#action_C_en_min_off_3:checked ~ #action_C_min_off_label_3{color:black;}
+#action_C_en_sec_off_3:checked ~ #action_C_sec_off_label_3{color:black;}
 </style>
 </html>

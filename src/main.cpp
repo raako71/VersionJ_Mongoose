@@ -37,7 +37,7 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define V2  //V2
+#define V1  //V2
 
 #ifdef V1
 #define WIFI_LED 4
@@ -51,7 +51,7 @@
 #endif
 
 #ifdef V2
-#define WIFI_LED 16
+#define WIFI_LED 15
 #define WIFI_BTN 36
 #define PB1 39
 #define PB2 35
@@ -61,7 +61,7 @@
 #define R1 4
 #define R2 12
 #define LED_RED 2
-#define RL_LED_EN 15
+#define RL_LED_EN 16
 #endif
 
 bool colen[13];
@@ -89,6 +89,8 @@ float gain = 0.25;
 SparkFun_Ambient_Light light(0x10);
 int time2 = 100;
 long luxVal = 0;
+unsigned int panel_brightness = 0;
+unsigned int remote_brightness = 0;
 
 //addition variable V2
 char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
@@ -110,10 +112,16 @@ static void wifi_led_ctrl(void *arg) {
 				mgos_wifi_connect();
 				wifi_led_ctrl_psc = 0;
 			}
-			mgos_gpio_toggle(WIFI_LED);	//blinking searching
+			static int a = 0;
+			if(a%2 == 0){
+				mgos_pwm_set(WIFI_LED, 5000, (float)panel_brightness/65535);
+			}else{
+				mgos_pwm_set(WIFI_LED, 5000, 0);
+			}
+			a++;
 		}else{
 			//mgos_clear_timer(wifi_blink_timer);
-	   		mgos_gpio_write(WIFI_LED, true);
+	   		mgos_pwm_set(WIFI_LED, 5000, (float)panel_brightness/65535);
 		}
 		wifi_led_ctrl_psc++;
 	}
@@ -148,6 +156,7 @@ static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_f
 void checkJSONsetting();
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	//dns_advert = true;
 	mg_rpc_send_responsef(ri, "OK");
@@ -203,6 +212,7 @@ static void logging_cb(void *arg){
     contain_logging(logColumn);
     //LOG(LL_WARN, ("%s", use_contain.c_str()));
     LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
+    LOG(LL_WARN, ("%d", panel_brightness));
     if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -224,7 +234,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   	oldcheck_onboot();
   	
 	if(exists("setting.json")){
-		LOG(LL_INFO, ("json checking"));
+		LOG(LL_WARN, ("json checking"));
 		checkJSONsetting();
   	}	
 
@@ -289,11 +299,23 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "dnsAdvertise", "", dns_advertise, NULL);
+  	mg_rpc_add_handler(mgos_rpc_get_global(), "reqIOinfo", "", request_IO_info, NULL);
   	
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	mgos_msleep(1000);
 	load_wifi_setting();
 	return MGOS_APP_INIT_SUCCESS;
+}
+
+void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	#ifdef V1
+	mg_rpc_send_responsef(ri, "{A: %d, B: %d, LED: %d, IO14: %d}", mgos_gpio_read_out(R1), mgos_gpio_read_out(R2), 0, 0);
+	#endif
+	#ifdef V2
+	mg_rpc_send_responsef(ri, "{A: %d, B: %d, LED: %d, IO14: %d}", mgos_gpio_read_out(R1), mgos_gpio_read_out(R2), mgos_gpio_read_out(2), mgos_gpio_read_out(14));
+	#endif
+	(void) cb_arg;
+	(void) fi;	
 }
 //V2////////////////////////////////////////////////////////////////////////////////////////
 
@@ -352,15 +374,16 @@ void fade_blink(int pin){
     static char index = 0;
     mgos_pwm_set(pin, 5000, (float)PWM_val/65535);
     if(index == 0){
-      long buff = (long)PWM_val + 300;
-      if(buff >= 30000){
+      long buff = (long)PWM_val + (panel_brightness)*0.01;
+      if(buff >= panel_brightness){
         //no change value
+        PWM_val = panel_brightness;
         index = 1;
       }else{
         PWM_val = (unsigned int)buff;
       }
     }else{
-      long buff = (long)PWM_val - 300;
+      long buff = (long)PWM_val - (panel_brightness)*0.01;
       if(buff <= 0){
         PWM_val = 0;
         index = 0;
@@ -1037,6 +1060,12 @@ void checkJSONsetting(){
 	buff = json_fread("setting.json");
 	json_scanf(buff, strlen(buff), "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
 	,&colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday);
+	
+	struct json_token t;
+	json_scanf_array_elem(buff, strlen(buff), ".brightness",0, &t);
+	json_scanf(t.ptr, t.len, "{panel: %d, remote: %d}", &panel_brightness, &remote_brightness);
+	panel_brightness = panel_brightness << 8;
+	remote_brightness = remote_brightness << 8;
 	free(buff);
 }
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
