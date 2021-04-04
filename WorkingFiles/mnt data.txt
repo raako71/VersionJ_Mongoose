@@ -1,0 +1,10 @@
+$ mos ls /mnt -l
+1970Day.csv 149
+1970Month.csv 115
+1970Week.csv 115
+longTermData.csv 115
+thisDay.csv 54169
+thisHour.csv 13765
+thisMonth.csv 6342
+thisWeek.csv 77354
+Command completed.

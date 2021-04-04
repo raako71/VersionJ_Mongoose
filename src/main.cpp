@@ -37,7 +37,7 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define V1  //V2
+#define V2  //V2
 
 #ifdef V1
 #define WIFI_LED 4
@@ -51,7 +51,7 @@
 #endif
 
 #ifdef V2
-#define WIFI_LED 15
+#define WIFI_LED 16
 #define WIFI_BTN 36
 #define PB1 39
 #define PB2 35
@@ -61,7 +61,7 @@
 #define R1 4
 #define R2 12
 #define LED_RED 2
-#define RL_LED_EN 16
+#define RL_LED_EN 15
 #endif
 
 bool colen[13];
