@@ -1,7 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
-0.6: program editor modify and control page
+0.6: program editor modify and control page<br>
 0.5: program editor back-end<br/>
 0.4: add advertise, program editor UI and front end <br/>
 0.3: fix issue crash on migration <br/>
