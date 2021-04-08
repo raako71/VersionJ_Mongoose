@@ -11,6 +11,9 @@
 	<div class="main_container">
 	<b> Programs</b>
 	<div id="program_link"></div>
+	<div style="margin-bottom:10px; margin-top:10px">
+	<input type="button" value="Create New Program" onClick="new_program()">
+	</div>
 	<b> Remote Push Buttons </b><br>
 	<input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
 	<input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
@@ -44,16 +47,16 @@
 </body>
 
 <script>
-	var program_list = [{"name": "" }, 
-						{"name": "" }, 
-						{"name": "" }, 
-						{"name": "" }, 
-						{"name": "" },
-						{"name": "" },
-						{"name": "" },
-						{"name": "" },
-						{"name": "" },
-						{"name": "" }];
+	var program_list = [{"id": "","name": "" }, 
+						{"id": "","name": "" }, 
+						{"id": "","name": "" }, 
+						{"id": "","name": "" }, 
+						{"id": "","name": "" },
+						{"id": "","name": "" },
+						{"id": "","name": "" },
+						{"id": "","name": "" },
+						{"id": "","name": "" },
+						{"id": "","name": "" }];
 	var prog_number =0;
 						
 	window.addEventListener('load', onLoad);
@@ -94,6 +97,7 @@
 			var prog_json = JSON.parse(window.atob(data.data));
 			var id = prog_json.id;
 			program_list[id-1].name = prog_json.name;
+			program_list[id-1].id = prog_json.id;
 			prog_number++;
 		}
 		j++;
@@ -103,8 +107,19 @@
 	
 		}
 		}//for
-		
-		
+	}
+	function new_program(){
+		var i = 0;
+		var id;
+		for(i = 0; i < 11; i++){
+			if(i == 10){ alert("program full"); return;};
+			if(program_list[i].id == ""){
+				id = i+1;
+				break;
+			}
+			
+		}
+		location.href="program_editor.html?x=new&y=" + id;
 	}
 	function fetch_uptime(){
 		var xhttp = new XMLHttpRequest();	
@@ -126,12 +141,24 @@
 		console.log(prog_number);
 		while(i < 10){
 			if( program_list[i].name != ""){
-			link += '<li style="margin-bottom:5px"><a href="program_editor.html?x=program' + (i+1) +'">' + program_list[i].name + "</a></li>";
+			link += '<table><td><li></li> </td><td style="width:100px"><a href="program_editor.html?x=program' + (i+1) +'&y='+program_list[i].id+'">' + program_list[i].name + '</a>';
+			link += '</td><td><input type="button" style="margin-left:10px;margin-right:10px" value="Delete" onClick="delete_prog('+program_list[i].id+')"></td></table>';
 			}
 			i++;
 		}
 		link += '</ul>';
 		document.getElementById("program_link").innerHTML = link;
+	}
+	function delete_prog(input){
+	var conf = confirm("Are you sure want to delete " + program_list[input-1].name + "program ?");
+	if(conf){
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Remove", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var  comm = {  "filename": "program" + input+".json" };
+	xhr.send(JSON.stringify(comm));
+	xhr.onload = function() {window.location.reload(true)}
+	}
 	}
 	function create_dropdown(){
 		var i;
@@ -163,9 +190,6 @@
 				halo.checked = false;
 			}
 		}
-	}
-	function override_func(){
-		
 	}
 	function toogle_override() {
 		if(document.getElementById("for").checked){
