@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.7: check program state and program to output linker, slider range 0 to 100%, testing led 0.5Hz.
 0.6: program editor modify and control page<br>
 0.5: program editor back-end<br/>
 0.4: add advertise, program editor UI and front end <br/>
