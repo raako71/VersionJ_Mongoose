@@ -150,7 +150,7 @@
 		document.getElementById("program_link").innerHTML = link;
 	}
 	function delete_prog(input){
-	var conf = confirm("Are you sure want to delete " + program_list[input-1].name + "program ?");
+	var conf = confirm("Are you sure want to delete " + program_list[input-1].name + " program?");
 	if(conf){
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", "/rpc/FS.Remove", true);

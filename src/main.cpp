@@ -37,7 +37,7 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define V1  //V2
+#define V2  //V2
 
 #ifdef V1
 #define WIFI_LED 4
@@ -51,7 +51,7 @@
 #endif
 
 #ifdef V2
-#define WIFI_LED 15
+#define WIFI_LED 16
 #define WIFI_BTN 36
 #define PB1 39
 #define PB2 35
@@ -61,7 +61,7 @@
 #define R1 4
 #define R2 12
 #define LED_RED 2
-#define RL_LED_EN 16
+#define RL_LED_EN 15
 #endif
 
 bool colen[13];
@@ -77,7 +77,8 @@ long offline_epoch  = 0;
 long online_epoch = 0;
 bool NTPflag = false;
 bool NTPflag_z = false;
-
+long time_day_epoch;
+int day_now;
 //i2c and sensor
 int enablei2c = 13;
 int Vmax = 611;   //depend on Rsense, what maximum voltage that creates 275mV between the voltage input sensor
@@ -91,6 +92,10 @@ int time2 = 100;
 long luxVal = 0;
 unsigned int panel_brightness = 0;
 unsigned int remote_brightness = 0;
+
+///program backend variable
+int prog_link_name[4] = {-1,-1,-1,-1}; //A, B, C, D -> detect lowest ID and enabled; and put program ID here
+int prog_link_state[4] = {0,0,0,0}; //indicate program state -> based on date etc
 
 //addition variable V2
 char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
@@ -149,7 +154,9 @@ void trimfile(const char* path);//function that trims file when reaching upper l
 void online_HouseKeeping();//(picked from last version)
 void offline_HouseKeeping();//(picked from last version)
 void oldcheck_onboot();//check old files adjusts offline epoch (picked from last version)
-void checking_eth();
+void check_program_en(const char* file_read, bool& prog_en, int& control_opt); //tested -> read json file program.json
+void check_program_name(); //tested -> retrive program en and output option from program json
+int check_program_state(const char* file_read); 
 //function prototype
 static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg, struct mg_rpc_frame_info *fi, struct mg_str args);
 static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
@@ -168,17 +175,31 @@ void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 static void timer_cb(void *arg) {
 	time_t now;
 	time(&now);
+	    
 	if(now > 946684800){
 		online_epoch = now;
 		NTPflag = true;
 	}else{
 		online_epoch++;
 	}
+	time_t buff = online_epoch;
+    tm *tm_gmt = gmtime(&buff);
+    time_day_epoch = tm_gmt->tm_hour * (long)3600;
+    time_day_epoch += tm_gmt->tm_min * (long)60;
+    time_day_epoch += tm_gmt->tm_sec;
+    day_now = tm_gmt->tm_wday;
+    
 	offline_epoch++;
-#ifdef LED_PIN
-  mgos_gpio_toggle(LED_PIN);
-#endif
   (void) arg;
+  static int psc = 0;
+  if(psc >= 1){
+  	psc = 0;
+  	//check if program is running
+	mgos_gpio_toggle(LED_RED);
+	mgos_gpio_toggle(RL_LED_EN);
+  }else{
+  	psc++;
+  }
 }
 
 static void logging_cb(void *arg){
@@ -223,7 +244,9 @@ static void logging_cb(void *arg){
 		offline_HouseKeeping();
 
 	}
-
+	check_program_name();
+	LOG(LL_WARN, ("prog link : %d, %d, %d, %d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]));
+	LOG(LL_WARN, ("prog state: %d, %d, %d, %d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]));
 	NTPflag_z = NTPflag;
 }
 
@@ -237,14 +260,13 @@ enum mgos_app_init_result mgos_app_init(void) {
 		LOG(LL_WARN, ("json checking"));
 		checkJSONsetting();
   	}	
-
 	//i2c and sensor
 	Wire.begin();
 	//GPIO init
-	
 	mgos_gpio_setup_output(EN_I2C, 1);
   	mgos_gpio_setup_output(R1, 1);
   	mgos_gpio_setup_output(R2, 1);
+  	mgos_gpio_setup_output(LED_RED,0);
   	mgos_gpio_setup_output(WIFI_LED, 0);
   	mgos_gpio_setup_output(RL_LED_EN, 0);
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); 
@@ -351,7 +373,7 @@ void load_wifi_setting(){
 		cfg_ap.enable = false;
 		mgos_wifi_setup_sta(&cfg_sta);
 		mgos_wifi_setup_ap(&cfg_ap); 
-		wifi_blink_timer = mgos_set_timer(100, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		
 		return;
 	}else if(mode == 3){
@@ -1128,4 +1150,109 @@ void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_i
   	}
   	NTPflag = true;
 }
+////////////////////////////////////////////////////////////////////////PROGRAM ROUTINE BACK END/////////////////////////////////////////////
+void check_program_en(const char* file_read, bool& prog_en, int& control_opt){
+	char* buff = (char*)malloc(1024);
+	buff = json_fread(file_read);
+	json_scanf(buff, strlen(buff), "{en: %B, control_opt: %d}", &prog_en, &control_opt); 	
+	free(buff);
+}
 
+void check_program_name(){ //check which output linked to program (id) and check its state
+const char* list_prog_name[10] = {"program1.json", "program2.json", "program3.json", "program4.json", "program5.json", "program6.json",
+							  "program7.json", "program8.json", "program9.json", "program10.json"};
+for (int i = 0; i < 10; i++){
+	if(exists(list_prog_name[i])){
+		//check if program enabled and output option
+		bool prog_en;
+		int prog_output;
+		check_program_en(list_prog_name[i], prog_en, prog_output);
+		if(prog_en){
+			//somehow user change the output option ->reset link
+			for(int j = 0; j < 4 ; j++){
+				if(prog_link_name[j] == i+1){prog_link_name[j]=-1;}
+			}
+			//normal operation
+			if(prog_link_name[prog_output-1] == -1 || prog_link_name[prog_output-1] > i+1){
+				prog_link_name[prog_output-1] = i+1;
+				//check program state
+				prog_link_state[prog_output-1] = check_program_state(list_prog_name[i]);
+			}
+			
+			
+		}//if prog is enabled
+		if(!prog_en && prog_link_name[prog_output-1] == i+1){ ///somehow program is disabled by user
+			prog_link_name[prog_output-1] = -1;
+		}
+	}else{// program is somehow deleted, related output will be -1 (prog_link_name)
+		for(int j = 0; j < 4 ; j++){
+			if(prog_link_name[j] == i+1){prog_link_name[j]=-1;}
+		}
+	}
+	
+}
+}
+
+int check_program_state(const char* file_read){
+	unsigned long start_date; unsigned long end_date;
+	std::string days;
+	std::string on_time;
+	std::string off_time;
+	char* buff = (char*)malloc(1024);
+	buff = json_fread(file_read);
+	json_scanf(buff, strlen(buff), "{start_date: %ld, end_date: %ld, }", &start_date, &end_date);
+	char* days_cr = NULL;
+	char* on_time_cr = NULL;
+	char* off_time_cr = NULL;
+	json_scanf(buff, strlen(buff), "{days_active: %Q, on_time_global: %Q, off_time_global: %Q}", &days_cr, &on_time_cr, &off_time_cr); 	
+	free(buff);
+	days = days_cr; on_time = on_time_cr; off_time = off_time_cr;
+	free(days_cr);free(on_time_cr); free(off_time_cr);
+	
+	int date_state = 0;
+	if(start_date == 0 && end_date == 0){ //tested (both empty)
+		date_state = 1;
+	}else if(start_date == 0){  //tested (end date only)
+		date_state = 1;
+		if(online_epoch > end_date){date_state = 0;}
+	}else if(end_date == 0){ ///tested (start date only)
+		date_state = 0;
+		if(online_epoch >= start_date){date_state = 1;}
+	}else if(online_epoch >= start_date && online_epoch <= end_date){ //tested (both filled)
+			date_state = 1;
+	}
+	
+	int day_state;
+
+	if(days != ""){ //all tested
+		day_state = (days[day_now] == '1') ? 1 : 0;
+	}else{day_state = 1;}
+	
+	long on_conv = stol(on_time.substr(on_time.find("|")+1));
+    long off_conv = stol(off_time.substr(off_time.find("|") + 1));
+	int time_state =0;
+	if(on_conv != -1 && off_conv != -1){ //both has time value
+		if(on_conv > off_conv){ //off value less than on value
+			if (time_day_epoch  >= on_conv) {
+	          //activate
+	          time_state = 1;
+	        } else if (time_day_epoch <= off_conv) {
+	          //still activate
+	          time_state = 1;
+	        } else if (time_day_epoch >= off_conv) {
+	          //deactivate
+	          time_state = 0;
+	        }
+		}else{//standard procedure
+			time_state = (time_day_epoch >= on_conv && time_day_epoch < off_conv) ? 1 : 0;
+		}		
+	}else if(on_conv != -1){
+		time_state = (time_day_epoch >= on_conv) ? 1 : 0;
+	}else if (off_conv != -1){
+		time_state = (time_day_epoch >= off_conv) ? 0 : 1;
+	}else{time_state = 1;}
+	
+	int state = (date_state == 1 && day_state == 1 && time_state == 1) ? 1 : 0;
+	return state;	
+	
+}
