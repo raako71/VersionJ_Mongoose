@@ -1,2 +1,2 @@
-{"id": 1, "name":"test 1", "en":false, "start_date": "|-1", "end_date":"|-1", "days_active": "", "on_time_global": "", "off_time_global":""
-,"control_opt": "1", "control_trigger":[{"option":1, "trigger_info":""}]}
+{"id": 1, "name":"test 1", "en":false, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "|-1", "off_time_global":"|-1"
+,"control_opt": "1", "control_trigger":[{"option":1, "trigger_info":"{\"pri_on\":\"\",\"pri_off\":\"\",\"sec_on\":\"\",\"sec_off\":\"\"}"}]}

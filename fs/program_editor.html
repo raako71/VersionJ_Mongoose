@@ -1,6 +1,5 @@
 <!DOCTYPE HTML>
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<link rel="stylesheet" href="dtsel.css" />
 	<script src="dtsel.js"></script>
@@ -191,8 +190,9 @@ function toggle_day(){
 function toggle_cond(input, name){
 	//detect trigger option
 	var prim_opt = document.getElementById("ctrl_trigger").value;
-	var div_add_condition = '<div style="margin-top:10px"><select id="sec_operator_'+name+'"> <option value=1>AND</option> <option value=2>OR</option></select>&nbsp; if &nbsp;';
-	div_add_condition += '<select id="sec_trigger_'+name+'">';
+	var div_add_condition = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_on" ><span class="slider round"></span></label>';
+	div_add_condition += '&nbsp;&nbsp;<select id="sec_operator_'+name+'"><option value=1>AND</option> <option value=2>OR</option></select>&nbsp; if &nbsp;';
+	div_add_condition += '<select id="sec_trigger_'+name+'" onChange="load_sec_trigger(this)">';
 	var array = ["Temperature", "Humidity", "Light", "Power"];
 	for (i = 0 ; i < 4 ; i++){
 	if( prim_opt != i+1){
@@ -203,27 +203,44 @@ function toggle_cond(input, name){
 	div_add_condition += '&nbsp;<input type="text" id="sec_value_'+name+'" style="width:100px"></div>';
 	var a = input.value;
 	var holder = document.getElementById("sec_cond_"+name+"_holder");
+	var holder_off = document.getElementById("sec_cond_off_holder");
+	
+	var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" ><span class="slider round"></span></label>';
+	div_add_condition_off += '&nbsp;&nbsp;<select id="sec_operator_off"> <option value=1>AND</option> <option value=2>OR</option></select>';
+	div_add_condition_off += '&nbsp; if&nbsp;<span id="sec_trigger_off" style="font-size:13.333px"></span> &nbsp; <select id="sec_comp_off"><option value=1> ></option><option value=2> < </option></select>';
+	div_add_condition_off += '&nbsp; <input type="text" id="sec_value_off" style="width:100px"></div>';
 	if(a == "Add Condition"){
 		input.value = "Remove Condition";
 		holder.innerHTML = div_add_condition;
+		holder_off.innerHTML = div_add_condition_off;
+		var trig_val = document.getElementById("sec_trigger_on").value;
+		trig_val = array[trig_val -1];
+		document.getElementById("sec_trigger_off").innerHTML = trig_val;
+		
 	}else{
 		input.value = "Add Condition";
 		holder.innerHTML = "";
-	}
+		holder_off.innerHTML = "";
+	}	
+}
+function load_sec_trigger(input){
+var array = ["Temperature", "Humidity", "Light", "Power"]; 
+var a = array[input.value - 1]; document.getElementById("sec_trigger_off").innerHTML = a;
 }
 function load_ctrl_action(){
-	var action_A ="";
-	action_A += '<table style="margin-top:10px"><td style="width:60px"><label class="switch"><input type="checkbox" id="switched_on" ><span class="slider round"></span>';
-	action_A += '</label></td><td>Switched On</td></table>';
-	action_A += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	if Value <select id="action_A_cmpr_on">';
+	var action_A ='';
+	action_A += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	';
+	action_A += ' <label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_on" ><span class="slider round"></span>';
+	action_A += '</label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
+	action_A += 'if Value &nbsp; <select id="action_A_cmpr_on">';
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
 	action_A += '<input type="text" id="action_A_value_on" style="width:100px"> <input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition" ><br>';
 	action_A +=  '<span id="sec_cond_on_holder"></span></div>';
-	action_A += '<table style="margin-top:10px"><td style="width:60px"><label class="switch"><input type="checkbox" id="switched_off" ><span class="slider round"></span>';
-	action_A += '</label></td><td>Switched Off</td></table>';
-	action_A += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	if Value <select id="action_A_cmpr_off">';
+	action_A += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	';
+	action_A += '<label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;';
+	action_A += 'Switched Off: &nbsp;if Value <select id="action_A_cmpr_off">';
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
-	action_A += '<input type="text" id="action_A_value_off" style="width:100px"><input id="add_cond_off" onClick="toggle_cond(this,'+"'off'"+')" type="button" style="float:right" value="Add Condition" >';
+	action_A += '<input type="text" id="action_A_value_off" style="width:100px">';
 	action_A += '<br><span id="sec_cond_off_holder"></span></div>';
 	
 	var action_B = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
@@ -319,16 +336,20 @@ if( d != null){
 }
 
 //checking 17.a
-var a1 = document.getElementById("switched_on");var a2 = document.getElementById("switched_off");
+var a1 = document.getElementById("pri_switched_on");var a2 = document.getElementById("pri_switched_off");
 if( a1 != null){
-var a3 = document.getElementById("action_A_value_on"); var a4 = document.getElementById("sec_value_on");
-if(a1.checked && a3.value == ""){ alert("required a value to be saved"); return;}
-if(a1.checked && a4 != null){ if(a4.value == ""){ alert("required a value to be saved"); return;} }
+var a3 = document.getElementById("action_A_value_on"); var a4 = document.getElementById("sec_switched_on");
+if(a1.checked && a3.value == ""){ alert("required a value to be saved (primary on value)"); return;}
+if(a4 != null){
+	if(a4.checked && document.getElementById("sec_value_on").value == ""){alert("required a value to be saved (secondary on value)");return;}
+}
 }
 if(a2 != null){
-var a5 = document.getElementById("action_A_value_off"); var a6 = document.getElementById("sec_value_off");
-if(a2.checked && a5.value == ""){ alert("required a value to be saved"); return;}
-if(a2.checked && a6 != null){ if(a6.value == ""){ alert("required a value to be saved"); return;} }
+var a5 = document.getElementById("action_A_value_off"); var a6 = document.getElementById("sec_switched_off");
+if(a2.checked && a5.value == ""){ alert("required a value to be saved (primary off value)"); return;}
+if(a6 != null){
+ if(a6.checked && document.getElementById("sec_value_off").value == ""){alert("required a value to be saved (secondary off value)");return;}
+}
 }
 
 //check 17.c
@@ -372,17 +393,18 @@ var k = document.getElementById("ctrl_trigger").value;
 old_json.control_trigger[0].option = k;
 
 if(k >= 1 && k <= 4){
-	var on_val = ((get_chkbox_val("switched_on") == 1) ? (document.getElementById("action_A_cmpr_on").value + "," + save2decimal(document.getElementById("action_A_value_on").value)) : "");
-	var off_val = ((get_chkbox_val("switched_off") == 1)? (document.getElementById("action_A_cmpr_off").value + "," + save2decimal(document.getElementById("action_A_value_off").value)): "");
-	if (document.getElementById("sec_cond_on_holder").innerHTML != "" && (get_chkbox_val("switched_on") == 1)){
-		on_val += ((document.getElementById("sec_operator_on").value == 1) ? "&&" : "||") + document.getElementById("sec_trigger_on").value + ",";
-		on_val += document.getElementById("sec_comp_on").value + "," + save2decimal(document.getElementById("sec_value_on").value);
+	var on_val = ((get_chkbox_val("pri_switched_on") == 1) ? (document.getElementById("action_A_cmpr_on").value + "," + save2decimal(document.getElementById("action_A_value_on").value)) : "");
+	var off_val = ((get_chkbox_val("pri_switched_off") == 1)? (document.getElementById("action_A_cmpr_off").value + "," + save2decimal(document.getElementById("action_A_value_off").value)): "");
+	var on_val_sec = "";
+	if(document.getElementById("sec_switched_on") != null){
+	on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("sec_trigger_on").value + "," + document.getElementById("sec_comp_on").value + "," + save2decimal(document.getElementById("sec_value_on").value)) : "");
 	}
-	if(document.getElementById("sec_cond_off_holder").innerHTML != "" && (get_chkbox_val("switched_off") == 1)){
-		off_val += ((document.getElementById("sec_operator_off").value == 1) ? "&&" : "||") +  document.getElementById("sec_trigger_off").value + ",";
-		off_val += document.getElementById("sec_comp_off").value + "," + save2decimal(document.getElementById("sec_value_off").value);
+	var off_val_sec = "";
+	if(document.getElementById("sec_switched_off") != null){
+	off_val_sec = ((get_chkbox_val("sec_switched_off") == 1) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("sec_trigger_on").value + "," + document.getElementById("sec_comp_off").value + "," + save2decimal(document.getElementById("sec_value_off").value)) : "");
 	}
-	m = "on:" +on_val+"off:"+off_val;
+	m = {"pri_on": on_val,"pri_off":off_val, "sec_on":on_val_sec,"sec_off":off_val_sec};
+	m = JSON.stringify(m);
 }else if(k == 6){
 	m = get_chkbox_val("action_C_en_sec_on") + "," + document.getElementById("action_C_sec_on").value + ",";
 	m += get_chkbox_val("action_C_en_min_on") + "," + document.getElementById("action_C_min_on").value + ",";
@@ -499,59 +521,37 @@ function load_setting(){
 		document.getElementById("ctrl_trigger").value = a;
 		load_ctrl_action();
 		var b= old_json.control_trigger[0].trigger_info;
-
+		
 			
 		if(a >= 1 && a <= 4){
-		var z = b.indexOf("on:");
-		var y = b.indexOf("off:");
-		var w = b.substring(z+3, y); //on value
-		var v = b.substring(y+4);   //off value
-		if(w != ""){
-			var w1;
-			if(w.indexOf("&&") != -1){
-				w1 = w.indexOf("&&"); toggle_cond(document.getElementById("add_cond_on"), "on");	
-				document.getElementById("sec_operator_on").value = 1;
-			}else if(w.indexOf("||") != -1){
-				w1 = w.indexOf("||"); toggle_cond(document.getElementById("add_cond_on"), "on");
-				document.getElementById("sec_operator_on").value = 2;
-			}else{
-				w1 = -1;
-			}
-			document.getElementById("switched_on").checked = true;
-			var com = w.indexOf(",");
-			document.getElementById("action_A_cmpr_on").value = w.substring(0,com);
-			document.getElementById("action_A_value_on").value = w.substring(com+1, w1);
-			w = w.substring(w1+2);
-			com = w.indexOf(",");
-			document.getElementById("sec_trigger_on").value = (w.substring(0,com));
-			com = w.indexOf(",", com)+1;
-			com1 = w.indexOf(",",com);
-			document.getElementById("sec_comp_on").value = (w.substring(com,com1)); 
-			document.getElementById("sec_value_on").value = w.substring(com1+1);
+		b = JSON.parse(b);
+		var pon = b.pri_on;var poff = b.pri_off;var son = b.sec_on;	var soff = b.sec_off;
+		if(pon !=""){document.getElementById("pri_switched_on").checked = true;document.getElementById("action_A_cmpr_on").value = pon.substring(0, pon.indexOf(","));document.getElementById("action_A_value_on").value = pon.substring(pon.indexOf(",")+1);}
+		if(poff!=""){document.getElementById("pri_switched_off").checked = true;document.getElementById("action_A_cmpr_off").value = poff.substring(0, poff.indexOf(","));document.getElementById("action_A_value_off").value = poff.substring(poff.indexOf(",")+1);}
+		if(son != ""){
+			toggle_cond(document.getElementById("add_cond_on"), "on");
+			document.getElementById("sec_switched_on").checked =true;
+			var a = son.indexOf(",");
+			document.getElementById("sec_operator_on").value = son.substring(0, a);
+			var b = son.indexOf(",",a+1);
+			document.getElementById("sec_trigger_on").value = son.substring(a+1,b);
+			a = son.indexOf(",", b+1);
+			document.getElementById("sec_comp_on").value = son.substring(b+1, a);
+			document.getElementById("sec_value_on").value = son.substring(a+1);
 		}
-		if(v != ""){
-			var v1;
-			if(v.indexOf("&&") != -1){
-				v1 = v.indexOf("&&"); toggle_cond(document.getElementById("add_cond_off"), "off");	
-				document.getElementById("sec_operator_off").value = 1;
-			}else if(v.indexOf("||") != -1){
-				v1 = v.indexOf("||"); toggle_cond(document.getElementById("add_cond_off"), "off");
-				document.getElementById("sec_operator_off").value = 2;
-			}else{
-				v1 = -1;
-			}
-			document.getElementById("switched_off").checked = true;
-			var com = v.indexOf(",");
-			document.getElementById("action_A_cmpr_off").value = v.substring(0,com);
-			document.getElementById("action_A_value_off").value = v.substring(com+1, w1);
-			v = v.substring(w1+2);
-			com = v.indexOf(",");
-			document.getElementById("sec_trigger_off").value = (v.substring(0,com));
-			com = v.indexOf(",", com)+1;
-			com1 = v.indexOf(",",com);
-			document.getElementById("sec_comp_off").value = (v.substring(com,com1)); 
-			document.getElementById("sec_value_off").value = v.substring(com1+1);
+		if(soff != "" && son == ""){toggle_cond(document.getElementById("add_cond_on"), "on"); }
+		if(soff != ""){
+			document.getElementById("sec_switched_off").checked = true;
+			var a = soff.indexOf(",");
+			document.getElementById("sec_operator_off").value = soff.substring(0, a);
+			var b = soff.indexOf(",",a+1);
+			document.getElementById("sec_trigger_on").value = soff.substring(a+1,b);
+			a = soff.indexOf(",", b+1);
+			document.getElementById("sec_comp_off").value = soff.substring(b+1, a);
+			document.getElementById("sec_value_off").value = soff.substring(a+1);
+			load_sec_trigger(document.getElementById("sec_trigger_on"));
 		}
+		
 		}else if(a == 6){
 		apply_duty_cycle_conf(b);
 		}else if(a == 7){
