@@ -85,17 +85,23 @@ int Vmax = 611;   //depend on Rsense, what maximum voltage that creates 275mV be
 int Imax = 30;    //depend on IC specifications
 ACS71020 mySensor{Vmax, Imax};
 static struct mgos_bme280 *bme = NULL;
-
+float sensor_value[4] = {0,0,0,0};
 float gain = 0.25;
 SparkFun_Ambient_Light light(0x10);
 int time2 = 100;
 long luxVal = 0;
 unsigned int panel_brightness = 0;
 unsigned int remote_brightness = 0;
-
+bool IO14_en = false;
 ///program backend variable
 int prog_link_name[4] = {-1,-1,-1,-1}; //A, B, C, D -> detect lowest ID and enabled; and put program ID here
 int prog_link_state[4] = {0,0,0,0}; //indicate program state -> based on date etc
+const char* list_prog_name[10] = {"program1.json", "program2.json", "program3.json", "program4.json", "program5.json", "program6.json",
+							  "program7.json", "program8.json", "program9.json", "program10.json"};
+int prog_pin_state[4] = {0,0,0,0}; //A, B, C, D ->indicate pin output status
+int prog_timer_state[4] = {0,0,0,0}; //indicate if timer is on or off or idle; 0 -> idle, 1-> on is working, 2 -> off is working
+									 // 3 -> on is finished, 4-> off is finished
+mgos_timer_id prog_timer_id[4];
 
 //addition variable V2
 char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
@@ -120,13 +126,16 @@ static void wifi_led_ctrl(void *arg) {
 			static int a = 0;
 			if(a%2 == 0){
 				mgos_pwm_set(WIFI_LED, 5000, (float)panel_brightness/65535);
+				mgos_pwm_set(RL_LED_EN, 5000, (float)panel_brightness/65535);
 			}else{
 				mgos_pwm_set(WIFI_LED, 5000, 0);
+				mgos_pwm_set(RL_LED_EN, 5000, 0);
 			}
 			a++;
 		}else{
 			//mgos_clear_timer(wifi_blink_timer);
 	   		mgos_pwm_set(WIFI_LED, 5000, (float)panel_brightness/65535);
+	   		mgos_pwm_set(RL_LED_EN, 5000, (float)panel_brightness/65535);
 		}
 		wifi_led_ctrl_psc++;
 	}
@@ -156,7 +165,55 @@ void offline_HouseKeeping();//(picked from last version)
 void oldcheck_onboot();//check old files adjusts offline epoch (picked from last version)
 void check_program_en(const char* file_read, bool& prog_en, int& control_opt); //tested -> read json file program.json
 void check_program_name(); //tested -> retrive program en and output option from program json
-int check_program_state(const char* file_read); 
+int check_program_state(const char* file_read);  //tested
+void adjust_prog_pin();
+int pri_chk_cond(std::string input, float data_input); //tested
+int sec_chk_cond(std::string input, int& op); //tested
+int check_program_output(const char* file_read); 
+int pri_op_sec(int op, int pri_cond, int sec_cond); //tested
+void setup_timer_program(int ctrl_pin, long value); //tested
+void led_red_ctrl(unsigned int input);
+int read_R1_button();
+int read_R2_button();
+int read_RPB_button();
+
+//prog timer function 
+static void prog_timer1_cb (void *arg){
+	mgos_clear_timer(prog_timer_state[0]);
+	if(prog_timer_state[0] == 1){
+		prog_timer_state[0] = 3;
+	}else if(prog_timer_state[0] == 2){
+		prog_timer_state[0] = 4;
+	}
+	(void) arg;
+}
+static void prog_timer2_cb (void *arg){
+	mgos_clear_timer(prog_timer_state[1]);
+	if(prog_timer_state[1] == 1){
+		prog_timer_state[1] = 3;
+	}else if(prog_timer_state[1] == 2){
+		prog_timer_state[1] = 4;
+	}
+	(void) arg;
+}
+static void prog_timer3_cb (void *arg){
+	mgos_clear_timer(prog_timer_state[2]);
+	if(prog_timer_state[2] == 1){
+		prog_timer_state[2] = 3;
+	}else if(prog_timer_state[2] == 2){
+		prog_timer_state[2] = 4;
+	}
+	(void) arg;
+}
+static void prog_timer4_cb (void *arg){
+	mgos_clear_timer(prog_timer_state[3]);
+	if(prog_timer_state[3] == 1){
+		prog_timer_state[3] = 3;
+	}else if(prog_timer_state[3] == 2){
+		prog_timer_state[3] = 4;
+	}
+	(void) arg;
+}
 //function prototype
 static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg, struct mg_rpc_frame_info *fi, struct mg_str args);
 static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
@@ -164,6 +221,7 @@ void checkJSONsetting();
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	//dns_advert = true;
 	mg_rpc_send_responsef(ri, "OK");
@@ -171,7 +229,9 @@ void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 	mgos_dns_sd_advertise();
 }
 //function prototype
+static void button_check_cb(void *arg){
 
+}
 static void timer_cb(void *arg) {
 	time_t now;
 	time(&now);
@@ -188,15 +248,16 @@ static void timer_cb(void *arg) {
     time_day_epoch += tm_gmt->tm_min * (long)60;
     time_day_epoch += tm_gmt->tm_sec;
     day_now = tm_gmt->tm_wday;
-    
+    check_program_name();
+    adjust_prog_pin();
 	offline_epoch++;
   (void) arg;
   static int psc = 0;
   if(psc >= 1){
   	psc = 0;
-  	//check if program is running
-	mgos_gpio_toggle(LED_RED);
-	mgos_gpio_toggle(RL_LED_EN);
+	LOG(LL_WARN, ("prog link : %d, %d, %d, %d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]));
+	LOG(LL_WARN, ("prog state: %d, %d, %d, %d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]));
+	LOG(LL_WARN, ("pin state: %d, %d, %d, %d", prog_pin_state[0], prog_pin_state[1], prog_pin_state[2], prog_pin_state[3]));
   }else{
   	psc++;
   }
@@ -218,6 +279,9 @@ static void logging_cb(void *arg){
       column[5] = Iavg * 0.001;
     }
     else {
+      column[3] = 0;
+      column[4] = 0;
+      column[5] = 0;
       colen[2] = false;
       colen[3] = false;
       colen[4] = false;
@@ -230,10 +294,14 @@ static void logging_cb(void *arg){
     column[11] = (float)(rand() % 3001) * 0.01;
     column[12] = (float)(rand() % 3001) * 0.01;
     column[13] = (float)(rand() % 3001) * 0.01;
+    sensor_value[0] = column[6];
+    sensor_value[1] = column[7];
+    sensor_value[2] = column[9];
+    sensor_value[3] = column[4];
     contain_logging(logColumn);
     //LOG(LL_WARN, ("%s", use_contain.c_str()));
-    LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
-    LOG(LL_WARN, ("%d", panel_brightness));
+    //LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
+    //LOG(LL_WARN, ("%d", panel_brightness));
     if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -244,12 +312,9 @@ static void logging_cb(void *arg){
 		offline_HouseKeeping();
 
 	}
-	check_program_name();
-	LOG(LL_WARN, ("prog link : %d, %d, %d, %d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]));
-	LOG(LL_WARN, ("prog state: %d, %d, %d, %d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]));
+
 	NTPflag_z = NTPflag;
 }
-
 
 enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
@@ -270,13 +335,8 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mgos_gpio_setup_output(WIFI_LED, 0);
   	mgos_gpio_setup_output(RL_LED_EN, 0);
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); 
-	
-	
-	mgos_gpio_setup_input(0, MGOS_GPIO_PULL_NONE);
-  	if(mgos_gpio_read(0) == 1){
-  		mgos_gpio_write(RL_LED_EN, true);	
-    }
-	
+	mgos_gpio_setup_input(R_PB, MGOS_GPIO_PULL_DOWN);
+
 	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
@@ -315,6 +375,8 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//timer function
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
+  	mgos_set_timer(100, MGOS_TIMER_REPEAT, button_check_cb, NULL);
+  	
   	//RPC handler function
 	mg_rpc_add_handler(mgos_rpc_get_global(), "setting","", setting_modifier, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
@@ -322,6 +384,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "dnsAdvertise", "", dns_advertise, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reqIOinfo", "", request_IO_info, NULL);
+  	mg_rpc_add_handler(mgos_rpc_get_global(), "reset_timer", "{file:%Q}", reset_timer, NULL);
   	
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	mgos_msleep(1000);
@@ -334,7 +397,7 @@ void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_
 	mg_rpc_send_responsef(ri, "{A: %d, B: %d, LED: %d, IO14: %d}", mgos_gpio_read_out(R1), mgos_gpio_read_out(R2), 0, 0);
 	#endif
 	#ifdef V2
-	mg_rpc_send_responsef(ri, "{A: %d, B: %d, LED: %d, IO14: %d}", mgos_gpio_read_out(R1), mgos_gpio_read_out(R2), mgos_gpio_read_out(2), mgos_gpio_read_out(14));
+	mg_rpc_send_responsef(ri, "{A: %d, B: %d, LED: %d, IO14: %d}", mgos_gpio_read_out(R1), mgos_gpio_read_out(R2), prog_pin_state[2], mgos_gpio_read_out(14));
 	#endif
 	(void) cb_arg;
 	(void) fi;	
@@ -395,6 +458,7 @@ void fade_blink(int pin){
 	static unsigned int PWM_val = 0;
     static char index = 0;
     mgos_pwm_set(pin, 5000, (float)PWM_val/65535);
+    mgos_pwm_set(RL_LED_EN, 5000, (float)PWM_val/65535);
     if(index == 0){
       long buff = (long)PWM_val + (panel_brightness)*0.01;
       if(buff >= panel_brightness){
@@ -1082,13 +1146,16 @@ void checkJSONsetting(){
 	buff = json_fread("setting.json");
 	json_scanf(buff, strlen(buff), "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
 	,&colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday);
-	
+	char* buff_b = (char*) malloc(512);
+	json_scanf(buff, strlen(buff), "{ctrl_page: %Q}", &buff_b);
+	json_scanf(buff_b, strlen(buff_b), "{IO14: %B}", &IO14_en);
+	LOG(LL_WARN,("%s %d", buff_b, IO14_en));
 	struct json_token t;
 	json_scanf_array_elem(buff, strlen(buff), ".brightness",0, &t);
 	json_scanf(t.ptr, t.len, "{panel: %d, remote: %d}", &panel_brightness, &remote_brightness);
 	panel_brightness = panel_brightness << 8;
 	remote_brightness = remote_brightness << 8;
-	free(buff);
+	free(buff); free(buff_b);
 }
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	char *command = (char*)malloc(11);
@@ -1097,6 +1164,7 @@ void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame
 		LOG(LL_WARN, ("%s delete file requested", command));
   	} else {
     	mg_rpc_send_errorf(ri, -1, "Bad request");
+    	free(command);
     	return;
   	}
   	if(command[0] == '1'){
@@ -1139,6 +1207,7 @@ void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame
       //delete thishour
       remove("/mnt/thisHour.csv");
     }
+    free(command);
 }
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	if (json_scanf(args.p, args.len, ri->args_fmt, &online_epoch) == 1) {
@@ -1159,15 +1228,13 @@ void check_program_en(const char* file_read, bool& prog_en, int& control_opt){
 }
 
 void check_program_name(){ //check which output linked to program (id) and check its state
-const char* list_prog_name[10] = {"program1.json", "program2.json", "program3.json", "program4.json", "program5.json", "program6.json",
-							  "program7.json", "program8.json", "program9.json", "program10.json"};
 for (int i = 0; i < 10; i++){
 	if(exists(list_prog_name[i])){
 		//check if program enabled and output option
 		bool prog_en;
 		int prog_output;
 		check_program_en(list_prog_name[i], prog_en, prog_output);
-		if(prog_en){
+		if(prog_en){ //program is enabled
 			//somehow user change the output option ->reset link
 			for(int j = 0; j < 4 ; j++){
 				if(prog_link_name[j] == i+1){prog_link_name[j]=-1;}
@@ -1177,9 +1244,20 @@ for (int i = 0; i < 10; i++){
 				prog_link_name[prog_output-1] = i+1;
 				//check program state
 				prog_link_state[prog_output-1] = check_program_state(list_prog_name[i]);
-			}
-			
-			
+				//check if IO14 en or not
+				if(prog_output == 4 && IO14_en == false){
+					prog_link_state[prog_output-1] = 0;
+					prog_pin_state[prog_output-1] = 0;
+				}
+				if(prog_link_state[prog_output-1] == 1){ //if program is active
+					int pin_res = check_program_output(list_prog_name[i]); //check output
+					if(pin_res != -1){ //if not -1 change pin output
+						prog_pin_state[prog_output-1] = pin_res;
+					}
+				}else{ //program is inactive
+					prog_pin_state[prog_output-1] = 0;
+				}
+			}			
 		}//if prog is enabled
 		if(!prog_en && prog_link_name[prog_output-1] == i+1){ ///somehow program is disabled by user
 			prog_link_name[prog_output-1] = -1;
@@ -1191,9 +1269,14 @@ for (int i = 0; i < 10; i++){
 	}
 	
 }
+for(int x =0 ; x < 4 ; x++){
+	if(prog_link_name[x] == -1){
+		prog_pin_state[x] = 0;
+	}
+}
 }
 
-int check_program_state(const char* file_read){
+int check_program_state(const char* file_read){	
 	unsigned long start_date; unsigned long end_date;
 	std::string days;
 	std::string on_time;
@@ -1226,7 +1309,9 @@ int check_program_state(const char* file_read){
 
 	if(days != ""){ //all tested
 		day_state = (days[day_now] == '1') ? 1 : 0;
-	}else{day_state = 1;}
+	}else{
+		day_state = 1;
+	}
 	
 	long on_conv = stol(on_time.substr(on_time.find("|")+1));
     long off_conv = stol(off_time.substr(off_time.find("|") + 1));
@@ -1250,9 +1335,316 @@ int check_program_state(const char* file_read){
 		time_state = (time_day_epoch >= on_conv) ? 1 : 0;
 	}else if (off_conv != -1){
 		time_state = (time_day_epoch >= off_conv) ? 0 : 1;
-	}else{time_state = 1;}
+	}else{
+		time_state = 1;
+	}
 	
 	int state = (date_state == 1 && day_state == 1 && time_state == 1) ? 1 : 0;
 	return state;	
+}
+
+
+int check_program_output(const char* file_read){
+//open the file
+//get control option and control trigger
+int pin_state = -1;
+char* buff = (char*)malloc(1024);
+buff = json_fread(file_read);
+struct json_token t;
+int ctrl_pin = 0;
+json_scanf(buff, strlen(buff), "{control_opt: %d}", &ctrl_pin);
+json_scanf_array_elem(buff, strlen(buff), ".control_trigger",0, &t);
+int trig_opt;
+char* trig_info_b = NULL;
+json_scanf(t.ptr, t.len, "{option: %d}", &trig_opt);
+json_scanf(t.ptr, t.len, "{trigger_info: %Q}", &trig_info_b);
+free(buff);
+if(trig_opt >= 1 && trig_opt <= 4){ //tested well done
+	char* pri_on_b = NULL; char* pri_off_b = NULL; char* sec_on_b = NULL; char* sec_off_b = NULL;
+	json_scanf(trig_info_b, strlen(trig_info_b), "{pri_on: %Q, pri_off: %Q, sec_on: %Q, sec_off: %Q}", &pri_on_b, &pri_off_b, &sec_on_b, &sec_off_b);
+	std::string pri_on = pri_on_b; std::string pri_off = pri_off_b; std::string sec_on = sec_on_b; std::string sec_off = sec_off_b;
+	//check if condition meet
+	int pri_op = 0;
+	int pri_cond_on = pri_chk_cond(pri_on, sensor_value[trig_opt-1]);
+	int sec_cond_on = sec_chk_cond(sec_on, pri_op);
+	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on);
 	
+	int pri_cond_off = pri_chk_cond(pri_off, sensor_value[trig_opt-1]);
+	int sec_cond_off = sec_chk_cond(sec_off, pri_op);
+	int cond_off = pri_op_sec(pri_op, pri_cond_off, sec_cond_off);
+	
+	//check triggering
+	if(cond_on){
+		//trigger on
+		pin_state = 1;
+	}else if(cond_off){
+		//trigger off
+		pin_state = 0;
+	}
+	free(pri_on_b); free(pri_off_b); free(sec_off_b); free(sec_on_b);
+	prog_timer_state[ctrl_pin-1] = 0;
+}// trig option 1 to 4
+else if(trig_opt == 6){
+	char* time_val_b = NULL;
+	json_scanf(trig_info_b, strlen(trig_info_b), "{value: %Q}", &time_val_b);
+	std::string time_val = time_val_b; free(time_val_b);
+	//parse
+	long on_timer = stol(time_val.substr(0, time_val.find(",")));
+	long off_timer = stol(time_val.substr(time_val.find(",")+1));
+	
+	char* init_n_loop = NULL;
+	json_scanf(trig_info_b, strlen(trig_info_b), "{sec: %Q}", &init_n_loop);
+	int init = init_n_loop[0] == '1'; // 1-> initial is high, 0-> initial is low
+	int loop = init_n_loop[1] == '1'; // -> 0 -> loop, 1 -> run once
+	free(init_n_loop);
+	if(prog_timer_state[ctrl_pin-1] == 0){ // is idle
+		if(on_timer != -1 && init == 1){
+			//start on timer
+			prog_timer_state[ctrl_pin-1] = 1; //on is working
+			setup_timer_program(ctrl_pin, on_timer); //begin timer
+			pin_state = 1; //return 1 to output
+			//LOG(LL_WARN,("init on"));
+		}else if(off_timer != -1 && init == 0){
+			//LOG(LL_WARN,("init off"));
+			prog_timer_state[ctrl_pin-1] = 2; // off is working
+			setup_timer_program(ctrl_pin, off_timer); //begin timer to count down off time
+			pin_state = 0;
+		}
+	}else if(prog_timer_state[ctrl_pin-1] == 3){ // on is finished
+		if(off_timer != -1){
+			if(init == 0 && loop == 1){ //start from low no loop -> timer stop
+				//LOG(LL_WARN,("stop timer after on"));
+				prog_timer_state[ctrl_pin-1] = -1;
+				pin_state = 0;
+			}else{
+				//LOG(LL_WARN,("start off after on "));
+				prog_timer_state[ctrl_pin-1] = 2;
+				setup_timer_program(ctrl_pin, off_timer);
+				pin_state = 0;	
+			}
+		}else{
+			pin_state = 0;
+		}
+	}else if(prog_timer_state[ctrl_pin-1] == 4){ //off is finished
+		if(on_timer != -1){
+			if(init == 1 && loop == 1){ //start from on no loop -> timer stop
+				prog_timer_state[ctrl_pin-1] = -1;
+				//LOG(LL_WARN,("stop timer after off"));
+				pin_state = 0;
+			}else{
+				//LOG(LL_WARN,("start on after off"));
+				prog_timer_state[ctrl_pin-1] = 1;
+				setup_timer_program(ctrl_pin, on_timer);
+				pin_state = 1;	
+			}
+		}
+	}
+	
+}else if(trig_opt == 7){ //manual operation
+	std::string ti = trig_info_b;
+	pin_state = (ti == "1");
+}
+free(trig_info_b);
+return pin_state; //-1 no change, 0 -> off, 1 -> on
+}//end of function check program input
+
+void adjust_prog_pin(){
+	mgos_gpio_write(R1, prog_pin_state[0]);
+	mgos_gpio_write(R2, prog_pin_state[1]);
+	mgos_gpio_write(GPIO14, prog_pin_state[3]);
+	led_red_ctrl(prog_pin_state[2]);
+	
+}
+int pri_chk_cond(std::string input, float data_input){//tested
+	if(input == ""){
+		return -1;
+	}
+	int a = input.find(",");
+	int comp = stoi(input.substr(0,a));
+	float val = stof(input.substr(a+1));
+	int logic = 0;
+	if(comp == 1){
+		logic = (data_input > val) ? 1 : 0;
+	}else if(comp == 2){
+		logic = (data_input < val) ? 1 : 0;
+	}
+	return logic;
+}
+
+int sec_chk_cond(std::string input, int& op){//tested
+	if(input == ""){
+		return -1;
+	}
+	int a = input.find(",");
+	op = stoi(input.substr(0,a)); a+=1;
+	int b = input.find(",", a);
+	int trig = stoi(input.substr(a, b)); b++;
+	a = input.find(",", b);
+	int comp = stoi(input.substr(b,a)); a++;
+	float val = stof(input.substr(a));
+	float data_input = sensor_value[trig-1];
+	int logic = 0;
+	if(comp == 1){
+		logic = (data_input > val) ? 1 : 0;
+	}else if(comp == 2){
+		logic = (data_input < val) ? 1 : 0;
+	}
+	return logic;
+}
+
+int pri_op_sec(int op, int pri_cond, int sec_cond){ //tested
+	int logic=0;
+	if(pri_cond == -1 && sec_cond != -1){
+		logic = sec_cond;
+	}else if(sec_cond == -1 && pri_cond != -1){
+		logic = pri_cond;
+	}else if(sec_cond != -1 && pri_cond != -1){
+		if(op == 1){
+			logic = (pri_cond && sec_cond) ? 1 : 0;
+		}else if(op == 2){
+			logic = (pri_cond || sec_cond) ? 1 : 0;
+		}
+	}else{
+		logic =0;
+	}
+	return logic;
+}
+
+void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	char *file_name = (char*)malloc(11);
+	if (json_scanf(args.p, args.len, ri->args_fmt, &file_name) == 1) {
+    	mg_rpc_send_responsef(ri, "OK");
+    	char* buff = (char*)malloc(1024);
+		buff = json_fread(file_name);
+		int ctrl_pin;
+		json_scanf(buff, strlen(buff), "{control_opt: %d}", &ctrl_pin); 	
+		prog_timer_state[ctrl_pin-1]= 0;
+		mgos_clear_timer(prog_timer_state[ctrl_pin-1]);
+		free(buff);
+		
+  	} else {
+    	mg_rpc_send_errorf(ri, -1, "Bad request");
+    	return;
+  	}
+}
+void led_red_ctrl(unsigned int value){
+	if(value == 0){
+		mgos_pwm_set(LED_RED, 5000, (float)remote_brightness/65535);
+	}else{
+		mgos_pwm_set(LED_RED, 5000, 0);
+	}
+}
+void setup_timer_program(int ctrl_pin, long value){
+	value*= 1000;
+	LOG(LL_WARN, ("setup timer %ld", value));
+	switch(ctrl_pin) {
+	case 1:
+		prog_timer_id[0] = mgos_set_timer(value, MGOS_TIMER_REPEAT, prog_timer1_cb, NULL);
+		break;
+	case 2:
+		prog_timer_id[1] = mgos_set_timer(value, MGOS_TIMER_REPEAT, prog_timer2_cb, NULL);
+		break;
+	case 3:
+		prog_timer_id[2] = mgos_set_timer(value, MGOS_TIMER_REPEAT, prog_timer3_cb, NULL);
+		break;
+	case 4:
+		prog_timer_id[3] = mgos_set_timer(value, MGOS_TIMER_REPEAT, prog_timer4_cb, NULL);
+		break;
+	}
+}
+
+int read_R1_button() { // read button if there is logic change
+  int button = mgos_gpio_read_out(R1);
+  static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
+  static int button_z = 0;
+  static int timer = 0;
+  int result = 0;
+  if (button_z == 0 && button == 1) { //rising edge
+    state_button = 1;
+  } else if (button_z == 1 && button == 0) { //falling edge
+    if (state_button != 2) {
+      if (timer >= 10) { //over 1sec
+        result = 0;
+      } else {
+        result = 1;
+      }
+    }
+    state_button = 0;
+    timer = 0;
+  }
+  button_z = button;
+
+  if (timer >= 20) { //long press detection
+    state_button = 2;
+    timer = 0;
+    result = 2;
+  }
+  if (state_button == 1) {
+    timer++;
+  }
+  return result;
+}
+
+int read_R2_button() { // read button if there is logic change
+  int button = mgos_gpio_read_out(R2);
+  static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
+  static int button_z = 0;
+  static int timer = 0;
+  int result = 0;
+  if (button_z == 0 && button == 1) { //rising edge
+    state_button = 1;
+  } else if (button_z == 1 && button == 0) { //falling edge
+    if (state_button != 2) {
+      if (timer >= 10) { //over 1sec
+        result = 0;
+      } else {
+        result = 1;
+      }
+    }
+    state_button = 0;
+    timer = 0;
+  }
+  button_z = button;
+
+  if (timer >= 20) { //long press detection
+    state_button = 2;
+    timer = 0;
+    result = 2;
+  }
+  if (state_button == 1) {
+    timer++;
+  }
+  return result;
+}
+
+int read_RPB_button() { // read button if there is logic change
+  int button = mgos_gpio_read_out(R_PB);
+  static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
+  static int button_z = 0;
+  static int timer = 0;
+  int result = 0;
+  if (button_z == 0 && button == 1) { //rising edge
+    state_button = 1;
+  } else if (button_z == 1 && button == 0) { //falling edge
+    if (state_button != 2) {
+      if (timer >= 10) { //over 1sec
+        result = 0;
+      } else {
+        result = 1;
+      }
+    }
+    state_button = 0;
+    timer = 0;
+  }
+  button_z = button;
+
+  if (timer >= 20) { //long press detection
+    state_button = 2;
+    timer = 0;
+    result = 2;
+  }
+  if (state_button == 1) {
+    timer++;
+  }
+  return result;
 }

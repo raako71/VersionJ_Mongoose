@@ -30,7 +30,7 @@
 	<b>Outputs</b>
 	<br>
 	<div style="margin-bottom:5px; margin-top:5px">
-	A: <span id="relay1_sta"></span>
+	A: <span id="relay1_sta" > </span>
 	</div>
 	<div style="margin-bottom:5px; margin-top:5px">
 	B: <span id="relay2_sta"></span>
@@ -78,6 +78,7 @@
 		console.log("DOM loaded");
 		load_conf();
 		fetch_uptime();
+		fetch_IO_status();
 	}
 	function fetch_program_list(){
 		console.log("fetch program list");
@@ -322,11 +323,58 @@
 			}else{
 				return;
 			}
+			var xhttp2 = new XMLHttpRequest();
+			xhttp2.open("POST", "/rpc/setting", true);
+			xhttp2.send();
 		}
 		
+		
+	}
+	
+	function fetch_IO_status(){
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST", "/rpc/reqIOinfo", true);
+		xhttp.setRequestHeader('Content-Type', 'application/json');
+		xhttp.send();
+		xhttp.onload = function(){
+			var json_data = JSON.parse(xhttp.responseText);
+			var a_el = document.getElementById("relay1_sta");
+			var b_el = document.getElementById("relay2_sta");
+			var c_el = document.getElementById("IO14_sta");
+			var d_el = document.getElementById("led_sta");
+			if(json_data.A == 1){
+				a_el.className = "on_label";
+				a_el.innerHTML = "ON";
+			}else{
+				a_el.className = "off_label";
+				a_el.innerHTML = "OFF";
+			}
+			if(json_data.B == 1){
+				b_el.className = "on_label";
+				b_el.innerHTML = "ON";
+			}else{
+				b_el.className = "off_label";
+				b_el.innerHTML = "OFF";
+			}
+			if(json_data.IO14 == 1){
+				c_el.className = "on_label";
+				c_el.innerHTML = "ON";
+			}else{
+				c_el.className = "off_label";
+				c_el.innerHTML = "OFF";
+			}
+			if(json_data.LED == 1){
+				d_el.className = "on_label";
+				d_el.innerHTML = "ON";
+			}else{
+				d_el.className = "off_label";
+				d_el.innerHTML = "OFF";
+			}
+		}
 	}
 	setInterval(function(){
 		fetch_uptime();
+		fetch_IO_status();
 	},2000);
 </script>
 
@@ -345,6 +393,13 @@
 		border:1px solid grey;
 		width:30px;
 	}
-
+	.on_label{
+		background-color: green;
+		color:white;
+	}
+	.off_label{
+		background-color: red;
+		color: white;
+	}
 </style>
 </html>
