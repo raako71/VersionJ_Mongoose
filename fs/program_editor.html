@@ -24,7 +24,7 @@ Program Enable:
 </td>
 <td>
 <label class="switch"> 
-<input type="checkbox" id="program_en" >
+<input type="checkbox" id="program_en"checked>
 <span class="slider round"></span>
 </label>
 </td>
@@ -156,6 +156,39 @@ if(program2load != "new"){load_setting();}
 function getUrlVars() {var vars = {};var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key] = value;});return vars;}
 function getUrlParam(parameter, defaultvalue){var urlparameter = defaultvalue;if(window.location.href.indexOf(parameter) > -1){urlparameter = getUrlVars()[parameter];}return urlparameter;}
 
+//duty cycle div builder
+function duty_cycle_builder(name){
+var ret = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
+ret += '<input type="checkbox" id=\"'+name+'_en_sec_on\" onClick=\"toggle_field(this,\''+name+'_sec_on\')\">';
+ret += '<input type="text" id="'+name+ '_sec_on" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_sec_on_label" class="greyed_label">Sec</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_min_on" onClick="toggle_field(this,\''+name+'_min_on\')\"><input type="text" id="'+name+ '_min_on" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_min_on_label" class="greyed_label">Min</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_hrs_on" onClick="toggle_field(this,\''+name+'_hrs_on\')\"><input type="text" id="'+name+ '_hrs_on" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_hrs_on_label" class="greyed_label">Hrs</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_day_on" onClick="toggle_field(this,\''+name+'_day_on\')\"><input type="text" id="'+name+ '_day_on" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_day_on_label" class="greyed_label">Day</span></div>';
+ret += '<div style="margin-top:15px">Switch output off for: &nbsp; ';
+ret += '<input type="checkbox" id=\"'+name+'_en_sec_off\" onClick="toggle_field(this,\''+name+'_sec_off\')\">';
+ret += '<input type="text" id="'+name+'_sec_off" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_sec_off_label" class="greyed_label">Sec</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_min_off\" onClick="toggle_field(this,\''+name+'_min_off\')\">';
+ret += '<input type="text" id="'+name+'_min_off" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_min_off_label" class="greyed_label">Min</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_hrs_off\" onClick="toggle_field(this,\''+name+'_hrs_off\')\">';
+ret += '<input type="text" id="'+name+'_hrs_off" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_hrs_off_label" class="greyed_label">Hrs</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_day_off\" onClick="toggle_field(this,\''+name+'_day_off\')\">';
+ret += '<input type="text" id="'+name+'_day_off" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_day_off_label" class="greyed_label">Day</span></div>';
+ret += '<div  style="margin-top:15px">';
+ret += 'Initial state: &nbsp;<label style="position:relative; top:-4px" class="switch"><input type="checkbox" id=\"'+name+'_init\"><span class="slider round"></label></div>';
+ret += '<div  style="margin-top:10px">';
+ret += 'Loop Cycle &nbsp;<label style="position:relative; top:-4px"class="switch2"><input type="checkbox" id="'+name+'_loop"><span class="slider2 round"></label>&nbsp; Run Cycle Once & reset</div>';
+ret += '</div>';
+return ret;
+}
+
 function toggle(input){
 	var a = document.getElementById(input+"_en").checked;
 	if(a){
@@ -191,31 +224,33 @@ function toggle_cond(input, name){
 	//detect trigger option
 	var prim_opt = document.getElementById("ctrl_trigger").value;
 	var div_add_condition = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_on" ><span class="slider round"></span></label>';
-	div_add_condition += '&nbsp;&nbsp;<select id="sec_operator_'+name+'"><option value=1>AND</option> <option value=2>OR</option></select>&nbsp; if &nbsp;';
-	div_add_condition += '<select id="sec_trigger_'+name+'" onChange="load_sec_trigger(this)">';
-	var array = ["Temperature", "Humidity", "Light", "Power"];
-	for (i = 0 ; i < 4 ; i++){
+	div_add_condition += '&nbsp;&nbsp;<select id="sec_operator_'+name+'"><option value=1>AND</option> <option value=2>OR</option></select>&nbsp;&nbsp;';
+	div_add_condition += '<select id="sec_trigger_'+name+'" onChange="load_sec_off_trigger(this)">';
+	var array = ["if Temperature", "if Humidity", "if Light", "if Power", "Duty Cycle"];
+	for (i = 0 ; i < 5 ; i++){
 	if( prim_opt != i+1){
 	div_add_condition += '<option value='+(i+1)+'>'+array[i]+'</option>';
 	}
 	}
 	div_add_condition += ' </select> &nbsp;<select id="sec_comp_'+name+'"><option value=1> ></option><option value=2> < </option></select>';
 	div_add_condition += '&nbsp;<input type="text" id="sec_value_'+name+'" style="width:100px"></div>';
+	div_add_condition += '<span style="display:block" id="sec_dc"></span>';
 	var a = input.value;
 	var holder = document.getElementById("sec_cond_"+name+"_holder");
 	var holder_off = document.getElementById("sec_cond_off_holder");
 	
 	var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" ><span class="slider round"></span></label>';
 	div_add_condition_off += '&nbsp;&nbsp;<select id="sec_operator_off"> <option value=1>AND</option> <option value=2>OR</option></select>';
-	div_add_condition_off += '&nbsp; if&nbsp;<span id="sec_trigger_off" style="font-size:13.333px"></span> &nbsp; <select id="sec_comp_off"><option value=1> ></option><option value=2> < </option></select>';
+	div_add_condition_off += '&nbsp;&nbsp;<span id="sec_trigger_off" style="font-size:15px"></span> &nbsp; <select id="sec_comp_off"><option value=1> ></option><option value=2> < </option></select>';
 	div_add_condition_off += '&nbsp; <input type="text" id="sec_value_off" style="width:100px"></div>';
 	if(a == "Add Condition"){
 		input.value = "Remove Condition";
 		holder.innerHTML = div_add_condition;
 		holder_off.innerHTML = div_add_condition_off;
-		var trig_val = document.getElementById("sec_trigger_on").value;
-		trig_val = array[trig_val -1];
-		document.getElementById("sec_trigger_off").innerHTML = trig_val;
+		var trig_val = document.getElementById("sec_trigger_on");
+		load_sec_off_trigger(trig_val);
+		///trig_val = array[trig_val -1];
+		//document.getElementById("sec_trigger_off").innerHTML = trig_val;
 		
 	}else{
 		input.value = "Add Condition";
@@ -223,10 +258,58 @@ function toggle_cond(input, name){
 		holder_off.innerHTML = "";
 	}	
 }
-function load_sec_trigger(input){
-var array = ["Temperature", "Humidity", "Light", "Power"]; 
-var a = array[input.value - 1]; document.getElementById("sec_trigger_off").innerHTML = a;
+function load_sec_off_trigger(input){//for action A secondary
+var holder_off = document.getElementById("sec_cond_off_holder");
+var a = document.getElementById("sec_value_on");
+var b = document.getElementById("sec_comp_on");
+var c = document.getElementById("sec_dc");
+if(input.value == 5){
+	a.style.display = "none";
+	b.style.display = "none";
+	a.value = "";
+	holder_off.innerHTML ="";
+	var x = duty_cycle_builder("sec_dc");
+	c.innerHTML = x;
+	duty_cycle_misc_loader("sec_dc");
+	return;
 }
+a.style.display = "inline";
+b.style.display = "inline";
+c.innerHTML = "";
+var array = ["if Temperature", "if Humidity", "if Light", "if Power"]; 
+var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" ><span class="slider round"></span></label>';
+div_add_condition_off += '&nbsp;&nbsp;<select id="sec_operator_off"> <option value=1>AND</option> <option value=2>OR</option></select>';
+div_add_condition_off += '&nbsp;&nbsp;<span id="sec_trigger_off" style="font-size:15px"></span> &nbsp; <select id="sec_comp_off"><option value=1> ></option><option value=2> < </option></select>';
+div_add_condition_off += '&nbsp; <input type="text" id="sec_value_off" style="width:100px"></div>';
+holder_off.innerHTML = div_add_condition_off;
+var a = array[input.value - 1]; document.getElementById("sec_trigger_off").innerHTML = a;
+setInputFilter(document.getElementById("sec_value_off"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
+setInputFilter(document.getElementById("sec_value_on"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
+}
+
+function load_action_D_sec(input){ //for action D togggle and duty cycles
+var holder = document.getElementById("action_D_holder");
+var a = '<table><tr><td>Initial State: </td><td>&nbsp;<label class="switch">';
+a += '<input type="checkbox" id="action_D_init"><span class="slider round"></span></label></td></tr></table>';
+if(input.checked){// only toggle
+holder.innerHTML = a;
+}else{
+holder.innerHTML = duty_cycle_builder("action_D");
+duty_cycle_misc_loader("action_D");
+}
+}
+
+function duty_cycle_misc_loader(name){
+setInputFilter(document.getElementById(name+"_sec_on"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_min_on"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_hrs_on"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_day_on"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_sec_off"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_min_off"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_hrs_off"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_day_off"), function(value) { return /^\d*$/.test(value); });
+}
+
 function load_ctrl_action(){
 	var action_A ='';
 	action_A += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	';
@@ -242,42 +325,16 @@ function load_ctrl_action(){
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
 	action_A += '<input type="text" id="action_A_value_off" style="width:100px">';
 	action_A += '<br><span id="sec_cond_off_holder"></span></div>';
-	
+	var action_C = duty_cycle_builder("action_C");	
 	var action_B = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
 	action_B += '<input type="checkbox" id="action_B_en"><span class="slider round"></span></label></td></tr></table></div></div>';
-	
-	var action_C = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
-	action_C += '<input type="checkbox" id="action_C_en_sec_on" onClick="toggle_field(this,'+"'action_C_sec_on"+ "'" +')">';
-	action_C += '<input type="text" id="action_C_sec_on" class="greycolor" readOnly>';
-	action_C += '<span id="action_C_sec_on_label" class="greyed_label">Sec</span>';
-	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_min_on" onClick="toggle_field(this,'+"'action_C_min_on'"+')"><input type="text" id="action_C_min_on" class="greycolor" readOnly>';
-	action_C += '<span id="action_C_min_on_label" class="greyed_label">Min</span>';
-	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_hrs_on" onClick="toggle_field(this,'+"'action_C_hrs_on'"+')"><input type="text" id="action_C_hrs_on" class="greycolor" readOnly>';
-	action_C += '<span id="action_C_hrs_on_label" class="greyed_label">Hrs</span>';
-	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_day_on" onClick="toggle_field(this,'+"'action_C_day_on'"+')"><input type="text" id="action_C_day_on" class="greycolor" readOnly>';
-	action_C += '<span id="action_C_day_on_label" class="greyed_label">Day</span></div>';
-	action_C += '<div style="margin-top:15px">Switch output off for: &nbsp; ';
-	action_C += '<input type="checkbox" id="action_C_en_sec_off" onClick="toggle_field(this,'+"'action_C_sec_off'"+')">';
-	action_C += '<input type="text" id="action_C_sec_off" class="greycolor" readOnly>';
-	action_C += '<span id="action_C_sec_off_label" class="greyed_label">Sec</span>';
-	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_min_off" onClick="toggle_field(this,'+"'action_C_min_off'"+')">';
-	action_C += '<input type="text" id="action_C_min_off" class="greycolor" readOnly>';
-	action_C += '<span id="action_C_min_off_label" class="greyed_label">Min</span>';
-	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_hrs_off" onClick="toggle_field(this,'+"'action_C_hrs_off'"+ ')">';
-	action_C += '<input type="text" id="action_C_hrs_off" class="greycolor" readOnly>';
-	action_C += '<span id="action_C_hrs_off_label" class="greyed_label">Hrs</span>';
-	action_C += '&nbsp;&nbsp;<input type="checkbox" id="action_C_en_day_off" onClick="toggle_field(this,'+"'action_C_day_off'"+')">';
-	action_C += '<input type="text" id="action_C_day_off" class="greycolor" readOnly>';
-	action_C += '<span id="action_C_day_off_label" class="greyed_label">Day</span></div>';
-	action_C += '<div  style="margin-top:15px">';
-	action_C += 'Initial state: &nbsp;<label style="position:relative; top:-4px" class="switch"><input type="checkbox" id="action_C_init"><span class="slider round"></label></div>';
-	action_C += '<div  style="margin-top:10px">';
-	action_C += 'Loop Cycle &nbsp;<label style="position:relative; top:-4px"class="switch2"><input type="checkbox" id="action_C_loop"><span class="slider2 round"></label>&nbsp; Run Cycle Once & reset</div>';
-	action_C += '</div>';
-	
-	var action_D = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr height="40px"><td>Initial State: </td><td>&nbsp;<label class="switch">';
-	action_D += '<input type="checkbox" id="RPB_init_state"><span class="slider round"></span></label></td></tr><tr><td>Input Button: </td><td>';
-	action_D += '<select id="input_remote"><option value=1> Relay A </option><option value= 2> Relay B</option><option value = 3> Remote PB </option></select></td></tr></table></div>';
+	var action_D = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px">Input Button: ';
+	action_D += '<select id="input_remote"><option value=1> Relay A </option><option value= 2> Relay B</option><option value = 3> ';
+	action_D += 'Remote PB </option></select>';
+	action_D += '<div  style="margin-top:15px">';
+	action_D += 'Duty Cycle Trigger &nbsp;<label style="position:relative; top:-4px"class="switch2"><input type="checkbox" id="action_D_selector"';
+	action_D += 'onChange="load_action_D_sec(this)" checked><span class="slider2 round"></label>&nbsp; Toggle Switch</div>';
+	action_D += '<span id="action_D_holder"> halo </span></div></div>'
 	
 	var selection = document.getElementById("ctrl_trigger").value;
 	var el = document.getElementById("trigger_action_holder");
@@ -287,14 +344,12 @@ function load_ctrl_action(){
 		setInputFilter(document.getElementById("action_A_value_off"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 	}else if( selection == 6){
 		el.innerHTML = action_C;
-		setInputFilter(document.getElementById("action_C_sec_on"), function(value) { return /^\d*$/.test(value); });
-		setInputFilter(document.getElementById("action_C_min_on"), function(value) { return /^\d*$/.test(value); });
-		setInputFilter(document.getElementById("action_C_hrs_on"), function(value) { return /^\d*$/.test(value); });
-		setInputFilter(document.getElementById("action_C_day_on"), function(value) { return /^\d*$/.test(value); });
+		duty_cycle_misc_loader("action_C");
 	}else if(selection == 7){
 		el.innerHTML = action_B;
 	}else if (selection == 8){
 		el.innerHTML = action_D;
+		load_action_D_sec(document.getElementById("action_D_selector"));
 	}else{
 		el.innerHTML = "";
 	}
@@ -307,7 +362,7 @@ function toggle_field(input, action){
 	if(logic){RO_logic = false;	color = "black";}
 	else{document.getElementById(action).value = "";}
 	document.getElementById(action).readOnly = RO_logic;
-	document.getElementById(action).style.color = color;
+	document.getElementById(action+"_label").style.color = color;
 }
 
 function day_list(){ 
@@ -323,8 +378,8 @@ function day_list(){
 	}else{
 	return "";
 	}
-	
 }
+
 function save_setting(){
 //checking 17.d
 var d = document.getElementById("input_remote");
@@ -343,27 +398,37 @@ if( a1 != null){
 var a3 = document.getElementById("action_A_value_on"); var a4 = document.getElementById("sec_switched_on");
 if(a1.checked && a3.value == ""){ alert("required a value to be saved (primary on value)"); return;}
 if(a4 != null){
-	if(a4.checked && document.getElementById("sec_value_on").value == ""){alert("required a value to be saved (secondary on value)");return;}
+	if(a4.checked && document.getElementById("sec_value_on").value == "" && document.getElementById("sec_trigger_on").value != 5){alert("required a value to be saved (secondary on value)");return;}
+	if(a4.checked && document.getElementById("sec_trigger_on").value == 5){
+		var c1 = check_timed_cycle("sec_dc","on");
+		c1 = (c1 == -1) ? 0 : c1 < 60;
+		var c2 = check_timed_cycle("sec_dc","off") ;
+		c2 = (c2 == -1) ? 0 : c2 < 60;
+		if(c1 || c2){
+			alert("frequent switching of relays will shorten their life");
+			return;
+		}
+	}
 }
 }
 if(a2 != null){
 var a5 = document.getElementById("action_A_value_off"); var a6 = document.getElementById("sec_switched_off");
 if(a2.checked && a5.value == ""){ alert("required a value to be saved (primary off value)"); return;}
 if(a6 != null){
- if(a6.checked && document.getElementById("sec_value_off").value == ""){alert("required a value to be saved (secondary off value)");return;}
+ if(a6.checked && document.getElementById("sec_value_off").value == "" && document.getElementById("sec_trigger_on").value != 5){alert("required a value to be saved (secondary off value)");return;}
 }
 }
 
 //check 17.c
 c =document.getElementById("ctrl_trigger").value;
 if(c == 6){
-var c1 = check_timed_cycle("on");
+var c1 = check_timed_cycle("action_C","on");
 if(c1 == -1){
 	c1 = 0;
 }else{
 	c1 = c1 < 60;
 }
-var c2 = check_timed_cycle("off") ;
+var c2 = check_timed_cycle("action_C","off") ;
 if(c2 == -1){
 	c2  =0;
 }else{
@@ -372,8 +437,19 @@ if(c2 == -1){
 if(c1 || c2){
 alert("frequent switching of relays will shorten their life");
 return;
-}}
+}
+}
 
+if(c == 8 && document.getElementById("action_D_selector").checked == false){
+	var c1 = check_timed_cycle("action_D","on");
+	c1 = (c1 == -1) ? 0 : c1 < 60;
+	var c2 = check_timed_cycle("action_D","off") ;
+	c2 = (c2 == -1) ? 0 : c2 < 60;
+	if(c1 || c2){
+		alert("frequent switching of relays will shorten their life");
+		return;
+	}
+}
 //check start date || end date
 var e1 = document.getElementById("start_date");
 var e2 = document.getElementById("end_date");
@@ -381,19 +457,41 @@ if(e1 != null && e2 != null){
 	e1 = getEpoch(e1.value); e2 = getEpoch(e2.value);
     console.log(e1); console.log(e2);	
 	if(e1 > e2){
-		alert("end date must bigger than start date");
+		alert("End Date must be after Start Date!");
 		return;
 	}
 }
-///  notify file reset
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "/rpc/reset_timer", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-var comm = {"file": program2load+".json"};
-xhr.send(JSON.stringify(comm));
-xhr.onload = function() {
-	if(program2load == "new"){ save_new(); } else {save_old();}
+
+//check 17.b
+//check if primary
+if(a1 != null && a2 != null){
+	if(a1.checked && a2.checked){
+	//check comparator sign
+		var b1 = document.getElementById("action_A_cmpr_on").value;
+		var b2 = document.getElementById("action_A_cmpr_off").value;
+		if(b1 == b2){
+			alert("Comparator sign cannot be same (primary)!");
+			return;
+		}
+		var b3 = Number(document.getElementById("action_A_value_on").value);
+		var b4 = Number(document.getElementById("action_A_value_off").value);
+		console.log(b3 < b4);
+		if(b3 == b4){
+			alert("Primary trigger value cannot be same!"); return;
+		}
+		if(b1 == 1 && b2 == 2){
+			if(b3 < b4){
+				alert("invalid logic, primary on must be larger than primary off"); return;
+			}
+		}else if(b1 == 2 && b2 == 1){
+			if(b3 > b4){
+				alert("invalid logic, primary on must be smaller than primary off"); return;
+			}
+		}		
+	}
 }
+
+if(program2load == "new"){ save_new(); } else {save_old();}
 
 }
 
@@ -410,48 +508,56 @@ old_json.on_time_global =(document.getElementById("on_time_en").checked) ? (docu
 old_json.off_time_global = (document.getElementById("off_time_en").checked) ? (document.getElementById("off_time_val").value + "|" + make_day_epoch(document.getElementById("off_time_val").value)) : ("|-1");
 old_json.control_opt = document.getElementById("ctrl_out_opt").value;
 var k = document.getElementById("ctrl_trigger").value;
-old_json.control_trigger[0].option = k;
-
+old_json.control_trigger[0].main_option = k;
+var m; var y =""; var n =-1;
 if(k >= 1 && k <= 4){
 	var on_val = ((get_chkbox_val("pri_switched_on") == 1) ? (document.getElementById("action_A_cmpr_on").value + "," + save2decimal(document.getElementById("action_A_value_on").value)) : "");
 	var off_val = ((get_chkbox_val("pri_switched_off") == 1)? (document.getElementById("action_A_cmpr_off").value + "," + save2decimal(document.getElementById("action_A_value_off").value)): "");
-	var on_val_sec = "";
-	if(document.getElementById("sec_switched_on") != null){
-	on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("sec_trigger_on").value + "," + document.getElementById("sec_comp_on").value + "," + save2decimal(document.getElementById("sec_value_on").value)) : "");
+	var on_val_sec = "";var off_val_sec = "";
+	var x = document.getElementById("sec_trigger_on");
+	if(x != null){
+	n = x.value;
+	if(x.value != 5){
+	n = (get_chkbox_val("sec_switched_on") == 1 || get_chkbox_val("sec_switched_off") == 1) ? x.value : -1;
+	on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("sec_comp_on").value + "," + save2decimal(document.getElementById("sec_value_on").value)) : "");
+	off_val_sec = ((get_chkbox_val("sec_switched_off") == 1) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("sec_comp_off").value + "," + save2decimal(document.getElementById("sec_value_off").value)) : "");
+	y = {sec_on: on_val_sec, sec_off: off_val_sec};
+	y = JSON.stringify(y);
+	}else{
+	n = (get_chkbox_val("sec_switched_on") == 1) ? 5 : -1;
+	y = (get_chkbox_val("sec_switched_on") == 1) ? document.getElementById("sec_operator_on").value + ","  + JSON.stringify(fetch_duty_cycle_info("sec_dc")) : "";
 	}
-	var off_val_sec = "";
-	if(document.getElementById("sec_switched_off") != null){
-	off_val_sec = ((get_chkbox_val("sec_switched_off") == 1) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("sec_trigger_on").value + "," + document.getElementById("sec_comp_off").value + "," + save2decimal(document.getElementById("sec_value_off").value)) : "");
-	}
-	m = {pri_on: on_val,pri_off:off_val, sec_on:on_val_sec,sec_off:off_val_sec};
+	} //x != nulll
+	m = {pri_on: on_val,pri_off:off_val};
 	m = JSON.stringify(m);
+	
 }else if(k == 6){
-	var tick =  get_chkbox_val("action_C_en_sec_on") + "," + document.getElementById("action_C_sec_on").value + ",";
-	tick += get_chkbox_val("action_C_en_min_on") + "," + document.getElementById("action_C_min_on").value + ",";
-	tick += get_chkbox_val("action_C_en_hrs_on") + "," + document.getElementById("action_C_hrs_on").value + ",";
-	tick += get_chkbox_val("action_C_en_day_on") + "," + document.getElementById("action_C_day_on").value + ",";
-	tick += get_chkbox_val("action_C_en_sec_off") + "," + document.getElementById("action_C_sec_off").value + ",";
-	tick += get_chkbox_val("action_C_en_min_off") + "," + document.getElementById("action_C_min_off").value + ",";
-	tick += get_chkbox_val("action_C_en_hrs_off") + "," + document.getElementById("action_C_hrs_off").value + ",";
-	tick += get_chkbox_val("action_C_en_day_off") + "," + document.getElementById("action_C_day_off").value;
-	var init_n_loop = get_chkbox_val("action_C_init") + get_chkbox_val("action_C_loop");
-	var time_val = check_timed_cycle("on") +"," + check_timed_cycle("off");
-	var m_json = {tick: tick, sec: init_n_loop, value: time_val};
-	m = JSON.stringify(m_json);
+	n = -1; y = "";
+	m = JSON.stringify(fetch_duty_cycle_info("action_C"));
 }else if(k == 7){
+	n = -1; y = "";
 	m = String(get_chkbox_val("action_B_en"));
 }else if(k == 8){
-	m =  get_chkbox_val("RPB_init_state") + "," + document.getElementById("input_remote").value;
+	m = document.getElementById("input_remote").value;
+	n = get_chkbox_val("action_D_selector");
+	if( n == '1'){
+	y = get_chkbox_val("action_D_init");
+	}else{
+	y = fetch_duty_cycle_info("action_D"); y = JSON.stringify(y);
+	}
 }
-old_json.control_trigger[0].trigger_info = m;
+old_json.control_trigger[0].main_info = m;
+old_json.control_trigger[0].sec_option = n;
+old_json.control_trigger[0].sec_info = y;
 return old_json;
 }
 
 function save_new(){
 var old_json = {"id": idprogram, "name":"test 1", "en":false, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "", "off_time_global":""
-,"control_opt": "", "control_trigger":[{"option":1, "trigger_info":""}]};
+,"control_opt": "","control_trigger":[{"main_option": 1, "main_info": "", "sec_option": -1, "sec_info":""}]};
 old_json = build_save_json(old_json);
-console.log(JSON.stringify(old_json));
+
+console.log("save new");
 var xhttp = new XMLHttpRequest();
 xhttp.open("POST", "/rpc/FS.Put", true);
 xhttp.setRequestHeader('Content-Type', 'application/json');
@@ -463,6 +569,7 @@ xhttp.onload = function(){
 }
 }
 function save_old(){
+console.log("save old");
 var old_json;
 var xhr = new XMLHttpRequest();
 xhr.open("POST", "/rpc/FS.Get", true);
@@ -480,8 +587,16 @@ xhr.onload = function() {
 	var contain = {"filename": program2load+".json", "append":false, "data": string}
 	xhttp.send(JSON.stringify(contain));
 	xhttp.onload = function(){
+	///  notify file reset
+	var xhr2 = new XMLHttpRequest();
+	xhr2.open("POST", "/rpc/reset_timer", true);
+	xhr2.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"file": program2load+".json"};
+	xhr2.send(JSON.stringify(comm));
+	xhr2.onload = function() {
 		location.href = '/control_page.html';
 	}
+}
 	
 }
 }
@@ -489,13 +604,14 @@ xhr.onload = function() {
 function setInputFilter(textbox, inputFilter) {["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {textbox.addEventListener(event, function() {if (inputFilter(this.value)) {this.oldValue = this.value;this.oldSelectionStart = this.selectionStart;this.oldSelectionEnd = this.selectionEnd;} else if (this.hasOwnProperty("oldValue")) {this.value = this.oldValue;this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);} else {this.value = "";}});});}
 function convert_epoch_from_time(input){return input.substring(0,2)*3600 + input.substring(3,5)*60;}
 function save2decimal(input){input = String(input);var a = input.indexOf(".");if(a == -1){input += ".00";}else{	var b = input.substring(0, a+3);var c = input.substring(a+1,a+3).length;b += (c == 1) ? "0" : "";b += (c == 0) ? "00" : "";	input = b;}return input;}
-function check_timed_cycle(name){
-var array_name=["sec", "min", "hrs", "day"]; var ret = 0;
+function check_timed_cycle(entity, name){
+var array_name=["sec", "min", "hrs", "day"]; var ret = -1;
 var array_time=[1, 60, 3600, 86400];
 for (i = 0 ; i < 4; i++){
-if(get_chkbox_val("action_C_en_"+array_name[i]+"_"+name) == 1){ret = (ret == -1) ?  0 : ret; ret += Number(document.getElementById("action_C_"+array_name[i]+"_"+name).value) * array_time[i];}
+if(get_chkbox_val(entity + "_en_"+array_name[i]+"_"+name) == 1){ret = (ret == -1) ?  0 : ret; ret += Number(document.getElementById(entity + "_"+array_name[i]+"_"+name).value) * array_time[i];}
 }
 return ret;}
+
 function make_day_epoch(h){ //h must string
   if(h == ""){ return -1;}
   var offset = new Date(); offset = offset.getTimezoneOffset()*60;
@@ -510,6 +626,7 @@ function get_chkbox_val(input){
 var a = ((document.getElementById(input).checked==true) ? "1" : "0");
 return a;
 }
+
 function load_setting(){
 	var old_json;
 	var xhr = new XMLHttpRequest();
@@ -540,71 +657,99 @@ function load_setting(){
 		if(old_json.on_time_global != "|-1"){document.getElementById("on_time_en").checked = true; toggle("on_time"); document.getElementById("on_time_val").value = on_time;}
 		if(old_json.off_time_global != "|-1"){document.getElementById("off_time_en").checked = true; toggle("off_time"); document.getElementById("off_time_val").value = off_time;}
 		document.getElementById("ctrl_out_opt").value = old_json.control_opt;
-		var a= old_json.control_trigger[0].option;
+		var a= old_json.control_trigger[0].main_option;
 		document.getElementById("ctrl_trigger").value = a;
 		load_ctrl_action();
-		var b= old_json.control_trigger[0].trigger_info;
-		
+		var b= old_json.control_trigger[0].main_info;
+		var c = old_json.control_trigger[0].sec_option;
+		var d= old_json.control_trigger[0].sec_info;
 			
 		if(a >= 1 && a <= 4){
 		b = JSON.parse(b);
-		var pon = b.pri_on;var poff = b.pri_off;var son = b.sec_on;	var soff = b.sec_off;
+		var pon = b.pri_on;
+		var poff = b.pri_off;
 		if(pon !=""){document.getElementById("pri_switched_on").checked = true;document.getElementById("action_A_cmpr_on").value = pon.substring(0, pon.indexOf(","));document.getElementById("action_A_value_on").value = pon.substring(pon.indexOf(",")+1);}
 		if(poff!=""){document.getElementById("pri_switched_off").checked = true;document.getElementById("action_A_cmpr_off").value = poff.substring(0, poff.indexOf(","));document.getElementById("action_A_value_off").value = poff.substring(poff.indexOf(",")+1);}
+		if(c != -1){
+		toggle_cond(document.getElementById("add_cond_on"), "on");
+		document.getElementById("sec_trigger_on").value = c;
+		var xx = {value: c};
+		load_sec_off_trigger(xx);
+		if(c >= 1 && c <= 4){
+		d = JSON.parse(d);
+		var son = d.sec_on; var soff = d.sec_off;
 		if(son != ""){
-			toggle_cond(document.getElementById("add_cond_on"), "on");
 			document.getElementById("sec_switched_on").checked =true;
-			var a = son.indexOf(",");
-			document.getElementById("sec_operator_on").value = son.substring(0, a);
-			var b = son.indexOf(",",a+1);
-			document.getElementById("sec_trigger_on").value = son.substring(a+1,b);
-			a = son.indexOf(",", b+1);
-			document.getElementById("sec_comp_on").value = son.substring(b+1, a);
-			document.getElementById("sec_value_on").value = son.substring(a+1);
+			var i = son.indexOf(",");
+			document.getElementById("sec_operator_on").value = son.substring(0, i);
+			var j = son.indexOf(",",i+1);
+			document.getElementById("sec_comp_on").value = son.substring(i+1, j);
+			document.getElementById("sec_value_on").value = son.substring(j+1);
 		}
-		if(soff != "" && son == ""){toggle_cond(document.getElementById("add_cond_on"), "on"); }
 		if(soff != ""){
-			document.getElementById("sec_switched_off").checked = true;
-			var a = soff.indexOf(",");
-			document.getElementById("sec_operator_off").value = soff.substring(0, a);
-			var b = soff.indexOf(",",a+1);
-			document.getElementById("sec_trigger_on").value = soff.substring(a+1,b);
-			a = soff.indexOf(",", b+1);
-			document.getElementById("sec_comp_off").value = soff.substring(b+1, a);
-			document.getElementById("sec_value_off").value = soff.substring(a+1);
-			load_sec_trigger(document.getElementById("sec_trigger_on"));
+			document.getElementById("sec_switched_off").checked =true;
+			var i = soff.indexOf(",");
+			document.getElementById("sec_operator_off").value = soff.substring(0, i);
+			var j = soff.indexOf(",",i+1);
+			document.getElementById("sec_value_off").value = soff.substring(j+1);
+			document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
 		}
-		
+		}else if(c == 5){
+			document.getElementById("sec_switched_on").checked = true;
+			document.getElementById("sec_operator_on").value = d.substring(0, d.indexOf(","));
+			d = JSON.parse(d.substring(d.indexOf(",")+1));
+			apply_duty_cycle_conf("sec_dc", d.tick, d.sec);
+		}}		
 		}else if(a == 6){
 		b = JSON.parse(b);
-		apply_duty_cycle_conf(b.tick);
-		document.getElementById("action_C_init").checked = (b.sec[0] == 1) ? true : false;
-		document.getElementById("action_C_loop").checked = (b.sec[1] == 1) ? true : false;
+		apply_duty_cycle_conf("action_C", b.tick, b.sec);
 		}else if(a == 7){
 		document.getElementById("action_B_en").checked = Number(b) == 1 ? true: false;
 		}else if(a == 8){
-		document.getElementById("RPB_init_state").checked = ((b.substring(0, b.indexOf(",")) == 1) ? true : false);
-		document.getElementById("input_remote").value = b.substring(b.indexOf(",") + 1, b.length);
+		document.getElementById("input_remote").value = b;
+		document.getElementById("action_D_selector").checked = (c == 1) ? true : false;
+		load_action_D_sec(document.getElementById("action_D_selector"));
+		if(c == 1){
+			document.getElementById("action_D_init").checked = (d == 1) ? true : false;
+		}else{ 
+		d = JSON.parse(d);
+		apply_duty_cycle_conf("action_D", d.tick, d.sec);
+		}
 		}
 		
 	}
 }
 
-function apply_duty_cycle_conf(input){
-var array = ["sec_on", "min_on", "hrs_on", "day_on", "sec_off", "min_off", "hrs_off", "day_off"];
+function apply_duty_cycle_conf(name, input1, input2){
+var array = ["_sec_on", "_min_on", "_hrs_on", "_day_on", "_sec_off", "_min_off", "_hrs_off", "_day_off"];
 var index = 0;
 var a = 0; var j= 0;
 for (index = 0; index < 8; index++){
-j = input.indexOf(",", a);
-var logic = (input.substring(a, j) == "1")? true: false;
-document.getElementById("action_C_en_" + array[index]).checked = logic; 
-a = j+1; j = input.indexOf(",", a);
-j = (j == -1) ? input.length : j;
-document.getElementById("action_C_" + array[index]).value = input.substring(a, j);
-document.getElementById("action_C_" + array[index]).readOnly = !logic;
-a = j+1;
+j = input1.indexOf(",", a);
+var logic = (input1.substring(a, j) == "1")? true: false;
+document.getElementById(name+"_en"+ array[index]).checked = logic; 
+a = j+1; j = input1.indexOf(",", a);
+j = (j == -1) ? input1.length : j;
+document.getElementById(name+array[index]).value = input1.substring(a, j);
+document.getElementById(name+array[index]).readOnly = !logic;
+a = j+1;}
+document.getElementById(name+"_init").checked = (input2[0] == 1) ? true : false;
+document.getElementById(name+"_loop").checked = (input2[1] == 1) ? true : false;
 }
-//document.getElementById("action_C_init").checked = (input.substring(a) == "1") ? true: false; 
+
+function fetch_duty_cycle_info(name){
+var tick =  get_chkbox_val(name+"_en_sec_on") + "," + document.getElementById(name+"_sec_on").value + ",";
+tick += get_chkbox_val(name+"_en_min_on") + "," + document.getElementById(name+"_min_on").value + ",";
+tick += get_chkbox_val(name+"_en_hrs_on") + "," + document.getElementById(name+"_hrs_on").value + ",";
+tick += get_chkbox_val(name+"_en_day_on") + "," + document.getElementById(name+"_day_on").value + ",";
+tick += get_chkbox_val(name+"_en_sec_off") + "," + document.getElementById(name+"_sec_off").value + ",";
+tick += get_chkbox_val(name+"_en_min_off") + "," + document.getElementById(name+"_min_off").value + ",";
+tick += get_chkbox_val(name+"_en_hrs_off") + "," + document.getElementById(name+"_hrs_off").value + ",";
+tick += get_chkbox_val(name+"_en_day_off") + "," + document.getElementById(name+"_day_off").value;
+var init_n_loop = get_chkbox_val(name+"_init") + get_chkbox_val(name+"_loop");
+var time_val = check_timed_cycle(name, "on") +"," + check_timed_cycle(name, "off");
+var m_json = {tick: tick, sec: init_n_loop, value: time_val};
+return (m_json);
 }
 
 function from_epoch(input){
@@ -653,16 +798,5 @@ input:checked + .slider2:before { -webkit-transform: translateX(15px); -ms-trans
 #day_on_en:checked ~ #day_on_label{color:black;}
 #day_off_en:checked ~ #day_off_label{color:black;}
 #day_on_label, #day_off_label{ color:grey;}
-
-#action_C_en_day_on:checked ~ #action_C_day_on_label{color:black;}
-#action_C_en_hrs_on:checked ~ #action_C_hrs_on_label{color:black;}
-#action_C_en_min_on:checked ~ #action_C_min_on_label{color:black;}
-#action_C_en_sec_on:checked ~ #action_C_sec_on_label{color:black;}
-
-
-#action_C_en_day_off:checked ~ #action_C_day_off_label{color:black;}
-#action_C_en_hrs_off:checked ~ #action_C_hrs_off_label{color:black;}
-#action_C_en_min_off:checked ~ #action_C_min_off_label{color:black;}
-#action_C_en_sec_off:checked ~ #action_C_sec_off_label{color:black;}
 </style>
 </html>

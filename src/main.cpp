@@ -103,6 +103,8 @@ int prog_timer_state[4] = {0,0,0,0}; //indicate if timer is on or off or idle; 0
 									 // 3 -> on is finished, 4-> off is finished
 mgos_timer_id prog_timer_id[4];
 
+int ext_PB_state[3] = {0,0,0};
+
 //addition variable V2
 char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
 void load_wifi_setting();
@@ -168,7 +170,7 @@ void check_program_name(); //tested -> retrive program en and output option from
 int check_program_state(const char* file_read);  //tested
 void adjust_prog_pin();
 int pri_chk_cond(std::string input, float data_input); //tested
-int sec_chk_cond(std::string input, int& op); //tested
+int sec_chk_cond(std::string input, float data_input, int& op);	
 int check_program_output(const char* file_read); 
 int pri_op_sec(int op, int pri_cond, int sec_cond); //tested
 void setup_timer_program(int ctrl_pin, long value); //tested
@@ -179,7 +181,7 @@ int read_RPB_button();
 
 //prog timer function 
 static void prog_timer1_cb (void *arg){
-	mgos_clear_timer(prog_timer_state[0]);
+	mgos_clear_timer(prog_timer_id[0]);
 	if(prog_timer_state[0] == 1){
 		prog_timer_state[0] = 3;
 	}else if(prog_timer_state[0] == 2){
@@ -188,7 +190,7 @@ static void prog_timer1_cb (void *arg){
 	(void) arg;
 }
 static void prog_timer2_cb (void *arg){
-	mgos_clear_timer(prog_timer_state[1]);
+	mgos_clear_timer(prog_timer_id[1]);
 	if(prog_timer_state[1] == 1){
 		prog_timer_state[1] = 3;
 	}else if(prog_timer_state[1] == 2){
@@ -197,7 +199,7 @@ static void prog_timer2_cb (void *arg){
 	(void) arg;
 }
 static void prog_timer3_cb (void *arg){
-	mgos_clear_timer(prog_timer_state[2]);
+	mgos_clear_timer(prog_timer_id[2]);
 	if(prog_timer_state[2] == 1){
 		prog_timer_state[2] = 3;
 	}else if(prog_timer_state[2] == 2){
@@ -206,7 +208,7 @@ static void prog_timer3_cb (void *arg){
 	(void) arg;
 }
 static void prog_timer4_cb (void *arg){
-	mgos_clear_timer(prog_timer_state[3]);
+	mgos_clear_timer(prog_timer_id[3]);
 	if(prog_timer_state[3] == 1){
 		prog_timer_state[3] = 3;
 	}else if(prog_timer_state[3] == 2){
@@ -230,7 +232,18 @@ void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 }
 //function prototype
 static void button_check_cb(void *arg){
-
+	int a = read_R1_button();
+	int b = read_R2_button();
+	int c = read_RPB_button();
+	if(ext_PB_state[0] == 0){
+		ext_PB_state[0] = a;
+	}
+	if(ext_PB_state[1] == 0){
+		ext_PB_state[1] = b;
+	}
+	if(ext_PB_state[2] == 0){
+		ext_PB_state[2] = c;
+	}
 }
 static void timer_cb(void *arg) {
 	time_t now;
@@ -250,17 +263,11 @@ static void timer_cb(void *arg) {
     day_now = tm_gmt->tm_wday;
     check_program_name();
     adjust_prog_pin();
-	offline_epoch++;
-  (void) arg;
-  static int psc = 0;
-  if(psc >= 1){
-  	psc = 0;
-	LOG(LL_WARN, ("prog link : %d, %d, %d, %d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]));
+    LOG(LL_WARN, ("prog link : %d, %d, %d, %d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]));
 	LOG(LL_WARN, ("prog state: %d, %d, %d, %d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]));
 	LOG(LL_WARN, ("pin state: %d, %d, %d, %d", prog_pin_state[0], prog_pin_state[1], prog_pin_state[2], prog_pin_state[3]));
-  }else{
-  	psc++;
-  }
+	offline_epoch++;
+  (void) arg;
 }
 
 static void logging_cb(void *arg){
@@ -988,6 +995,7 @@ void online_HouseKeeping(){ //(picked from last version)
     if(thisWeek_last - thisWeek_first > 604800){ //not a new file
 		//already pass 1 week
 		//move thisWeek to thisMonth with 10mins interval
+		LOG(LL_WARN, ("migrating this week"));
 		migrate("/mnt/thisWeek.csv", "/mnt/thisMonth.csv", THISMONTH_INTERVAL, 432000, rc_thisday); //10mins interval, keep last 5 days, migrate the rest
     }
   	////////////////////////////////////////////thisWeek///////////////////////////////////////////////////////////
@@ -1257,7 +1265,7 @@ for (int i = 0; i < 10; i++){
 				}else{ //program is inactive
 					prog_pin_state[prog_output-1] = 0;
 				}
-			}			
+			}//end of normal operation	
 		}//if prog is enabled
 		if(!prog_en && prog_link_name[prog_output-1] == i+1){ ///somehow program is disabled by user
 			prog_link_name[prog_output-1] = -1;
@@ -1270,8 +1278,11 @@ for (int i = 0; i < 10; i++){
 	
 }
 for(int x =0 ; x < 4 ; x++){
-	if(prog_link_name[x] == -1){
+	if(prog_link_name[x] == -1){ 
 		prog_pin_state[x] = 0;
+		prog_link_state[x] =0;
+		prog_timer_state[x] = 0;
+		mgos_clear_timer(prog_timer_id[x]);
 	}
 }
 }
@@ -1354,23 +1365,87 @@ struct json_token t;
 int ctrl_pin = 0;
 json_scanf(buff, strlen(buff), "{control_opt: %d}", &ctrl_pin);
 json_scanf_array_elem(buff, strlen(buff), ".control_trigger",0, &t);
-int trig_opt;
-char* trig_info_b = NULL;
-json_scanf(t.ptr, t.len, "{option: %d}", &trig_opt);
-json_scanf(t.ptr, t.len, "{trigger_info: %Q}", &trig_info_b);
+int main_opt;
+int sec_opt;
+char* main_info_b = NULL; char* sec_info_b = NULL;
+json_scanf(t.ptr, t.len, "{main_option: %d, sec_option: %d}", &main_opt, &sec_opt);
+json_scanf(t.ptr, t.len, "{main_info: %Q, sec_info: %Q}", &main_info_b, &sec_info_b);
 free(buff);
-if(trig_opt >= 1 && trig_opt <= 4){ //tested well done
-	char* pri_on_b = NULL; char* pri_off_b = NULL; char* sec_on_b = NULL; char* sec_off_b = NULL;
-	json_scanf(trig_info_b, strlen(trig_info_b), "{pri_on: %Q, pri_off: %Q, sec_on: %Q, sec_off: %Q}", &pri_on_b, &pri_off_b, &sec_on_b, &sec_off_b);
-	std::string pri_on = pri_on_b; std::string pri_off = pri_off_b; std::string sec_on = sec_on_b; std::string sec_off = sec_off_b;
-	//check if condition meet
-	int pri_op = 0;
-	int pri_cond_on = pri_chk_cond(pri_on, sensor_value[trig_opt-1]);
-	int sec_cond_on = sec_chk_cond(sec_on, pri_op);
-	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on);
+if(main_opt >= 1 && main_opt <= 4){ //tested well done
+	char* pri_on_b = NULL; char* pri_off_b = NULL; 
+	json_scanf(main_info_b, strlen(main_info_b), "{pri_on: %Q, pri_off: %Q}", &pri_on_b, &pri_off_b);
+	std::string pri_on = pri_on_b; std::string pri_off = pri_off_b;  free(pri_on_b); free(pri_off_b); 
+	//check if condition meet (for primary)
+	int pri_op = 0; //operator value
+	int pri_cond_on = pri_chk_cond(pri_on, sensor_value[main_opt-1]);
+	int pri_cond_off = pri_chk_cond(pri_off, sensor_value[main_opt-1]);
+	int sec_cond_on = -1;
+	int sec_cond_off = -1;
+	if(sec_opt>= 1 && sec_opt <= 4){
+		char* sec_on_b = NULL; char* sec_off_b = NULL;
+		json_scanf(sec_info_b, strlen(sec_info_b), "{sec_on: %Q, sec_off: %Q}", &sec_on_b, &sec_off_b);
+		std::string sec_on = sec_on_b; std::string sec_off = sec_off_b; free(sec_off_b); free(sec_on_b);
+		sec_cond_on = sec_chk_cond(sec_on, sensor_value[sec_opt-1], pri_op);
+		sec_cond_off = sec_chk_cond(sec_off, sensor_value[sec_opt-1], pri_op);
+	}else if(sec_opt == 5){
+		pri_op = sec_info_b[0] - '0';
+		char* time_val_b = NULL; char* init_n_loop = NULL;
+		char* sec_dc_info = (char*)malloc(100);
+		memcpy(sec_dc_info, &sec_info_b[2], strlen(sec_info_b) );
+		json_scanf(sec_dc_info, strlen(sec_dc_info), "{value: %Q, sec: %Q}", &time_val_b, &init_n_loop);
+		std::string time_val = time_val_b; free(time_val_b);
+		//parse
+		long on_timer = stol(time_val.substr(0, time_val.find(",")));
+		long off_timer = stol(time_val.substr(time_val.find(",")+1));
+		int init = init_n_loop[0] == '1'; // 1-> initial is high, 0-> initial is low
+		int loop = init_n_loop[1] == '1'; // -> 0 -> loop, 1 -> run once
+		free(init_n_loop);
+		
+		if(prog_timer_state[ctrl_pin-1] == 0){ // is idle
+		if(on_timer != -1 && init == 1){
+			//start on timer
+			prog_timer_state[ctrl_pin-1] = 1; //on is working
+			setup_timer_program(ctrl_pin, on_timer); //begin timer
+		}else if(off_timer != -1 && init == 0){
+			prog_timer_state[ctrl_pin-1] = 2; // off is working
+			setup_timer_program(ctrl_pin, off_timer); //begin timer to count down off time
+		}
+		}else if(prog_timer_state[ctrl_pin-1] == 3){ // on is finished
+		if(off_timer != -1){
+			if(init == 0 && loop == 1){ //start from low no loop -> timer stop
+				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+				prog_timer_state[ctrl_pin-1] = -1;
+			}else{
+				prog_timer_state[ctrl_pin-1] = 2;
+				setup_timer_program(ctrl_pin, off_timer);	
+			}
+		}else{
+			prog_timer_state[ctrl_pin-1] = -1;
+		}
+		}else if(prog_timer_state[ctrl_pin-1] == 4){ //off is finished
+		if(on_timer != -1){
+			if(init == 1 && loop == 1){ //start from on no loop -> timer stop
+				prog_timer_state[ctrl_pin-1] = -1;
+				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+			}else{
+				prog_timer_state[ctrl_pin-1] = 1;
+				setup_timer_program(ctrl_pin, on_timer);	
+			}
+		}else{
+			prog_timer_state[ctrl_pin-1] = -1;
+		}
+		}
+		
+		if(prog_timer_state[ctrl_pin-1] == 1){
+			sec_cond_on = 1; sec_cond_off = 1;
+		}else if(prog_timer_state[ctrl_pin-1] == 2){
+			sec_cond_on = 0; sec_cond_off = 1;
+		}else if(prog_timer_state[ctrl_pin-1] == 0 || prog_timer_state[ctrl_pin-1] == -1){
+			sec_cond_on  = 0; sec_cond_off =0;
+		}
+	}//end of sec_opt == 5
 	
-	int pri_cond_off = pri_chk_cond(pri_off, sensor_value[trig_opt-1]);
-	int sec_cond_off = sec_chk_cond(sec_off, pri_op);
+	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on);
 	int cond_off = pri_op_sec(pri_op, pri_cond_off, sec_cond_off);
 	
 	//check triggering
@@ -1381,19 +1456,18 @@ if(trig_opt >= 1 && trig_opt <= 4){ //tested well done
 		//trigger off
 		pin_state = 0;
 	}
-	free(pri_on_b); free(pri_off_b); free(sec_off_b); free(sec_on_b);
-	prog_timer_state[ctrl_pin-1] = 0;
+	
 }// trig option 1 to 4
-else if(trig_opt == 6){
+else if(main_opt == 6){
 	char* time_val_b = NULL;
-	json_scanf(trig_info_b, strlen(trig_info_b), "{value: %Q}", &time_val_b);
+	json_scanf(main_info_b, strlen(main_info_b), "{value: %Q}", &time_val_b);
 	std::string time_val = time_val_b; free(time_val_b);
 	//parse
 	long on_timer = stol(time_val.substr(0, time_val.find(",")));
 	long off_timer = stol(time_val.substr(time_val.find(",")+1));
 	
 	char* init_n_loop = NULL;
-	json_scanf(trig_info_b, strlen(trig_info_b), "{sec: %Q}", &init_n_loop);
+	json_scanf(main_info_b, strlen(main_info_b), "{sec: %Q}", &init_n_loop);
 	int init = init_n_loop[0] == '1'; // 1-> initial is high, 0-> initial is low
 	int loop = init_n_loop[1] == '1'; // -> 0 -> loop, 1 -> run once
 	free(init_n_loop);
@@ -1403,9 +1477,7 @@ else if(trig_opt == 6){
 			prog_timer_state[ctrl_pin-1] = 1; //on is working
 			setup_timer_program(ctrl_pin, on_timer); //begin timer
 			pin_state = 1; //return 1 to output
-			//LOG(LL_WARN,("init on"));
 		}else if(off_timer != -1 && init == 0){
-			//LOG(LL_WARN,("init off"));
 			prog_timer_state[ctrl_pin-1] = 2; // off is working
 			setup_timer_program(ctrl_pin, off_timer); //begin timer to count down off time
 			pin_state = 0;
@@ -1413,11 +1485,10 @@ else if(trig_opt == 6){
 	}else if(prog_timer_state[ctrl_pin-1] == 3){ // on is finished
 		if(off_timer != -1){
 			if(init == 0 && loop == 1){ //start from low no loop -> timer stop
-				//LOG(LL_WARN,("stop timer after on"));
+				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
 				prog_timer_state[ctrl_pin-1] = -1;
 				pin_state = 0;
 			}else{
-				//LOG(LL_WARN,("start off after on "));
 				prog_timer_state[ctrl_pin-1] = 2;
 				setup_timer_program(ctrl_pin, off_timer);
 				pin_state = 0;	
@@ -1429,10 +1500,9 @@ else if(trig_opt == 6){
 		if(on_timer != -1){
 			if(init == 1 && loop == 1){ //start from on no loop -> timer stop
 				prog_timer_state[ctrl_pin-1] = -1;
-				//LOG(LL_WARN,("stop timer after off"));
+				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
 				pin_state = 0;
 			}else{
-				//LOG(LL_WARN,("start on after off"));
 				prog_timer_state[ctrl_pin-1] = 1;
 				setup_timer_program(ctrl_pin, on_timer);
 				pin_state = 1;	
@@ -1440,11 +1510,35 @@ else if(trig_opt == 6){
 		}
 	}
 	
-}else if(trig_opt == 7){ //manual operation
-	std::string ti = trig_info_b;
+}else if(main_opt == 7){ //manual operation
+	std::string ti = main_info_b;
 	pin_state = (ti == "1");
+}else if(main_opt == 8){ ///remote push button
+	int rpb_pin = main_info_b[0] - '0';
+	
+	if(sec_opt == 1){ //standard
+		if(prog_timer_state[ctrl_pin-1] == 0){
+			int sec_info = sec_info_b[0] - '0';
+			prog_timer_state[ctrl_pin-1] = 1;//this variable is used to indicate first time
+			pin_state = sec_info;
+			ext_PB_state[rpb_pin-1] = 0;
+		}else{
+			if(ext_PB_state[rpb_pin-1] == 1){ //short push event
+				ext_PB_state[rpb_pin-1] = 0;
+				pin_state = !prog_pin_state[ctrl_pin-1];
+			}else if(ext_PB_state[rpb_pin-1] == 2){ //long push event
+				ext_PB_state[rpb_pin-1] = 0;
+			}
+		}
+		
+	}else if(sec_opt == 0){ ///with duty cycle
+			
+	}
+	
 }
-free(trig_info_b);
+
+free(main_info_b);
+free(sec_info_b);
 return pin_state; //-1 no change, 0 -> off, 1 -> on
 }//end of function check program input
 
@@ -1471,18 +1565,15 @@ int pri_chk_cond(std::string input, float data_input){//tested
 	return logic;
 }
 
-int sec_chk_cond(std::string input, int& op){//tested
+int sec_chk_cond(std::string input, float data_input, int& op){//tested
 	if(input == ""){
 		return -1;
 	}
 	int a = input.find(",");
-	op = stoi(input.substr(0,a)); a+=1;
+	op = stoi(input.substr(0,a)); a++;
 	int b = input.find(",", a);
-	int trig = stoi(input.substr(a, b)); b++;
-	a = input.find(",", b);
-	int comp = stoi(input.substr(b,a)); a++;
-	float val = stof(input.substr(a));
-	float data_input = sensor_value[trig-1];
+	int comp = stoi(input.substr(a, b)); b++;
+	float val = stof(input.substr(b));
 	int logic = 0;
 	if(comp == 1){
 		logic = (data_input > val) ? 1 : 0;
@@ -1519,7 +1610,8 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
 		int ctrl_pin;
 		json_scanf(buff, strlen(buff), "{control_opt: %d}", &ctrl_pin); 	
 		prog_timer_state[ctrl_pin-1]= 0;
-		mgos_clear_timer(prog_timer_state[ctrl_pin-1]);
+		mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+		
 		free(buff);
 		
   	} else {
@@ -1528,7 +1620,7 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
   	}
 }
 void led_red_ctrl(unsigned int value){
-	if(value == 0){
+	if(value == 1){
 		mgos_pwm_set(LED_RED, 5000, (float)remote_brightness/65535);
 	}else{
 		mgos_pwm_set(LED_RED, 5000, 0);
@@ -1536,18 +1628,21 @@ void led_red_ctrl(unsigned int value){
 }
 void setup_timer_program(int ctrl_pin, long value){
 	value*= 1000;
-	LOG(LL_WARN, ("setup timer %ld", value));
 	switch(ctrl_pin) {
 	case 1:
+		mgos_clear_timer(prog_timer_id[0]);
 		prog_timer_id[0] = mgos_set_timer(value, MGOS_TIMER_REPEAT, prog_timer1_cb, NULL);
 		break;
 	case 2:
+		mgos_clear_timer(prog_timer_id[1]);
 		prog_timer_id[1] = mgos_set_timer(value, MGOS_TIMER_REPEAT, prog_timer2_cb, NULL);
 		break;
 	case 3:
+		mgos_clear_timer(prog_timer_id[2]);
 		prog_timer_id[2] = mgos_set_timer(value, MGOS_TIMER_REPEAT, prog_timer3_cb, NULL);
 		break;
 	case 4:
+		mgos_clear_timer(prog_timer_id[3]);
 		prog_timer_id[3] = mgos_set_timer(value, MGOS_TIMER_REPEAT, prog_timer4_cb, NULL);
 		break;
 	}
@@ -1574,7 +1669,7 @@ int read_R1_button() { // read button if there is logic change
   }
   button_z = button;
 
-  if (timer >= 20) { //long press detection
+  if (timer >= 30) { //long press detection
     state_button = 2;
     timer = 0;
     result = 2;
@@ -1606,7 +1701,7 @@ int read_R2_button() { // read button if there is logic change
   }
   button_z = button;
 
-  if (timer >= 20) { //long press detection
+  if (timer >= 30) { //long press detection
     state_button = 2;
     timer = 0;
     result = 2;
@@ -1618,7 +1713,7 @@ int read_R2_button() { // read button if there is logic change
 }
 
 int read_RPB_button() { // read button if there is logic change
-  int button = mgos_gpio_read_out(R_PB);
+  int button = mgos_gpio_read(R_PB);
   static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
   static int button_z = 0;
   static int timer = 0;
@@ -1630,6 +1725,7 @@ int read_RPB_button() { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
+      	LOG(LL_WARN,("short push RPB"));
         result = 1;
       }
     }
@@ -1638,7 +1734,7 @@ int read_RPB_button() { // read button if there is logic change
   }
   button_z = button;
 
-  if (timer >= 20) { //long press detection
+  if (timer >= 30) { //long press detection
     state_button = 2;
     timer = 0;
     result = 2;
