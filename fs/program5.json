@@ -1,5 +1,0 @@
-{"id":5, "name":"test 5", "start_date": "", "end_date":"", "days_active": "", "on_time_global": "", "off_time_global":""
-,"CO_A": false, "CO_B":false, "CO_LED_RED": false, "CO_IO14": false, "control_trigger":
-[{"en":1, "option":1, "switched":0, "trigger_info":""}
-,{"en":0, "option":1, "switched":0, "trigger_info":""}
-,{"en":0, "option":1, "switched":0, "trigger_info":""}]}
