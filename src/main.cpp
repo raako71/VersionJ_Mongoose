@@ -93,6 +93,13 @@ long luxVal = 0;
 unsigned int panel_brightness = 0;
 unsigned int remote_brightness = 0;
 bool IO14_en = false;
+int LED_opt = 0;
+bool rpb_as_sens = false;
+bool rpb_as_ovr = false;
+int rpb_ovr_opt = 0; // 1-> always, 2 -> duration, 3 -> until
+long rpb_ovr_val = 0;
+int rpb_ovr_prog = 0; // based on prog id
+
 ///program backend variable
 int prog_link_name[4] = {-1,-1,-1,-1}; //A, B, C, D -> detect lowest ID and enabled; and put program ID here
 int prog_link_state[4] = {0,0,0,0}; //indicate program state -> based on date etc
@@ -101,6 +108,9 @@ const char* list_prog_name[10] = {"program1.json", "program2.json", "program3.js
 int prog_pin_state[4] = {0,0,0,0}; //A, B, C, D ->indicate pin output status
 int prog_timer_state[4] = {0,0,0,0}; //indicate if timer is on or off or idle; 0 -> idle, 1-> on is working, 2 -> off is working
 									 // 3 -> on is finished, 4-> off is finished
+int prog_override = -1; //-1 means no override, 0 override to shut-off, 1 override to turn on
+bool prog_override_en = 0;
+
 mgos_timer_id prog_timer_id[4];
 
 int ext_PB_state[3] = {0,0,0};
@@ -178,6 +188,7 @@ void led_red_ctrl(unsigned int input);
 int read_R1_button();
 int read_R2_button();
 int read_RPB_button();
+void check_override_func();
 
 //prog timer function 
 static void prog_timer1_cb (void *arg){
@@ -248,25 +259,33 @@ static void button_check_cb(void *arg){
 static void timer_cb(void *arg) {
 	time_t now;
 	time(&now);
-	    
 	if(now > 946684800){
 		online_epoch = now;
 		NTPflag = true;
+		time_t buff = online_epoch;
+		tm *tm_gmt = gmtime(&buff);
+		time_day_epoch = tm_gmt->tm_hour * (long)3600;
+		time_day_epoch += tm_gmt->tm_min * (long)60;
+		time_day_epoch += tm_gmt->tm_sec;
+		day_now = tm_gmt->tm_wday;
 	}else{
 		online_epoch++;
+		time_day_epoch = -1;
+		day_now = -1;
 	}
-	time_t buff = online_epoch;
-    tm *tm_gmt = gmtime(&buff);
-    time_day_epoch = tm_gmt->tm_hour * (long)3600;
-    time_day_epoch += tm_gmt->tm_min * (long)60;
-    time_day_epoch += tm_gmt->tm_sec;
-    day_now = tm_gmt->tm_wday;
+	//check override function
+	check_override_func();
     check_program_name();
     adjust_prog_pin();
-    LOG(LL_WARN, ("prog link : %d, %d, %d, %d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]));
-	LOG(LL_WARN, ("prog state: %d, %d, %d, %d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]));
-	LOG(LL_WARN, ("pin state: %d, %d, %d, %d", prog_pin_state[0], prog_pin_state[1], prog_pin_state[2], prog_pin_state[3]));
+    //LOG(LL_WARN, ("day epoch: %ld", time_day_epoch));
+    //LOG(LL_WARN, ("prog link : %d, %d, %d, %d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]));
+	//LOG(LL_WARN, ("prog state: %d, %d, %d, %d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]));
+	//LOG(LL_WARN, ("pin state: %d, %d, %d, %d", prog_pin_state[0], prog_pin_state[1], prog_pin_state[2], prog_pin_state[3]));
 	offline_epoch++;
+	//check override function
+	ext_PB_state[0] = 0;
+	ext_PB_state[1] = 0;
+	ext_PB_state[2] = 0;
   (void) arg;
 }
 
@@ -404,7 +423,14 @@ void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_
 	mg_rpc_send_responsef(ri, "{A: %d, B: %d, LED: %d, IO14: %d}", mgos_gpio_read_out(R1), mgos_gpio_read_out(R2), 0, 0);
 	#endif
 	#ifdef V2
-	mg_rpc_send_responsef(ri, "{A: %d, B: %d, LED: %d, IO14: %d}", mgos_gpio_read_out(R1), mgos_gpio_read_out(R2), prog_pin_state[2], mgos_gpio_read_out(14));
+	char* prog_name_b = (char*)malloc(9);
+	char* prog_state_b = (char*)malloc(5);
+	char* pin_state_b = (char*)malloc(5);
+	sprintf(prog_name_b, "%d,%d,%d,%d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]);
+	sprintf(prog_state_b, "%d%d%d%d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]);
+	sprintf(pin_state_b, "%d%d%d%d", prog_pin_state[0], prog_pin_state[1], prog_pin_state[2], prog_pin_state[3]);
+	mg_rpc_send_responsef(ri, "{prog_name: %Q, prog_state: %Q, pin_state: %Q}",prog_name_b, prog_state_b, pin_state_b);
+	free(prog_name_b); free(prog_state_b); free(pin_state_b);
 	#endif
 	(void) cb_arg;
 	(void) fi;	
@@ -443,7 +469,7 @@ void load_wifi_setting(){
 		cfg_ap.enable = false;
 		mgos_wifi_setup_sta(&cfg_sta);
 		mgos_wifi_setup_ap(&cfg_ap); 
-		wifi_blink_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
+		wifi_blink_timer = mgos_set_timer(100, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		
 		return;
 	}else if(mode == 3){
@@ -1156,8 +1182,10 @@ void checkJSONsetting(){
 	,&colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday);
 	char* buff_b = (char*) malloc(512);
 	json_scanf(buff, strlen(buff), "{ctrl_page: %Q}", &buff_b);
-	json_scanf(buff_b, strlen(buff_b), "{IO14: %B}", &IO14_en);
-	LOG(LL_WARN,("%s %d", buff_b, IO14_en));
+	json_scanf(buff_b, strlen(buff_b), "{LED: %d, IO14: %B, sensor_input: %B, prog_ctrl: %B}", &LED_opt, &IO14_en, &rpb_as_sens, &rpb_as_ovr);
+	json_scanf(buff_b, strlen(buff_b), "{override: %d, ovr_val: %ld, active_prog: %d}", &rpb_ovr_opt, &rpb_ovr_val, &rpb_ovr_prog);
+	//processing option 
+	LOG(LL_WARN,("%ld", rpb_ovr_val));
 	struct json_token t;
 	json_scanf_array_elem(buff, strlen(buff), ".brightness",0, &t);
 	json_scanf(t.ptr, t.len, "{panel: %d, remote: %d}", &panel_brightness, &remote_brightness);
@@ -1234,7 +1262,52 @@ void check_program_en(const char* file_read, bool& prog_en, int& control_opt){
 	json_scanf(buff, strlen(buff), "{en: %B, control_opt: %d}", &prog_en, &control_opt); 	
 	free(buff);
 }
-
+void check_override_func(){
+	if(rpb_as_ovr){
+		if(rpb_ovr_opt == 1){
+			prog_override_en = true;
+		}else if(rpb_ovr_opt == 2){
+			if(rpb_ovr_val <= 0){
+				prog_override_en = false;
+			}else{
+				prog_override_en = true;
+				rpb_ovr_val--;
+			}
+		}else if(rpb_ovr_opt == 3){
+			if(time_day_epoch != -1){
+				if(time_day_epoch <= rpb_ovr_val){
+					prog_override_en = true;
+				}else{
+					prog_override_en = false;
+				}
+			}else{
+				prog_override_en = false;
+			}
+		}
+	}else{
+		prog_override_en = false;
+		prog_override = -1;
+	}
+	
+	if(ext_PB_state[2] == 2 && rpb_as_ovr){ //long push event// check override function
+		ext_PB_state[2] = 0;
+		//check what the prog_override_en is on
+		int prog_now = -1;
+		for(int i = 0; i < 4; i++){
+			if(prog_link_name[i] == rpb_ovr_prog){prog_now = i; break;}
+		}
+		if(prog_override_en && prog_now != -1){
+			//check current program state
+			if(prog_link_state[rpb_ovr_prog-1] == 1){
+				LOG(LL_WARN,("Program overriden: %d off", rpb_ovr_prog));
+				prog_override = 0;
+			}else if(prog_link_state[rpb_ovr_prog-1] == 0){
+				LOG(LL_WARN,("Program overriden: %d on", rpb_ovr_prog));
+				prog_override = 1;
+			}
+		}
+	}
+}
 void check_program_name(){ //check which output linked to program (id) and check its state
 for (int i = 0; i < 10; i++){
 	if(exists(list_prog_name[i])){
@@ -1251,9 +1324,17 @@ for (int i = 0; i < 10; i++){
 			if(prog_link_name[prog_output-1] == -1 || prog_link_name[prog_output-1] > i+1){
 				prog_link_name[prog_output-1] = i+1;
 				//check program state
-				prog_link_state[prog_output-1] = check_program_state(list_prog_name[i]);
+				if(prog_override == -1){
+					prog_link_state[prog_output-1] = check_program_state(list_prog_name[i]);
+				}else if(rpb_ovr_prog-1 == i){
+					prog_link_state[prog_output-1] = prog_override;
+				}
+				//prog_link_state[prog_output-1] = (prog_override != -1) ? check_program_state(list_prog_name[i]) : prog_override;
 				//check if IO14 en or not
 				if(prog_output == 4 && IO14_en == false){
+					prog_link_state[prog_output-1] = 0;
+					prog_pin_state[prog_output-1] = 0;
+				}else if(prog_output == 3 && LED_opt != 1){
 					prog_link_state[prog_output-1] = 0;
 					prog_pin_state[prog_output-1] = 0;
 				}
@@ -1318,7 +1399,7 @@ int check_program_state(const char* file_read){
 	
 	int day_state;
 
-	if(days != ""){ //all tested
+	if(days != "" && day_now != -1){ //all tested
 		day_state = (days[day_now] == '1') ? 1 : 0;
 	}else{
 		day_state = 1;
@@ -1327,6 +1408,8 @@ int check_program_state(const char* file_read){
 	long on_conv = stol(on_time.substr(on_time.find("|")+1));
     long off_conv = stol(off_time.substr(off_time.find("|") + 1));
 	int time_state =0;
+	
+	if(time_day_epoch != -1){ //if device is online already
 	if(on_conv != -1 && off_conv != -1){ //both has time value
 		if(on_conv > off_conv){ //off value less than on value
 			if (time_day_epoch  >= on_conv) {
@@ -1347,6 +1430,10 @@ int check_program_state(const char* file_read){
 	}else if (off_conv != -1){
 		time_state = (time_day_epoch >= off_conv) ? 0 : 1;
 	}else{
+		time_state = 1;
+	}
+	
+	}else{ //if device is offline
 		time_state = 1;
 	}
 	
@@ -1376,7 +1463,8 @@ if(main_opt >= 1 && main_opt <= 4){ //tested well done
 	json_scanf(main_info_b, strlen(main_info_b), "{pri_on: %Q, pri_off: %Q}", &pri_on_b, &pri_off_b);
 	std::string pri_on = pri_on_b; std::string pri_off = pri_off_b;  free(pri_on_b); free(pri_off_b); 
 	//check if condition meet (for primary)
-	int pri_op = 0; //operator value
+	int pri_op = 0; //operator value for on
+	int sec_op = 0; //operator value for off
 	int pri_cond_on = pri_chk_cond(pri_on, sensor_value[main_opt-1]);
 	int pri_cond_off = pri_chk_cond(pri_off, sensor_value[main_opt-1]);
 	int sec_cond_on = -1;
@@ -1386,9 +1474,12 @@ if(main_opt >= 1 && main_opt <= 4){ //tested well done
 		json_scanf(sec_info_b, strlen(sec_info_b), "{sec_on: %Q, sec_off: %Q}", &sec_on_b, &sec_off_b);
 		std::string sec_on = sec_on_b; std::string sec_off = sec_off_b; free(sec_off_b); free(sec_on_b);
 		sec_cond_on = sec_chk_cond(sec_on, sensor_value[sec_opt-1], pri_op);
-		sec_cond_off = sec_chk_cond(sec_off, sensor_value[sec_opt-1], pri_op);
+		sec_cond_off = sec_chk_cond(sec_off, sensor_value[sec_opt-1], sec_op);
 	}else if(sec_opt == 5){
-		pri_op = sec_info_b[0] - '0';
+		static int timer_mode = 0; // 0 -> timer off 1-> timer on
+		
+		pri_op = sec_info_b[0] - '0'; //and or relations
+		sec_op = pri_op;
 		char* time_val_b = NULL; char* init_n_loop = NULL;
 		char* sec_dc_info = (char*)malloc(100);
 		memcpy(sec_dc_info, &sec_info_b[2], strlen(sec_info_b) );
@@ -1401,6 +1492,15 @@ if(main_opt >= 1 && main_opt <= 4){ //tested well done
 		int loop = init_n_loop[1] == '1'; // -> 0 -> loop, 1 -> run once
 		free(init_n_loop);
 		
+		if(pri_cond_on == 1 && pri_op == 1){
+			timer_mode = 1;
+		}else if(pri_cond_off == 1 && pri_op == 1){
+			timer_mode = 0;
+		}else if(pri_op == 2){
+			timer_mode = 1;
+		}
+		
+		if(timer_mode == 1){ //timer mode
 		if(prog_timer_state[ctrl_pin-1] == 0){ // is idle
 		if(on_timer != -1 && init == 1){
 			//start on timer
@@ -1435,7 +1535,7 @@ if(main_opt >= 1 && main_opt <= 4){ //tested well done
 			prog_timer_state[ctrl_pin-1] = -1;
 		}
 		}
-		
+		///////////////////timer mode on -> end logic result
 		if(prog_timer_state[ctrl_pin-1] == 1){
 			sec_cond_on = 1; sec_cond_off = 1;
 		}else if(prog_timer_state[ctrl_pin-1] == 2){
@@ -1443,10 +1543,42 @@ if(main_opt >= 1 && main_opt <= 4){ //tested well done
 		}else if(prog_timer_state[ctrl_pin-1] == 0 || prog_timer_state[ctrl_pin-1] == -1){
 			sec_cond_on  = 0; sec_cond_off =0;
 		}
+		//////////////////////end of timer mode on
+		
+		}else if (timer_mode == 0){
+			prog_timer_state[ctrl_pin-1]= 0;
+			mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+			sec_cond_on = 0;
+			sec_cond_off = 1;
+		}
+		////timer mode
+		
 	}//end of sec_opt == 5
-	
+	else if(sec_opt >= 6 && sec_opt <= 9){
+		char* sec_on_b = NULL; char* sec_off_b = NULL;
+		json_scanf(sec_info_b, strlen(sec_info_b), "{sec_on: %Q, sec_off: %Q}", &sec_on_b, &sec_off_b);
+		std::string sec_on = sec_on_b; std::string sec_off = sec_off_b; free(sec_off_b); free(sec_on_b);
+		if(sec_on == ""){
+			sec_cond_on = -1;
+		}else{
+			int opt_on_sec = sec_on[2] - '0';	
+			pri_op = sec_on[0]- '0';
+			if(opt_on_sec == 1)sec_cond_on = (prog_pin_state[sec_opt-6] == 1)? 1 : 0;
+			if(opt_on_sec == 2)sec_cond_on = (prog_pin_state[sec_opt-6] == 0)? 1 : 0;
+		}
+		if(sec_off == ""){
+			sec_cond_off = -1;
+		}else{
+			int opt_off_sec = sec_on[2] - '0';
+			sec_op = sec_off[0] - '0';
+			if(opt_off_sec == 1)sec_cond_off = (prog_pin_state[sec_opt-6] == 1)? 1 : 0;
+			if(opt_off_sec == 2)sec_cond_off = (prog_pin_state[sec_opt-6] == 0)? 1 : 0;
+		}
+		
+
+	}//end of sec_opt as output status
 	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on);
-	int cond_off = pri_op_sec(pri_op, pri_cond_off, sec_cond_off);
+	int cond_off = pri_op_sec(sec_op, pri_cond_off, sec_cond_off);
 	
 	//check triggering
 	if(cond_on){
@@ -1458,7 +1590,7 @@ if(main_opt >= 1 && main_opt <= 4){ //tested well done
 	}
 	
 }// trig option 1 to 4
-else if(main_opt == 6){
+else if(main_opt == 6){ //timed cycle as primary
 	char* time_val_b = NULL;
 	json_scanf(main_info_b, strlen(main_info_b), "{value: %Q}", &time_val_b);
 	std::string time_val = time_val_b; free(time_val_b);
@@ -1510,12 +1642,13 @@ else if(main_opt == 6){
 		}
 	}
 	
-}else if(main_opt == 7){ //manual operation
+}
+else if(main_opt == 7){ //manual operation
 	std::string ti = main_info_b;
 	pin_state = (ti == "1");
-}else if(main_opt == 8){ ///remote push button
+}
+else if(main_opt == 8){ ///remote push button
 	int rpb_pin = main_info_b[0] - '0';
-	
 	if(sec_opt == 1){ //standard
 		if(prog_timer_state[ctrl_pin-1] == 0){
 			int sec_info = sec_info_b[0] - '0';
@@ -1525,17 +1658,160 @@ else if(main_opt == 6){
 		}else{
 			if(ext_PB_state[rpb_pin-1] == 1){ //short push event
 				ext_PB_state[rpb_pin-1] = 0;
-				pin_state = !prog_pin_state[ctrl_pin-1];
-			}else if(ext_PB_state[rpb_pin-1] == 2){ //long push event
-				ext_PB_state[rpb_pin-1] = 0;
+				if(rpb_pin == 3 && rpb_as_sens){
+					pin_state = !prog_pin_state[ctrl_pin-1];
+				}else if(rpb_pin != 3){
+					pin_state = !prog_pin_state[ctrl_pin-1];
+				}
 			}
 		}
 		
 	}else if(sec_opt == 0){ ///with duty cycle
-			
+		char* sec_b = NULL; char* value_b = NULL;
+		json_scanf(sec_info_b, strlen(sec_info_b), "{sec: %Q, value: %Q}", &sec_b, &value_b);
+		std::string sec = sec_b; std::string value = value_b; free(sec_b); free(value_b);
+		//check initial
+		int init = sec[0] == '1'; // 1-> initial is high, 0-> initial is low
+		int loop = sec[1] == '1'; // 0 -> is loop, 1 -> fired once
+		long on_timer = stol(value.substr(0, value.find(",")));
+		long off_timer = stol(value.substr(value.find(",")+1));
+		static int pin_state_local = 0; //timer state actually
+		int sec_info = sec_info_b[0] - '0';
+		//determine initial
+		if(prog_timer_state[ctrl_pin-1] == 0){
+			prog_timer_state[ctrl_pin-1] = -2;//this variable is used to indicate first time //timer is idle
+			pin_state_local = init;
+			ext_PB_state[rpb_pin-1] = 0;
+			//LOG(LL_WARN,("first time, timed cycle rpb"));
+		}else{
+			if(ext_PB_state[rpb_pin-1] == 1){ //short push event
+				ext_PB_state[rpb_pin-1] = 0;
+				if(rpb_pin == 3 && rpb_as_sens){
+					if(loop == 1){
+						pin_state_local = !init;
+						//reset timer
+						prog_timer_state[ctrl_pin-1] = -2;
+						LOG(LL_WARN,("reengage timer"));
+					}else{
+						pin_state_local = !pin_state_local;
+					}
+				}else if(rpb_pin != 3){
+					if(loop == 1){
+						pin_state_local = !init;
+						//reset timer
+						prog_timer_state[ctrl_pin-1] = -2;
+						LOG(LL_WARN,("reengage timer"));
+					}else{
+						pin_state_local = !pin_state_local;
+					}
+				}
+			}
+		}
+		
+		if(pin_state_local != init){ //activate timer
+		//timer will be active if event push, and deactivate in the next push
+		if(prog_timer_state[ctrl_pin-1] == -2){ // is idle
+			if(on_timer != -1 && init == 1){
+				//start on timer
+				//LOG(LL_WARN,("starting on timer"));
+				prog_timer_state[ctrl_pin-1] = 1; //on is working
+				setup_timer_program(ctrl_pin, on_timer); //begin timer
+				pin_state = 1; //return 1 to output
+			}else if(off_timer != -1 && init == 0){
+				//LOG(LL_WARN,("starting off timer"));
+				prog_timer_state[ctrl_pin-1] = 2; // off is working
+				setup_timer_program(ctrl_pin, off_timer); //begin timer to count down off time
+				pin_state = 0;
+			}
+		}else if(prog_timer_state[ctrl_pin-1] == 3){ // on is finished
+			if(off_timer != -1){
+				if(init == 0 && loop == 1){ //start from low no loop -> timer stop
+					mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+					prog_timer_state[ctrl_pin-1] = -1;
+					pin_state = 0;
+				}else{
+					prog_timer_state[ctrl_pin-1] = 2;
+					setup_timer_program(ctrl_pin, off_timer);
+					pin_state = 0;	
+				}
+			}else{
+				pin_state = 0;
+			}
+		}else if(prog_timer_state[ctrl_pin-1] == 4){ //off is finished
+			if(on_timer != -1){
+				if(init == 1 && loop == 1){ //start from on no loop -> timer stop
+					prog_timer_state[ctrl_pin-1] = -1;
+					mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+					pin_state = 0;
+				}else{
+					prog_timer_state[ctrl_pin-1] = 1;
+					setup_timer_program(ctrl_pin, on_timer);
+					pin_state = 1;	
+				}
+			}
+		}
+		
+		}//end of deactivate timer
+		else{
+			//prog_timer_state[ctrl_pin-1]= 0;
+			mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+			pin_state = 0;
+		}
+	} //end of rpb with timed cycle
+}
+else if(main_opt == 9){//output status
+	char* pri_on_b = NULL; char* pri_off_b = NULL; 
+	json_scanf(main_info_b, strlen(main_info_b), "{pri_on: %Q, pri_off: %Q}", &pri_on_b, &pri_off_b);
+	std::string pri_on = pri_on_b; std::string pri_off = pri_off_b;  free(pri_on_b); free(pri_off_b); 
+	int pri_cond_on = -1; int pri_cond_off= -1;
+	int pri_op; int sec_op;
+	//primary condition
+	if(pri_on == ""){
+		pri_cond_on = -1;
+	}else{
+		int a = pri_on[0] - '0'; //output status pin
+		int b = pri_on[2] - '0'; //status 
+		if(b == 1){ // when on
+			pri_cond_on = (prog_pin_state[a-1]== 1)? 1 : 0;
+		}else if (b == 2){ //when off
+			pri_cond_on = (prog_pin_state[a-1] == 0) ? 1 : 0;
+		}
 	}
 	
-}
+	if(pri_off == ""){
+		pri_cond_off = -1;
+	}else{
+		int a = pri_off[0] - '0';
+		int b = pri_off[2] - '0';
+		if(b == 1){ // when on
+			pri_cond_off = (prog_pin_state[a-1]== 1)? 1 : 0;
+		}else if (b == 2){ //when off
+			pri_cond_off = (prog_pin_state[a-1] == 0) ? 1 : 0;
+		}
+	}
+	//end of primary condition
+	//check secondary
+	int sec_cond_on = -1;
+	int sec_cond_off = -1;
+	if(sec_opt != -1){
+		char* sec_on_b = NULL; char* sec_off_b = NULL;
+		json_scanf(sec_info_b, strlen(sec_info_b), "{sec_on: %Q, sec_off: %Q}", &sec_on_b, &sec_off_b);
+		std::string sec_on = sec_on_b; std::string sec_off = sec_off_b; free(sec_off_b); free(sec_on_b);
+		sec_cond_on = sec_chk_cond(sec_on, sensor_value[sec_opt-1], pri_op);
+		sec_cond_off = sec_chk_cond(sec_off, sensor_value[sec_opt-1], sec_op);
+	}
+	//end of check secondary
+	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on);
+	int cond_off = pri_op_sec(sec_op, pri_cond_off, sec_cond_off);
+	//check triggering
+	if(cond_on){
+		//trigger on
+		pin_state = 1;
+	}else if(cond_off){
+		//trigger off
+		pin_state = 0;
+	}
+}//end of main_opt == 9
 
 free(main_info_b);
 free(sec_info_b);
@@ -1738,6 +2014,7 @@ int read_RPB_button() { // read button if there is logic change
     state_button = 2;
     timer = 0;
     result = 2;
+    LOG(LL_WARN,("long push RPB"));
   }
   if (state_button == 1) {
     timer++;
