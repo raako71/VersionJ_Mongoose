@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.9.1 : completion of program edito feature, add light/dark theme setting
 0.9: add duty cycle as secondary for 1,2,3,4, and 8 main trigger option. add control remote push button algorithm (short push only)<br>
 0.8: program calculation, IO integration with control page, brightness control <br>
 0.7: check program state and program to output linker, slider range 0 to 100%, testing led 0.5Hz. <br>
