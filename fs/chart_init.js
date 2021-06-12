@@ -85,6 +85,7 @@ fontColor: 'rgb(0, 255, 137)'
 }
 }
 });
+
 var ctx1 = document.getElementById('sec_chart').getContext('2d');
 var chart_two = new Chart(ctx1, {
 // The type of chart we want to create
@@ -218,6 +219,7 @@ fontColor: 'rgb(0, 255, 137)'
 }
 }
 });
+
 function epochToJsDate(ts){
 // ts = epoch timestamp
 // returns date obj
@@ -247,6 +249,7 @@ xhr.send(JSON.stringify(comm));
 xhr.onload = function() {
 var data = JSON.parse(this.responseText);
 col_bool = JSON.parse(window.atob(data.data));
+changetheme(col_bool.theme);
 if(doc == "mnt/thisHour.csv" || doc == "mnt/1970Hour.csv"){
 document.getElementById("col1_checkbox").checked = col_bool.col1_en;
 document.getElementById("col2_checkbox").checked = col_bool.col2_en;
@@ -541,3 +544,25 @@ update_graph();
 setInterval(function() {
 update_time();
 }, 1000);
+
+function changetheme(input){
+	if(input == 1){
+		document.body.style.color = "black";
+		document.body.style.backgroundColor = "white";
+		chart_one.options.scales.xAxes[0].gridLines.color="black";
+		chart_one.options.scales.xAxes[0].ticks.minor.fontColor="black";
+		chart_one.options.scales.yAxes[0].gridLines.color="black";
+		chart_one.options.scales.yAxes[0].ticks.minor.fontColor="black";
+		chart_one.options.legend.labels.fontColor = "black";
+		chart_two.options.scales.xAxes[0].gridLines.color="black";
+		chart_two.options.scales.xAxes[0].ticks.minor.fontColor="black";
+		chart_two.options.scales.yAxes[0].gridLines.color="black";
+		chart_two.options.scales.yAxes[0].ticks.minor.fontColor="black";
+		chart_two.options.legend.labels.fontColor = "black";
+		chart_three.options.scales.xAxes[0].gridLines.color="black";
+		chart_three.options.scales.xAxes[0].ticks.minor.fontColor="black";
+		chart_three.options.scales.yAxes[0].gridLines.color="black";
+		chart_three.options.scales.yAxes[0].ticks.minor.fontColor="black";
+		chart_three.options.legend.labels.fontColor = "black";
+	}
+}

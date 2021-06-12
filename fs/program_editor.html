@@ -307,6 +307,12 @@ var a = array[input.value - 1]; document.getElementById("sec_trigger_off").inner
 
 }
 
+function load_action_E_pri(input){ //for action D primar off
+var holder = document.getElementById("action_E_pri_off");
+var array = ["Output A", "Output B", "Output LED RED", "Output IO14"];
+holder.innerHTML = array[input.value -1];
+}
+
 function load_action_D_sec(input){ //for action D togggle and duty cycles
 var holder = document.getElementById("action_D_holder");
 var a = '<table><tr><td>Initial State: </td><td>&nbsp;<label class="switch">';
@@ -358,7 +364,7 @@ function load_ctrl_action(){
 	var array = ["Output A", "Output B", "Output LED Red", "Output IO14"];
 	var action_E = '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
 	action_E += '<input type="checkbox" id="pri_switched_on" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
-	action_E += 'if &nbsp; <select id="action_E_pri_on">';
+	action_E += 'if &nbsp; <select id="action_E_pri_on" onChange="load_action_E_pri(this)">';
 	for (i = 0 ; i < 4 ; i++){
 	if(document.getElementById("ctrl_out_opt").value != i+1)action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
 	}action_E += '</select> &nbsp; is &nbsp; <select id="action_E_pri_opt_on"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
@@ -366,10 +372,11 @@ function load_ctrl_action(){
 	action_E += '<span id="sec_cond_on_holder"></span></div>';
 	action_E += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
 	action_E += '<input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched Off:&nbsp;&nbsp;';
-	action_E += 'if &nbsp; <select id="action_E_pri_off">';
-	for (i = 0 ; i < 4 ; i++){
-	if (document.getElementById("ctrl_out_opt").value != i+1)action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
-	}action_E += '</select> &nbsp; is &nbsp; <select id="action_E_pri_opt_off"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
+	action_E += 'if &nbsp; <span id="action_E_pri_off"></span>';//<select id="action_E_pri_off">';
+	//for (i = 0 ; i < 4 ; i++){
+	//if (document.getElementById("ctrl_out_opt").value != i+1)action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
+	//}
+	action_E += '&nbsp; is &nbsp; <select id="action_E_pri_opt_off"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
 	action_E += '<span id="sec_cond_off_holder"></span></div>';
 	
 	var selection = document.getElementById("ctrl_trigger").value;
@@ -388,6 +395,7 @@ function load_ctrl_action(){
 		load_action_D_sec(document.getElementById("action_D_selector"));
 	}else if(selection == 9){
 		el.innerHTML = action_E;
+		load_action_E_pri(document.getElementById("action_E_pri_on"));
 	}else{
 		el.innerHTML = "";
 	}
@@ -639,7 +647,7 @@ if(k >= 1 && k <= 4){
 	}
 }else if(k == 9){
 	var on_val = ((get_chkbox_val("pri_switched_on") == 1 ) ? (document.getElementById("action_E_pri_on").value + "," + document.getElementById("action_E_pri_opt_on").value) : "");
-	var off_val = ((get_chkbox_val("pri_switched_off") == 1) ? (document.getElementById("action_E_pri_off").value + "," + document.getElementById("action_E_pri_opt_off").value) :  "");
+	var off_val = ((get_chkbox_val("pri_switched_off") == 1) ? (document.getElementById("action_E_pri_on").value + "," + document.getElementById("action_E_pri_opt_off").value) :  "");
 	m = {pri_on: on_val, pri_off: off_val}; m = JSON.stringify(m);
 	var x = document.getElementById("sec_trigger_on");
 	if( x != null){
@@ -865,7 +873,9 @@ function load_setting(){
 		var pon = b.pri_on;
 		var poff = b.pri_off;
 		if(pon != ""){ document.getElementById("pri_switched_on").checked = true; document.getElementById("action_E_pri_on").value = pon[0]; document.getElementById("action_E_pri_opt_on").value = pon[2];}
-		if(poff != ""){ document.getElementById("pri_switched_off").checked = true;document.getElementById("action_E_pri_off").value = poff[0]; document.getElementById("action_E_pri_opt_off").value = poff[2];}
+		if(poff != ""){ document.getElementById("pri_switched_off").checked = true;document.getElementById("action_E_pri_on").value = poff[0]; document.getElementById("action_E_pri_opt_off").value = poff[2]; load_action_E_pri}
+		if(pon != "" || poff != ""){load_action_E_pri(document.getElementById("action_E_pri_on"));}
+		
 		if(c != -1){
 		toggle_cond(document.getElementById("add_cond_on"), "on");
 		document.getElementById("sec_trigger_on").value = c;

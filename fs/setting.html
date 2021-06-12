@@ -66,12 +66,22 @@
 	</tr>
 	</table>
 	<br>
+	<div style="display:block">
 	<b>Temperature Scale:</b>
 	<br>
 	<input type="radio" id="temp_C" name="temp" value="1" checked>
 	<label for="temp_C">C</label><br>
 	<input type="radio" id="temp_F" name="temp" value="2">
 	<label for="temp_F">F</label><br><br>
+	</div>
+	<div style="display:block">
+	<b>Page Theme:</b>
+	<br>
+	<input type="radio" id="light_theme" name="theme" value="1" checked onChange="changetheme(this)">
+	<label for="light_theme">Light</label><br>
+	<input type="radio" id="dark_theme" name="theme" value="2" onChange="changetheme(this)">
+	<label for="dark_theme">Dark</label><br><br>
+	</div>
 	<b>Panel LED Brightness</b><br>
 	<input type="range" min="0" max="255" value="25" class="sliding_range" id="panel_brightness"><br>
 	<b>Remote LED Brightness</b><br>
@@ -84,6 +94,14 @@
 </body>
 
 <script>
+	function changetheme(input){
+		if(input.value == 1){
+			document.body.classList.remove("dark-mode");
+		}else{
+			document.body.classList.add("dark-mode");
+		}
+	}
+	
 	window.addEventListener('load', onLoad);	
 	function onLoad(){
 		console.log("DOM loaded");
@@ -149,6 +167,13 @@
 			if(temp == 2){
 				document.getElementById("temp_F").checked = true;
 			}
+			var theme = old_json.theme;
+			if(theme == 2){
+				document.getElementById("dark_theme").checked = true;
+			}
+			var theme_val = {value:theme};
+			changetheme(theme_val);
+			
 			document.getElementById("remote_brightness").value = old_json.brightness[0].remote;
 			document.getElementById("panel_brightness").value = old_json.brightness[0].panel;
 		}
@@ -207,6 +232,7 @@
 			}
 			var time_zone = ((hour * 3600) + (minute * 60)) * mark_tz;
 			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
+			var theme_mode = (document.getElementById("light_theme").checked? 1 : 2);
 			old_json.eth_en = document.getElementById("eth_en").checked;
 			old_json.wifi[0].mode = mode;
 			old_json.pwr_sensor[0].enable = pwr_sensor_en;
@@ -216,6 +242,7 @@
 			old_json.static_IP_conf[0].SN = SN;
 			old_json.timezone = time_zone;
 			old_json.temp_scale = temp_mode;
+			old_json.theme = theme_mode;
 			old_json.brightness[0].panel = document.getElementById("panel_brightness").value;
 			old_json.brightness[0].remote = document.getElementById("remote_brightness").value;
 			var conf = confirm("Proceed to save configuraton?");
@@ -321,6 +348,10 @@
   border-radius: 50%;
   background: #4CAF50;
   cursor: pointer;
+}
+.dark-mode {
+  background-color: black;
+  color: #FFA700;
 }
 </style>
 </html>

@@ -5,8 +5,8 @@
 </head>
 <style>
 body{
-background-color: black;
-color: rgb(255, 167, 0);
+//background-color: black;
+//color: rgb(255, 167, 0);
 font-family: monospace, sans-serif;
 }
 .btn-group button {
@@ -30,6 +30,10 @@ display: table;
 /* Add a background color on hover */
 .btn-group button:hover {
 background-color: #3e8e41;
+}
+.dark-mode {
+  background-color: black;
+  color: #FFA700;
 }
 </style>
 <body>
@@ -183,6 +187,7 @@ background-color: #3e8e41;
 
 
 <script>
+	load_conf();
 	function open_new_tab(link){
 		window.open(link+"?"+Math.random() * Math.random(), "_self");
 	}
@@ -275,5 +280,26 @@ background-color: #3e8e41;
 		};
 		xhr.open("GET", "/rpc/getTime", true);
 		xhr.send();
+	}
+	function changetheme(input){
+		if(input == 1){
+			document.body.classList.remove("dark-mode");
+		}else{
+			document.body.classList.add("dark-mode");
+		}
+	}
+	function load_conf(){
+//	create_dropdown();
+	console.log("loading setting");
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Get", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": "setting.json"};
+	xhr.send(JSON.stringify(comm));
+	xhr.onload = function() {
+	var data = JSON.parse(this.responseText);
+	var old_json = JSON.parse(window.atob(data.data));
+	changetheme(old_json.theme);
+	}
 	}
 </script>
