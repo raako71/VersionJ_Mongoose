@@ -134,20 +134,18 @@ static void wifi_led_ctrl(void *arg) {
 			if(wifi_led_ctrl_psc >= 10){
 				mgos_wifi_connect();
 				wifi_led_ctrl_psc = 0;
+				mgos_pwm_set(RL_LED_EN, 1000, (float)panel_brightness/65535);
 			}
 			static int a = 0;
 			if(a%2 == 0){
-				mgos_pwm_set(WIFI_LED, 5000, (float)panel_brightness/65535);
-				mgos_pwm_set(RL_LED_EN, 5000, (float)panel_brightness/65535);
+				mgos_gpio_write(WIFI_LED, 1);				
 			}else{
-				mgos_pwm_set(WIFI_LED, 5000, 0);
-				mgos_pwm_set(RL_LED_EN, 5000, 0);
+				mgos_gpio_write(WIFI_LED, 0);
 			}
 			a++;
 		}else{
-			//mgos_clear_timer(wifi_blink_timer);
-	   		mgos_pwm_set(WIFI_LED, 5000, (float)panel_brightness/65535);
-	   		mgos_pwm_set(RL_LED_EN, 5000, (float)panel_brightness/65535);
+	   		mgos_gpio_write(WIFI_LED, 1);
+	   		mgos_pwm_set(RL_LED_EN, 1000, (float)panel_brightness/65535);
 		}
 		wifi_led_ctrl_psc++;
 	}
@@ -491,10 +489,10 @@ void fade_blink(int pin){
 	static unsigned int PWM_val = 0;
     static char index = 0;
     mgos_pwm_set(pin, 5000, (float)PWM_val/65535);
-    mgos_pwm_set(RL_LED_EN, 5000, (float)PWM_val/65535);
+    mgos_pwm_set(RL_LED_EN, 5000, (float)panel_brightness/65535); //limited by brightness
     if(index == 0){
-      long buff = (long)PWM_val + (panel_brightness)*0.01;
-      if(buff >= panel_brightness){
+      long buff = (long)PWM_val + (655);
+      if(buff >= 65535){
         //no change value
         PWM_val = panel_brightness;
         index = 1;
@@ -502,7 +500,7 @@ void fade_blink(int pin){
         PWM_val = (unsigned int)buff;
       }
     }else{
-      long buff = (long)PWM_val - (panel_brightness)*0.01;
+      long buff = (long)PWM_val - (655);
       if(buff <= 0){
         PWM_val = 0;
         index = 0;
@@ -1896,8 +1894,8 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
   	}
 }
 void led_red_ctrl(unsigned int value){
-	if(value == 1){
-		mgos_pwm_set(LED_RED, 5000, (float)remote_brightness/65535);
+	if(value == 0){
+		mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
 	}else{
 		mgos_pwm_set(LED_RED, 5000, 0);
 	}
