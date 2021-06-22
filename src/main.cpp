@@ -486,7 +486,7 @@ void load_wifi_setting(){
 }
 
 void fade_blink(int pin){
-	static unsigned int PWM_val = 0;
+    static unsigned int PWM_val = 0;
     static char index = 0;
     mgos_pwm_set(pin, 5000, (float)PWM_val/65535);
     mgos_pwm_set(RL_LED_EN, 5000, (float)panel_brightness/65535); //limited by brightness
@@ -494,7 +494,7 @@ void fade_blink(int pin){
       long buff = (long)PWM_val + (655);
       if(buff >= 65535){
         //no change value
-        PWM_val = panel_brightness;
+        PWM_val = 65535;
         index = 1;
       }else{
         PWM_val = (unsigned int)buff;
