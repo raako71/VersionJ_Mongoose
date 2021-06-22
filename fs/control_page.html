@@ -102,9 +102,9 @@
 		}
 		j++;
 		if(j == 10){
-			create_program_link();
 			fetch_IO_status();
 			load_conf();
+			
 		}
 	
 		}
@@ -295,8 +295,9 @@
 	}
 	document.getElementById("IO14_en").checked = old_json.ctrl_page.IO14;
 	IO14 = old_json.ctrl_page.IO14;
-	
+	create_program_link();
 	}//onload
+	
 	}
 	function save_func(){
 		var a = document.getElementById("sens_in").checked;
