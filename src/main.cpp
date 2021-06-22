@@ -130,11 +130,11 @@ static void wifi_led_ctrl(void *arg) {
    	if(wifi_mode == 2){
    		fade_blink(WIFI_LED);
 	}else if(wifi_mode == 1){
+		mgos_pwm_set(RL_LED_EN, 1000, (float)panel_brightness/65535);
 		if(mgos_wifi_get_status() != 3){
 			if(wifi_led_ctrl_psc >= 10){
 				mgos_wifi_connect();
 				wifi_led_ctrl_psc = 0;
-				mgos_pwm_set(RL_LED_EN, 1000, (float)panel_brightness/65535);
 			}
 			static int a = 0;
 			if(a%2 == 0){
@@ -145,7 +145,6 @@ static void wifi_led_ctrl(void *arg) {
 			a++;
 		}else{
 	   		mgos_gpio_write(WIFI_LED, 1);
-	   		mgos_pwm_set(RL_LED_EN, 1000, (float)panel_brightness/65535);
 		}
 		wifi_led_ctrl_psc++;
 	}
@@ -486,10 +485,10 @@ void load_wifi_setting(){
 }
 
 void fade_blink(int pin){
-    static unsigned int PWM_val = 0;
+	static unsigned int PWM_val = 0;
     static char index = 0;
-    mgos_pwm_set(pin, 5000, (float)PWM_val/65535);
-    mgos_pwm_set(RL_LED_EN, 5000, (float)panel_brightness/65535); //limited by brightness
+    mgos_pwm_set(pin, 1000, (float)PWM_val/65535);
+    mgos_pwm_set(RL_LED_EN, 1000, (float)panel_brightness/65535); //limited by brightness
     if(index == 0){
       long buff = (long)PWM_val + (655);
       if(buff >= 65535){
@@ -1894,10 +1893,10 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
   	}
 }
 void led_red_ctrl(unsigned int value){
-	if(value == 0){
+	if(value == 1){
 		mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
 	}else{
-		mgos_pwm_set(LED_RED, 5000, 0);
+		mgos_pwm_set(LED_RED, 1000, 1);
 	}
 }
 void setup_timer_program(int ctrl_pin, long value){
