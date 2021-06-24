@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.9.3: control page and program editor amendements<br>
 0.9.2 : fix inversion remote led control, rl_led_en adjustment<br>
 0.9.1 : completion of program edito feature, add light/dark theme setting<br>
 0.9: add duty cycle as secondary for 1,2,3,4, and 8 main trigger option. add control remote push button algorithm (short push only)<br>
