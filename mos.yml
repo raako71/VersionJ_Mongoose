@@ -1,6 +1,6 @@
 author: mongoose-os
-description: program calculation, IO integration with control page.
-version: 0.9.2
+description: control page and program editor amendements
+version: 0.9.3
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
