@@ -94,6 +94,7 @@ unsigned int panel_brightness = 0;
 unsigned int remote_brightness = 0;
 bool IO14_en = false;
 int LED_opt = 0;
+int LED_prog = 0;
 bool rpb_as_sens = false;
 bool rpb_as_ovr = false;
 int rpb_ovr_opt = 0; // 1-> always, 2 -> duration, 3 -> until
@@ -112,7 +113,7 @@ int prog_override = -1; //-1 means no override, 0 override to shut-off, 1 overri
 bool prog_override_en = 0;
 
 mgos_timer_id prog_timer_id[4];
-
+mgos_timer_id prog_led_timer;
 int ext_PB_state[3] = {0,0,0};
 
 //addition variable V2
@@ -186,8 +187,8 @@ int read_R1_button();
 int read_R2_button();
 int read_RPB_button();
 void check_override_func();
-
-//prog timer function 
+void led_red_ctrl_asprog(void *arg);
+//prog timer function ;
 static void prog_timer1_cb (void *arg){
 	mgos_clear_timer(prog_timer_id[0]);
 	if(prog_timer_state[0] == 1){
@@ -323,8 +324,14 @@ static void logging_cb(void *arg){
     sensor_value[3] = column[4];
     contain_logging(logColumn);
     //LOG(LL_WARN, ("%s", use_contain.c_str()));
-    //LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
-    //LOG(LL_WARN, ("%d", panel_brightness));
+    static unsigned int psc = 0;
+    if(psc >= 6){
+    	LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
+		psc = 0;
+	}else{
+		psc++;
+	}
+	//LOG(LL_WARN, ("%d", panel_brightness));
     if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -484,6 +491,29 @@ void load_wifi_setting(){
 	}
 }
 
+void fade_blink_remote_led(){
+	static unsigned int PWM_val = 0;
+    static char index = 0;
+    mgos_pwm_set(LED_RED, 1000, (float)PWM_val/65535);
+    if(index == 0){
+      long buff = (long)PWM_val + (655);
+      if(buff >= 65535){
+        //no change value
+        PWM_val = 65535;
+        index = 1;
+      }else{
+        PWM_val = (unsigned int)buff;
+      }
+    }else{
+      long buff = (long)PWM_val - (655);
+      if(buff <= 0){
+        PWM_val = 0;
+        index = 0;
+      }else{
+        PWM_val = (unsigned int)buff;
+      }
+	    }
+}
 void fade_blink(int pin){
 	static unsigned int PWM_val = 0;
     static char index = 0;
@@ -1179,10 +1209,17 @@ void checkJSONsetting(){
 	,&colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday);
 	char* buff_b = (char*) malloc(512);
 	json_scanf(buff, strlen(buff), "{ctrl_page: %Q}", &buff_b);
-	json_scanf(buff_b, strlen(buff_b), "{LED: %d, IO14: %B, sensor_input: %B, prog_ctrl: %B}", &LED_opt, &IO14_en, &rpb_as_sens, &rpb_as_ovr);
+	json_scanf(buff_b, strlen(buff_b), "{LED: %d, LED_prog: %d, IO14: %B, sensor_input: %B, prog_ctrl: %B}", &LED_opt, &LED_prog, &IO14_en, &rpb_as_sens, &rpb_as_ovr);
 	json_scanf(buff_b, strlen(buff_b), "{override: %d, ovr_val: %ld, active_prog: %d}", &rpb_ovr_opt, &rpb_ovr_val, &rpb_ovr_prog);
+	if(LED_opt == 2){
+		mgos_clear_timer(prog_led_timer);
+		prog_led_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, led_red_ctrl_asprog, NULL);
+	}else if(LED_opt == 3){
+		mgos_clear_timer(prog_led_timer);
+		prog_led_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, led_red_ctrl_asprog, NULL);
+	}
 	//processing option 
-	LOG(LL_WARN,("%ld", rpb_ovr_val));
+	//LOG(LL_WARN,("%ld", rpb_ovr_val));
 	struct json_token t;
 	json_scanf_array_elem(buff, strlen(buff), ".brightness",0, &t);
 	json_scanf(t.ptr, t.len, "{panel: %d, remote: %d}", &panel_brightness, &remote_brightness);
@@ -1388,16 +1425,18 @@ int check_program_state(const char* file_read){
 		date_state = 1;
 		if(online_epoch > end_date){date_state = 0;}
 	}else if(end_date == 0){ ///tested (start date only)
-		date_state = 0;
-		if(online_epoch >= start_date){date_state = 1;}
+		if(online_epoch >= start_date){date_state = 1;
+		}else{date_state = 2; }
+	}else if(online_epoch < start_date){
+		date_state = 2;
 	}else if(online_epoch >= start_date && online_epoch <= end_date){ //tested (both filled)
-			date_state = 1;
+		date_state = 1;
 	}
 	
 	int day_state;
 
 	if(days != "" && day_now != -1){ //all tested
-		day_state = (days[day_now] == '1') ? 1 : 0;
+		day_state = (days[day_now] == '1') ? 1 : ((days != "0000000") ? 2 : 0);
 	}else{
 		day_state = 1;
 	}
@@ -1417,15 +1456,15 @@ int check_program_state(const char* file_read){
 	          time_state = 1;
 	        } else if (time_day_epoch >= off_conv) {
 	          //deactivate
-	          time_state = 0;
+	          time_state = 2;
 	        }
 		}else{//standard procedure
-			time_state = (time_day_epoch >= on_conv && time_day_epoch < off_conv) ? 1 : 0;
+			time_state = (time_day_epoch >= on_conv && time_day_epoch < off_conv) ? 1 : 2;
 		}		
 	}else if(on_conv != -1){
-		time_state = (time_day_epoch >= on_conv) ? 1 : 0;
+		time_state = (time_day_epoch >= on_conv) ? 1 : 2;
 	}else if (off_conv != -1){
-		time_state = (time_day_epoch >= off_conv) ? 0 : 1;
+		time_state = (time_day_epoch >= off_conv) ? 2 : 1;
 	}else{
 		time_state = 1;
 	}
@@ -1434,7 +1473,7 @@ int check_program_state(const char* file_read){
 		time_state = 1;
 	}
 	
-	int state = (date_state == 1 && day_state == 1 && time_state == 1) ? 1 : 0;
+	int state = (date_state == 1 && day_state == 1 && time_state == 1) ? 1 : (date_state == 2 || (date_state != 0 && day_state == 2) || (date_state != 0 || time_state == 2)) ? 2 : 0;
 	return state;	
 }
 
@@ -1893,12 +1932,45 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
   	}
 }
 void led_red_ctrl(unsigned int value){
-	if(value == 1){
-		mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
-	}else{
-		mgos_pwm_set(LED_RED, 1000, 1);
+	if(LED_opt == 1){
+		if(value == 1){
+			mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+		}else{
+			mgos_pwm_set(LED_RED, 1000, 1);
+		}
 	}
 }
+
+void led_red_ctrl_asprog(void *arg){
+	if(LED_opt == 2){ //show output statuss
+		for (int i = 0; i < 4;i++){
+			if(prog_link_name[i] == LED_prog){
+				if(prog_pin_state[i] == 1){
+					mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+				}else{
+					mgos_pwm_set(LED_RED, 1000, 1);
+				}
+				break;
+			}
+		}
+	}else if(LED_opt == 3){ //show program status
+		for (int i = 0; i < 4;i++){
+			if(prog_link_name[i] == LED_prog){
+				if(prog_link_state[i] == 1){
+					mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+					break;
+				}else if(prog_link_state[i] == 2){
+					fade_blink_remote_led();
+					break;
+				}
+			}else if (i == 3){
+				mgos_pwm_set(LED_RED, 1000, 1);
+			}
+		}
+	}
+	(void) arg;
+}
+
 void setup_timer_program(int ctrl_pin, long value){
 	value*= 1000;
 	switch(ctrl_pin) {
@@ -1998,7 +2070,7 @@ int read_RPB_button() { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	LOG(LL_WARN,("short push RPB"));
+      	//LOG(LL_WARN,("short push RPB"));
         result = 1;
       }
     }
@@ -2011,7 +2083,7 @@ int read_RPB_button() { // read button if there is logic change
     state_button = 2;
     timer = 0;
     result = 2;
-    LOG(LL_WARN,("long push RPB"));
+   // LOG(LL_WARN,("long push RPB"));
   }
   if (state_button == 1) {
     timer++;

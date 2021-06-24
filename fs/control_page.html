@@ -23,10 +23,11 @@
 	
 	<b>Programmable Indicator LED</b>
 	<br>
-	<input type="radio" name="programmable_led" id="as_output" checked><label for="as_output">As Output</label><br>
-	<input type="radio" name="programmable_led" id="output_stat"><label for ="output_stat">Show output status</label><br>
-	<input type="radio" name="programmable_led" id="prog_stat"><label for="prog_stat">Show program status (glowing for schedule active, On for output active, off for program inactive)</label><br>
-	<br>
+	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label><br>
+	<input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog()"><label for ="output_stat">Show output status</label><br>
+	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for schedule active, On for program active, off for program inactive)</label><br>
+	<span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
+	
 	<b>Outputs</b>
 	<br>
 	<div style="margin-bottom:5px; margin-top:5px">
@@ -200,6 +201,23 @@
 			}
 		}
 	}
+	function toggle_led_prog(){
+		var a = "Select Program: <select id='prog_led_list'></select>";
+		if(document.getElementById("as_output").checked){
+			document.getElementById("prog_led_holder").innerHTML = "";
+		}else{
+			document.getElementById("prog_led_holder").innerHTML = a;
+			for(var i = 0 ; i < 10; i++){
+			if(program_list[i].name != ""){
+			var x = document.getElementById("prog_led_list");
+			var opt = document.createElement("option");
+			opt.text = program_list[i].name;
+			opt.value = i+1;
+			x.add(opt);
+			}
+		}
+		}
+	}
 	function toogle_override() {
 		if(document.getElementById("for").checked){
 			document.getElementById("ovr_day").readOnly = false;
@@ -293,6 +311,11 @@
 	}else{
 		document.getElementById("prog_stat").checked = true;
 	}
+	toggle_led_prog();
+	if(c == 2 || c == 3){
+		document.getElementById("prog_led_list").value = old_json.ctrl_page.LED_prog;
+	}
+	
 	document.getElementById("IO14_en").checked = old_json.ctrl_page.IO14;
 	IO14 = old_json.ctrl_page.IO14;
 	create_program_link();
@@ -331,6 +354,7 @@
 			if(f < 0){f = 86400 + f;}
 		}
 		var g = (document.getElementById("as_output").checked) ? 1 : (document.getElementById("output_stat").checked ? 2 : 3) ;
+		var g1 = (g == 2 || g == 3) ? document.getElementById("prog_led_list").value : 0;
 		var h = document.getElementById("IO14_en").checked;
 		var old_json;
 		console.log(b1);
@@ -349,6 +373,7 @@
 			old_json.ctrl_page.LED = g;
 			old_json.ctrl_page.IO14 = h;
 			old_json.ctrl_page.active_prog = b1;
+			old_json.ctrl_page.LED_prog = g1;
 			var conf = confirm("Proceed to save configuraton?");
 			if(conf){
 			var xhttp = new XMLHttpRequest();
@@ -397,29 +422,33 @@
 			a1_el.className = "on_label";
 			prog_state1 = "Active: ";
 			}else{
+			var a = (prog_state[0] == '2') ? "Scheduled" : "Inactive";
 			a1_el.className = "off_label_prog";
-			prog_state1 = "Inactive: ";
+			prog_state1 = a+": ";
 			}
 			if(prog_state[1] == '1'){
 			b1_el.className = "on_label";
 			prog_state2 = "Active: ";
 			}else{
+			var a = (prog_state[1] == '2') ? "Scheduled" : "Inactive";
 			b1_el.className = "off_label_prog";
-			prog_state2 = "Inactive: ";
+			prog_state2 =  a+": ";
 			}
 			if(prog_state[2] == '1'){
 			d1_el.className = "on_label";
 			prog_state3 = "Active: ";
 			}else{
+			var a = (prog_state[2] == '2') ? "Scheduled" : "Inactive";
 			d1_el.className = "off_label_prog";
-			prog_state3 = "Inactive: ";
+			prog_state3 =  a+": ";
 			}
 			if(prog_state[3] == '1'){
 			prog_state4 = "Active: ";
 			c1_el.className = "on_label";
 			}else{
+			var a = (prog_state[3] == '2') ? "Scheduled" : "Inactive";
 			c1_el.className = "off_label_prog";
-			prog_state4 = "Inactive: ";
+			prog_state4 = a+": ";
 			}
 			var a = prog_name.split(",");
 			if(a[0] != -1){ prog_state1 += program_list[a[0]-1].name;}

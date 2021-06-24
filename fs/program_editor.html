@@ -138,7 +138,7 @@ Start Date
 
 
 <br><br>
-<input type="button" value="SAVE" onClick="save_setting()" style="width:100px"> <input type="button" style="width:100px" onClick="location.href = '/control_page.html';" value="CANCEL">
+<input type="button" value="SAVE" onClick="save_setting()" style="width:100px"> <input type="button" style="width:100px" onClick="location.href = '/control_page.html';" value="BACK">
 <br><br>
 </body>
 <script>
@@ -459,7 +459,7 @@ if(a4 != null){
 		if(c1 == 0){
 		alert("required value for on or off (timed cycle)");return;
 		}
-		if(c1 < 300){
+		if(c1 < 300 && document.getElementById("sec_dc_loop").checked == false){
 			var x = confirm("frequent switching of relays will shorten their life.\nSave anyway?");
 			if(!x){
 			return;
@@ -498,7 +498,7 @@ if(c1 + c2 == 0){
 alert("please enter valid value for on or off time!");
 return;
 }
-if(c1 + c2 < 300){
+if(c1 + c2 < 300 && document.getElementById("action_C_loop").checked == false){
 var x = confirm("frequent switching of relays will shorten their life!\nSave anyway?");
 if(!x){
 return;
@@ -515,7 +515,7 @@ if(c == 8 && document.getElementById("action_D_selector").checked == false){
 	alert("please enter valid value for on or off time!");
 	return;
 	}
-	if(c1 + c2 < 300){
+	if(c1 + c2 < 300 && document.getElementById("action_D_loop").checked == false){
 		var x = confirm("frequent switching of relays will shorten their life!\nSave anyway?");
 		if(!x){
 		return;
@@ -679,7 +679,7 @@ var string = window.btoa(JSON.stringify(old_json));
 var contain = {"filename": "program"+idprogram+".json", "append":false, "data": string}
 xhttp.send(JSON.stringify(contain));
 xhttp.onload = function(){
-	location.href = '/control_page.html';
+	window.location.reload(true)
 }
 }
 function save_old(){
@@ -708,7 +708,7 @@ xhr.onload = function() {
 	var comm = {"file": program2load+".json"};
 	xhr2.send(JSON.stringify(comm));
 	xhr2.onload = function() {
-		location.href = '/control_page.html';
+		window.location.reload(true);
 	}
 }
 	
