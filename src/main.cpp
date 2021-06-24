@@ -283,7 +283,7 @@ static void timer_cb(void *arg) {
 	ext_PB_state[0] = 0;
 	ext_PB_state[1] = 0;
 	ext_PB_state[2] = 0;
-	mgos_pwm_set(RL_LED_EN, 1000, (float)panel_brightness/65535);
+	mgos_pwm_set(RL_LED_EN, 333, (float)panel_brightness/65535);
   (void) arg;
 }
 
