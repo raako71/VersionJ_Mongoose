@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.9.4: remove ethernet
 0.9.3: control page and program editor amendements<br>
 0.9.2 : fix inversion remote led control, rl_led_en adjustment<br>
 0.9.1 : completion of program edito feature, add light/dark theme setting<br>
