@@ -138,16 +138,15 @@ static void wifi_led_ctrl(void *arg) {
 			}
 			static int a = 0;
 			if(a%2 == 0){
-				//mgos_pwm_set(WIFI_LED, 100, (float)panel_brightness/65535);	
-				mgos_gpio_write(WIFI_LED, 1);	
+				mgos_pwm_set(WIFI_LED, 100, (float)panel_brightness/65535);	
 			}else{
 				//mgos_pwm_set(WIFI_LED, 100, 0);
 				mgos_gpio_write(WIFI_LED, 0);
 			}
 			a++;
 		}else{
-	   		//mgos_pwm_set(WIFI_LED, 100, (float)panel_brightness/65535);
-	   		mgos_gpio_write(WIFI_LED, 1);
+	   		mgos_pwm_set(WIFI_LED, 100, (float)panel_brightness/65535);
+	   		//mgos_gpio_write(WIFI_LED, 1);
 		}
 		wifi_led_ctrl_psc++;
 	}
@@ -286,8 +285,8 @@ static void timer_cb(void *arg) {
 	ext_PB_state[0] = 0;
 	ext_PB_state[1] = 0;
 	ext_PB_state[2] = 0;
-	//mgos_pwm_set(RL_LED_EN, 333, (float)panel_brightness/65535);
-	mgos_gpio_write(RL_LED_EN, 1);
+	mgos_pwm_set(RL_LED_EN, 333, (float)panel_brightness/65535);
+	//mgos_gpio_write(RL_LED_EN, 1);
   (void) arg;
 }
 
@@ -1937,11 +1936,11 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
 void led_red_ctrl(unsigned int value){
 	if(LED_opt == 1){
 		if(value == 1){
-			//mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
-			mgos_gpio_write(LED_RED, 0);
+			mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+			//mgos_gpio_write(LED_RED, 0);
 		}else{
-			//mgos_pwm_set(LED_RED, 1000, 1);
-			mgos_gpio_write(LED_RED, 1);
+			mgos_pwm_set(LED_RED, 1000, 1);
+			//mgos_gpio_write(LED_RED, 1);
 		}
 	}
 }
@@ -1951,11 +1950,11 @@ void led_red_ctrl_asprog(void *arg){
 		for (int i = 0; i < 4;i++){
 			if(prog_link_name[i] == LED_prog){
 				if(prog_pin_state[i] == 1){
-					//mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
-					mgos_gpio_write(LED_RED, 0);
+					mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+					//mgos_gpio_write(LED_RED, 0);
 				}else{
-					//mgos_pwm_set(LED_RED, 1000, 1);
-					mgos_gpio_write(LED_RED, 1);
+					mgos_pwm_set(LED_RED, 1000, 1);
+					//mgos_gpio_write(LED_RED, 1);
 				}
 				break;
 			}

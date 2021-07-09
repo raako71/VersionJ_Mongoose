@@ -13,7 +13,7 @@
 "col13_en":false, 
 "rc_1970day": true, 
 "rc_thisday":true,
-"eth_en":false,
+"eth_en":true,
 "wifi": [{"mode":1,  "ssid": "WiFi-5902", "pass":"31315418"}],
 "pwr_sensor":[{"enable":true}],
 "static_IP_conf": [{"enable": false, "IP":"" , "SN":"" , "GW":""}],
