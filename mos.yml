@@ -1,6 +1,6 @@
 author: mongoose-os
-description: Eth re-enabled, LED dimmers re-enabled.
-version: 0.9.3.2
+description: add export button and pb1 and pb2
+version: 0.9.5
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

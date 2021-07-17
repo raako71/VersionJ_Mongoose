@@ -111,10 +111,10 @@ int prog_timer_state[4] = {0,0,0,0}; //indicate if timer is on or off or idle; 0
 									 // 3 -> on is finished, 4-> off is finished
 int prog_override = -1; //-1 means no override, 0 override to shut-off, 1 override to turn on
 bool prog_override_en = 0;
-
 mgos_timer_id prog_timer_id[4];
 mgos_timer_id prog_led_timer;
 int ext_PB_state[3] = {0,0,0};
+int led_red_status = 0;
 
 //addition variable V2
 char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
@@ -369,6 +369,8 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mgos_gpio_setup_output(RL_LED_EN, 0);
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); 
 	mgos_gpio_setup_input(R_PB, MGOS_GPIO_PULL_DOWN);
+	mgos_gpio_setup_input(PB1, MGOS_GPIO_PULL_DOWN);
+	mgos_gpio_setup_input(PB2, MGOS_GPIO_PULL_DOWN);
 
 	//ACS71020
   	int err = 0;
@@ -408,7 +410,8 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//timer function
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
-  	mgos_set_timer(100, MGOS_TIMER_REPEAT, button_check_cb, NULL);
+   	mgos_set_timer(100, MGOS_TIMER_REPEAT, button_check_cb, NULL);
+  //	mgos_set_hw_timer(100000, MGOS_TIMER_REPEAT, button_check_cb, NULL);
   	
   	//RPC handler function
 	mg_rpc_add_handler(mgos_rpc_get_global(), "setting","", setting_modifier, NULL);
@@ -435,7 +438,7 @@ void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_
 	char* pin_state_b = (char*)malloc(5);
 	sprintf(prog_name_b, "%d,%d,%d,%d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]);
 	sprintf(prog_state_b, "%d%d%d%d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]);
-	sprintf(pin_state_b, "%d%d%d%d", prog_pin_state[0], prog_pin_state[1], prog_pin_state[2], prog_pin_state[3]);
+	sprintf(pin_state_b, "%d%d%d%d", prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3]);
 	mg_rpc_send_responsef(ri, "{prog_name: %Q, prog_state: %Q, pin_state: %Q}",prog_name_b, prog_state_b, pin_state_b);
 	free(prog_name_b); free(prog_state_b); free(pin_state_b);
 	#endif
@@ -1947,29 +1950,34 @@ void led_red_ctrl(unsigned int value){
 
 void led_red_ctrl_asprog(void *arg){
 	if(LED_opt == 2){ //show output statuss
-		for (int i = 0; i < 4;i++){
+		for (int i = 0; i < 4;i++){ //blinking
 			if(prog_link_name[i] == LED_prog){
 				if(prog_pin_state[i] == 1){
 					mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
 					//mgos_gpio_write(LED_RED, 0);
+					led_red_status = 1;
 				}else{
 					mgos_pwm_set(LED_RED, 1000, 1);
 					//mgos_gpio_write(LED_RED, 1);
+					led_red_status = 0;
 				}
 				break;
 			}
 		}
 	}else if(LED_opt == 3){ //show program status
-		for (int i = 0; i < 4;i++){
+		for (int i = 0; i < 4;i++){ //fading
 			if(prog_link_name[i] == LED_prog){
 				if(prog_link_state[i] == 1){
 					mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+					led_red_status = 1;
 					break;
-				}else if(prog_link_state[i] == 2){
+				}else if(prog_link_state[i] == 2){ //scheduled is glowing
 					fade_blink_remote_led();
+					led_red_status = 2;
 					break;
 				}
 			}else if (i == 3){
+				led_red_status = 0;
 				mgos_pwm_set(LED_RED, 1000, 1);
 			}
 		}
@@ -2000,66 +2008,26 @@ void setup_timer_program(int ctrl_pin, long value){
 }
 
 int read_R1_button() { // read button if there is logic change
-  int button = mgos_gpio_read_out(R1);
-  static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
+  int button = mgos_gpio_read(PB1);
   static int button_z = 0;
-  static int timer = 0;
   int result = 0;
-  if (button_z == 0 && button == 1) { //rising edge
-    state_button = 1;
-  } else if (button_z == 1 && button == 0) { //falling edge
-    if (state_button != 2) {
-      if (timer >= 10) { //over 1sec
-        result = 0;
-      } else {
-        result = 1;
-      }
-    }
-    state_button = 0;
-    timer = 0;
+  if(button_z == 0 && button == 1){
+  	result = 1;
+  	LOG(LL_WARN,("short push PB1"));
   }
   button_z = button;
-
-  if (timer >= 30) { //long press detection
-    state_button = 2;
-    timer = 0;
-    result = 2;
-  }
-  if (state_button == 1) {
-    timer++;
-  }
   return result;
 }
 
 int read_R2_button() { // read button if there is logic change
-  int button = mgos_gpio_read_out(R2);
-  static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
+  int button = mgos_gpio_read(PB2);
   static int button_z = 0;
-  static int timer = 0;
   int result = 0;
-  if (button_z == 0 && button == 1) { //rising edge
-    state_button = 1;
-  } else if (button_z == 1 && button == 0) { //falling edge
-    if (state_button != 2) {
-      if (timer >= 10) { //over 1sec
-        result = 0;
-      } else {
-        result = 1;
-      }
-    }
-    state_button = 0;
-    timer = 0;
+  if(button_z == 0 && button == 1){
+  	result = 1;
+  	LOG(LL_WARN,("short push PB2"));
   }
   button_z = button;
-
-  if (timer >= 30) { //long press detection
-    state_button = 2;
-    timer = 0;
-    result = 2;
-  }
-  if (state_button == 1) {
-    timer++;
-  }
   return result;
 }
 
@@ -2076,7 +2044,7 @@ int read_RPB_button() { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	//LOG(LL_WARN,("short push RPB"));
+      	LOG(LL_WARN,("short push RPB"));
         result = 1;
       }
     }
@@ -2089,7 +2057,7 @@ int read_RPB_button() { // read button if there is logic change
     state_button = 2;
     timer = 0;
     result = 2;
-   // LOG(LL_WARN,("long push RPB"));
+    LOG(LL_WARN,("long push RPB"));
   }
   if (state_button == 1) {
     timer++;

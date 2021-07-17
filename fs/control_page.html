@@ -153,7 +153,7 @@
 			}else{
 			link+= '</td>';
 			}
-			link += '<td><input type="button" style="margin-left:10px;margin-right:10px" value="Delete" onClick="delete_prog('+program_list[i].id+')"></td></table>';
+			link += '<td><input type="button" style="margin-left:10px; margin-right:2px" value="Export" onClick="download_file(\'program'+program_list[i].id+'.json\')"> <input type="button" style="margin-right:10px" value="Delete" onClick="delete_prog('+program_list[i].id+')"></td></table>';
 			}
 			i++;
 		}
@@ -485,9 +485,12 @@
 			if(pin_state[2] == 1){
 				d_el.className = "on_label";
 				d_el.innerHTML = "Output Switched: ON";
-			}else{
+			}else if(pin_state[2] == 2){
 				d_el.className = "off_label";
-				d_el.innerHTML = "Output Switched: OFF";
+				d_el.innerHTML = "Scheduled: Glowing";
+			}else if(pin_state[2] == 0){
+				d_el.className = "off_label";
+				d_el.innerHTML = "Output Switched: OFF ";
 			}
 		}
 	}
@@ -495,6 +498,21 @@
 		fetch_uptime();
 		fetch_IO_status();
 	},2500);
+	function download_file(input){
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", "/rpc/FS.Get", true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		var comm = {"filename": input};
+		xhr.send(JSON.stringify(comm));
+		xhr.onload = function() {
+			var data = JSON.parse(this.responseText);
+			var data1 = new Blob([window.atob(data.data)]);
+			var link = document.createElement("a");
+			link.download = input;
+			link.href = URL.createObjectURL(data1);
+			link.click();
+		}
+	}
 </script>
 
 <style>
