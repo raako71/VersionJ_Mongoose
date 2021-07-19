@@ -1936,14 +1936,16 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
     	return;
   	}
 }
-void led_red_ctrl(unsigned int value){
+void led_red_ctrl(unsigned int value){ //as output
 	if(LED_opt == 1){
 		if(value == 1){
 			mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
 			//mgos_gpio_write(LED_RED, 0);
+			led_red_status = 1;
 		}else{
 			mgos_pwm_set(LED_RED, 1000, 1);
 			//mgos_gpio_write(LED_RED, 1);
+			led_red_status = 0;
 		}
 	}
 }
