@@ -546,9 +546,9 @@ update_time();
 }, 1000);
 
 function changetheme(input){
+	var sheets = document.getElementsByTagName('link');	
 	if(input == 1){
-		document.body.style.color = "black";
-		document.body.style.backgroundColor = "white";
+		sheets[0].href = "light.css";
 		chart_one.options.scales.xAxes[0].gridLines.color="black";
 		chart_one.options.scales.xAxes[0].ticks.minor.fontColor="black";
 		chart_one.options.scales.yAxes[0].gridLines.color="black";
@@ -564,5 +564,7 @@ function changetheme(input){
 		chart_three.options.scales.yAxes[0].gridLines.color="black";
 		chart_three.options.scales.yAxes[0].ticks.minor.fontColor="black";
 		chart_three.options.legend.labels.fontColor = "black";
+	}else if(input == 0){
+		sheets[0].href = "dark.css";
 	}
 }

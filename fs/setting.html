@@ -3,6 +3,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title> Power Monitor Web Server | Setting</title>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
+<script>
+load_conf();
+function load_conf(){
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "/rpc/FS.Get", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+var comm = {"filename": "setting.json"};
+xhr.send(JSON.stringify(comm));
+xhr.onload = function() {
+var data = JSON.parse(this.responseText);
+var old_json = JSON.parse(window.atob(data.data));
+changetheme(old_json.theme);
+}
+}
+function changetheme(input){
+var sheets = document.getElementsByTagName('link');
+if(input == 0){
+	sheets[0].href = "./dark.css";
+}else if(input == 1){
+	sheets[0].href = "./light.css";
+}
+}
+</script>
 </head>
 <body>
 	<h1> Settings</h1>
@@ -77,9 +101,9 @@
 	<div style="display:block">
 	<b>Page Theme:</b>
 	<br>
-	<input type="radio" id="light_theme" name="theme" value="1" checked onChange="changetheme(this)">
+	<input type="radio" id="light_theme" name="theme" value="1" checked onChange="changetheme(1)">
 	<label for="light_theme">Light</label><br>
-	<input type="radio" id="dark_theme" name="theme" value="2" onChange="changetheme(this)">
+	<input type="radio" id="dark_theme" name="theme" value="2" onChange="changetheme(0)">
 	<label for="dark_theme">Dark</label><br><br>
 	</div>
 	<b>Panel LED Brightness</b><br>
@@ -94,13 +118,6 @@
 </body>
 
 <script>
-	function changetheme(input){
-		if(input.value == 1){
-			document.body.classList.remove("dark-mode");
-		}else{
-			document.body.classList.add("dark-mode");
-		}
-	}
 	
 	window.addEventListener('load', onLoad);	
 	function onLoad(){
@@ -170,10 +187,7 @@
 			var theme = old_json.theme;
 			if(theme == 2){
 				document.getElementById("dark_theme").checked = true;
-			}
-			var theme_val = {value:theme};
-			changetheme(theme_val);
-			
+			}			
 			document.getElementById("remote_brightness").value = old_json.brightness[0].remote;
 			document.getElementById("panel_brightness").value = old_json.brightness[0].panel;
 		}
