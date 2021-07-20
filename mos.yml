@@ -1,6 +1,6 @@
 author: mongoose-os
-description: fix led red status in web page and seperated css file
-version: 0.9.5.1
+description: fix program editor reload and rpb check
+version: 0.9.5.2
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

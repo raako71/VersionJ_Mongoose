@@ -427,10 +427,12 @@ function day_list(){
 }
 
 function save_setting(){
-//checking 17.d
+//checking 17.d cancelled
+
 var d = document.getElementById("input_remote");
 var zzz = document.getElementById("ctrl_trigger").value;
 var sec_opt = document.getElementById("sec_trigger_on");
+/*
 if( d != null){
 	if(d.value == 1 || d.value == 2){
 		if(d.value == document.getElementById("ctrl_out_opt").value){
@@ -439,7 +441,7 @@ if( d != null){
 		}
 	}
 }
-
+*/
 //checking 17.a
 var a4 = document.getElementById("sec_switched_on");
 var a6 = document.getElementById("sec_switched_off");
@@ -452,10 +454,12 @@ if(a4 != null){
 	if(a4.checked && document.getElementById("sec_value_on").value == "" && document.getElementById("sec_trigger_on").value < 5){alert("required a value to be saved (secondary on value)");return;}
 	if(a4.checked && document.getElementById("sec_trigger_on").value == 5){
 		var c1 = check_timed_cycle("sec_dc","on");
+		if(c1 == -2){ alert("Invalid on time value!"); return;}
 		c1 = (c1 == -1) ? 0 : c1;
 		var c2 = check_timed_cycle("sec_dc","off") ;
 		c2 = (c2 == -1) ? 0 : c2;
 		c1 += c2;
+		if(c2 == -2){ alert("Invalid off time value!"); return;}
 		if(c1 == 0){
 		alert("required value for on or off (timed cycle)");return;
 		}
@@ -491,8 +495,10 @@ if(a6 != null){
 c =document.getElementById("ctrl_trigger").value;
 if(c == 6){
 var c1 = check_timed_cycle("action_C","on");
+if(c1 == -2){alert("Invalid on time value!"); return;}
 c1 = (c1 == -1) ? 0 : c1;
 var c2 = check_timed_cycle("action_C","off") ;
+if(c2 == -2){alert("Invalid off time value!"); return;}
 c2 = (c2 == -1) ? 0 : c2;
 if(c1 + c2 == 0){
 alert("please enter valid value for on or off time!");
@@ -508,8 +514,10 @@ return;
 
 if(c == 8 && document.getElementById("action_D_selector").checked == false){
 	var c1 = check_timed_cycle("action_D","on");
+	if(c1 == -2){alert("Invalid on time value!"); return;}
 	c1 = (c1 == -1) ? 0 : c1;
 	var c2 = check_timed_cycle("action_D","off") ;
+	if(c2 == -2){alert("Invalid off time value!"); return;}
 	c2 = (c2 == -1) ? 0 : c2;
 	if(c1 + c2 == 0){
 	alert("please enter valid value for on or off time!");
@@ -679,7 +687,7 @@ var string = window.btoa(JSON.stringify(old_json));
 var contain = {"filename": "program"+idprogram+".json", "append":false, "data": string}
 xhttp.send(JSON.stringify(contain));
 xhttp.onload = function(){
-	window.location.reload(true)
+	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
 }
 }
 function save_old(){
@@ -722,7 +730,14 @@ function check_timed_cycle(entity, name){
 var array_name=["sec", "min", "hrs", "day"]; var ret = -1;
 var array_time=[1, 60, 3600, 86400];
 for (i = 0 ; i < 4; i++){
-if(get_chkbox_val(entity + "_en_"+array_name[i]+"_"+name) == 1){ret = (ret == -1) ?  0 : ret; ret += Number(document.getElementById(entity + "_"+array_name[i]+"_"+name).value) * array_time[i];}
+var field_value = document.getElementById(entity + "_"+array_name[i]+"_"+name).value;
+if(get_chkbox_val(entity + "_en_"+array_name[i]+"_"+name) == 1){ 
+if(field_value == ""){
+console.log("hmm");
+return -2;
+}
+ret = (ret == -1) ?  0 : ret; ret += Number(field_value) * array_time[i];
+}
 }
 return ret;}
 
