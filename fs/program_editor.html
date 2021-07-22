@@ -31,7 +31,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 </head>
 <body>
 <div id="overlay">
-  <div id="confirmation_box" style="border-color:white; border-style:solid">
+  <div id="confirmation_box">
   <div id="circularG" >
 	<div id="circularG_1" class="circularG"></div>
 	<div id="circularG_2" class="circularG"></div>
@@ -1134,7 +1134,12 @@ input:checked + .slider2:before { -webkit-transform: translateX(15px); -ms-trans
     background-color:white;
     transform: translate(-50%,-50%);
   -ms-transform: translate(-50%,-50%);
-  height:200px; width:90%; text-align:center;
+  height:200px; 
+  width:35%; 
+  text-align:center;
+  border-color:white; 
+  border-style:solid;
+  padding-top: 15px;
 }
 /* Shout out http://cssload.net */
 #circularG{
