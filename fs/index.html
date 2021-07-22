@@ -19,9 +19,7 @@ changetheme(old_json.theme);
 }
 function changetheme(input){
 var sheets = document.getElementsByTagName('link');
-if(input == 0){
-	sheets[0].href = "./dark.css";
-}else if(input == 1){
+if(input == 1){
 	sheets[0].href = "./light.css";
 }
 }

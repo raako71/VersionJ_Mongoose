@@ -1,6 +1,6 @@
 author: mongoose-os
-description: fix program editor reload and rpb check
-version: 0.9.5.2
+description: fix timed cycle confirm, add spiner loader when saving, add import program
+version: 0.9.5.3
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

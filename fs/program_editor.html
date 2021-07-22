@@ -1,13 +1,59 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
 	<link rel="stylesheet" href="dtsel.css" />
 	<script src="dtsel.js"></script>
 	<title> Power Monitor Web Server | Editor</title>
+<script>
+load_conf();
+function load_conf(){
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "/rpc/FS.Get", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+var comm = {"filename": "setting.json"};
+xhr.send(JSON.stringify(comm));
+xhr.onload = function() {
+var data = JSON.parse(this.responseText);
+var old_json = JSON.parse(window.atob(data.data));
+changetheme(old_json.theme);
+}
+}
+function changetheme(input){
+var sheets = document.getElementsByTagName('link');
+document.getElementById("confirmation_box").style.backgroundColor = "black";
+if(input == 1){
+sheets[0].href = "light.css";
+document.getElementById("confirmation_box").style.backgroundColor = "white";
+}
+}
+</script>
 </head>
 <body>
+<div id="overlay">
+  <div id="confirmation_box" style="border-color:white; border-style:solid">
+  <div id="circularG" >
+	<div id="circularG_1" class="circularG"></div>
+	<div id="circularG_2" class="circularG"></div>
+	<div id="circularG_3" class="circularG"></div>
+	<div id="circularG_4" class="circularG"></div>
+	<div id="circularG_5" class="circularG"></div>
+	<div id="circularG_6" class="circularG"></div>
+	<div id="circularG_7" class="circularG"></div>
+	<div id="circularG_8" class="circularG"></div>
+  </div>
+  <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
+  <div style="margin-top:15px" id="failed_button"> 
+  <input type="button" style="width:75px" value="retry" onClick="save_new()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <div style="margin-top:15px" id="success_button">
+  <input type="button" style="width:75px" value="confirm" onClick="off_overlay()"></div>
+  </div>
+</div>
 
+<div id="main_div">
 <h1> Program Editor Page </h1>
+<input type="file" id="selectedFile" style="display: none;"  accept=".json"/>
+<input type="button" value="Import Program" onclick="document.getElementById('selectedFile').value = '';document.getElementById('selectedFile').click();" /><br>	
 <div class="main_container">
 <table>
 <td>
@@ -140,8 +186,10 @@ Start Date
 <br><br>
 <input type="button" value="SAVE" onClick="save_setting()" style="width:100px"> <input type="button" style="width:100px" onClick="location.href = '/control_page.html';" value="BACK">
 <br><br>
+</div>
 </body>
 <script>
+
 load_ctrl_action();
 var program2load = getUrlParam('x','Empty');
 var idprogram = getUrlParam('y','Empty');
@@ -458,12 +506,21 @@ if(a4 != null){
 		c1 = (c1 == -1) ? 0 : c1;
 		var c2 = check_timed_cycle("sec_dc","off") ;
 		c2 = (c2 == -1) ? 0 : c2;
-		c1 += c2;
 		if(c2 == -2){ alert("Invalid off time value!"); return;}
-		if(c1 == 0){
+		if(c1 + c2 == 0){
 		alert("required value for on or off (timed cycle)");return;
 		}
-		if(c1 < 300 && document.getElementById("sec_dc_loop").checked == false){
+		var cx = document.getElementById("sec_dc_init").checked;
+		console.log(cx);
+		if(cx == false && c2 == 0){
+		alert("failed to save, no off time!");
+		return;
+		}
+		if(cx == true && c1 == 0){
+		alert("failed to save, no on time!");
+		return;
+		}
+		if(c1 + c2< 300 && document.getElementById("sec_dc_loop").checked == false){
 			var x = confirm("frequent switching of relays will shorten their life.\nSave anyway?");
 			if(!x){
 			return;
@@ -504,6 +561,15 @@ if(c1 + c2 == 0){
 alert("please enter valid value for on or off time!");
 return;
 }
+var cx = document.getElementById("action_C_init").checked;
+if(cx == false && c2 == 0){
+alert("failed to save, no off time!");
+return;
+}
+if(cx == true && c1 == 0){
+alert("failed to save, no on time!");
+return;
+	}
 if(c1 + c2 < 300 && document.getElementById("action_C_loop").checked == false){
 var x = confirm("frequent switching of relays will shorten their life!\nSave anyway?");
 if(!x){
@@ -521,6 +587,15 @@ if(c == 8 && document.getElementById("action_D_selector").checked == false){
 	c2 = (c2 == -1) ? 0 : c2;
 	if(c1 + c2 == 0){
 	alert("please enter valid value for on or off time!");
+	return;
+	}
+	var cx = document.getElementById("action_D_init").checked;
+	if(cx == false && c2 == 0){
+	alert("failed to save, no off time!");
+	return;
+	}
+	if(cx == true && c1 == 0){
+	alert("failed to save, no on time!");
 	return;
 	}
 	if(c1 + c2 < 300 && document.getElementById("action_D_loop").checked == false){
@@ -594,8 +669,8 @@ var b4 = Number(document.getElementById("sec_value_off").value);
 }
 }
 
-if(program2load == "new"){ save_new(); } else {save_old();}
-
+//if(program2load == "new"){ save_new(); } else {save_old();}
+save_new();
 }
 
 
@@ -675,53 +750,43 @@ return old_json;
 }
 
 function save_new(){
-var old_json = {"id": idprogram, "name":"test 1", "en":false, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "", "off_time_global":""
+var old_json = {"id": idprogram, "name":"", "en":false, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "", "off_time_global":""
 ,"control_opt": "","control_trigger":[{"main_option": 1, "main_info": "", "sec_option": -1, "sec_info":""}]};
 old_json = build_save_json(old_json);
-
+//turn on overlay
 console.log("save new");
 var xhttp = new XMLHttpRequest();
 xhttp.open("POST", "/rpc/FS.Put", true);
 xhttp.setRequestHeader('Content-Type', 'application/json');
 var string = window.btoa(JSON.stringify(old_json));
-var contain = {"filename": "program"+idprogram+".json", "append":false, "data": string}
+var contain;
+if(program2load == "new"){
+contain = {"filename": "program"+idprogram+".json", "append":false, "data": string};
+}else{
+contain = {"filename": program2load+".json", "append":false, "data": string};
+}
 xhttp.send(JSON.stringify(contain));
-xhttp.onload = function(){
-	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
-}
-}
-function save_old(){
-console.log("save old");
-var old_json;
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "/rpc/FS.Get", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-var comm = {"filename": program2load+".json"};
-xhr.send(JSON.stringify(comm));
-xhr.onload = function() {
-	var data = JSON.parse(this.responseText);
-	old_json = JSON.parse(window.atob(data.data));
-	old_json = build_save_json(old_json);	
-	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/rpc/FS.Put", true);
-	xhttp.setRequestHeader('Content-Type', 'application/json');
-	var string = window.btoa(JSON.stringify(old_json));
-	var contain = {"filename": program2load+".json", "append":false, "data": string}
-	xhttp.send(JSON.stringify(contain));
-	xhttp.onload = function(){
-	///  notify file reset
-	var xhr2 = new XMLHttpRequest();
-	xhr2.open("POST", "/rpc/reset_timer", true);
-	xhr2.setRequestHeader('Content-Type', 'application/json');
-	var comm = {"file": program2load+".json"};
-	xhr2.send(JSON.stringify(comm));
-	xhr2.onload = function() {
-		window.location.reload(true);
+on_overlay();
+document.getElementById("circularG").style.display = 'block';
+document.getElementById("success_button").style.display="none";
+document.getElementById("failed_button").style.display="none";
+document.getElementById("spinner_info").innerHTML = "Saving..";
+xhttp.onreadystatechange = function() {
+	if (xhttp.readyState === 4 && xhttp.status === 200)  {
+//	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
+	document.getElementById("circularG").style.display = 'none';
+	document.getElementById("spinner_info").innerHTML = "Configuration Saved"
+	document.getElementById("success_button").style.display="block";
+	document.getElementById("failed_button").style.display="none";
+	}else if(xhttp.readyState == 4 && xhttp.status != 200){
+	document.getElementById("circularG").style.display = 'none';
+	document.getElementById("spinner_info").innerHTML = "Device does not respond!";
+	document.getElementById("success_button").style.display="none";
+	document.getElementById("failed_button").style.display="block";
 	}
+}	
 }
-	
-}
-}
+
 
 function setInputFilter(textbox, inputFilter) {["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {textbox.addEventListener(event, function() {if (inputFilter(this.value)) {this.oldValue = this.value;this.oldSelectionStart = this.selectionStart;this.oldSelectionEnd = this.selectionEnd;} else if (this.hasOwnProperty("oldValue")) {this.value = this.oldValue;this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);} else {this.value = "";}});});}
 function convert_epoch_from_time(input){return input.substring(0,2)*3600 + input.substring(3,5)*60;}
@@ -774,7 +839,6 @@ if(program2load != "new"){load_setting();}//load program json
 }
 }
 function load_setting(){
-	var old_json;
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", "/rpc/FS.Get", true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
@@ -782,142 +846,8 @@ function load_setting(){
 	xhr.send(JSON.stringify(comm));
 	xhr.onload = function() {
 		var data = JSON.parse(this.responseText);
-		old_json = JSON.parse(window.atob(data.data));
-		document.getElementById("program_name").value = old_json.name;
-		document.getElementById("program_en").checked = old_json.en;
-		if(old_json.start_date != ""){document.getElementById("start_date_en").checked = true; toggle("start_date"); document.getElementById("start_date").value = from_epoch(old_json.start_date);}
-		if(old_json.end_date != ""){document.getElementById("end_date_en").checked = true; toggle("end_date"); document.getElementById("end_date").value = from_epoch(old_json.end_date);}
-		if(old_json.days_active != ""){document.getElementById("day_list_en").checked = true; toggle_day();
-		var day_list_str = old_json.days_active;
-		document.getElementById("sunday").checked = (day_list_str[0] == 1  ? true: false);
-		document.getElementById("monday").checked = (day_list_str[1] == 1  ? true: false);
-		document.getElementById("tuesday").checked = (day_list_str[2] == 1  ? true: false);
-		document.getElementById("wednesday").checked = (day_list_str[3] == 1  ? true: false);
-		document.getElementById("thursday").checked = (day_list_str[4] == 1  ? true: false);
-		document.getElementById("friday").checked = (day_list_str[5] == 1  ? true: false);
-		document.getElementById("saturday").checked = (day_list_str[6] == 1  ? true: false);}
-		var on_time = old_json.on_time_global;
-		on_time = on_time.substring(0, on_time.indexOf("|"));
-		var off_time = old_json.off_time_global;
-		off_time = off_time.substring(0, off_time.indexOf("|"));
-		if(old_json.on_time_global != "|-1"){document.getElementById("on_time_en").checked = true; toggle("on_time"); document.getElementById("on_time_val").value = on_time;}
-		if(old_json.off_time_global != "|-1"){document.getElementById("off_time_en").checked = true; toggle("off_time"); document.getElementById("off_time_val").value = off_time;}
-		document.getElementById("ctrl_out_opt").value = old_json.control_opt;
-		if(old_json.control_opt == 4 && IO14 == false){
-		document.getElementById("output_warning").style.display = "inline";
-		document.getElementById("warning_message").innerHTML = "Output disabled (IO14)";
-		}
-		if(old_json.control_opt == 3 && LED == false){
-		document.getElementById("output_warning").style.display = "inline";
-		document.getElementById("warning_message").innerHTML = "Output disabled (LED RED)";
-		}
-		var a= old_json.control_trigger[0].main_option;
-		document.getElementById("ctrl_trigger").value = a;
-		load_ctrl_action();
-		var b= old_json.control_trigger[0].main_info;
-		var c = old_json.control_trigger[0].sec_option;
-		var d= old_json.control_trigger[0].sec_info;
-			
-		if(a >= 1 && a <= 4){
-		b = JSON.parse(b);
-		var pon = b.pri_on;
-		var poff = b.pri_off;
-		if(pon !=""){document.getElementById("pri_switched_on").checked = true;document.getElementById("action_A_cmpr_on").value = pon.substring(0, pon.indexOf(","));document.getElementById("action_A_value_on").value = pon.substring(pon.indexOf(",")+1);}
-		if(poff!=""){document.getElementById("pri_switched_off").checked = true;document.getElementById("action_A_cmpr_off").value = poff.substring(0, poff.indexOf(","));document.getElementById("action_A_value_off").value = poff.substring(poff.indexOf(",")+1);}
-		if(c != -1){
-		toggle_cond(document.getElementById("add_cond_on"), "on");
-		document.getElementById("sec_trigger_on").value = c;
-		var xx = {value: c};
-		load_sec_off_trigger(xx);
-		if(c >= 1 && c <= 4){
-		d = JSON.parse(d);
-		var son = d.sec_on; var soff = d.sec_off;
-		if(son != ""){
-			document.getElementById("sec_switched_on").checked =true;
-			var i = son.indexOf(",");
-			document.getElementById("sec_operator_on").value = son.substring(0, i);
-			var j = son.indexOf(",",i+1);
-			document.getElementById("sec_comp_on").value = son.substring(i+1, j);
-			document.getElementById("sec_value_on").value = son.substring(j+1);
-		}
-		if(soff != ""){
-			document.getElementById("sec_switched_off").checked =true;
-			var i = soff.indexOf(",");
-			document.getElementById("sec_operator_off").value = soff.substring(0, i);
-			var j = soff.indexOf(",",i+1);
-			document.getElementById("sec_value_off").value = soff.substring(j+1);
-			document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
-		}
-		}else if(c == 5){
-			document.getElementById("sec_switched_on").checked = true;
-			document.getElementById("sec_operator_on").value = d.substring(0, d.indexOf(","));
-			d = JSON.parse(d.substring(d.indexOf(",")+1));
-			apply_duty_cycle_conf("sec_dc", d.tick, d.sec);
-		}else if(c >= 6 && c <= 9){
-			d = JSON.parse(d);
-			var son = d.sec_on; var soff = d.sec_off;
-			if(son != ""){
-			document.getElementById("sec_switched_on").checked = true;
-			document.getElementById("sec_operator_on").value = son[0];
-			document.getElementById("action_E_sec_value_on").value = son[2];
-			}
-			if(soff != ""){
-			document.getElementById("sec_switched_off").checked = true;
-			document.getElementById("sec_operator_off").value = soff[0];
-			document.getElementById("action_E_sec_value_off").value = soff[2];
-			}
-		}
-		}		
-		}else if(a == 6){
-		b = JSON.parse(b);
-		apply_duty_cycle_conf("action_C", b.tick, b.sec);
-		}else if(a == 7){
-		document.getElementById("action_B_en").checked = Number(b) == 1 ? true: false;
-		}else if(a == 8){
-		document.getElementById("input_remote").value = b;
-		document.getElementById("action_D_selector").checked = (c == 1) ? true : false;
-		load_action_D_sec(document.getElementById("action_D_selector"));
-		if(c == 1){
-			document.getElementById("action_D_init").checked = (d == 1) ? true : false;
-		}else{ 
-		d = JSON.parse(d);
-		apply_duty_cycle_conf("action_D", d.tick, d.sec);
-		}
-		}else if (a == 9){
-		b = JSON.parse(b);
-		var pon = b.pri_on;
-		var poff = b.pri_off;
-		if(pon != ""){ document.getElementById("pri_switched_on").checked = true; document.getElementById("action_E_pri_on").value = pon[0]; document.getElementById("action_E_pri_opt_on").value = pon[2];}
-		if(poff != ""){ document.getElementById("pri_switched_off").checked = true;document.getElementById("action_E_pri_on").value = poff[0]; document.getElementById("action_E_pri_opt_off").value = poff[2]; load_action_E_pri}
-		if(pon != "" || poff != ""){load_action_E_pri(document.getElementById("action_E_pri_on"));}
-		
-		if(c != -1){
-		toggle_cond(document.getElementById("add_cond_on"), "on");
-		document.getElementById("sec_trigger_on").value = c;
-		var xx = {value: c};
-		load_sec_off_trigger(xx);
-		d = JSON.parse(d);
-		var son = d.sec_on; var soff = d.sec_off;
-		if(son != ""){
-			document.getElementById("sec_switched_on").checked =true;
-			var i = son.indexOf(",");
-			document.getElementById("sec_operator_on").value = son.substring(0, i);
-			var j = son.indexOf(",",i+1);
-			document.getElementById("sec_comp_on").value = son.substring(i+1, j);
-			document.getElementById("sec_value_on").value = son.substring(j+1);
-		}
-		if(soff != ""){
-			document.getElementById("sec_switched_off").checked =true;
-			var i = soff.indexOf(",");
-			document.getElementById("sec_operator_off").value = soff.substring(0, i);
-			var j = soff.indexOf(",",i+1);
-			document.getElementById("sec_value_off").value = soff.substring(j+1);
-			document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
-		}
-		}
-		}
-		
-	}
+		parse_config(JSON.parse(window.atob(data.data)));
+	}//onload
 }
 
 function apply_duty_cycle_conf(name, input1, input2){
@@ -956,7 +886,180 @@ function from_epoch(input){
 	var d= new Date(input * 1000);
 	return d.getFullYear() + "-" +(d.getMonth()+1) + "-" + d.getDate() + ", " + d.getHours()+":"+d.getMinutes() + ":" + d.getSeconds();
 }
+document.getElementById('selectedFile').addEventListener('change', function() {
+	var fr=new FileReader();
+	fr.readAsText(this.files[0]);
+	fr.onload=function(){
+	var json_file;
+    try {
+        json_file = JSON.parse(fr.result);
+    } catch (e) {
+		console.log("error to parse");
+		return;
+	}
+	//check all element
+	if(json_file.id == undefined){alert("File is not suitable"); return;}
+	if(json_file.name == undefined){alert("File is not suitable"); return;}
+	if(json_file.en == undefined){alert("File is not suitable"); return;}
+	if(json_file.start_date == undefined){alert("File is not suitable"); return;}
+	if(json_file.end_date == undefined){alert("File is not suitable"); return;}
+	if(json_file.days_active == undefined){alert("File is not suitable"); return;}
+	if(json_file.on_time_global == undefined){alert("File is not suitable"); return;}
+	if(json_file.off_time_global == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_opt == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_trigger[0].main_info == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_trigger[0].main_option == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_trigger[0].sec_option == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_trigger[0].sec_info == undefined){alert("File is not suitable"); return;}
+	parse_config(json_file);
+	}
+})
 
+function parse_config(input){
+	document.getElementById("program_name").value = input.name;
+	document.getElementById("program_en").checked = input.en;
+	if(input.start_date != ""){document.getElementById("start_date_en").checked = true; toggle("start_date"); document.getElementById("start_date").value = from_epoch(input.start_date);}
+	if(input.end_date != ""){document.getElementById("end_date_en").checked = true; toggle("end_date"); document.getElementById("end_date").value = from_epoch(input.end_date);}
+	if(input.days_active != ""){document.getElementById("day_list_en").checked = true; toggle_day();
+	var day_list_str = input.days_active;
+	document.getElementById("sunday").checked = (day_list_str[0] == 1  ? true: false);
+	document.getElementById("monday").checked = (day_list_str[1] == 1  ? true: false);
+	document.getElementById("tuesday").checked = (day_list_str[2] == 1  ? true: false);
+	document.getElementById("wednesday").checked = (day_list_str[3] == 1  ? true: false);
+	document.getElementById("thursday").checked = (day_list_str[4] == 1  ? true: false);
+	document.getElementById("friday").checked = (day_list_str[5] == 1  ? true: false);
+	document.getElementById("saturday").checked = (day_list_str[6] == 1  ? true: false);}
+	var on_time = input.on_time_global;
+	on_time = on_time.substring(0, on_time.indexOf("|"));
+	var off_time = input.off_time_global;
+	off_time = off_time.substring(0, off_time.indexOf("|"));
+	if(input.on_time_global != "|-1"){document.getElementById("on_time_en").checked = true; toggle("on_time"); document.getElementById("on_time_val").value = on_time;}
+	if(input.off_time_global != "|-1"){document.getElementById("off_time_en").checked = true; toggle("off_time"); document.getElementById("off_time_val").value = off_time;}
+	document.getElementById("ctrl_out_opt").value = input.control_opt;
+	if(input.control_opt == 4 && IO14 == false){
+	document.getElementById("output_warning").style.display = "inline";
+	document.getElementById("warning_message").innerHTML = "Output disabled (IO14)";
+	}
+	if(input.control_opt == 3 && LED == false){
+	document.getElementById("output_warning").style.display = "inline";
+	document.getElementById("warning_message").innerHTML = "Output disabled (LED RED)";
+	}
+	var a= input.control_trigger[0].main_option;
+	document.getElementById("ctrl_trigger").value = a;
+	load_ctrl_action();
+	var b= input.control_trigger[0].main_info;
+	var c = input.control_trigger[0].sec_option;
+	var d= input.control_trigger[0].sec_info;
+		
+	if(a >= 1 && a <= 4){
+	b = JSON.parse(b);
+	var pon = b.pri_on;
+	var poff = b.pri_off;
+	if(pon !=""){document.getElementById("pri_switched_on").checked = true;document.getElementById("action_A_cmpr_on").value = pon.substring(0, pon.indexOf(","));document.getElementById("action_A_value_on").value = pon.substring(pon.indexOf(",")+1);}
+	if(poff!=""){document.getElementById("pri_switched_off").checked = true;document.getElementById("action_A_cmpr_off").value = poff.substring(0, poff.indexOf(","));document.getElementById("action_A_value_off").value = poff.substring(poff.indexOf(",")+1);}
+	if(c != -1){
+	toggle_cond(document.getElementById("add_cond_on"), "on");
+	document.getElementById("sec_trigger_on").value = c;
+	var xx = {value: c};
+	load_sec_off_trigger(xx);
+	if(c >= 1 && c <= 4){
+	d = JSON.parse(d);
+	var son = d.sec_on; var soff = d.sec_off;
+	if(son != ""){
+		document.getElementById("sec_switched_on").checked =true;
+		var i = son.indexOf(",");
+		document.getElementById("sec_operator_on").value = son.substring(0, i);
+		var j = son.indexOf(",",i+1);
+		document.getElementById("sec_comp_on").value = son.substring(i+1, j);
+		document.getElementById("sec_value_on").value = son.substring(j+1);
+	}
+	if(soff != ""){
+		document.getElementById("sec_switched_off").checked =true;
+		var i = soff.indexOf(",");
+		document.getElementById("sec_operator_off").value = soff.substring(0, i);
+		var j = soff.indexOf(",",i+1);
+		document.getElementById("sec_value_off").value = soff.substring(j+1);
+		document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
+	}
+	}else if(c == 5){
+		document.getElementById("sec_switched_on").checked = true;
+		document.getElementById("sec_operator_on").value = d.substring(0, d.indexOf(","));
+		d = JSON.parse(d.substring(d.indexOf(",")+1));
+		apply_duty_cycle_conf("sec_dc", d.tick, d.sec);
+	}else if(c >= 6 && c <= 9){
+		d = JSON.parse(d);
+		var son = d.sec_on; var soff = d.sec_off;
+		if(son != ""){
+		document.getElementById("sec_switched_on").checked = true;
+		document.getElementById("sec_operator_on").value = son[0];
+		document.getElementById("action_E_sec_value_on").value = son[2];
+		}
+		if(soff != ""){
+		document.getElementById("sec_switched_off").checked = true;
+		document.getElementById("sec_operator_off").value = soff[0];
+		document.getElementById("action_E_sec_value_off").value = soff[2];
+		}
+	}
+	}		
+	}else if(a == 6){
+	b = JSON.parse(b);
+	apply_duty_cycle_conf("action_C", b.tick, b.sec);
+	}else if(a == 7){
+	document.getElementById("action_B_en").checked = Number(b) == 1 ? true: false;
+	}else if(a == 8){
+	document.getElementById("input_remote").value = b;
+	document.getElementById("action_D_selector").checked = (c == 1) ? true : false;
+	load_action_D_sec(document.getElementById("action_D_selector"));
+	if(c == 1){
+		document.getElementById("action_D_init").checked = (d == 1) ? true : false;
+	}else{ 
+	d = JSON.parse(d);
+	apply_duty_cycle_conf("action_D", d.tick, d.sec);
+	}
+	}else if (a == 9){
+	b = JSON.parse(b);
+	var pon = b.pri_on;
+	var poff = b.pri_off;
+	if(pon != ""){ document.getElementById("pri_switched_on").checked = true; document.getElementById("action_E_pri_on").value = pon[0]; document.getElementById("action_E_pri_opt_on").value = pon[2];}
+	if(poff != ""){ document.getElementById("pri_switched_off").checked = true;document.getElementById("action_E_pri_on").value = poff[0]; document.getElementById("action_E_pri_opt_off").value = poff[2]; load_action_E_pri}
+	if(pon != "" || poff != ""){load_action_E_pri(document.getElementById("action_E_pri_on"));}
+	
+	if(c != -1){
+	toggle_cond(document.getElementById("add_cond_on"), "on");
+	document.getElementById("sec_trigger_on").value = c;
+	var xx = {value: c};
+	load_sec_off_trigger(xx);
+	d = JSON.parse(d);
+	var son = d.sec_on; var soff = d.sec_off;
+	if(son != ""){
+		document.getElementById("sec_switched_on").checked =true;
+		var i = son.indexOf(",");
+		document.getElementById("sec_operator_on").value = son.substring(0, i);
+		var j = son.indexOf(",",i+1);
+		document.getElementById("sec_comp_on").value = son.substring(i+1, j);
+		document.getElementById("sec_value_on").value = son.substring(j+1);
+	}
+	if(soff != ""){
+		document.getElementById("sec_switched_off").checked =true;
+		var i = soff.indexOf(",");
+		document.getElementById("sec_operator_off").value = soff.substring(0, i);
+		var j = soff.indexOf(",",i+1);
+		document.getElementById("sec_value_off").value = soff.substring(j+1);
+		document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
+	}
+	}
+	}
+}
+function on_overlay() {
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("main_div").style.filter = "blur(2px)";
+  document.getElementById("overlay").style.filter = "none";
+}
+
+function off_overlay() {
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("main_div").style.filter = "none";
+}
 </script>
 <style>
 html{
@@ -1005,6 +1108,205 @@ input:checked + .slider2:before { -webkit-transform: translateX(15px); -ms-trans
 }
 #warning_message{
   display: none;
+}
+
+#overlay {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  filter: blur(8px);
+  background-color: rgba(0,0,0,0.5);
+  z-index: 2;
+  cursor: pointer;
+}
+
+#confirmation_box{
+	position: absolute;
+    top:50%;
+	border-radius:25px;
+    left: 50%;
+    font-size:16px;
+    background-color:white;
+    transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+  height:200px; width:90%; text-align:center;
+}
+/* Shout out http://cssload.net */
+#circularG{
+	position:relative;
+	width:58px;
+	height:58px;
+	margin: auto;
+    margin-top:50px;
+}
+
+.circularG{
+	position:absolute;
+	background-color:rgb(255,0,0);
+	width:14px;
+	height:14px;
+	border-radius:9px;
+		-o-border-radius:9px;
+		-ms-border-radius:9px;
+		-webkit-border-radius:9px;
+		-moz-border-radius:9px;
+	animation-name:bounce_circularG;
+		-o-animation-name:bounce_circularG;
+		-ms-animation-name:bounce_circularG;
+		-webkit-animation-name:bounce_circularG;
+		-moz-animation-name:bounce_circularG;
+	animation-duration:1.82s;
+		-o-animation-duration:1.82s;
+		-ms-animation-duration:1.82s;
+		-webkit-animation-duration:1.82s;
+		-moz-animation-duration:1.82s;
+	animation-iteration-count:infinite;
+		-o-animation-iteration-count:infinite;
+		-ms-animation-iteration-count:infinite;
+		-webkit-animation-iteration-count:infinite;
+		-moz-animation-iteration-count:infinite;
+	animation-direction:normal;
+		-o-animation-direction:normal;
+		-ms-animation-direction:normal;
+		-webkit-animation-direction:normal;
+		-moz-animation-direction:normal;
+}
+
+#circularG_1{
+	left:0;
+	top:23px;
+	animation-delay:0.68s;
+		-o-animation-delay:0.68s;
+		-ms-animation-delay:0.68s;
+		-webkit-animation-delay:0.68s;
+		-moz-animation-delay:0.68s;
+}
+
+#circularG_2{
+	left:6px;
+	top:6px;
+	animation-delay:0.91s;
+		-o-animation-delay:0.91s;
+		-ms-animation-delay:0.91s;
+		-webkit-animation-delay:0.91s;
+		-moz-animation-delay:0.91s;
+}
+
+#circularG_3{
+	top:0;
+	left:23px;
+	animation-delay:1.14s;
+		-o-animation-delay:1.14s;
+		-ms-animation-delay:1.14s;
+		-webkit-animation-delay:1.14s;
+		-moz-animation-delay:1.14s;
+}
+
+#circularG_4{
+	right:6px;
+	top:6px;
+	animation-delay:1.37s;
+		-o-animation-delay:1.37s;
+		-ms-animation-delay:1.37s;
+		-webkit-animation-delay:1.37s;
+		-moz-animation-delay:1.37s;
+}
+
+#circularG_5{
+	right:0;
+	top:23px;
+	animation-delay:1.6s;
+		-o-animation-delay:1.6s;
+		-ms-animation-delay:1.6s;
+		-webkit-animation-delay:1.6s;
+		-moz-animation-delay:1.6s;
+}
+
+#circularG_6{
+	right:6px;
+	bottom:6px;
+	animation-delay:1.82s;
+		-o-animation-delay:1.82s;
+		-ms-animation-delay:1.82s;
+		-webkit-animation-delay:1.82s;
+		-moz-animation-delay:1.82s;
+}
+
+#circularG_7{
+	left:23px;
+	bottom:0;
+	animation-delay:2.05s;
+		-o-animation-delay:2.05s;
+		-ms-animation-delay:2.05s;
+		-webkit-animation-delay:2.05s;
+		-moz-animation-delay:2.05s;
+}
+
+#circularG_8{
+	left:6px;
+	bottom:6px;
+	animation-delay:2.28s;
+		-o-animation-delay:2.28s;
+		-ms-animation-delay:2.28s;
+		-webkit-animation-delay:2.28s;
+		-moz-animation-delay:2.28s;
+}
+
+
+
+@keyframes bounce_circularG{
+	0%{
+		transform:scale(1);
+	}
+
+	100%{
+		transform:scale(.3);
+	}
+}
+
+@-o-keyframes bounce_circularG{
+	0%{
+		-o-transform:scale(1);
+	}
+
+	100%{
+		-o-transform:scale(.3);
+	}
+}
+
+@-ms-keyframes bounce_circularG{
+	0%{
+		-ms-transform:scale(1);
+	}
+
+	100%{
+		-ms-transform:scale(.3);
+	}
+}
+
+@-webkit-keyframes bounce_circularG{
+	0%{
+		-webkit-transform:scale(1);
+	}
+
+	100%{
+		-webkit-transform:scale(.3);
+	}
+}
+
+@-moz-keyframes bounce_circularG{
+	0%{
+		-moz-transform:scale(1);
+	}
+
+	100%{
+		-moz-transform:scale(.3);
+	}
 }
 </style>
 </html>
