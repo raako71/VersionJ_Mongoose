@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.9.5.5: added general.css<br>
 0.9.5.4: minor modifications to CSS for program editor<br>
 0.9.5.3: fix timed cycle confirm, add spiner loader when saving, add import program<br>
 0.9.5.2: fix program editor reload and rpb check<br>

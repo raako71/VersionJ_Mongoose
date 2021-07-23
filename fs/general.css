@@ -1,0 +1,10 @@
+html{
+		font-family: Arial; display: inline-block; text-align: center;
+		-webkit-text-size-adjust:none;
+	}
+.main_container{
+		width:90%; 
+		padding-top:15px;
+        margin: 10px auto ;
+    text-align: left;
+	}

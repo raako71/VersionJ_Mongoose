@@ -2,3 +2,9 @@ body {
   background-color: black;
   color: #FFA700;
 }
+a, a :visited{
+  color: #FFA700;
+}
+a:hover{
+    color: #ff6200;
+}

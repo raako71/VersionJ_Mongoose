@@ -1,9 +1,3 @@
-body{
-    font-family: monospace, sans-serif;
-}
-a{
-  color: rgb(255, 167, 0);
-}
 .btn-group button {
     background-color: #4CAF50; /* Green background */
     border: 1px solid green; /* Green border */
@@ -49,4 +43,7 @@ a{
 }
 .checkbox1{
 	text-align:center;
+}
+body{
+    font-family: monospace, sans-serif;
 }
