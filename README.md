@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.9.5.6: fix bug for milestone 10, add spinner for setting and control page<br>
 0.9.5.5: added general.css<br>
 0.9.5.4: minor modifications to CSS for program editor<br>
 0.9.5.3: fix timed cycle confirm, add spiner loader when saving, add import program<br>
