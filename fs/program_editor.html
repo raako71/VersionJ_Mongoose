@@ -1,8 +1,9 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
 	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
-    <link id="theme" rel="stylesheet" type="text/css" href="general.css" />
+    <link rel="stylesheet" type="text/css" href="general.css" />
 	<link rel="stylesheet" href="dtsel.css" />
 	<script src="dtsel.js"></script>
 	<title> Power Monitor Web Server | Editor</title>
@@ -31,8 +32,8 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 </script>
 </head>
 <body>
-<div id="overlay">
-  <div id="confirmation_box">
+<div id="overlay" style="display:none">
+  <div id="confirmation_box" >
   <div id="circularG" >
 	<div id="circularG_1" class="circularG"></div>
 	<div id="circularG_2" class="circularG"></div>
@@ -310,6 +311,14 @@ function toggle_cond(input, name){
 		holder_off.innerHTML = "";
 	}	
 }
+function load_output_status_sec(input){
+input = input == 1 ? 2 : 1;
+document.getElementById("action_E_pri_opt_off").value = input;
+}
+function load_output_status_pri(input){
+input = input == 1 ? 2 : 1;
+document.getElementById("action_E_pri_opt_on").value = input;
+}
 function load_sec_off_trigger(input){//for action A secondary
 var holder_off = document.getElementById("sec_cond_off_holder");
 var a = document.getElementById("sec_value_on");
@@ -416,7 +425,7 @@ function load_ctrl_action(){
 	action_E += 'if &nbsp; <select id="action_E_pri_on" onChange="load_action_E_pri(this)">';
 	for (i = 0 ; i < 4 ; i++){
 	if(document.getElementById("ctrl_out_opt").value != i+1)action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
-	}action_E += '</select> &nbsp; is &nbsp; <select id="action_E_pri_opt_on"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
+	}action_E += '</select> &nbsp; is &nbsp; <select id="action_E_pri_opt_on" onchange="load_output_status_sec(this.value)"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
 	action_E += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition">';
 	action_E += '<span id="sec_cond_on_holder"></span></div>';
 	action_E += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
@@ -425,7 +434,7 @@ function load_ctrl_action(){
 	//for (i = 0 ; i < 4 ; i++){
 	//if (document.getElementById("ctrl_out_opt").value != i+1)action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
 	//}
-	action_E += '&nbsp; is &nbsp; <select id="action_E_pri_opt_off"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
+	action_E += '&nbsp; is &nbsp; <select id="action_E_pri_opt_off" onchange="load_output_status_pri(this.value)"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
 	action_E += '<span id="sec_cond_off_holder"></span></div>';
 	
 	var selection = document.getElementById("ctrl_trigger").value;
@@ -444,6 +453,7 @@ function load_ctrl_action(){
 		load_action_D_sec(document.getElementById("action_D_selector"));
 	}else if(selection == 9){
 		el.innerHTML = action_E;
+		load_output_status_sec(document.getElementById("action_E_pri_opt_on").value);
 		load_action_E_pri(document.getElementById("action_E_pri_on"));
 	}else{
 		el.innerHTML = "";
@@ -454,7 +464,13 @@ function load_ctrl_action(){
 function toggle_field(input, action){
 	var logic = input.checked;
 	var RO_logic =true; var color ="grey";
-	if(logic){RO_logic = false;	color = "black";}
+	var color1 = document.getElementById("theme").href;
+	if(color1.search("dark") != 0){
+		color1 = "Orange";
+	}else{
+		color1 = "black";
+	}
+	if(logic){RO_logic = false;	color = color1;}
 	else{document.getElementById(action).value = "";}
 	document.getElementById(action).readOnly = RO_logic;
 	document.getElementById(action+"_label").style.color = color;
@@ -503,6 +519,7 @@ if(a4 != null){
 	if(a4.checked && document.getElementById("sec_value_on").value == "" && document.getElementById("sec_trigger_on").value < 5){alert("required a value to be saved (secondary on value)");return;}
 	if(a4.checked && document.getElementById("sec_trigger_on").value == 5){
 		var c1 = check_timed_cycle("sec_dc","on");
+		var c0 = document.getElementById("sec_dc_loop").checked;
 		if(c1 == -2){ alert("Invalid on time value!"); return;}
 		c1 = (c1 == -1) ? 0 : c1;
 		var c2 = check_timed_cycle("sec_dc","off") ;
@@ -512,16 +529,18 @@ if(a4 != null){
 		alert("required value for on or off (timed cycle)");return;
 		}
 		var cx = document.getElementById("sec_dc_init").checked;
-		console.log(cx);
-		if(cx == false && c2 == 0){
+		if(cx == false && c2 == 0 && !c0){
 		alert("failed to save, no off time!");
 		return;
 		}
-		if(cx == true && c1 == 0){
+		if(cx == true && c1 == 0 && !c0){
 		alert("failed to save, no on time!");
 		return;
 		}
-		if(c1 + c2< 300 && document.getElementById("sec_dc_loop").checked == false){
+		if(c1 == 0 && c0 ){
+			alert("on time is mandatory!"); return;
+		}
+		if(c1 + c2< 300 && c0 == false){
 			var x = confirm("frequent switching of relays will shorten their life.\nSave anyway?");
 			if(!x){
 			return;
@@ -553,6 +572,7 @@ if(a6 != null){
 c =document.getElementById("ctrl_trigger").value;
 if(c == 6){
 var c1 = check_timed_cycle("action_C","on");
+var c0 = document.getElementById("action_C_loop").checked;
 if(c1 == -2){alert("Invalid on time value!"); return;}
 c1 = (c1 == -1) ? 0 : c1;
 var c2 = check_timed_cycle("action_C","off") ;
@@ -563,15 +583,17 @@ alert("please enter valid value for on or off time!");
 return;
 }
 var cx = document.getElementById("action_C_init").checked;
-if(cx == false && c2 == 0){
+if(cx == false && c2 == 0 && !c0){
 alert("failed to save, no off time!");
 return;
 }
-if(cx == true && c1 == 0){
+if(cx == true && c1 == 0 && !c0){
 alert("failed to save, no on time!");
-return;
-	}
-if(c1 + c2 < 300 && document.getElementById("action_C_loop").checked == false){
+return;}
+if(c1 == 0 && c0 ){
+alert("on time is mandatory!"); return;
+}
+if(c1 + c2 < 300 && c0 == false){
 var x = confirm("frequent switching of relays will shorten their life!\nSave anyway?");
 if(!x){
 return;
@@ -581,6 +603,7 @@ return;
 
 if(c == 8 && document.getElementById("action_D_selector").checked == false){
 	var c1 = check_timed_cycle("action_D","on");
+	var c0 = document.getElementById("action_D_loop").checked;
 	if(c1 == -2){alert("Invalid on time value!"); return;}
 	c1 = (c1 == -1) ? 0 : c1;
 	var c2 = check_timed_cycle("action_D","off") ;
@@ -591,15 +614,18 @@ if(c == 8 && document.getElementById("action_D_selector").checked == false){
 	return;
 	}
 	var cx = document.getElementById("action_D_init").checked;
-	if(cx == false && c2 == 0){
+	if(cx == false && c2 == 0 && !c0){
 	alert("failed to save, no off time!");
 	return;
 	}
-	if(cx == true && c1 == 0){
+	if(cx == true && c1 == 0 && !c0){
 	alert("failed to save, no on time!");
 	return;
 	}
-	if(c1 + c2 < 300 && document.getElementById("action_D_loop").checked == false){
+	if(c1 == 0 && c0 ){
+	alert("on time is mandatory!"); return;
+	}
+	if(c1 + c2 < 300 &&  c0 == false){
 		var x = confirm("frequent switching of relays will shorten their life!\nSave anyway?");
 		if(!x){
 		return;
@@ -878,6 +904,9 @@ tick += get_chkbox_val(name+"_en_min_off") + "," + document.getElementById(name+
 tick += get_chkbox_val(name+"_en_hrs_off") + "," + document.getElementById(name+"_hrs_off").value + ",";
 tick += get_chkbox_val(name+"_en_day_off") + "," + document.getElementById(name+"_day_off").value;
 var init_n_loop = get_chkbox_val(name+"_init") + get_chkbox_val(name+"_loop");
+init_n_loop = String(init_n_loop);
+console.log(init_n_loop);
+if(init_n_loop[0] == '0' && init_n_loop[1] == '1'){init_n_loop = '11';}
 var time_val = check_timed_cycle(name, "on") +"," + check_timed_cycle(name, "off");
 var m_json = {tick: tick, sec: init_n_loop, value: time_val};
 return (m_json);
@@ -1022,7 +1051,7 @@ function parse_config(input){
 	var pon = b.pri_on;
 	var poff = b.pri_off;
 	if(pon != ""){ document.getElementById("pri_switched_on").checked = true; document.getElementById("action_E_pri_on").value = pon[0]; document.getElementById("action_E_pri_opt_on").value = pon[2];}
-	if(poff != ""){ document.getElementById("pri_switched_off").checked = true;document.getElementById("action_E_pri_on").value = poff[0]; document.getElementById("action_E_pri_opt_off").value = poff[2]; load_action_E_pri}
+	if(poff != ""){ document.getElementById("pri_switched_off").checked = true;document.getElementById("action_E_pri_on").value = poff[0]; document.getElementById("action_E_pri_opt_off").value = poff[2];}
 	if(pon != "" || poff != ""){load_action_E_pri(document.getElementById("action_E_pri_on"));}
 	
 	if(c != -1){
@@ -1104,210 +1133,6 @@ input:checked + .slider2:before { -webkit-transform: translateX(15px); -ms-trans
 }
 #warning_message{
   display: none;
-}
-
-#overlay {
-  position: fixed;
-  display: none;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  filter: blur(8px);
-  background-color: rgba(0,0,0,0.5);
-  z-index: 2;
-  cursor: pointer;
-}
-
-#confirmation_box{
-	position: absolute;
-    top:50%;
-	border-radius:25px;
-    left: 50%;
-    font-size:16px;
-    background-color:white;
-    transform: translate(-50%,-50%);
-  -ms-transform: translate(-50%,-50%);
-  height:200px; 
-  width:35%; 
-  text-align:center;
-  border-color:white; 
-  border-style:solid;
-  padding-top: 15px;
-}
-/* Shout out http://cssload.net */
-#circularG{
-	position:relative;
-	width:58px;
-	height:58px;
-	margin: auto;
-    margin-top:50px;
-}
-
-.circularG{
-	position:absolute;
-	background-color:rgb(255,0,0);
-	width:14px;
-	height:14px;
-	border-radius:9px;
-		-o-border-radius:9px;
-		-ms-border-radius:9px;
-		-webkit-border-radius:9px;
-		-moz-border-radius:9px;
-	animation-name:bounce_circularG;
-		-o-animation-name:bounce_circularG;
-		-ms-animation-name:bounce_circularG;
-		-webkit-animation-name:bounce_circularG;
-		-moz-animation-name:bounce_circularG;
-	animation-duration:1.82s;
-		-o-animation-duration:1.82s;
-		-ms-animation-duration:1.82s;
-		-webkit-animation-duration:1.82s;
-		-moz-animation-duration:1.82s;
-	animation-iteration-count:infinite;
-		-o-animation-iteration-count:infinite;
-		-ms-animation-iteration-count:infinite;
-		-webkit-animation-iteration-count:infinite;
-		-moz-animation-iteration-count:infinite;
-	animation-direction:normal;
-		-o-animation-direction:normal;
-		-ms-animation-direction:normal;
-		-webkit-animation-direction:normal;
-		-moz-animation-direction:normal;
-}
-
-#circularG_1{
-	left:0;
-	top:23px;
-	animation-delay:0.68s;
-		-o-animation-delay:0.68s;
-		-ms-animation-delay:0.68s;
-		-webkit-animation-delay:0.68s;
-		-moz-animation-delay:0.68s;
-}
-
-#circularG_2{
-	left:6px;
-	top:6px;
-	animation-delay:0.91s;
-		-o-animation-delay:0.91s;
-		-ms-animation-delay:0.91s;
-		-webkit-animation-delay:0.91s;
-		-moz-animation-delay:0.91s;
-}
-
-#circularG_3{
-	top:0;
-	left:23px;
-	animation-delay:1.14s;
-		-o-animation-delay:1.14s;
-		-ms-animation-delay:1.14s;
-		-webkit-animation-delay:1.14s;
-		-moz-animation-delay:1.14s;
-}
-
-#circularG_4{
-	right:6px;
-	top:6px;
-	animation-delay:1.37s;
-		-o-animation-delay:1.37s;
-		-ms-animation-delay:1.37s;
-		-webkit-animation-delay:1.37s;
-		-moz-animation-delay:1.37s;
-}
-
-#circularG_5{
-	right:0;
-	top:23px;
-	animation-delay:1.6s;
-		-o-animation-delay:1.6s;
-		-ms-animation-delay:1.6s;
-		-webkit-animation-delay:1.6s;
-		-moz-animation-delay:1.6s;
-}
-
-#circularG_6{
-	right:6px;
-	bottom:6px;
-	animation-delay:1.82s;
-		-o-animation-delay:1.82s;
-		-ms-animation-delay:1.82s;
-		-webkit-animation-delay:1.82s;
-		-moz-animation-delay:1.82s;
-}
-
-#circularG_7{
-	left:23px;
-	bottom:0;
-	animation-delay:2.05s;
-		-o-animation-delay:2.05s;
-		-ms-animation-delay:2.05s;
-		-webkit-animation-delay:2.05s;
-		-moz-animation-delay:2.05s;
-}
-
-#circularG_8{
-	left:6px;
-	bottom:6px;
-	animation-delay:2.28s;
-		-o-animation-delay:2.28s;
-		-ms-animation-delay:2.28s;
-		-webkit-animation-delay:2.28s;
-		-moz-animation-delay:2.28s;
-}
-
-
-
-@keyframes bounce_circularG{
-	0%{
-		transform:scale(1);
-	}
-
-	100%{
-		transform:scale(.3);
-	}
-}
-
-@-o-keyframes bounce_circularG{
-	0%{
-		-o-transform:scale(1);
-	}
-
-	100%{
-		-o-transform:scale(.3);
-	}
-}
-
-@-ms-keyframes bounce_circularG{
-	0%{
-		-ms-transform:scale(1);
-	}
-
-	100%{
-		-ms-transform:scale(.3);
-	}
-}
-
-@-webkit-keyframes bounce_circularG{
-	0%{
-		-webkit-transform:scale(1);
-	}
-
-	100%{
-		-webkit-transform:scale(.3);
-	}
-}
-
-@-moz-keyframes bounce_circularG{
-	0%{
-		-moz-transform:scale(1);
-	}
-
-	100%{
-		-moz-transform:scale(.3);
-	}
 }
 </style>
 </html>

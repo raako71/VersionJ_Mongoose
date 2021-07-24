@@ -4,6 +4,7 @@
 <head>
 	<title> Power Monitor Web Server | Setting</title>
 	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
+	<link rel="stylesheet" type="text/css" href="general.css" />
 <script>
 load_conf();
 function load_conf(){
@@ -20,15 +21,38 @@ changetheme(old_json.theme);
 }
 function changetheme(input){
 var sheets = document.getElementsByTagName('link');
-if(input == 0){
-	sheets[0].href = "./dark.css";
-}else if(input == 1){
-	sheets[0].href = "./light.css";
+
+if(input == 1){
+sheets[0].href = "light.css";
+document.getElementById("confirmation_box").style.backgroundColor = "white";
+}else{
+sheets[0].href = "dark.css";
+document.getElementById("confirmation_box").style.backgroundColor = "black";
 }
 }
 </script>
 </head>
 <body>
+<div id="overlay" style="display:none">
+  <div id="confirmation_box" >
+  <div id="circularG" >
+	<div id="circularG_1" class="circularG"></div>
+	<div id="circularG_2" class="circularG"></div>
+	<div id="circularG_3" class="circularG"></div>
+	<div id="circularG_4" class="circularG"></div>
+	<div id="circularG_5" class="circularG"></div>
+	<div id="circularG_6" class="circularG"></div>
+	<div id="circularG_7" class="circularG"></div>
+	<div id="circularG_8" class="circularG"></div>
+  </div>
+  <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
+  <div style="margin-top:15px" id="failed_button"> 
+  <input type="button" style="width:75px" value="retry" onClick="save_new()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <div style="margin-top:15px" id="success_button">
+  <input type="button" style="width:75px" value="confirm" onClick="off_overlay()"></div>
+  </div>
+</div>
+<div id="main_div">
 	<h1> Settings</h1>
 	<h1> <a href="./">Home</a></h1>
 
@@ -103,7 +127,7 @@ if(input == 0){
 	<br>
 	<input type="radio" id="light_theme" name="theme" value="1" checked onChange="changetheme(1)">
 	<label for="light_theme">Light</label><br>
-	<input type="radio" id="dark_theme" name="theme" value="2" onChange="changetheme(0)">
+	<input type="radio" id="dark_theme" name="theme" value="2" onChange="changetheme(2)">
 	<label for="dark_theme">Dark</label><br><br>
 	</div>
 	<b>Panel LED Brightness</b><br>
@@ -115,6 +139,7 @@ if(input == 0){
 	<input type="button" value="SAVE" onClick="save_conf()">
 	<br><br>
 	<input type="button" value="Reboot" onClick="reboot()">
+</div>
 </body>
 
 <script>
@@ -267,9 +292,26 @@ if(input == 0){
 			var string = window.btoa(JSON.stringify(old_json));
 			var contain = {"filename": "setting.json", "append":false, "data": string}
 			xhttp.send(JSON.stringify(contain));
-			xhttp.onload = function(){
-				alert("configuration saved");
-			}
+			on_overlay();
+			document.getElementById("circularG").style.display = 'block';
+			document.getElementById("success_button").style.display="none";
+			document.getElementById("failed_button").style.display="none";
+			document.getElementById("spinner_info").innerHTML = "Saving..";
+			xhttp.onreadystatechange = function() {
+				if (xhttp.readyState === 4 && xhttp.status === 200)  {
+			//	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
+				document.getElementById("success_button").style.display="block";
+				document.getElementById("failed_button").style.display="none";
+				}else if(xhttp.readyState == 4 && xhttp.status != 200){
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = "Device does not respond!";
+				document.getElementById("success_button").style.display="none";
+				document.getElementById("failed_button").style.display="block";
+				return;
+				}
+			}//xhttp readystate	
 			save_eth_conf(old_json.eth_en, IP, GW, SN);	
 			}else{
 				return;
@@ -303,6 +345,16 @@ if(input == 0){
 			document.getElementById("IP").value = response.eth.ip;
 		}
 	}
+function on_overlay() {
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("main_div").style.filter = "blur(2px)";
+  document.getElementById("overlay").style.filter = "none";
+}
+
+function off_overlay() {
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("main_div").style.filter = "none";
+}
 </script>
 
 <style>
@@ -362,10 +414,6 @@ if(input == 0){
   border-radius: 50%;
   background: #4CAF50;
   cursor: pointer;
-}
-.dark-mode {
-  background-color: black;
-  color: #FFA700;
 }
 </style>
 </html>
