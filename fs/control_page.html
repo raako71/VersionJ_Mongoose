@@ -44,7 +44,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
   </div>
   <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div style="margin-top:15px" id="failed_button"> 
-  <input type="button" style="width:75px" value="retry" onClick="save_new()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <input type="button" style="width:75px" value="retry" onClick="save_func()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div style="margin-top:15px" id="success_button">
   <input type="button" style="width:75px" value="OK" onClick="off_overlay()"></div>
   </div>
@@ -399,7 +399,13 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		var comm = {"filename": "setting.json"};
 		xhr.send(JSON.stringify(comm));
-		xhr.onload = function() {
+		on_overlay();
+		document.getElementById("circularG").style.display = 'block';
+		document.getElementById("success_button").style.display="none";
+		document.getElementById("failed_button").style.display="none";
+		document.getElementById("spinner_info").innerHTML = "Saving..";
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && xhr.status == 200)  {
 			var data = JSON.parse(this.responseText);
 			old_json = JSON.parse(window.atob(data.data));
 			old_json.ctrl_page.sensor_input = a;
@@ -410,21 +416,15 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 			old_json.ctrl_page.IO14 = h;
 			old_json.ctrl_page.active_prog = b1;
 			old_json.ctrl_page.LED_prog = g1;
-			var conf = confirm("Proceed to save configuraton?");
-			if(conf){
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST", "/rpc/FS.Put", true);
 			xhttp.setRequestHeader('Content-Type', 'application/json');
 			var string = window.btoa(JSON.stringify(old_json));
 			var contain = {"filename": "setting.json", "append":false, "data": string}
 			xhttp.send(JSON.stringify(contain));
-			on_overlay();
-			document.getElementById("circularG").style.display = 'block';
-			document.getElementById("success_button").style.display="none";
-			document.getElementById("failed_button").style.display="none";
-			document.getElementById("spinner_info").innerHTML = "Saving..";
+			
 			xhttp.onreadystatechange = function() {
-				if (xhttp.readyState === 4 && xhttp.status === 200)  {
+				if (xhttp.readyState == 4 && xhttp.status == 200)  {
 			//	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
@@ -438,13 +438,16 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 				return;
 				}
 			}//xhttp readystate	
-			}else{
-				return;
-			}
 			var xhttp2 = new XMLHttpRequest();
 			xhttp2.open("POST", "/rpc/setting", true);
 			xhttp2.send();
-		}
+			}else if(xhr.readyState == 4 && xhr.status != 200){
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = "Device does not respond!";
+				document.getElementById("success_button").style.display="none";
+				document.getElementById("failed_button").style.display="block";
+			}
+		}//xhr readystate
 		
 		
 	}

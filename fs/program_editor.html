@@ -799,7 +799,7 @@ document.getElementById("success_button").style.display="none";
 document.getElementById("failed_button").style.display="none";
 document.getElementById("spinner_info").innerHTML = "Saving..";
 xhttp.onreadystatechange = function() {
-	if (xhttp.readyState === 4 && xhttp.status === 200)  {
+	if (xhttp.readyState == 4 && xhttp.status == 200)  {
 //	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
 	document.getElementById("circularG").style.display = 'none';
 	document.getElementById("spinner_info").innerHTML = "Configuration Saved"
