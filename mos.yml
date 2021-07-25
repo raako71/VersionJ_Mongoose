@@ -1,6 +1,6 @@
 author: mongoose-os
 description: fix bug for milestone 10, add spinner for setting and control page
-version: 0.9.5.6
+version: 0.9.5.7
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
