@@ -155,7 +155,7 @@ Start Date
 
 <div class="main_container">
 <label for="ctrl_output">Control Output:</label>
-<select name="ctrl_output" id="ctrl_out_opt" onChange="load_ctrl_action()">
+<select name="ctrl_output" id="ctrl_out_opt" onChange="load_ctrl_action();document.getElementById('output_warning').style.display = 'none';">
   <option value=1>A</option>
   <option value=2>B</option>
   <option value=3>LED RED</option>
@@ -234,9 +234,11 @@ ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_day_off\" onClick="t
 ret += '<input type="text" id="'+name+'_day_off" class="greycolor" readOnly>';
 ret += '<span id="'+name+'_day_off_label" class="greyed_label">Day</span></div>';
 ret += '<div  style="margin-top:15px">';
+ret += 'Loop Cycle &nbsp;<label style="position:relative; top:-4px"class="switch2"><input onchange="if(this.checked){document.getElementById(\'' + name + '_init_box\').style.display=\'none\';}';
+ret += 'else{document.getElementById(\'' + name + '_init_box\').style.display = \'block\'};"';
+ret += 'type="checkbox" id="'+name+'_loop"><span class="slider2 round"></label>&nbsp; Run Cycle Once & reset</div>';
+ret += '<div  style="margin-top:10px" id="'+name+'_init_box">';
 ret += 'Initial state: &nbsp;<label style="position:relative; top:-4px" class="switch"><input type="checkbox" id=\"'+name+'_init\"><span class="slider round"></label></div>';
-ret += '<div  style="margin-top:10px">';
-ret += 'Loop Cycle &nbsp;<label style="position:relative; top:-4px"class="switch2"><input type="checkbox" id="'+name+'_loop"><span class="slider2 round"></label>&nbsp; Run Cycle Once & reset</div>';
 ret += '</div>';
 return ret;
 }
@@ -458,6 +460,7 @@ function load_ctrl_action(){
 	}else{
 		el.innerHTML = "";
 	}
+	
 }
 
 
@@ -892,6 +895,7 @@ document.getElementById(name+array[index]).readOnly = !logic;
 a = j+1;}
 document.getElementById(name+"_init").checked = (input2[0] == 1) ? true : false;
 document.getElementById(name+"_loop").checked = (input2[1] == 1) ? true : false;
+if(input2[1] == 1){ document.getElementById(name+"_init_box").style.display = 'none'};
 }
 
 function fetch_duty_cycle_info(name){
