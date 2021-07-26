@@ -1431,9 +1431,9 @@ int check_program_state(const char* file_read){
 		if(online_epoch > end_date){date_state = 0;}
 	}else if(end_date == 0){ ///tested (start date only)
 		if(online_epoch >= start_date){date_state = 1;
-		}else{date_state = 2; }
+		}else{date_state = 0; }
 	}else if(online_epoch < start_date){
-		date_state = 2;
+		date_state = 0;
 	}else if(online_epoch >= start_date && online_epoch <= end_date){ //tested (both filled)
 		date_state = 1;
 	}
@@ -1441,7 +1441,7 @@ int check_program_state(const char* file_read){
 	int day_state;
 
 	if(days != "" && day_now != -1){ //all tested
-		day_state = (days[day_now] == '1') ? 1 : ((days != "0000000") ? 2 : 0);
+		day_state = (days[day_now] == '1') ? 1 : 0;
 	}else{
 		day_state = 1;
 	}
@@ -1461,15 +1461,15 @@ int check_program_state(const char* file_read){
 	          time_state = 1;
 	        } else if (time_day_epoch >= off_conv) {
 	          //deactivate
-	          time_state = 2;
+	          time_state = 0;
 	        }
 		}else{//standard procedure
-			time_state = (time_day_epoch >= on_conv && time_day_epoch < off_conv) ? 1 : 2;
+			time_state = (time_day_epoch >= on_conv && time_day_epoch < off_conv) ? 1 : 0;
 		}		
 	}else if(on_conv != -1){
-		time_state = (time_day_epoch >= on_conv) ? 1 : 2;
+		time_state = (time_day_epoch >= on_conv) ? 1 : 0;
 	}else if (off_conv != -1){
-		time_state = (time_day_epoch >= off_conv) ? 2 : 1;
+		time_state = (time_day_epoch >= off_conv) ? 0 : 1;
 	}else{
 		time_state = 1;
 	}
@@ -1478,7 +1478,7 @@ int check_program_state(const char* file_read){
 		time_state = 1;
 	}
 	
-	int state = (date_state == 1 && day_state == 1 && time_state == 1) ? 1 : (date_state == 2 || (date_state != 0 && day_state == 2) || (date_state != 0 || time_state == 2)) ? 2 : 0;
+	int state = (date_state == 1 && day_state == 1 && time_state == 1) ? 1 : 0;
 	return state;	
 }
 
@@ -1969,11 +1969,11 @@ void led_red_ctrl_asprog(void *arg){
 	}else if(LED_opt == 3){ //show program status
 		for (int i = 0; i < 4;i++){ //fading
 			if(prog_link_name[i] == LED_prog){
-				if(prog_link_state[i] == 1){
+				if(prog_link_state[i] == 1 && prog_pin_state[i] == 1){
 					mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
 					led_red_status = 1;
 					break;
-				}else if(prog_link_state[i] == 2){ //scheduled is glowing
+				}else if(prog_link_state[i] == 1 && prog_pin_state[i] == 0){ //scheduled is glowing
 					fade_blink_remote_led();
 					led_red_status = 2;
 					break;
