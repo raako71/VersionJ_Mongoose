@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.9.5.9: fix timed cycle init and output warning (page) <br>
 0.9.5.8: fix some feature<br>
 0.9.5.7: very minor changes to text<br>
 0.9.5.6: fix bug for milestone 10, add spinner for setting and control page<br>
