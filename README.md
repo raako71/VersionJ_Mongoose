@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.9.6.0: add web ota<br>
 0.9.5.9: fix timed cycle init and output warning (page) <br>
 0.9.5.8: fix some feature<br>
 0.9.5.7: very minor changes to text<br>
