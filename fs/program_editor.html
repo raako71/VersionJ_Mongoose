@@ -4,8 +4,8 @@
 <head>
 	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
     <link rel="stylesheet" type="text/css" href="general.css" />
-	<link rel="stylesheet" href="dtsel.css" />
-	<script src="dtsel.js"></script>
+	<link rel="stylesheet" href="./mnt/dtsel.css" />
+	<script src="./mnt/dtsel.js"></script>
 	<title> Power Monitor Web Server | Editor</title>
 <script>
 load_conf();
@@ -48,7 +48,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
   <div style="margin-top:15px" id="failed_button"> 
   <input type="button" style="width:75px" value="retry" onClick="save_new()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div style="margin-top:15px" id="success_button">
-  <input type="button" style="width:75px" value="OK" onClick="off_overlay()"></div>
+  <input type="button" style="width:75px" value="OK" onClick="off_overlay();window.open('program_editor.html?x=program'+idprogram +'&y=' +idprogram +'&'+Math.random() * Math.random(), '_self');"></div>
   </div>
 </div>
 

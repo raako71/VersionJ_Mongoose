@@ -26,6 +26,7 @@
 #include "ACS71020.h"
 #include "mgos_bme280.h"
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
+#include "mgos_ota.h"
 
 //longtermdata trimmer variable
 #define UPPER_LIMIT_SIZE 12000
@@ -115,6 +116,7 @@ mgos_timer_id prog_timer_id[4];
 mgos_timer_id prog_led_timer;
 int ext_PB_state[3] = {0,0,0};
 int led_red_status = 0;
+int dec_place_global;
 
 //addition variable V2
 char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
@@ -884,7 +886,11 @@ void contain_logging(int desired){//function that modify use_contain variable ba
       	//storage system
       		//char num[20];
 			num = std::to_string(column[index]);
-			num = num.substr(0, num.find(".")+3);
+			if(dec_place_global == 0){
+				num = num.substr(0, num.find("."));
+			}else{
+				num = num.substr(0, num.find(".")+dec_place_global+1);
+			}
 			buff.append(num);
       		//sprintf(num, "%.2f", column[index]);
       		//strcat(buff, num);
@@ -1216,6 +1222,7 @@ void checkJSONsetting(){
 	json_scanf(buff, strlen(buff), "{ctrl_page: %Q}", &buff_b);
 	json_scanf(buff_b, strlen(buff_b), "{LED: %d, LED_prog: %d, IO14: %B, sensor_input: %B, prog_ctrl: %B}", &LED_opt, &LED_prog, &IO14_en, &rpb_as_sens, &rpb_as_ovr);
 	json_scanf(buff_b, strlen(buff_b), "{override: %d, ovr_val: %ld, active_prog: %d}", &rpb_ovr_opt, &rpb_ovr_val, &rpb_ovr_prog);
+	json_scanf(buff, strlen(buff), "{dec_place: %d}",  &dec_place_global);
 	if(LED_opt == 2){
 		mgos_clear_timer(prog_led_timer);
 		prog_led_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, led_red_ctrl_asprog, NULL);

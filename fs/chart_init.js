@@ -1,16 +1,5 @@
 var temp_scale =1;
-function fetch_temp_scale(){
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "/rpc/FS.Get", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-var comm = {"filename": "setting.json"};
-xhr.send(JSON.stringify(comm));
-xhr.onload = function() {
-var data = JSON.parse(this.responseText);
-var old_json = JSON.parse(window.atob(data.data));
-temp_scale = old_json.temp_scale;
-}
-}
+var dev_offset = 0;
 var ctx = document.getElementById('main_chart').getContext('2d');
 var chart_one = new Chart(ctx, {
 // The type of chart we want to create
@@ -223,7 +212,9 @@ fontColor: 'rgb(0, 255, 137)'
 function epochToJsDate(ts){
 // ts = epoch timestamp
 // returns date obj
-var a = new Date(ts*1000);
+var a = new Date();
+var offset = a.getTimezoneOffset();
+a = new Date(ts* 1000 + (offset*60000) + dev_offset*1000);
 var ret = (a.getHours() < 10 ? '0' + a.getHours() : a.getHours()) + ':' +(a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes())  + ':' + (a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds())  + ", ";
 ret +=  a.getDate() + '/' + (a.getMonth() + 1) + '/' + a.getFullYear();
 return ret; 
@@ -249,6 +240,8 @@ xhr.send(JSON.stringify(comm));
 xhr.onload = function() {
 var data = JSON.parse(this.responseText);
 col_bool = JSON.parse(window.atob(data.data));
+temp_scale = col_bool.temp_scale;
+dev_offset = col_bool.timezone;
 changetheme(col_bool.theme);
 if(doc == "mnt/thisHour.csv" || doc == "mnt/1970Hour.csv"){
 document.getElementById("col1_checkbox").checked = col_bool.col1_en;
@@ -515,8 +508,11 @@ xhr.onreadystatechange = function(){
 if(xhr.readyState == 4){
 var x = xhr.responseText;
 var d = new Date();
-var offset = d.getTimezoneOffset();
-var pub_string = "Device Time: " + epochToJsDate(x)+  (offset < 0 ? " (+": " (-") + Math.abs(offset)/60 + ")";					
+var hour = Math.floor(Math.abs(dev_offset)/3600);
+hour = Math.abs(hour);
+var minute = Math.abs(dev_offset) - hour*3600; 
+minute /= 60;
+var pub_string = "Device Time: "+ epochToJsDate(x)+  (dev_offset >= 0 ? " (+": " (-") + hour +"." +minute + ")";					
 document.getElementById("hour_text").innerHTML = pub_string;
 }
 };
@@ -530,20 +526,21 @@ return ret;
 }
 
 function onLoad(event) { //function when dom is loaded
-update_time();
-fetch_temp_scale();
 check_global_setting();
+update_time();
 //delay500ms to update graph on first load
 setTimeout(update_graph(), 500);
+
+//update time
+setInterval(function() {
+update_time();
+}, 1000);
 }
 window.addEventListener('load', onLoad);	
 setInterval(function () {
 update_graph();
 }, 10000 ) ;
-//update time
-setInterval(function() {
-update_time();
-}, 1000);
+
 
 function changetheme(input){
 	var sheets = document.getElementsByTagName('link');	

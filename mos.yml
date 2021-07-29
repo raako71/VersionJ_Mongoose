@@ -1,6 +1,6 @@
 author: mongoose-os
-description: fix bug for milestone 10, add spinner for setting and control page
-version: 0.9.5.9
+description: add web ota
+version: 0.9.6.0
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -56,6 +56,8 @@ config_schema:
   - ["i2c.scl_gpio", "i", 33, {title: "GPIO to use for SCL"}]
   - ["wifi.ap.ssid", "MongooseOS"]
   - ["wifi.ap.pass", "12345678"]
+  - ["update.enable_post", "b", true, {title : "Enable POST updates"}]  
+
 
 libs:
   - origin: https://github.com/mongoose-os-libs/boards
@@ -64,6 +66,8 @@ libs:
   - origin: https://github.com/mongoose-os-libs/rpc-service-fs
   - origin: https://github.com/mongoose-os-libs/rpc-uart
   - origin: https://github.com/mongoose-os-libs/http-server
+  - origin: https://github.com/mongoose-os-libs/ota-common
+  - origin: https://github.com/mongoose-os-libs/ota-http-client
   - origin: https://github.com/mongoose-os-libs/fstab
   - origin: https://github.com/mongoose-os-libs/vfs-fs-lfs
   - origin: https://github.com/mongoose-os-libs/sntp
@@ -73,6 +77,7 @@ libs:
   - origin: https://github.com/mongoose-os-libs/arduino-wire
   - origin: https://github.com/mongoose-os-libs/ethernet
   - origin: https://github.com/mongoose-os-libs/bme280
+
 
 build_vars:
   ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K

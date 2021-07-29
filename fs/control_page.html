@@ -52,8 +52,9 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 <div id="main_div">
 	<h1> Control Logic</h1>
 	<h1> <a href="./">Home</a></h1>
-	<h3 id="uptime"> DEVICE UPTIME: </h3>
 	<div class="main_container">
+	<h3 id="devtime"> DEVICE TIME: </h3>
+	<h3 id="uptime"> DEVICE UPTIME: </h3>
 	<b> Programs</b>
 	<div id="program_link"></div>
 	<div style="margin-bottom:10px; margin-top:10px">
@@ -94,6 +95,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 </body>
 
 <script>
+	var dev_offset;
 	var program_list = [{"id": "","name": "", "control_opt":""}, 
 						{"id": "","name": "", "control_opt":""}, 
 						{"id": "","name": "", "control_opt":""}, 
@@ -151,7 +153,8 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 		if(j == 10){
 			fetch_IO_status();
 			load_conf();
-			
+			update_time();
+			setInterval(function() {update_time();}, 1000);			
 		}
 	
 		}
@@ -295,12 +298,12 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	var comm = {"filename": "setting.json"};
 	xhr.send(JSON.stringify(comm));
 	xhr.onload = function() {
-	
 	var data = JSON.parse(this.responseText);
 	var old_json = JSON.parse(window.atob(data.data));
 	//load theme first
 	document.getElementById("sens_in").checked = old_json.ctrl_page.sensor_input;
 	document.getElementById("cont_prog").checked = old_json.ctrl_page.prog_ctrl;
+	dev_offset = old_json.timezone;
 	if(old_json.ctrl_page.prog_ctrl){
 		document.getElementById("prog_holder").innerHTML = dropdown_menu;
 		create_dropdown();
@@ -578,6 +581,31 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	function off_overlay() {
 	  document.getElementById("overlay").style.display = "none";
 	  document.getElementById("main_div").style.filter = "none";
+	}
+	function update_time(){
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function(){
+		if(xhr.readyState == 4){
+		var x = xhr.responseText;
+		var d = new Date();
+		var hour = Math.floor(Math.abs(dev_offset)/3600);
+		hour = Math.abs(hour);
+		var minute = Math.abs(dev_offset) - hour*3600; 
+		minute /= 60;
+		var pub_string = "Device Time: "+ epochToJsDate(x)+  (dev_offset >= 0 ? " (+": " (-") + hour +"." +minute + ")";					
+		document.getElementById("devtime").innerHTML = pub_string;
+		}
+		};
+		xhr.open("GET", "/rpc/getTime", true);
+		xhr.send();
+	}
+	function epochToJsDate(ts){
+	var a = new Date();
+	var offset = a.getTimezoneOffset();
+	a = new Date(ts* 1000 + (offset*60000) + dev_offset*1000);
+	var ret = (a.getHours() < 10 ? '0' + a.getHours() : a.getHours()) + ':' +(a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes())  + ':' + (a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds())  + ", ";
+	ret +=  a.getDate() + '/' + (a.getMonth() + 1) + '/' + a.getFullYear();
+	return ret; 
 	}
 </script>
 
