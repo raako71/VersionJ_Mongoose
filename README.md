@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br />
+0.9.6.1: milestone 11 exclude OTA<br>
 0.9.6.0: add web ota<br>
 0.9.5.9: fix timed cycle init and output warning (page) <br>
 0.9.5.8: fix some feature<br>
