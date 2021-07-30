@@ -17,7 +17,7 @@
 "wifi": [{"mode":1,  "ssid": "WiFi-5902", "pass":"31315418"}], 
 "pwr_sensor":[{"enable":true}],
 "static_IP_conf": [{"enable": false, "IP":"" , "SN":"" , "GW":""}],
-"timezone":0, "dec_place": 2,
+"timezone":0, "dec_place": 2, "dev_mode": false,
 "temp_scale" : 1,
 "brightness": [{"panel": 255, "remote": 255}],
 "theme":1,

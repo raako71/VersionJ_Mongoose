@@ -863,8 +863,8 @@ var old_json = JSON.parse(window.atob(data.data));
 var a = old_json.ctrl_page.LED;
 var b = old_json.ctrl_page.IO14;
 var c = document.getElementById("ctrl_out_opt");
-if(!b) {c.remove(3); IO14 = false;}
-if(a != 1){ c.remove(2); LED = false;}
+if(!b || old_json.dev_mode) {c.remove(3); IO14 = false;}
+if(a != 1 || old_json.dev_mode){ c.remove(2); LED = false;}
 if(program2load != "new"){load_setting();}//load program json
 }
 }
@@ -970,11 +970,11 @@ function parse_config(input){
 	if(input.on_time_global != "|-1"){document.getElementById("on_time_en").checked = true; toggle("on_time"); document.getElementById("on_time_val").value = on_time;}
 	if(input.off_time_global != "|-1"){document.getElementById("off_time_en").checked = true; toggle("off_time"); document.getElementById("off_time_val").value = off_time;}
 	document.getElementById("ctrl_out_opt").value = input.control_opt;
-	if(input.control_opt == 4 && IO14 == false){
+	if((input.control_opt == 4 && IO14 == false) || input.dev_mode){
 	document.getElementById("output_warning").style.display = "inline";
 	document.getElementById("warning_message").innerHTML = "Output disabled (IO14)";
 	}
-	if(input.control_opt == 3 && LED == false){
+	if((input.control_opt == 3 && LED == false) || input.dev_mode){
 	document.getElementById("output_warning").style.display = "inline";
 	document.getElementById("warning_message").innerHTML = "Output disabled (LED RED)";
 	}

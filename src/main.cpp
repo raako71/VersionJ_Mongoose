@@ -117,7 +117,7 @@ mgos_timer_id prog_led_timer;
 int ext_PB_state[3] = {0,0,0};
 int led_red_status = 0;
 int dec_place_global;
-
+bool dev_mode_global;
 //addition variable V2
 char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
 void load_wifi_setting();
@@ -1222,7 +1222,7 @@ void checkJSONsetting(){
 	json_scanf(buff, strlen(buff), "{ctrl_page: %Q}", &buff_b);
 	json_scanf(buff_b, strlen(buff_b), "{LED: %d, LED_prog: %d, IO14: %B, sensor_input: %B, prog_ctrl: %B}", &LED_opt, &LED_prog, &IO14_en, &rpb_as_sens, &rpb_as_ovr);
 	json_scanf(buff_b, strlen(buff_b), "{override: %d, ovr_val: %ld, active_prog: %d}", &rpb_ovr_opt, &rpb_ovr_val, &rpb_ovr_prog);
-	json_scanf(buff, strlen(buff), "{dec_place: %d}",  &dec_place_global);
+	json_scanf(buff, strlen(buff), "{dec_place: %d, dev_mode: %B}",  &dec_place_global, &dev_mode_global);
 	if(LED_opt == 2){
 		mgos_clear_timer(prog_led_timer);
 		prog_led_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, led_red_ctrl_asprog, NULL);
@@ -1377,7 +1377,7 @@ for (int i = 0; i < 10; i++){
 				}
 				//prog_link_state[prog_output-1] = (prog_override != -1) ? check_program_state(list_prog_name[i]) : prog_override;
 				//check if IO14 en or not
-				if(prog_output == 4 && IO14_en == false){
+				if((prog_output == 4 && IO14_en == false) || dev_mode_global){
 					prog_link_state[prog_output-1] = 0;
 					prog_pin_state[prog_output-1] = 0;
 				}else if(prog_output == 3 && LED_opt != 1){
@@ -1944,12 +1944,12 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
   	}
 }
 void led_red_ctrl(unsigned int value){ //as output
-	if(LED_opt == 1){
+	if(LED_opt == 1 && !dev_mode_global){
 		if(value == 1){
 			mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
 			//mgos_gpio_write(LED_RED, 0);
 			led_red_status = 1;
-		}else{
+		}else if(!dev_mode_global){
 			mgos_pwm_set(LED_RED, 1000, 1);
 			//mgos_gpio_write(LED_RED, 1);
 			led_red_status = 0;
@@ -1958,7 +1958,7 @@ void led_red_ctrl(unsigned int value){ //as output
 }
 
 void led_red_ctrl_asprog(void *arg){
-	if(LED_opt == 2){ //show output statuss
+	if(LED_opt == 2 && !dev_mode_global){ //show output statuss
 		for (int i = 0; i < 4;i++){ //blinking
 			if(prog_link_name[i] == LED_prog){
 				if(prog_pin_state[i] == 1){
@@ -1973,7 +1973,7 @@ void led_red_ctrl_asprog(void *arg){
 				break;
 			}
 		}
-	}else if(LED_opt == 3){ //show program status
+	}else if(LED_opt == 3 && !dev_mode_global){ //show program status
 		for (int i = 0; i < 4;i++){ //fading
 			if(prog_link_name[i] == LED_prog){
 				if(prog_link_state[i] == 1 && prog_pin_state[i] == 1){

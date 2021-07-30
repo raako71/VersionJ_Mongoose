@@ -342,7 +342,9 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	}
 	
 	var c = old_json.ctrl_page.LED;
+	var cx= old_json.dev_mode;
 	LED = false;
+	if(!cx){
 	if(c == 1){
 		LED = true;
 		document.getElementById("as_output").checked = true;
@@ -355,9 +357,18 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	if(c == 2 || c == 3){
 		document.getElementById("prog_led_list").value = old_json.ctrl_page.LED_prog;
 	}
-	
 	document.getElementById("IO14_en").checked = old_json.ctrl_page.IO14;
 	IO14 = old_json.ctrl_page.IO14;
+	}else{
+	var radios = document.getElementsByName("programmable_led");
+	for (var i=0, iLen=radios.length; i<iLen; i++) {
+	  radios[i].disabled = true;
+	  console.log("halo");
+	  radios[i].checked = false;
+	}
+	document.getElementById("IO14_en").disabled = true;
+	document.getElementById("IO14_en").checked = false;
+	}
 	create_program_link();
 	}//onload
 	
@@ -592,7 +603,11 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 		hour = Math.abs(hour);
 		var minute = Math.abs(dev_offset) - hour*3600; 
 		minute /= 60;
-		var pub_string = "Device Time: "+ epochToJsDate(x)+  (dev_offset >= 0 ? " (+": " (-") + hour +"." +minute + ")";					
+		var a = new Date();
+		var pub_string = "Device Time: "+ epochToJsDate(x)+  (dev_offset >= 0 ? " (+": " (-") + hour +"." +minute + ") ";					
+		if(a.getTimezoneOffset()*(-60) != dev_offset){
+		pub_string += '<br><span style="color:red">Timezone Difference with browser!</span>';
+		}
 		document.getElementById("devtime").innerHTML = pub_string;
 		}
 		};

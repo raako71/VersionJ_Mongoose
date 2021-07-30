@@ -1,6 +1,6 @@
 author: mongoose-os
-description: add web ota
-version: 0.9.6.0
+description: milestone 11 exclude ota
+version: 0.9.6.1
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
