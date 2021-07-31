@@ -60,7 +60,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	<div style="margin-bottom:10px; margin-top:10px">
 	<input type="button" value="Create New Program" onClick="new_program()">
 	</div>
-	<b> Remote Push Button </b><br>
+	<b> Remote Push Button</b><br>
 	<input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
 	<input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
 	<div id="prog_holder" style="padding-left:20px;">
@@ -69,9 +69,13 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	
 	<b>Programmable Indicator LED</b>
 	<br>
-	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label><br>
+	
+	<input type="radio" name="programmable_led" id="led_disable" onChange="toggle_led_prog()"><label for="led_disable">Disabled</label><br>
+	<div id="as_output_holder" style="display:none">
+	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label></div>
 	<input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog()"><label for ="output_stat">Show output status</label><br>
-	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for schedule active, On for program active, off for program inactive)</label><br>
+	<div id="prog_stat_holder"  style="display:none">
+	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for schedule active, On for program active, off for program inactive)</label></div>
 	<span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
 	
 	<b>Outputs</b>
@@ -85,7 +89,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	<div style="margin-bottom:5px; margin-top:5px">
 	LED: <span id="led_prog"></span>&nbsp;&nbsp;<span id="led_sta"></span>
 	</div>
-	<div style="margin-bottom:5px; margin-top:5px">
+	<div style="margin-bottom:5px; margin-top:5px; display:none" id="IO14_holder" >
 	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> IO14: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
 	</div>
 	</div>
@@ -252,7 +256,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	}
 	function toggle_led_prog(){
 		var a = "Select Program: <select id='prog_led_list'></select>";
-		if(document.getElementById("as_output").checked){
+		if(document.getElementById("as_output").checked ||document.getElementById("led_disable").checked){
 			document.getElementById("prog_led_holder").innerHTML = "";
 		}else{
 			document.getElementById("prog_led_holder").innerHTML = a;
@@ -344,8 +348,9 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	var c = old_json.ctrl_page.LED;
 	var cx= old_json.dev_mode;
 	LED = false;
-	if(!cx){
-	if(c == 1){
+	if(c == 0){
+		document.getElementById("led_disable").checked = true;
+	}else if(c == 1){
 		LED = true;
 		document.getElementById("as_output").checked = true;
 	}else if(c == 2){
@@ -357,18 +362,15 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	if(c == 2 || c == 3){
 		document.getElementById("prog_led_list").value = old_json.ctrl_page.LED_prog;
 	}
+	if(cx){
+		document.getElementById("as_output_holder").style.display="block";
+		document.getElementById("prog_stat_holder").style.display="block";
+		document.getElementById("IO14_holder").style.display="block";
+	}
 	document.getElementById("IO14_en").checked = old_json.ctrl_page.IO14;
 	IO14 = old_json.ctrl_page.IO14;
-	}else{
-	var radios = document.getElementsByName("programmable_led");
-	for (var i=0, iLen=radios.length; i<iLen; i++) {
-	  radios[i].disabled = true;
-	  console.log("halo");
-	  radios[i].checked = false;
-	}
-	document.getElementById("IO14_en").disabled = true;
-	document.getElementById("IO14_en").checked = false;
-	}
+	
+	
 	create_program_link();
 	}//onload
 	
@@ -404,7 +406,16 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 			f = f[0] * 3600 + f[1] * 60 + offset_local;
 			if(f < 0){f = 86400 + f;}
 		}
-		var g = (document.getElementById("as_output").checked) ? 1 : (document.getElementById("output_stat").checked ? 2 : 3) ;
+		var g;
+		if(document.getElementById("led_disable").checked){
+		g = 0;
+		}else if(document.getElementById("as_output").checked){
+		g = 1;
+		}else if(document.getElementById("output_stat").checked){
+		g = 2;
+		}else{
+		g = 3;
+		}
 		var g1 = (g == 2 || g == 3) ? document.getElementById("prog_led_list").value : 0;
 		var h = document.getElementById("IO14_en").checked;
 		var old_json;
@@ -606,7 +617,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 		var a = new Date();
 		var pub_string = "Device Time: "+ epochToJsDate(x)+  (dev_offset >= 0 ? " (+": " (-") + hour +"." +minute + ") ";					
 		if(a.getTimezoneOffset()*(-60) != dev_offset){
-		pub_string += '<br><span style="color:red">Timezone Difference with browser!</span>';
+		pub_string += '<br><a href="/setting.html?'+ Math.random()* Math.random()+'" style="color:red">Device time zone doesn\'t match web browser - change</a>';
 		}
 		document.getElementById("devtime").innerHTML = pub_string;
 		}

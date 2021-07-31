@@ -1944,21 +1944,24 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
   	}
 }
 void led_red_ctrl(unsigned int value){ //as output
-	if(LED_opt == 1 && !dev_mode_global){
+	if(LED_opt == 1 && dev_mode_global){
 		if(value == 1){
 			mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
 			//mgos_gpio_write(LED_RED, 0);
 			led_red_status = 1;
-		}else if(!dev_mode_global){
+		}else{
 			mgos_pwm_set(LED_RED, 1000, 1);
 			//mgos_gpio_write(LED_RED, 1);
 			led_red_status = 0;
 		}
+	}else if(LED_opt == 0){
+		led_red_status = 0;
+		mgos_pwm_set(LED_RED, 1000, 1);
 	}
 }
 
 void led_red_ctrl_asprog(void *arg){
-	if(LED_opt == 2 && !dev_mode_global){ //show output statuss
+	if(LED_opt == 2){ //show output statuss
 		for (int i = 0; i < 4;i++){ //blinking
 			if(prog_link_name[i] == LED_prog){
 				if(prog_pin_state[i] == 1){
@@ -1973,7 +1976,7 @@ void led_red_ctrl_asprog(void *arg){
 				break;
 			}
 		}
-	}else if(LED_opt == 3 && !dev_mode_global){ //show program status
+	}else if(LED_opt == 3){ //show program status
 		for (int i = 0; i < 4;i++){ //fading
 			if(prog_link_name[i] == LED_prog){
 				if(prog_link_state[i] == 1 && prog_pin_state[i] == 1){

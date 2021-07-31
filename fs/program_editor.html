@@ -48,7 +48,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
   <div style="margin-top:15px" id="failed_button"> 
   <input type="button" style="width:75px" value="retry" onClick="save_new()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div style="margin-top:15px" id="success_button">
-  <input type="button" style="width:75px" value="OK" onClick="off_overlay();window.open('program_editor.html?x=program'+idprogram +'&y=' +idprogram +'&'+Math.random() * Math.random(), '_self');"></div>
+  <input type="button" style="width:75px" value="OK" onClick="blabla()"></div>
   </div>
 </div>
 
@@ -1093,6 +1093,12 @@ function on_overlay() {
 function off_overlay() {
   document.getElementById("overlay").style.display = "none";
   document.getElementById("main_div").style.filter = "none";
+}
+function blabla(){
+off_overlay();
+if(program2load=="new"){
+window.open('program_editor.html?x=program'+idprogram +'&y=' +idprogram +'&'+Math.random() * Math.random(), '_self');
+}
 }
 </script>
 <style>

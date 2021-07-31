@@ -134,7 +134,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
 	<b> Decimal places (logging): </b>
 	<select id="dec_place"> <option value=0 >0</option><option value=1> 1 </option> <option value=2> 2</option></select>
 	<br><br>
-	<b> Developer Mode </b><br>
+	<b>  <abbr title="Allow secondary outputs to be used (LED_RED and IO14)" style="cursor:help">Dev Mode</abbr></b><br>
 	<label class="switch" style="margin-bottom:15px; margin-top:15px">
 	<input type="checkbox" id="dev_mode_en">
 	<span class="slider round"></span>
@@ -310,6 +310,11 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
 			old_json.static_IP_conf[0].GW = GW;
 			old_json.static_IP_conf[0].SN = SN;
 			old_json.dev_mode = document.getElementById("dev_mode_en").checked;
+			if(!old_json.dev_mode){
+			old_json.ctrl_page.LED = 0;
+			old_json.ctrl_page.LED_prog = 0;
+			old_json.ctrl_page.IO14 = false;
+			}
 			old_json.timezone = time_zone;
 			old_json.temp_scale = temp_mode;
 			old_json.theme = theme_mode;
