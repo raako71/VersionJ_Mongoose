@@ -74,7 +74,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	<div id="as_output_holder" style="display:none">
 	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label></div>
 	<input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog()"><label for ="output_stat">Show output status</label><br>
-	<div id="prog_stat_holder"  style="display:none">
+	<div id="prog_stat_holder" >
 	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for schedule active, On for program active, off for program inactive)</label></div>
 	<span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
 	
@@ -364,8 +364,9 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 	}
 	if(cx){
 		document.getElementById("as_output_holder").style.display="block";
-		document.getElementById("prog_stat_holder").style.display="block";
 		document.getElementById("IO14_holder").style.display="block";
+	}else{
+		document.getElementById("led_prog").style.display = "none";
 	}
 	document.getElementById("IO14_en").checked = old_json.ctrl_page.IO14;
 	IO14 = old_json.ctrl_page.IO14;
