@@ -1,6 +1,6 @@
 author: mongoose-os
-description: fix dev mode 2nd
-version: 0.9.6.3
+description: 11th milestone complete
+version: 0.9.6.4
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -30,7 +30,7 @@ cdefs:
   
 config_schema:
   - ["http.hidden_files", "*.json"]
-  - ["debug.level", 1]
+  - ["debug.level", 0]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]
   - ["fstab.fs0.opts", '{"bs": 4096}']
@@ -56,8 +56,6 @@ config_schema:
   - ["i2c.scl_gpio", "i", 33, {title: "GPIO to use for SCL"}]
   - ["wifi.ap.ssid", "MongooseOS"]
   - ["wifi.ap.pass", "12345678"]
-  - ["update.enable_post", "b", true, {title : "Enable POST updates"}]  
-
 
 libs:
   - origin: https://github.com/mongoose-os-libs/boards
@@ -67,7 +65,7 @@ libs:
   - origin: https://github.com/mongoose-os-libs/rpc-uart
   - origin: https://github.com/mongoose-os-libs/http-server
   - origin: https://github.com/mongoose-os-libs/ota-common
-  - origin: https://github.com/mongoose-os-libs/ota-http-client
+  - origin: https://github.com/mongoose-os-libs/ota-http-server
   - origin: https://github.com/mongoose-os-libs/fstab
   - origin: https://github.com/mongoose-os-libs/vfs-fs-lfs
   - origin: https://github.com/mongoose-os-libs/sntp
@@ -77,6 +75,7 @@ libs:
   - origin: https://github.com/mongoose-os-libs/arduino-wire
   - origin: https://github.com/mongoose-os-libs/ethernet
   - origin: https://github.com/mongoose-os-libs/bme280
+  - origin: https://github.com/mongoose-os-libs/rpc-ws
 
 
 build_vars:

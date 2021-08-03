@@ -26,7 +26,6 @@
 #include "ACS71020.h"
 #include "mgos_bme280.h"
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
-#include "mgos_ota.h"
 
 //longtermdata trimmer variable
 #define UPPER_LIMIT_SIZE 12000
@@ -413,9 +412,10 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
    	mgos_set_timer(100, MGOS_TIMER_REPEAT, button_check_cb, NULL);
-  //	mgos_set_hw_timer(100000, MGOS_TIMER_REPEAT, button_check_cb, NULL);
+	mgos_set_hw_timer(100000, MGOS_TIMER_REPEAT, button_check_cb, NULL);
   	
   	//RPC handler function
+
 	mg_rpc_add_handler(mgos_rpc_get_global(), "setting","", setting_modifier, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
@@ -423,7 +423,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "dnsAdvertise", "", dns_advertise, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reqIOinfo", "", request_IO_info, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reset_timer", "{file:%Q}", reset_timer, NULL);
-  	
+	
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	mgos_msleep(1000);
 	load_wifi_setting();
