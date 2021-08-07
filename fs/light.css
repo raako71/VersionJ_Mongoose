@@ -8,3 +8,6 @@ a, a :visited{
 a:hover{
     color: #00cc08;
 }
+.main_container{
+    background-color: aliceblue;
+}
