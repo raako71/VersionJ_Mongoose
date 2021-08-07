@@ -3,10 +3,23 @@ html{
 		-webkit-text-size-adjust:none;
 	}
 .main_container{
-	width:90%; 
-	padding-top:15px;
+    width:850px;
 	margin: 10px auto ;
 	text-align: left;
+    padding: 15px;
+}
+
+.trigger_container{
+    border:1px solid; 
+    padding:10px;
+    border-radius:10px;
+    width: 90%;
+    margin: 10px auto ;
+    text-align: left;
+
+}
+#ctrl_trigger_holder_1{
+    width:850px;
 }
 #overlay {
   position: fixed;

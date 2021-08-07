@@ -163,7 +163,7 @@ Start Date
 </select> &nbsp;<span id="output_warning" style="color:red;cursor:pointer; display:none" > (!)</span> <span id="warning_message"> Output Disabled</span>
 </div>
 
-<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" id="ctrl_trigger_holder_1">
+<div class="trigger_container" id="ctrl_trigger_holder_1">
 <label for="ctrl_trigger">Control Trigger:</label>
 <select name="ctrl_trigger" id="ctrl_trigger" onChange="load_ctrl_action();">
   <option value=1>Temperature</option>
@@ -210,7 +210,7 @@ function getUrlParam(parameter, defaultvalue){var urlparameter = defaultvalue;if
 
 //duty cycle div builder
 function duty_cycle_builder(name){
-var ret = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
+var ret = '<div class="trigger_container"><div >Switch output on for: &nbsp; ';
 ret += '<input type="checkbox" id=\"'+name+'_en_sec_on\" onClick=\"toggle_field(this,\''+name+'_sec_on\')\">';
 ret += '<input type="text" id="'+name+ '_sec_on" class="greycolor" readOnly>';
 ret += '<span id="'+name+'_sec_on_label" class="greyed_label">Sec</span>';
@@ -397,7 +397,7 @@ setInputFilter(document.getElementById(name+"_day_off"), function(value) { retur
 }
 
 function load_ctrl_action(){
-	var action_A = '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">';
+	var action_A = '<div class="trigger_container" >';
 	action_A += ' <label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_on" ><span class="slider round"></span>';
 	action_A += '</label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
 	action_A += 'if Value &nbsp; <select id="action_A_cmpr_on">';
@@ -405,7 +405,7 @@ function load_ctrl_action(){
 	action_A += '<input type="text" id="action_A_value_on" style="width:100px"> &nbsp; <abbr title="Once triggered, condition is held until reset by another trigger">(One Way Switch)</abbr>';
 	action_A += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition" ><br>';
 	action_A += '<span id="sec_cond_on_holder"></span></div>';
-	action_A += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	';
+	action_A += '<div class="trigger_container">	';
 	action_A += '<label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;';
 	action_A += 'Switched Off: &nbsp;if Value <select id="action_A_cmpr_off">';
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
