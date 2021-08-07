@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.9.6.4c: CSS changes<br>
 0.9.6.4a: Modify WiFi details and MDNS<br>
 0.9.6.4: 11th milestone complete<br>
 0.9.6.3: fix dev mode 2nd <br>
