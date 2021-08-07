@@ -4,10 +4,10 @@ Changelog:<br/>
 0.9.6.4c: CSS changes<br>
 0.9.6.4a: Modify WiFi details and MDNS<br>
 0.9.6.4: 11th milestone complete<br>
-0.9.6.3: fix dev mode 2nd <br>
-0.9.6.2: fix dev mode<br>
-0.9.6.1: milestone 11 exclude OTA<br>
-0.9.6.0: add web ota<br>
+0.9.6.3: Fix Dev mode 2nd <br>
+0.9.6.2: Fix Dev mode<br>
+0.9.6.1: Milestone 11 exclude OTA<br>
+0.9.6.0: Web OTA<br>
 0.9.5.9: fix timed cycle init and output warning (page) <br>
 0.9.5.8: fix some feature<br>
 0.9.5.7: very minor changes to text<br>
