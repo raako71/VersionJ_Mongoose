@@ -2,7 +2,7 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
-	<title>SC Settings</title>
+	<title> SC Setting</title>
 	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
 	<link rel="stylesheet" type="text/css" href="general.css" />
 <script>
@@ -24,17 +24,19 @@ var sheets = document.getElementsByTagName('link');
 
 if(input == 1){
 sheets[0].href = "light.css";
-document.getElementById("confirmation_box").style.backgroundColor = "white";
+document.getElementById("cb_save").style.backgroundColor = "white";
+document.getElementById("cb_wifi").style.backgroundColor = "white";
 }else{
 sheets[0].href = "dark.css";
-document.getElementById("confirmation_box").style.backgroundColor = "black";
+document.getElementById("cb_save").style.backgroundColor = "black";
+document.getElementById("cb_wifi").style.backgroundColor = "black";
 }
 }
 </script>
 </head>
 <body>
-<div id="overlay" style="display:none;">
-  <div id="confirmation_box" >
+<div id="overlay_save" class="overlay" style="display:none;">
+  <div id="cb_save" class="confirmation_box" >
   <div id="circularG" >
 	<div id="circularG_1" class="circularG"></div>
 	<div id="circularG_2" class="circularG"></div>
@@ -49,7 +51,23 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
   <div style="margin-top:15px" id="failed_button"> 
   <input type="button" style="width:75px;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div style="margin-top:15px" id="success_button">
-  <input type="button" style="width:75px;font-size:16px" value="OK" onClick="off_overlay()"></div>
+  <input type="button" style="width:75px;font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
+  </div>
+</div>
+<div id="overlay_wifi" class="overlay" style="display:none;font-size:16px">
+  <div id="cb_wifi" class="confirmation_box">
+	<b>Add New WiFi Access Point</b><br>
+	<div id="scan_result" style="margin-top:10px;margin-bottom:10px;padding-left:10%;padding-right:10%;text-align:left">
+	</div>
+	<input type="button" style="width:100px" value="scan" id="scan_wifi" onClick="scan_wifi()"><br>
+	<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
+	SSID: <input type="text" style="width:80%; margin-bottom:5px" id="wifi_ssid"><br>
+	Key :&nbsp;&nbsp;<input type="password" style="width:80%;margin-left:1px;" id="wifi_pass">
+	</div>
+	<span style="margin-top:10px;display:block;" id="wifi_warning"></span>
+	<div style="margin-top:5px">
+	<input type="button" style="margin:10px;width:100px" onClick="connect_wifi()" id="save_wifi" value="save"><input style="margin:10px;width:100px" type="button" value="cancel" onClick="off_overlay_wifi()">
+	</div>
   </div>
 </div>
 <div id="main_div">
@@ -71,6 +89,14 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
 		<option value="3">Off</option>
 	</select>
 	<br><br>
+	<div id="wifi_pri_info">SSID: </div> 
+	<div id="wifi_sec_info">RSSI: </div> 
+	<div style="margin-bottom:10px" id="wifi_trd_info">IP  : </div>	 
+	<b> Saved WiFi Network</b>
+	<br>
+	<span id="wifi_saved_list"></span>
+	<input style="margin-top:10px; margin-bottom:10px" type="button" value="Add New WiFi Network" onClick="on_overlay_wifi()">
+	<br>
 	<input type="checkbox" id="pwr_sensor_check" name="pwr_sensor_check">	
 	<label for="pwr_sensor_check"><b>Power Sensor Setting</b></label><br>
 		&nbsp;&nbsp;&nbsp; on Development...
@@ -170,6 +196,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
 		console.log("DOM loaded");
 		load_conf();
 		fetch_version();
+		fetch_wifi_status();
 	}
 	function LAN_conf(){
 		var logic = document.getElementById("LAN_conf").checked;
@@ -206,7 +233,8 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
 				getconfig();
 			}
 			document.getElementById("dev_mode_en").checked = old_json.dev_mode;
-			document.getElementById("mode").value = old_json.wifi[0].mode;
+			document.getElementById("mode").value = old_json.wifi.mode;
+			build_wifi_saved_list(old_json.wifi.cfg);
 			document.getElementById("pwr_sensor_check").checked = old_json.pwr_sensor[0].enable;
 			var static_conf = old_json.static_IP_conf[0].enable;
 			if(static_conf){
@@ -303,7 +331,7 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
 			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
 			var theme_mode = (document.getElementById("light_theme").checked? 1 : 2);
 			old_json.eth_en = document.getElementById("eth_en").checked;
-			old_json.wifi[0].mode = mode;
+			old_json.wifi.mode = mode;
 			old_json.pwr_sensor[0].enable = pwr_sensor_en;
 			old_json.static_IP_conf[0].enable = net_conf_en;
 			old_json.static_IP_conf[0].IP = IP;
@@ -321,6 +349,15 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
 			old_json.dec_place = document.getElementById("dec_place").value;
 			old_json.brightness[0].panel = document.getElementById("panel_brightness").value;
 			old_json.brightness[0].remote = document.getElementById("remote_brightness").value;
+			//check deleted save network_conf
+			for (var i = 0; i < 3 ; i++){
+			if(document.getElementById("wifi_saved"+i) != null){
+				if(document.getElementById("wifi_saved"+i).checked){
+				old_json.wifi.cfg[i].ssid = "";
+				old_json.wifi.cfg[i].pass = "";
+				}
+			}
+			}
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST", "/rpc/FS.Put", true);
 			xhttp.setRequestHeader('Content-Type', 'application/json');
@@ -389,14 +426,211 @@ document.getElementById("confirmation_box").style.backgroundColor = "black";
 		}
 	}
 function on_overlay() {
-  document.getElementById("overlay").style.display = "block";
+  document.getElementById("overlay_save").style.display = "block";
   document.getElementById("main_div").style.filter = "blur(2px)";
-  document.getElementById("overlay").style.filter = "none";
+  document.getElementById("overlay_save").style.filter = "none";
 }
 
 function off_overlay() {
-  document.getElementById("overlay").style.display = "none";
+  document.getElementById("overlay_save").style.display = "none";
   document.getElementById("main_div").style.filter = "none";
+}
+function on_overlay_wifi(){
+  document.getElementById("overlay_wifi").style.display = "block";
+  document.getElementById("main_div").style.filter = "blur(2px)";
+  document.getElementById("overlay_wifi").style.filter = "none";
+  document.getElementById("scan_wifi").disabled = false;
+  document.getElementById("scan_result").innerHTML = "Press Scan Button to start wifi scanning!";
+  document.getElementById("wifi_warning").innerHTML = "";
+  document.getElementById("wifi_pass").value = "";
+  document.getElementById("wifi_ssid").value = "";
+  document.getElementById("save_wifi").disabled = false;
+}
+
+
+function off_overlay_wifi(){
+  document.getElementById("overlay_wifi").style.display = "none";
+  document.getElementById("main_div").style.filter = "none";
+  load_conf();
+  
+}
+var spinner_load= '<div id="circularG" style="margin-top:-5px"><div id="circularG_1" class="circularG"></div>';
+spinner_load += '<div id="circularG_2" class="circularG"></div>';
+spinner_load += '<div id="circularG_3" class="circularG"></div><div id="circularG_4" class="circularG"></div><div id="circularG_5" class="circularG"></div>';
+spinner_load += '<div id="circularG_6" class="circularG"></div><div id="circularG_7" class="circularG"></div><div id="circularG_8" class="circularG"></div></div>';
+	
+function scan_wifi(){
+	document.getElementById("scan_result").innerHTML = spinner_load;
+	document.getElementById("scan_wifi").disabled = true;
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", "/rpc/wifi.scan", true);
+	xhttp.setRequestHeader('Content-Type', 'application/json');
+	xhttp.send();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			document.getElementById("scan_wifi").disabled = false;
+			if(xhttp.status == 200){
+			var data = JSON.parse(this.responseText);
+			var build_net="";
+			var sec_type = ["OPEN", "WEP", "WPA/PSK", "WPA2/PSK", "WPA2/PSK", "WPA2/ENT"];
+			for(var i = 0; i < data.length; i++){
+				var b = data[i].ssid.replace(/'/g, "\\'");
+				b = b.replace(/"/g, '&#34;');
+				var a = data[i].ssid.replace(/'/g, '&#39;');
+				a = a.replace(/"/g, '&#34;');
+				build_net += '<table style="width:100%; vertical-align:top"><tr style="height:10px;  vertical-align:top">';
+				build_net += '<td style="font-size:14px;  text-align:left;padding-top:3px">';
+				build_net += '<span onClick="wifi_list(\''+b+'\')" style="width:100%;border:none; text-align:left; word-break: break-all; white-space:normal;cursor:pointer">'+a+'</span>';
+				build_net += '</td><td style="width:20%;text-align:right">';
+				build_net += sec_type[data[i].auth];
+				build_net += '</td><td style="width:15%;text-align:right">';
+				build_net += dbm_2_percent(data[i].rssi);;
+				build_net += '</td></table>';
+			}
+			document.getElementById("scan_result").innerHTML = build_net;
+			}else{
+			document.getElementById("scan_result").innerHTML = "Failed to scan wifi!";
+			}
+		}
+	}//onready
+}
+function fetch_wifi_status(){
+var a = document.getElementById("wifi_pri_info");
+var b = document.getElementById("wifi_sec_info");
+var c = document.getElementById("wifi_trd_info");
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "/rpc/wifi.status", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.send();
+xhr.onload = function() {
+var data = JSON.parse(this.responseText);
+if(data.sta_rssi == 0){ // ap mode
+a.innerHTML = "SSID: " + data.ap_ssid;
+b.innerHTML = "Key : " + data.ap_pass;
+c.innerHTML = "IP&nbsp; : " + data.ap_ip;
+}else{ // sta mode
+b.innerHTML = "RSSI: " + data.sta_rssi + " dBm"; 
+fetch_wifi_status_sec();
+}
+}//onload
+}
+
+function fetch_wifi_status_sec(){
+var a = document.getElementById("wifi_pri_info");
+var c = document.getElementById("wifi_trd_info");
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "/rpc/sys.getinfo", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.send();
+xhr.onload = function() {
+var data = JSON.parse(this.responseText);
+c.innerHTML = "IP : " + data.wifi.sta_ip;
+a.innerHTML = "SSID: " + data.wifi.ssid;
+}//onload
+}
+function connect_wifi(){
+	var ssid_saved = document.getElementById("wifi_ssid").value;
+	var x = document.getElementById("wifi_warning");
+	x.innerHTML = "";
+	var pass_saved = document.getElementById("wifi_pass").value;
+	if(ssid_saved == ""){
+		x.innerHTML = "SSID cannot be empty!";
+		return;
+	}
+	if(ssid_saved.length > 31){
+		x.innerHTML = "SSID must be between 1 to 31 chars";
+		return;
+	}
+	if(pass_saved != "" && (pass_saved.length < 5 || pass_saved.length > 63)){
+		x.innerHTML = "password must be between 8 to 63 chars!";
+		return;
+	}
+	var json_ssid = {ssid:ssid_saved, pass:pass_saved};
+	json_ssid = JSON.stringify(json_ssid);
+	console.log(json_ssid);
+	document.getElementById("save_wifi").disabled = true;
+	//validation on client side
+	x.innerHTML = spinner_load; //pop spinner up
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Get", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var comm = {filename: "setting.json"};
+	xhr.send(JSON.stringify(comm));
+	xhr.onreadystatechange = function() {
+	if (xhr.readyState == 4 && xhr.status == 200)  {
+		var data = JSON.parse(xhr.responseText);
+		data = JSON.parse(window.atob(data.data));
+		//check all wifi field
+		console.log(data);
+		for (var i = 0; i < 3; i++){
+			console.log(data.wifi.cfg[i].ssid);
+			if(data.wifi.cfg[i].ssid == ssid_saved){
+				x.innerHTML = "Same SSID name is already saved!";
+				document.getElementById("save_wifi").disabled = false;
+				return;
+			}
+			if(data.wifi.cfg[i].ssid == ""){
+				data.wifi.cfg[i].ssid = ssid_saved;
+				data.wifi.cfg[i].pass = pass_saved;
+				break;
+			}
+			if(i == 2){ // no empty slot
+				x.innerHTML = "WiFi credentials storage is full (Max 3)!";
+				document.getElementById("save_wifi").disabled = false;
+				return;
+			}
+		}
+		//commit to save new config
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST", "/rpc/FS.Put", true);
+		xhttp.setRequestHeader('Content-Type', 'application/json');
+		var string = window.btoa(JSON.stringify(data));
+		var contain = {"filename": "setting.json", "append":false, "data": string}
+		xhttp.send(JSON.stringify(contain));
+		xhttp.onreadystatechange = function() {
+			if(xhttp.readyState == 4){
+			if(xhttp.status == 200){
+			x.innerHTML = "Configuration saved, please restart the device!";
+			document.getElementById("save_wifi").disabled = false;
+			}else{
+			x.innerHTML = "Device does not respond! save failed";
+			document.getElementById("save_wifi").disabled = false;
+			}			
+			}	
+		}
+	}else if(xhr.readyState == 4 && xhr.status != 200){
+		document.getElementById("save_wifi").disabled = false;
+		x.innerHTML = "Device does not response!";
+	}
+	}//xhr readystate func
+}
+function wifi_list(input){
+	document.getElementById("wifi_ssid").value = input;
+	document.getElementById("wifi_pass").focus();
+	document.getElementById("wifi_pass").value = "";
+}
+function build_wifi_saved_list(input){
+var b = "";
+for (var i = 0; i < 3 ; i++){
+if(input[i].ssid != ""){
+b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="wifi_saved'+i+'" value="'+i+'">';
+b += '<label for="wifi_saved'+i+'">'+input[i].ssid+'</label></div>';
+}
+}//for
+b += "<div style='margin-top:5px; margin-bttom:5px'><b>Checked Networks will be deleted on save (reset is required after saving)</b></div>"
+document.getElementById("wifi_saved_list").innerHTML = b;
+}
+function dbm_2_percent(input){
+var quality;
+if(input <= -100){
+    quality = 0;
+}else if(input >= -50){
+	quality = 100;
+}else{
+    quality = 2 * (input + 100);
+}
+return quality+"%";
 }
 //ota
 const form = document.querySelector("#uploadform");
@@ -434,7 +668,13 @@ form.addEventListener("submit", e => {
 		font-family: Arial; display: inline-block; text-align: center;
 		-webkit-text-size-adjust:none;
 	}
-
+	.main_container{
+		width:90%; 
+		text-align:left;  
+		padding-top:15px;
+		margin-left:auto; 
+		margin-right:auto
+	}
 	.switch { position: relative; display: inline-block; width: 42px; height: 25px;}
 	.switch input { opacity: 0; width: 0; height: 0;}
 	.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: red; -webkit-transition: .4s; transition: .4s;}

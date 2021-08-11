@@ -126,17 +126,12 @@ mgos_timer_id wifi_blink_timer;
 struct mgos_config_wifi_sta cfg_sta;
 struct mgos_config_wifi_ap cfg_ap;
 
-int wifi_led_ctrl_psc = 0;
 
 static void wifi_led_ctrl(void *arg) {
    	if(wifi_mode == 2){
    		fade_blink(WIFI_LED);
 	}else if(wifi_mode == 1){
 		if(mgos_wifi_get_status() != 3){
-			if(wifi_led_ctrl_psc >= 10){
-				mgos_wifi_connect();
-				wifi_led_ctrl_psc = 0;
-			}
 			static int a = 0;
 			if(a%2 == 0){
 				mgos_pwm_set(WIFI_LED, 100, (float)panel_brightness/65535);	
@@ -149,7 +144,6 @@ static void wifi_led_ctrl(void *arg) {
 	   		mgos_pwm_set(WIFI_LED, 100, (float)panel_brightness/65535);
 	   		//mgos_gpio_write(WIFI_LED, 1);
 		}
-		wifi_led_ctrl_psc++;
 	}
     (void) arg;
 }
@@ -235,6 +229,7 @@ void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void get_wifi_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	//dns_advert = true;
 	mg_rpc_send_responsef(ri, "OK");
@@ -423,6 +418,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "dnsAdvertise", "", dns_advertise, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reqIOinfo", "", request_IO_info, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reset_timer", "{file:%Q}", reset_timer, NULL);
+  	mg_rpc_add_handler(mgos_rpc_get_global(), "wifi.status", "", get_wifi_status, NULL);
 	
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	mgos_msleep(1000);
@@ -447,6 +443,16 @@ void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_
 	(void) cb_arg;
 	(void) fi;	
 }
+void get_wifi_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+int wifi_rssi = mgos_wifi_sta_get_rssi();
+const char* ap_ip = mgos_sys_config_get_wifi_ap_ip();
+const char* ap_ssid = mgos_sys_config_get_wifi_ap_ssid();
+const char* ap_pass = mgos_sys_config_get_wifi_ap_pass();
+mg_rpc_send_responsef(ri, "{sta_rssi: %d, ap_ip: %Q, ap_ssid: %Q, ap_pass: %Q}",wifi_rssi,ap_ip, ap_ssid, ap_pass);
+///free(ap_ip); free(ap_ssid); free(ap_pass);
+(void) cb_arg;
+(void) fi;	
+}
 //V2////////////////////////////////////////////////////////////////////////////////////////
 
 void load_wifi_setting(){
@@ -454,45 +460,90 @@ void load_wifi_setting(){
   	//char* IP;char* SN;char* GW;
   	int mode;
   	char* ssid; char* pass;
+	char* ssid1; char* pass1;
+	char* ssid2; char* pass2;  	
   	//bool static_en = false;
 	char* buff = (char*)malloc(1024);
 	buff = json_fread("setting.json");
-	json_scanf_array_elem(buff, strlen(buff), ".wifi",0, &t);
+	char* buff_b = (char*)malloc(512);
+	json_scanf(buff, strlen(buff), "{wifi: %Q}", &buff_b);
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",0, &t);
 	//json_scanf_array_elem(buff, strlen(buff), ".static_IP_conf", 0, &t);
 	//json_scanf(t.ptr, t.len, "{enable: %B}", &static_en);
-	json_scanf(t.ptr, t.len, "{mode: %d}", &mode);
+	json_scanf(buff_b, strlen(buff_b), "{mode: %d}", &mode);
 	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
 	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
+	
+	//sta 1
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",1, &t);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid1);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass1);
+	
+	//sta2
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",2, &t);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid2);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass2);
+	
 	int a = mgos_gpio_read(WIFI_BTN);
 	free(buff);
+	free(buff_b);
 	if(a == 1){
 		LOG(LL_WARN, ("AP mode (button) %d", a));
 		wifi_mode = 2;
+		mgos_sys_config_set_wifi_ap_enable(true);
+		mgos_sys_config_set_wifi_sta_enable(false);
+		mgos_sys_config_set_wifi_sta1_enable(false);
+		mgos_sys_config_set_wifi_sta2_enable(false);
+		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
 		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		return;	
 	}
 	
 	if(mode == 1){
 		LOG(LL_WARN,("STA mode.."));
-	    cfg_sta.enable = true;
 	    wifi_mode = 1;
-		cfg_sta.ssid = ssid;
-		cfg_sta.pass = pass;
-		cfg_ap.enable = false;
-		mgos_wifi_setup_sta(&cfg_sta);
-		mgos_wifi_setup_ap(&cfg_ap); 
+	    mgos_sys_config_set_wifi_ap_enable(false);
+	    if(strcmp(ssid, "") != 0){
+		mgos_sys_config_set_wifi_sta_ssid(ssid);
+		mgos_sys_config_set_wifi_sta_pass(pass);
+		mgos_sys_config_set_wifi_sta_enable(true);
+		}else{
+			mgos_sys_config_set_wifi_sta_enable(false);
+		}
+		if(strcmp(ssid1, "") != 0){
+		mgos_sys_config_set_wifi_sta1_ssid(ssid1);
+		mgos_sys_config_set_wifi_sta1_pass(pass1);
+		mgos_sys_config_set_wifi_sta1_enable(true);
+		}else{
+			mgos_sys_config_set_wifi_sta1_enable(false);
+		}
+		if(strcmp(ssid2, "") != 0){
+		mgos_sys_config_set_wifi_sta2_ssid(ssid2);
+		mgos_sys_config_set_wifi_sta2_pass(pass2);
+		mgos_sys_config_set_wifi_sta2_enable(true);
+		}else{
+			mgos_sys_config_set_wifi_sta2_enable(false);
+		}
+		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
+		
 		wifi_blink_timer = mgos_set_timer(100, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		
 		return;
-	}else if(mode == 3){
+	}else if(mode == 3){ ///both sta and AP off
 		wifi_mode = 3;
-		cfg_sta.enable = false;
-		cfg_ap.enable = false;
-		mgos_wifi_setup_sta(&cfg_sta);
-		mgos_wifi_setup_ap(&cfg_ap);
+		mgos_sys_config_set_wifi_ap_enable(false);
+		mgos_sys_config_set_wifi_sta_enable(false);
+		mgos_sys_config_set_wifi_sta1_enable(false);
+		mgos_sys_config_set_wifi_sta2_enable(false);
+		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
 		mgos_gpio_write(WIFI_LED, false);
 	}else{
 		LOG(LL_WARN, ("AP mode (setting)"));
+		mgos_sys_config_set_wifi_ap_enable(true);
+		mgos_sys_config_set_wifi_sta_enable(false);
+		mgos_sys_config_set_wifi_sta1_enable(false);
+		mgos_sys_config_set_wifi_sta2_enable(false);
+		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
 		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		wifi_mode = 2;
 		return;
@@ -1377,7 +1428,7 @@ for (int i = 0; i < 10; i++){
 				}
 				//prog_link_state[prog_output-1] = (prog_override != -1) ? check_program_state(list_prog_name[i]) : prog_override;
 				//check if IO14 en or not
-				if((prog_output == 4 && IO14_en == false) || dev_mode_global){
+				if((prog_output == 4 && IO14_en == false) ){
 					prog_link_state[prog_output-1] = 0;
 					prog_pin_state[prog_output-1] = 0;
 				}else if(prog_output == 3 && LED_opt != 1){
@@ -1944,7 +1995,7 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
   	}
 }
 void led_red_ctrl(unsigned int value){ //as output
-	if(LED_opt == 1 && dev_mode_global){
+	if(LED_opt == 1){
 		if(value == 1){
 			mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
 			//mgos_gpio_write(LED_RED, 0);

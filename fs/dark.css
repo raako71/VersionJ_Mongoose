@@ -8,9 +8,17 @@ a, a :visited{
 a:hover{
     color: #ff6200;
 }
-.main_container{
-    background-color: #131916;
+input[type=button]{
+	background-color:black;
+	border:1px solid #FFA700;
+	cursor:pointer;
+	border-radius:5px;
+	color:#FFA700;
 }
-.trigger_container{
-    background-color:  #131916;
+.confirmation_box{
+	border:2px solid #FFA700;
+}
+input[type=text]{
+	border:1px solid #FFA700;
+	border-radius: 5px;
 }

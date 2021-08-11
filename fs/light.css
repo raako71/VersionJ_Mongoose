@@ -8,9 +8,21 @@ a, a :visited{
 a:hover{
     color: #00cc08;
 }
-.main_container{
-    background-color: aliceblue;
+input[type=button]{
+	background-color:white;
+	border:1px solid red;
+	border-radius: 5px;
+	cursor:pointer;
+	color:black;
 }
-.trigger_container{
-    background-color:  aliceblue;
+.confirmation_box{
+	border:2px solid red;
+}
+input[type=text]{
+	border:1px solid #FF0000;
+	border-radius: 5px;
+}
+input[type=password]{
+	border:1px solid #FF0000;
+	border-radius: 5px;
 }

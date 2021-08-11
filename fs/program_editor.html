@@ -53,13 +53,13 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 </div>
 
 <div id="main_div">
-<h1> Program Editor</h1>
+<h1> Program Editor Page </h1>
 <input type="file" id="selectedFile" style="display: none;"  accept=".json"/>
 <input type="button" value="Import Program" onclick="document.getElementById('selectedFile').value = '';document.getElementById('selectedFile').click();" /><br>	
 <div class="main_container">
 <table>
 <td>
-<input type="text" id="program_name" placeholder="Custom name" style="height:20px">
+<input type="text" id="program_name" placeholder="custom name" style="height:20px">
 </td>
 </table>
 <br>
@@ -163,7 +163,7 @@ Start Date
 </select> &nbsp;<span id="output_warning" style="color:red;cursor:pointer; display:none" > (!)</span> <span id="warning_message"> Output Disabled</span>
 </div>
 
-<div class="trigger_container" id="ctrl_trigger_holder_1">
+<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" id="ctrl_trigger_holder_1">
 <label for="ctrl_trigger">Control Trigger:</label>
 <select name="ctrl_trigger" id="ctrl_trigger" onChange="load_ctrl_action();">
   <option value=1>Temperature</option>
@@ -191,7 +191,8 @@ Start Date
 </div>
 </body>
 <script>
-
+var LED_opt_global;
+var IO14_opt_global;
 load_ctrl_action();
 var program2load = getUrlParam('x','Empty');
 var idprogram = getUrlParam('y','Empty');
@@ -210,7 +211,7 @@ function getUrlParam(parameter, defaultvalue){var urlparameter = defaultvalue;if
 
 //duty cycle div builder
 function duty_cycle_builder(name){
-var ret = '<div class="trigger_container"><div >Switch output on for: &nbsp; ';
+var ret = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
 ret += '<input type="checkbox" id=\"'+name+'_en_sec_on\" onClick=\"toggle_field(this,\''+name+'_sec_on\')\">';
 ret += '<input type="text" id="'+name+ '_sec_on" class="greycolor" readOnly>';
 ret += '<span id="'+name+'_sec_on_label" class="greyed_label">Sec</span>';
@@ -283,7 +284,9 @@ function toggle_cond(input, name){
 	var array = ["if Temperature", "if Humidity", "if Light", "if Power", "Timed Cycle", "If Out A", "If Out B", "If LED RED", "If IO14"];
 	for (i = 0 ; i < array.length ; i++){
 	if( prim_opt != i+1 && Number(document.getElementById("ctrl_out_opt").value)+4 != i){
-	if(prim_opt != 9 || i < 4)div_add_condition += '<option value='+(i+1)+'>'+array[i]+'</option>';
+	if(prim_opt != 9 || i < 4){
+		if( i < 7 || (i == 7 && LED_opt_global == 1) || (i==8 && IO14_opt_global == true))div_add_condition += '<option value='+(i+1)+'>'+array[i]+'</option>';
+	}
 	}
 	}
 	div_add_condition += ' </select> &nbsp;<select id="sec_comp_'+name+'"><option value=1> ></option><option value=2> < </option></select>';
@@ -397,7 +400,7 @@ setInputFilter(document.getElementById(name+"_day_off"), function(value) { retur
 }
 
 function load_ctrl_action(){
-	var action_A = '<div class="trigger_container" >';
+	var action_A = '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">';
 	action_A += ' <label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_on" ><span class="slider round"></span>';
 	action_A += '</label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
 	action_A += 'if Value &nbsp; <select id="action_A_cmpr_on">';
@@ -405,16 +408,16 @@ function load_ctrl_action(){
 	action_A += '<input type="text" id="action_A_value_on" style="width:100px"> &nbsp; <abbr title="Once triggered, condition is held until reset by another trigger">(One Way Switch)</abbr>';
 	action_A += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition" ><br>';
 	action_A += '<span id="sec_cond_on_holder"></span></div>';
-	action_A += '<div class="trigger_container">	';
+	action_A += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	';
 	action_A += '<label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;';
 	action_A += 'Switched Off: &nbsp;if Value <select id="action_A_cmpr_off">';
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
 	action_A += '<input type="text" id="action_A_value_off" style="width:100px">';
 	action_A += '<br><span id="sec_cond_off_holder"></span></div>';
 	var action_C = duty_cycle_builder("action_C");	
-	var action_B = '<div class="trigger_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
+	var action_B = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
 	action_B += '<input type="checkbox" id="action_B_en"><span class="slider round"></span></label></td></tr></table></div></div>';
-	var action_D = '<div class="trigger_container" style="border:1px solid;border-radius:10px; padding:10px">Input Button: ';
+	var action_D = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px">Input Button: ';
 	action_D += '<select id="input_remote"><option value=1> Relay A </option><option value= 2> Relay B</option><option value = 3> ';
 	action_D += 'Remote PB </option></select>';
 	action_D += '<div  style="margin-top:15px">';
@@ -426,7 +429,11 @@ function load_ctrl_action(){
 	action_E += '<input type="checkbox" id="pri_switched_on" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
 	action_E += 'if &nbsp; <select id="action_E_pri_on" onChange="load_action_E_pri(this)">';
 	for (i = 0 ; i < 4 ; i++){
-	if(document.getElementById("ctrl_out_opt").value != i+1)action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
+	if(document.getElementById("ctrl_out_opt").value != i+1){
+		if(i < 2 || (i == 2 && LED_opt_global == 1) || (i == 3 && IO14_opt_global == true)){
+		action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
+		}
+	}
 	}action_E += '</select> &nbsp; is &nbsp; <select id="action_E_pri_opt_on" onchange="load_output_status_sec(this.value)"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
 	action_E += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition">';
 	action_E += '<span id="sec_cond_on_holder"></span></div>';
@@ -862,9 +869,11 @@ var data = JSON.parse(this.responseText);
 var old_json = JSON.parse(window.atob(data.data));
 var a = old_json.ctrl_page.LED;
 var b = old_json.ctrl_page.IO14;
+LED_opt_global = a;
+IO14_opt_global = b;
 var c = document.getElementById("ctrl_out_opt");
-if(!b || old_json.dev_mode) {c.remove(3); IO14 = false;}
-if(a != 1 || old_json.dev_mode){ c.remove(2); LED = false;}
+if(!b ) {c.remove(3); IO14 = false;}
+if(a != 1){ c.remove(2); LED = false;}
 if(program2load != "new"){load_setting();}//load program json
 }
 }

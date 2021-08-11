@@ -3,25 +3,16 @@ html{
 		-webkit-text-size-adjust:none;
 	}
 .main_container{
-    width:850px;
+	width:90%; 
+	padding-top:15px;
 	margin: 10px auto ;
 	text-align: left;
-    padding: 15px;
 }
-
-.trigger_container{
-    border:1px solid; 
-    padding:10px;
-    border-radius:10px;
-    width: 90%;
-    margin: 10px auto ;
-    text-align: left;
-
+input[type="button"][disabled] {
+   color: grey;
+   cursor: wait;
 }
-#ctrl_trigger_holder_1{
-    width:850px;
-}
-#overlay {
+.overlay {
   position: fixed;
   display: none;
   width: 100%;
@@ -33,22 +24,19 @@ html{
   filter: blur(8px);
   background-color: rgba(0,0,0,0.5);
   z-index: 2;
-  cursor: pointer;
 }
 
-#confirmation_box{
+.confirmation_box{
 	position: absolute;
     top:50%;
 	border-radius:25px;
     left: 50%;
     font-size:16px;
-    background-color:white;
     transform: translate(-50%,-50%);
   -ms-transform: translate(-50%,-50%);
-  height:200px; 
+  min-height:200px; 
   width:35%; 
   text-align:center;
-  border-color:white; 
   border-style:solid;
   padding-top: 15px;
 }
