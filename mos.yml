@@ -1,6 +1,6 @@
-author: mongoose-os
-description: 11th milestone complete
-version: 0.9.7.0
+author: alifnl
+description: match Harry push
+version: 0.9.7.1
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

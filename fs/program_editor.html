@@ -53,13 +53,13 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 </div>
 
 <div id="main_div">
-<h1> Program Editor Page </h1>
+<h1> Program Editor</h1>
 <input type="file" id="selectedFile" style="display: none;"  accept=".json"/>
 <input type="button" value="Import Program" onclick="document.getElementById('selectedFile').value = '';document.getElementById('selectedFile').click();" /><br>	
 <div class="main_container">
 <table>
 <td>
-<input type="text" id="program_name" placeholder="custom name" style="height:20px">
+<input type="text" id="program_name" placeholder="Custom name" style="height:20px">
 </td>
 </table>
 <br>
@@ -163,7 +163,7 @@ Start Date
 </select> &nbsp;<span id="output_warning" style="color:red;cursor:pointer; display:none" > (!)</span> <span id="warning_message"> Output Disabled</span>
 </div>
 
-<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px" id="ctrl_trigger_holder_1">
+<div class="trigger_container" style="border:1px solid; border-radius:10px; padding:10px" id="ctrl_trigger_holder_1">
 <label for="ctrl_trigger">Control Trigger:</label>
 <select name="ctrl_trigger" id="ctrl_trigger" onChange="load_ctrl_action();">
   <option value=1>Temperature</option>
@@ -211,7 +211,7 @@ function getUrlParam(parameter, defaultvalue){var urlparameter = defaultvalue;if
 
 //duty cycle div builder
 function duty_cycle_builder(name){
-var ret = '<div class="main_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
+var ret = '<div class="trigger_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
 ret += '<input type="checkbox" id=\"'+name+'_en_sec_on\" onClick=\"toggle_field(this,\''+name+'_sec_on\')\">';
 ret += '<input type="text" id="'+name+ '_sec_on" class="greycolor" readOnly>';
 ret += '<span id="'+name+'_sec_on_label" class="greyed_label">Sec</span>';
@@ -400,7 +400,7 @@ setInputFilter(document.getElementById(name+"_day_off"), function(value) { retur
 }
 
 function load_ctrl_action(){
-	var action_A = '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">';
+	var action_A = '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px">';
 	action_A += ' <label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_on" ><span class="slider round"></span>';
 	action_A += '</label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
 	action_A += 'if Value &nbsp; <select id="action_A_cmpr_on">';
@@ -408,16 +408,16 @@ function load_ctrl_action(){
 	action_A += '<input type="text" id="action_A_value_on" style="width:100px"> &nbsp; <abbr title="Once triggered, condition is held until reset by another trigger">(One Way Switch)</abbr>';
 	action_A += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition" ><br>';
 	action_A += '<span id="sec_cond_on_holder"></span></div>';
-	action_A += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px">	';
+	action_A += '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px">	';
 	action_A += '<label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;';
 	action_A += 'Switched Off: &nbsp;if Value <select id="action_A_cmpr_off">';
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
 	action_A += '<input type="text" id="action_A_value_off" style="width:100px">';
 	action_A += '<br><span id="sec_cond_off_holder"></span></div>';
 	var action_C = duty_cycle_builder("action_C");	
-	var action_B = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
+	var action_B = '<div class="trigger_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
 	action_B += '<input type="checkbox" id="action_B_en"><span class="slider round"></span></label></td></tr></table></div></div>';
-	var action_D = '<div class="main_container" style="border:1px solid;border-radius:10px; padding:10px">Input Button: ';
+	var action_D = '<div class="trigger_container" style="border:1px solid;border-radius:10px; padding:10px">Input Button: ';
 	action_D += '<select id="input_remote"><option value=1> Relay A </option><option value= 2> Relay B</option><option value = 3> ';
 	action_D += 'Remote PB </option></select>';
 	action_D += '<div  style="margin-top:15px">';
@@ -425,7 +425,7 @@ function load_ctrl_action(){
 	action_D += 'onChange="load_action_D_sec(this)" checked><span class="slider2 round"></label>&nbsp; Toggle Switch</div>';
 	action_D += '<span id="action_D_holder"> </span></div></div>'
 	var array = ["Output A", "Output B", "Output LED Red", "Output IO14"];
-	var action_E = '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
+	var action_E = '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
 	action_E += '<input type="checkbox" id="pri_switched_on" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
 	action_E += 'if &nbsp; <select id="action_E_pri_on" onChange="load_action_E_pri(this)">';
 	for (i = 0 ; i < 4 ; i++){

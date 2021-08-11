@@ -3,10 +3,22 @@ html{
 		-webkit-text-size-adjust:none;
 	}
 .main_container{
-	width:90%; 
-	padding-top:15px;
+	width:850px;
+	padding:15px;
 	margin: 10px auto ;
 	text-align: left;
+}
+.trigger_container{
+    border:1px solid; 
+    padding:10px;
+    border-radius:10px;
+    width: 90%;
+    margin: 10px auto ;
+    text-align: left;
+
+}
+#ctrl_trigger_holder_1{
+    width:850px;
 }
 input[type="button"][disabled] {
    color: grey;

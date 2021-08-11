@@ -26,3 +26,9 @@ input[type=password]{
 	border:1px solid #FF0000;
 	border-radius: 5px;
 }
+.main_container{
+    background-color: aliceblue;
+}
+.trigger_container{
+    background-color:  aliceblue;
+} 
