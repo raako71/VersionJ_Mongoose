@@ -21,17 +21,17 @@ changetheme(old_json.theme);
 }
 function changetheme(input){
 var sheets = document.getElementsByTagName('link');
-document.getElementById("confirmation_box").style.backgroundColor = "black";
+document.getElementById("cb_save").style.backgroundColor = "black";
 if(input == 1){
 sheets[0].href = "light.css";
-document.getElementById("confirmation_box").style.backgroundColor = "white";
+document.getElementById("cb_save").style.backgroundColor = "white";
 }
 }
 </script>
 </head>
 <body>
-<div id="overlay" style="display:none">
-  <div id="confirmation_box">
+<div id="overlay_save" class="overlay" style="display:none">
+  <div id="cb_save" class="confirmation_box">
   <div id="circularG" >
 	<div id="circularG_1" class="circularG"></div>
 	<div id="circularG_2" class="circularG"></div>
@@ -596,13 +596,13 @@ document.getElementById("confirmation_box").style.backgroundColor = "white";
 		}
 	}
 	function on_overlay() {
-	  document.getElementById("overlay").style.display = "block";
+	  document.getElementById("overlay_save").style.display = "block";
 	  document.getElementById("main_div").style.filter = "blur(2px)";
-	  document.getElementById("overlay").style.filter = "none";
+	  document.getElementById("overlay_save").style.filter = "none";
 	}
 
 	function off_overlay() {
-	  document.getElementById("overlay").style.display = "none";
+	  document.getElementById("overlay_save").style.display = "none";
 	  document.getElementById("main_div").style.filter = "none";
 	}
 	function update_time(){

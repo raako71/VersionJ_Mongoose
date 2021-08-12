@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.9.7.2: fix program editor bug<br>
 0.9.7.1: match Harry push<br>
 0.9.7.0: 12th milestone (wifi only), fix last version bug<br>
 0.9.6.4c: CSS changes<br>

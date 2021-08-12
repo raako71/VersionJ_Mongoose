@@ -2,8 +2,8 @@
 <html>
 
 <head>
-	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
-    <link rel="stylesheet" type="text/css" href="general.css" />
+	<link id="theme" rel="stylesheet" type="text/css" href="./dark.css" />
+    <link rel="stylesheet" type="text/css" href="./general.css" />
 	<link rel="stylesheet" href="./mnt/dtsel.css" />
 	<script src="./mnt/dtsel.js"></script>
 	<title>SC Program Editor</title>
@@ -23,17 +23,17 @@ changetheme(old_json.theme);
 }
 function changetheme(input){
 var sheets = document.getElementsByTagName('link');
-document.getElementById("confirmation_box").style.backgroundColor = "black";
+document.getElementById("cb_save").style.backgroundColor = "black";
 if(input == 1){
 sheets[0].href = "light.css";
-document.getElementById("confirmation_box").style.backgroundColor = "white";
+document.getElementById("cb_save").style.backgroundColor = "white";
 }
 }
 </script>
 </head>
 <body>
-<div id="overlay" style="display:none">
-  <div id="confirmation_box" >
+<div id="overlay_save" class="overlay" style="display:none">
+  <div id="cb_save" class="confirmation_box" >
   <div id="circularG" >
 	<div id="circularG_1" class="circularG"></div>
 	<div id="circularG_2" class="circularG"></div>
@@ -815,6 +815,11 @@ xhttp.onreadystatechange = function() {
 	document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 	document.getElementById("success_button").style.display="block";
 	document.getElementById("failed_button").style.display="none";
+		if(program2load != "new"){
+		var a = new XMLHttpRequest();
+		a.open("POST", "/rpc/reset_timer", true);
+		a.send(JSON.stringify({file:program2load+".json"}));
+		}
 	}else if(xhttp.readyState == 4 && xhttp.status != 200){
 	document.getElementById("circularG").style.display = 'none';
 	document.getElementById("spinner_info").innerHTML = "Device does not respond!";
@@ -1094,13 +1099,13 @@ function parse_config(input){
 	}
 }
 function on_overlay() {
-  document.getElementById("overlay").style.display = "block";
+  document.getElementById("overlay_save").style.display = "block";
   document.getElementById("main_div").style.filter = "blur(2px)";
-  document.getElementById("overlay").style.filter = "none";
+  document.getElementById("overlay_save").style.filter = "none";
 }
 
 function off_overlay() {
-  document.getElementById("overlay").style.display = "none";
+  document.getElementById("overlay_save").style.display = "none";
   document.getElementById("main_div").style.filter = "none";
 }
 function blabla(){

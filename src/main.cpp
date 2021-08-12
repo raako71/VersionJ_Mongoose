@@ -487,6 +487,7 @@ void load_wifi_setting(){
 	int a = mgos_gpio_read(WIFI_BTN);
 	free(buff);
 	free(buff_b);
+	a = 0;
 	if(a == 1){
 		LOG(LL_WARN, ("AP mode (button) %d", a));
 		wifi_mode = 2;
@@ -1986,7 +1987,6 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
 		json_scanf(buff, strlen(buff), "{control_opt: %d}", &ctrl_pin); 	
 		prog_timer_state[ctrl_pin-1]= 0;
 		mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-		
 		free(buff);
 		
   	} else {
