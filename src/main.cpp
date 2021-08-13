@@ -487,7 +487,7 @@ void load_wifi_setting(){
 	int a = mgos_gpio_read(WIFI_BTN);
 	free(buff);
 	free(buff_b);
-	a = 0;
+	
 	if(a == 1){
 		LOG(LL_WARN, ("AP mode (button) %d", a));
 		wifi_mode = 2;
@@ -500,10 +500,14 @@ void load_wifi_setting(){
 		return;	
 	}
 	
-	if(mode == 1){
-		LOG(LL_WARN,("STA mode.."));
+	if(mode == 1 || mode == 4){
+		LOG(LL_WARN,("STA mode..")); //+ap mode
 	    wifi_mode = 1;
-	    mgos_sys_config_set_wifi_ap_enable(false);
+	    if(mode == 4){
+	    	mgos_sys_config_set_wifi_ap_enable(true);
+		}else{
+			mgos_sys_config_set_wifi_ap_enable(false);
+		}
 	    if(strcmp(ssid, "") != 0){
 		mgos_sys_config_set_wifi_sta_ssid(ssid);
 		mgos_sys_config_set_wifi_sta_pass(pass);
@@ -538,7 +542,7 @@ void load_wifi_setting(){
 		mgos_sys_config_set_wifi_sta2_enable(false);
 		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
 		mgos_gpio_write(WIFI_LED, false);
-	}else{
+	}else if(mode == 2){
 		LOG(LL_WARN, ("AP mode (setting)"));
 		mgos_sys_config_set_wifi_ap_enable(true);
 		mgos_sys_config_set_wifi_sta_enable(false);

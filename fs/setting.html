@@ -86,12 +86,12 @@ document.getElementById("cb_wifi").style.backgroundColor = "black";
 		<select name="mode" id="mode">
 		<option value="1">Station</option>
 		<option value="2">AP</option>
+		<option value="4">STA+AP</option>
 		<option value="3">Off</option>
 	</select>
 	<br><br>
-	<div id="wifi_pri_info">SSID: </div> 
-	<div id="wifi_sec_info">RSSI: </div> 
-	<div style="margin-bottom:10px" id="wifi_trd_info">IP  : </div>	 
+	<div id="wifi_info0"></div>
+	<div id="wifi_info1"></div>
 	<b> Saved WiFi Network</b>
 	<br>
 	<span id="wifi_saved_list"></span>
@@ -196,7 +196,7 @@ document.getElementById("cb_wifi").style.backgroundColor = "black";
 		console.log("DOM loaded");
 		load_conf();
 		fetch_version();
-		fetch_wifi_status();
+		
 	}
 	function LAN_conf(){
 		var logic = document.getElementById("LAN_conf").checked;
@@ -267,6 +267,7 @@ document.getElementById("cb_wifi").style.backgroundColor = "black";
 			}			
 			document.getElementById("remote_brightness").value = old_json.brightness[0].remote;
 			document.getElementById("panel_brightness").value = old_json.brightness[0].panel;
+			fetch_wifi_status();
 		}
 	}
 	function auto_tz(){
@@ -495,37 +496,42 @@ function scan_wifi(){
 	}//onready
 }
 function fetch_wifi_status(){
-var a = document.getElementById("wifi_pri_info");
-var b = document.getElementById("wifi_sec_info");
-var c = document.getElementById("wifi_trd_info");
+var b = document.getElementById("mode").value;
+console.log(b);
+var c = "";
 var xhr = new XMLHttpRequest();
 xhr.open("GET", "/rpc/wifi.status", true);
 xhr.setRequestHeader('Content-Type', 'application/json');
 xhr.send();
+document.getElementById("wifi_info0").innerHTML = "";
+document.getElementById("wifi_info1").innerHTML = "";
 xhr.onload = function() {
 var data = JSON.parse(this.responseText);
-if(data.sta_rssi == 0){ // ap mode
-a.innerHTML = "SSID: " + data.ap_ssid;
-b.innerHTML = "Key : " + data.ap_pass;
-c.innerHTML = "IP&nbsp; : " + data.ap_ip;
-}else{ // sta mode
-b.innerHTML = "RSSI: " + data.sta_rssi + " dBm"; 
-fetch_wifi_status_sec();
+if(b == 2 || b == 4){ // ap_mode
+c += "<div>SSID: " + data.ap_ssid + "</div>";
+c += "<div>Key : " + data.ap_pass + "</div>";
+c += "<div style='margin-bottom:10px'>IP&nbsp; : " + data.ap_ip + "</div>";
+console.log(c);
+document.getElementById("wifi_info0").innerHTML = c;
+}
+if(b ==1 || b == 4){ // sta mode
+fetch_wifi_status_sec(data.sta_rssi);
 }
 }//onload
 }
 
-function fetch_wifi_status_sec(){
-var a = document.getElementById("wifi_pri_info");
-var c = document.getElementById("wifi_trd_info");
+function fetch_wifi_status_sec(input1){
+var c = "";
 var xhr = new XMLHttpRequest();
 xhr.open("GET", "/rpc/sys.getinfo", true);
 xhr.setRequestHeader('Content-Type', 'application/json');
 xhr.send();
 xhr.onload = function() {
 var data = JSON.parse(this.responseText);
-c.innerHTML = "IP : " + data.wifi.sta_ip;
-a.innerHTML = "SSID: " + data.wifi.ssid;
+c += "<div>SSID: " + data.wifi.ssid +"</div>";
+c += "<div>RSSI: " + input1 + " dBm</div>"; 
+c += "<div style='margin-bottom:10px'>IP : " + data.wifi.sta_ip + "</div>";
+document.getElementById("wifi_info1").innerHTML = c;
 }//onload
 }
 function connect_wifi(){
