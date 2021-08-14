@@ -1,6 +1,6 @@
 author: alifnl
-description: add wifi ap+sta
-version: 0.9.7.3
+description: mobile html formatting
+version: 0.9.7.4
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

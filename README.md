@@ -1,7 +1,8 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.9.7.2: add wifi sta+ap<br>
+0.9.7.4: mobile html formatting<br>
+0.9.7.3: add wifi sta+ap<br>
 0.9.7.2: fix program editor bug<br>
 0.9.7.1: match Harry push<br>
 0.9.7.0: 12th milestone (wifi only), fix last version bug<br>

@@ -222,3 +222,10 @@ input[type="button"][disabled] {
 		-moz-transform:scale(.3);
 	}
 }
+
+@media screen and (max-width: 481px){
+    
+    .main_container{
+	width:85%;
+}
+}
