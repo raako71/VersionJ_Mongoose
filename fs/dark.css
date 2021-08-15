@@ -22,6 +22,7 @@ input[type=text]{
 	border:1px solid #FFA700;
 	border-radius: 5px;
     background: #0e0e0e;
+    color: #FFA700;
 }
 .main_container{
     background-color: #131916;
