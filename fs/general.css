@@ -257,4 +257,7 @@ input:checked + .slider:before { -webkit-transform: translateX(15px); -ms-transf
         width: 90%;
         margin: 10px;
     }
+    .confirmation_box{
+    width:90%; 
+}
 }

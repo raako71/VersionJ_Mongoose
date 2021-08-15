@@ -78,13 +78,6 @@
     </div>
     <div class="main_container">
         <div class="section">
-            <b> Ethernet Enable </b><br>
-            <label class="switch" style="margin: 15px 0">
-                <input type="checkbox" id="eth_en">
-                <span class="slider round"></span>
-            </label>
-        </div>
-        <div class="section">
             <label for="mode" ><b>Default WiFi Mode:</b></label>
             <select name="mode" id="mode">
                 <option value="1">Station</option>
@@ -101,13 +94,13 @@
             <input style="margin-top:10px; margin-bottom:10px" type="button" value="Add New WiFi Network" onClick="on_overlay_wifi()">
             <br>
         </div>
+                
         <div class="section">
-            <input type="checkbox" id="pwr_sensor_check" name="pwr_sensor_check">	
-            <label for="pwr_sensor_check"><b>Power Sensor Setting</b></label><br>
-            &nbsp;&nbsp;&nbsp; in Development...
-            <br>
-        </div>
-        <div class="section">
+            <b> Enable Ethernet </b><br>
+            <label class="switch" style="margin: 15px 0">
+                <input type="checkbox" id="eth_en">
+                <span class="slider round"></span>
+            </label><br>
             <input type="checkbox" id="LAN_conf" name="LAN_conf" onClick="LAN_conf()" style="margin-top:15px">	
             <label for="LAN_conf"><b>Static Eth IP</b></label><br>
             <table >
@@ -125,6 +118,15 @@
                 </tr>
             </table>
         </div>
+        
+        
+        <div class="section">
+            <input type="checkbox" id="pwr_sensor_check" name="pwr_sensor_check">	
+            <label for="pwr_sensor_check"><b>Power Sensor Setting</b></label><br>
+            &nbsp;&nbsp;&nbsp; in Development...
+            <br>
+        </div>
+        
         <div class="section">
             <b>Set Time Zone</b>
             <br>
@@ -391,7 +393,7 @@ function save_conf(){
                     document.getElementById("failed_button").style.display="none";
                 }else if(xhttp.readyState == 4 && xhttp.status != 200){
                     document.getElementById("circularG").style.display = 'none';
-                    document.getElementById("spinner_info").innerHTML = "Device does not respond!";
+                    document.getElementById("spinner_info").innerHTML = "No response from Controller!";
                     document.getElementById("success_button").style.display="none";
                     document.getElementById("failed_button").style.display="block";
                     return;
@@ -403,7 +405,7 @@ function save_conf(){
             xhttp2.send();
         }else if(xhr.readyState == 4 && xhr.status != 200){
             document.getElementById("circularG").style.display = 'none';
-            document.getElementById("spinner_info").innerHTML = "Device does not respond!";
+            document.getElementById("spinner_info").innerHTML = "No response from Controller!";
             document.getElementById("success_button").style.display="none";
             document.getElementById("failed_button").style.display="block";
         }
