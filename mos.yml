@@ -1,6 +1,6 @@
 author: alifnl
-description: mobile html formatting
-version: 0.9.7.4
+description: CSS changes
+version: 0.9.7.5b
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

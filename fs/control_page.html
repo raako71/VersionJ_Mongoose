@@ -2,663 +2,662 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
-	<title>SC Control Logic</title>
-	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
-    <link rel="stylesheet" type="text/css" href="./general.css" />
+<title>SC Control Logic</title>
+<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
+<link rel="stylesheet" type="text/css" href="./general.css" />
 <script>
-load_conf();
-function load_conf(){
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "/rpc/FS.Get", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-var comm = {"filename": "setting.json"};
-xhr.send(JSON.stringify(comm));
-xhr.onload = function() {
-var data = JSON.parse(this.responseText);
-var old_json = JSON.parse(window.atob(data.data));
-changetheme(old_json.theme);
-}
-}
-function changetheme(input){
-var sheets = document.getElementsByTagName('link');
-document.getElementById("cb_save").style.backgroundColor = "black";
-if(input == 1){
-sheets[0].href = "light.css";
-document.getElementById("cb_save").style.backgroundColor = "white";
-}
-}
+    load_conf();
+    function load_conf(){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/rpc/FS.Get", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        var comm = {"filename": "setting.json"};
+        xhr.send(JSON.stringify(comm));
+        xhr.onload = function() {
+            var data = JSON.parse(this.responseText);
+            var old_json = JSON.parse(window.atob(data.data));
+            changetheme(old_json.theme);
+        }
+    }
+    function changetheme(input){
+        var sheets = document.getElementsByTagName('link');
+        document.getElementById("cb_save").style.backgroundColor = "black";
+        if(input == 1){
+            sheets[0].href = "light.css";
+            document.getElementById("cb_save").style.backgroundColor = "white";
+        }
+    }
 </script>
 </head>
 <body>
 <div id="overlay_save" class="overlay" style="display:none">
-  <div id="cb_save" class="confirmation_box">
-  <div id="circularG" >
-	<div id="circularG_1" class="circularG"></div>
-	<div id="circularG_2" class="circularG"></div>
-	<div id="circularG_3" class="circularG"></div>
-	<div id="circularG_4" class="circularG"></div>
-	<div id="circularG_5" class="circularG"></div>
-	<div id="circularG_6" class="circularG"></div>
-	<div id="circularG_7" class="circularG"></div>
-	<div id="circularG_8" class="circularG"></div>
-  </div>
-  <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
-  <div style="margin-top:15px" id="failed_button"> 
-  <input type="button" style="width:75px" value="retry" onClick="save_func()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
-  <div style="margin-top:15px" id="success_button">
-  <input type="button" style="width:75px" value="OK" onClick="off_overlay()"></div>
-  </div>
+    <div id="cb_save" class="confirmation_box">
+        <div id="circularG" >
+            <div id="circularG_1" class="circularG"></div>
+            <div id="circularG_2" class="circularG"></div>
+            <div id="circularG_3" class="circularG"></div>
+            <div id="circularG_4" class="circularG"></div>
+            <div id="circularG_5" class="circularG"></div>
+            <div id="circularG_6" class="circularG"></div>
+            <div id="circularG_7" class="circularG"></div>
+            <div id="circularG_8" class="circularG"></div>
+        </div>
+        <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
+        <div style="margin-top:15px" id="failed_button"> 
+            <input type="button" style="width:75px" value="retry" onClick="save_func()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
+        <div style="margin-top:15px" id="success_button">
+            <input type="button" style="width:75px" value="OK" onClick="off_overlay()"></div>
+    </div>
 </div>
 <div id="main_div">
-	<h1> Control Logic</h1>
-	<h1> <a href="./">Home</a></h1>
-	<div class="main_container">
-	<h3 id="devtime"> DEVICE TIME: </h3>
-	<h3 id="uptime"> DEVICE UPTIME: </h3>
-	<b> Programs (descending priority)</b>
-	<div id="program_link"></div>
-	<div style="margin-bottom:10px; margin-top:10px">
-	<input type="button" value="Create New Program" onClick="new_program()">
-	</div>
-	<b> Remote Push Button</b><br>
-	<input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
-	<input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
-	<div id="prog_holder" style="padding-left:20px;">
-	
-	</div>
-	
-	<b>Programmable Indicator LED</b>
-	<br>
-	
-	<input type="radio" name="programmable_led" id="led_disable" onChange="toggle_led_prog()"><label for="led_disable">Disabled</label><br>
-	<div id="as_output_holder" style="display:none">
-	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label></div>
-	<input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog()"><label for ="output_stat">Show output status</label><br>
-	<div id="prog_stat_holder" >
-	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for program active, On for output active, off for program inactive)</label></div>
-	<span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
-	
-	<b>Outputs</b>
-	<br>
-	<div style="margin-bottom:5px; margin-top:5px">
-	A: <span id="relay1_prog" > </span>&nbsp;&nbsp;<span id="relay1_sta" > </span>
-	</div>
-	<div style="margin-bottom:5px; margin-top:5px">
-	B: <span id="relay2_prog"></span>&nbsp;&nbsp;<span id="relay2_sta"></span>
-	</div>
-	<div style="margin-bottom:5px; margin-top:5px">
-	LED: <span id="led_prog"></span>&nbsp;&nbsp;<span id="led_sta"></span>
-	</div>
-	<div style="margin-bottom:5px; margin-top:5px; display:none" id="IO14_holder" >
-	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> IO14: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
-	</div>
-	</div>
-	<br>
-	<input type="button" value="SAVE" onClick="save_func()">
+    <h1> Control Logic</h1>
+    <h1> <a href="./">Home</a></h1>
+    <div class="main_container">
+        <h3 id="devtime"> DEVICE TIME: </h3>
+        <h3 id="uptime"> DEVICE UPTIME: </h3>
+        <div class="section">
+            <b> Programs (descending priority)</b>
+            <div id="program_link"></div>
+            <div style="margin-bottom:10px; margin-top:10px">
+                <input type="button" value="Create New Program" onClick="new_program()">
+            </div>
+        </div>
+        <div class="section">
+            <b> Remote Push Button</b><br>
+            <input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
+            <input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
+            <div id="prog_holder" style="padding-left:20px;"></div>
+        </div>
+        <div class="section">
+            <b>Programmable Indicator LED</b>
+            <br>
+
+            <input type="radio" name="programmable_led" id="led_disable" onChange="toggle_led_prog()"><label for="led_disable">Disabled</label><br>
+            <div id="as_output_holder" style="display:none">
+                <input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label></div>
+            <input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog()"><label for ="output_stat">Show output status</label><br>
+            <div id="prog_stat_holder" >
+                <input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for program active, On for output active, off for program inactive)</label></div>
+            <span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
+        </div>
+        <div class="section">
+            <b>Outputs</b>
+            <br>
+            <div style="margin-bottom:5px; margin-top:5px">
+                A: <span id="relay1_prog" > </span>&nbsp;&nbsp;<span id="relay1_sta" > </span>
+            </div>
+            <div style="margin-bottom:5px; margin-top:5px">
+                B: <span id="relay2_prog"></span>&nbsp;&nbsp;<span id="relay2_sta"></span>
+            </div>
+            <div style="margin-bottom:5px; margin-top:5px">
+                LED: <span id="led_prog"></span>&nbsp;&nbsp;<span id="led_sta"></span>
+            </div>
+            <div style="margin-bottom:5px; margin-top:5px; display:none" id="IO14_holder" >
+                <input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> IO14: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
+            </div>
+        </div>
+    </div>
+    <br>
+    <input type="button" value="SAVE" onClick="save_func()">
 </div>
 </body>
 
 <script>
-	var dev_offset;
-	var program_list = [{"id": "","name": "", "control_opt":""}, 
-						{"id": "","name": "", "control_opt":""}, 
-						{"id": "","name": "", "control_opt":""}, 
-						{"id": "","name": "", "control_opt":""}, 
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""}];
-	var prog_number =0;
-	var LED; var IO14;
-	window.addEventListener('load', onLoad);
-	var dropdown_menu = '<select id="prog_list" style="padding-left:10px; margin-top:10px; margin-bottom:10px"></select>';
-	dropdown_menu +=  '<div id="override" style="margin-bottom:10px; display:block;">';
-	dropdown_menu += 'Apply over ride<br>';
-	dropdown_menu += '<input type="radio" name="override" id="always" onChange="toogle_override()" checked><label for="always" >Always</label><br>';
-	dropdown_menu += '<input type="radio" name="override" id="for" onChange="toogle_override()"><label for="for" >For</label><br>';
-	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px; color:grey" id="ovr_for_holder">';
-	dropdown_menu += '<input type="text" class="greycolor" id="ovr_sec" maxlength="2" readOnly>Seconds &nbsp';
-	dropdown_menu += '<input type="text" class="greycolor" id="ovr_min" maxlength="2" readOnly>Minutes &nbsp';
-    dropdown_menu += '<input type="text" class="greycolor" id="ovr_hour" maxlength="2" readOnly>Hours &nbsp';
-	dropdown_menu += '<input type="text" class="greycolor" id="ovr_day" maxlength="2">Days</div>';
-	dropdown_menu += '<input type="radio" name="override" id="until" onChange="toogle_override()" ><label for="until">Until</label>';
-	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_until">';
-	dropdown_menu += '<input type=time id="until_time" style="color:grey;" readOnly></div></div>';
-	function onLoad(){
-		console.log("DOM loaded");
-		fetch_uptime();
-		fetch_program_list();
-	}
-	function fetch_program_list(){
-		console.log("fetch program list");
-		var i ;
-		var j = 0;
-		for(i = 1 ; i <= 10; i++){
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "/rpc/FS.Get", true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		var comm = {"filename": "program"+(i)+".json"};
-		xhr.send(JSON.stringify(comm));
-		xhr.onload = function() {
-		var data = JSON.parse(this.responseText);
-		if(data.code == 400){
-			console.log("no good");
-		}else{
-			var prog_json = JSON.parse(window.atob(data.data));
-			var id = prog_json.id;
-			program_list[id-1].name = prog_json.name;
-			program_list[id-1].id = prog_json.id;
-			program_list[id-1].control_opt = prog_json.control_opt;
-			prog_number++;
-		}
-		j++;
-		if(j == 10){
-			fetch_IO_status();
-			load_conf();
-			update_time();
-			setInterval(function() {update_time();}, 1000);			
-		}
-	
-		}
-		}//for
-	}
-	
-	function new_program(){
-		var i = 0;
-		var id;
-		for(i = 0; i < 11; i++){
-			if(i == 10){ alert("program full"); return;};
-			if(program_list[i].id == ""){
-				id = i+1;
-				break;
-			}
-			
-		}
-		location.href="program_editor.html?x=new&y=" + id + "&" + Math.random() * Math.random();
-	}
-	function fetch_uptime(){
-		var xhttp = new XMLHttpRequest();	
-		xhttp.open("POST", "/rpc/Sys.GetInfo", true);
-		xhttp.send();
-		xhttp.onload = function(){
-			var response = JSON.parse(this.responseText);
-			var res = Number(response.uptime);		
-			var d = Math.floor(res/86400);
-			var h = Math.floor((res - d*86400)/3600) ; 
-			var s = res%60; 
-			var m = Math.floor((res-(d*86400 + h*3600))/60);
-			document.getElementById("uptime").innerHTML = "Device Uptime: " +s+ " s, " + m+ " mins, " + h + " hrs, " + d + " days";	
-		}
-	}
-	function create_program_link(){
-		var link = '<ul style="padding-left:20px; margin-top:10px">';
-		var i = 0;
-		while(i < 10){
-			if( program_list[i].name != ""){
-			link += '<table><td><li></li> </td><td style="width:100px"><a href="program_editor.html?x=program' + (i+1) +'&y='+program_list[i].id+'&'+ Math.random() * Math.random()+'">' + program_list[i].name + '</a></td>';
-			link+= '<td style="width:15px">';
-			if(program_list[i].control_opt == 3 && !LED){
-			link+= '<abbr class="title_attr" style="color:red" title="Config error (LED RED)">(!)</abbr></td>';
-			}else if(program_list[i].control_opt == 4 && !IO14){
-			link+= '<abbr class= "title_attr" style="color:red" title="Config error (IO14)">(!)</abbr></td>';
-			}else{
-			link+= '</td>';
-			}
-			link += '<td><input type="button" style="margin-left:10px; margin-right:2px" value="Export" onClick="download_file(\'program'+program_list[i].id+'.json\')"> <input type="button" style="margin-right:10px" value="Delete" onClick="delete_prog('+program_list[i].id+')"></td></table>';
-			}
-			i++;
-		}
-		link += '</ul>';
-		document.getElementById("program_link").innerHTML = link;
-	}
-	function delete_prog(input){
-	var conf = confirm("Are you sure want to delete " + program_list[input-1].name + " program?");
-	if(conf){
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "/rpc/FS.Remove", true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	var  comm = {  "filename": "program" + input+".json" };
-	xhr.send(JSON.stringify(comm));
-	xhr.onload = function() {window.location.reload(true)}
-	}
-	}
-	function create_dropdown(){
-		var i;
-		for(i = 0 ; i < 10; i++){
-			if(program_list[i].name != ""){
-			var x = document.getElementById("prog_list");
-			var opt = document.createElement("option");
-			opt.text = program_list[i].name;
-			opt.value = i+1;
-			x.add(opt);
-			}
-		}
-	}
-	
-	document.getElementById("cont_prog").onclick = function() {
-		var holder = document.getElementById("prog_holder");
-		if(this.checked){
-			holder.innerHTML = dropdown_menu;
-			create_dropdown();
-		}else{
-			holder.innerHTML = "";
-		}
-	}
-	function IO14_en_func(halo){
-		if(halo.checked){
-			var conf = confirm("Are you sure want to enable this output?");
-			if(!conf){
-				halo.checked = false;
-			}
-		}
-	}
-	function toggle_led_prog(){
-		var a = "Select Program: <select id='prog_led_list'></select>";
-		if(document.getElementById("as_output").checked ||document.getElementById("led_disable").checked){
-			document.getElementById("prog_led_holder").innerHTML = "";
-		}else{
-			document.getElementById("prog_led_holder").innerHTML = a;
-			for(var i = 0 ; i < 10; i++){
-			if(program_list[i].name != ""){
-			var x = document.getElementById("prog_led_list");
-			var opt = document.createElement("option");
-			opt.text = program_list[i].name;
-			opt.value = i+1;
-			x.add(opt);
-			}
-		}
-		}
-	}
-	function toogle_override() {
-		if(document.getElementById("for").checked){
-			document.getElementById("ovr_day").readOnly = false;
-			document.getElementById("ovr_hour").readOnly = false;
-			document.getElementById("ovr_sec").readOnly = false;
-			document.getElementById("ovr_min").readOnly = false;
-			document.getElementById("ovr_for_holder").style.color= "";
-		}else{
-			document.getElementById("ovr_day").readOnly = true;
-			document.getElementById("ovr_hour").readOnly = true;
-			document.getElementById("ovr_sec").readOnly = true;
-			document.getElementById("ovr_min").readOnly = true;
-			document.getElementById("ovr_for_holder").style.color= "grey";
-		}
-		
-		if(document.getElementById("until").checked){
-			document.getElementById("until_time").readOnly = false;
-		}else{
-			document.getElementById("until_time").readOnly = true;
-		}
-	}
+var dev_offset;
+var program_list = [{"id": "","name": "", "control_opt":""}, 
+                    {"id": "","name": "", "control_opt":""}, 
+                    {"id": "","name": "", "control_opt":""}, 
+                    {"id": "","name": "", "control_opt":""}, 
+                    {"id": "","name": "", "control_opt":""},
+                    {"id": "","name": "", "control_opt":""},
+                    {"id": "","name": "", "control_opt":""},
+                    {"id": "","name": "", "control_opt":""},
+                    {"id": "","name": "", "control_opt":""},
+                    {"id": "","name": "", "control_opt":""}];
+var prog_number =0;
+var LED; var IO14;
+window.addEventListener('load', onLoad);
+var dropdown_menu = '<select id="prog_list" style="padding-left:10px; margin-top:10px; margin-bottom:10px"></select>';
+dropdown_menu +=  '<div id="override" style="margin-bottom:10px; display:block;">';
+dropdown_menu += 'Apply over ride<br>';
+dropdown_menu += '<input type="radio" name="override" id="always" onChange="toogle_override()" checked><label for="always" >Always</label><br>';
+dropdown_menu += '<input type="radio" name="override" id="for" onChange="toogle_override()"><label for="for" >For</label><br>';
+dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px; color:grey" id="ovr_for_holder">';
+dropdown_menu += '<input type="text" class="greycolor" id="ovr_sec" maxlength="2" readOnly>Seconds &nbsp';
+dropdown_menu += '<input type="text" class="greycolor" id="ovr_min" maxlength="2" readOnly>Minutes &nbsp';
+dropdown_menu += '<input type="text" class="greycolor" id="ovr_hour" maxlength="2" readOnly>Hours &nbsp';
+dropdown_menu += '<input type="text" class="greycolor" id="ovr_day" maxlength="2">Days</div>';
+dropdown_menu += '<input type="radio" name="override" id="until" onChange="toogle_override()" ><label for="until">Until</label>';
+dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_until">';
+dropdown_menu += '<input type=time id="until_time" style="color:grey;" readOnly></div></div>';
+function onLoad(){
+    console.log("DOM loaded");
+    fetch_uptime();
+    fetch_program_list();
+}
+function fetch_program_list(){
+    console.log("fetch program list");
+    var i ;
+    var j = 0;
+    for(i = 1 ; i <= 10; i++){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/rpc/FS.Get", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        var comm = {"filename": "program"+(i)+".json"};
+        xhr.send(JSON.stringify(comm));
+        xhr.onload = function() {
+            var data = JSON.parse(this.responseText);
+            if(data.code == 400){
+                console.log("no good");
+            }else{
+                var prog_json = JSON.parse(window.atob(data.data));
+                var id = prog_json.id;
+                program_list[id-1].name = prog_json.name;
+                program_list[id-1].id = prog_json.id;
+                program_list[id-1].control_opt = prog_json.control_opt;
+                prog_number++;
+            }
+            j++;
+            if(j == 10){
+                fetch_IO_status();
+                load_conf();
+                update_time();
+                setInterval(function() {update_time();}, 1000);			
+            }
 
-	function load_conf(){
-//	create_dropdown();
-	console.log("loading setting");
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "/rpc/FS.Get", true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	var comm = {"filename": "setting.json"};
-	xhr.send(JSON.stringify(comm));
-	xhr.onload = function() {
-	var data = JSON.parse(this.responseText);
-	var old_json = JSON.parse(window.atob(data.data));
-	//load theme first
-	document.getElementById("sens_in").checked = old_json.ctrl_page.sensor_input;
-	document.getElementById("cont_prog").checked = old_json.ctrl_page.prog_ctrl;
-	dev_offset = old_json.timezone;
-	if(old_json.ctrl_page.prog_ctrl){
-		document.getElementById("prog_holder").innerHTML = dropdown_menu;
-		create_dropdown();
-		document.getElementById("prog_list").value = old_json.ctrl_page.active_prog;
-		var a = old_json.ctrl_page.override;
-		var b = (old_json.ctrl_page.ovr_val);
-		if(a == 1){
-			document.getElementById("always").checked = true;
-		}else if(a == 2){
-			document.getElementById("for").checked = true;
-			toogle_override();
-			b = Number(b);
-			var d = Math.floor(b/86400);
-			var h = Math.floor((b - d*86400)/3600) ; 
-			var s = b%60; 
-			var m = Math.floor((b-(d*86400 + h*3600))/60);
-			document.getElementById("ovr_sec").value = s;
-			document.getElementById("ovr_min").value = m;
-			document.getElementById("ovr_hour").value = h;
-			document.getElementById("ovr_day").value = d;
-		}else{
-			document.getElementById("until").checked = true;
-			toogle_override();
-			var date_local = new Date();
-			var offset_local = date_local.getTimezoneOffset()*60;
-			b = b- offset_local;
-			if(b > 86400){ b = b- 86400;}
-			var hh = Math.floor(b/3600);
-			hh = (hh < 10) ? ("0"+hh) : hh;
-			var mm = (b%3600)/60;
-			mm = (mm < 10) ? ("0"+mm) : mm;
-			var all = hh + ":" + mm;
-			console.log(all);
-			document.getElementById("until_time").value = all;
-		}		
-	}
-	
-	var c = old_json.ctrl_page.LED;
-	var cx= old_json.dev_mode;
-	LED = false;
-	if(c == 0){
-		document.getElementById("led_disable").checked = true;
-	}else if(c == 1){
-		LED = true;
-		document.getElementById("as_output").checked = true;
-	}else if(c == 2){
-		document.getElementById("output_stat").checked = true;
-	}else{
-		document.getElementById("prog_stat").checked = true;
-	}
-	toggle_led_prog();
-	if(c == 2 || c == 3){
-		document.getElementById("prog_led_list").value = old_json.ctrl_page.LED_prog;
-	}
-	if(cx){
-		document.getElementById("as_output_holder").style.display="block";
-		document.getElementById("IO14_holder").style.display="block";
-	}else{
-		document.getElementById("led_prog").style.display = "none";
-	}
-	document.getElementById("IO14_en").checked = old_json.ctrl_page.IO14;
-	IO14 = old_json.ctrl_page.IO14;
-	
-	
-	create_program_link();
-	}//onload
-	
-	}
-	function save_func(){
-		var a = document.getElementById("sens_in").checked;
-		var b = document.getElementById("cont_prog").checked;
-		var b1 =0;
-		var c; var d; var d1;
-		if(b){
-			b1 = document.getElementById("prog_list").value;
-			c = document.getElementById("always").checked;
-			d = document.getElementById("for").checked;
-			d1 = document.getElementById("until").checked;
-		}
-		
-		var e =0;
-		var f ="";
-		if(c){
-			e = 1;
-		}else if(d){
-			e = 2;
-			f = Number(document.getElementById("ovr_sec").value);
-			f += Number(document.getElementById("ovr_min").value) * 60;
-			f += Number(document.getElementById("ovr_hour").value) * 3600;
-			f += Number(document.getElementById("ovr_day").value) *3600 * 24;
-		}else if(d1){
-			e = 3;
-			f = document.getElementById("until_time").value;
-			f = f.split(":");
-			var date_local = new Date();
-			var offset_local = date_local.getTimezoneOffset() * 60;
-			f = f[0] * 3600 + f[1] * 60 + offset_local;
-			if(f < 0){f = 86400 + f;}
-		}
-		var g;
-		if(document.getElementById("led_disable").checked){
-		g = 0;
-		}else if(document.getElementById("as_output").checked){
-		g = 1;
-		}else if(document.getElementById("output_stat").checked){
-		g = 2;
-		}else{
-		g = 3;
-		}
-		var g1 = (g == 2 || g == 3) ? document.getElementById("prog_led_list").value : 0;
-		var h = document.getElementById("IO14_en").checked;
-		var old_json;
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "/rpc/FS.Get", true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		var comm = {"filename": "setting.json"};
-		xhr.send(JSON.stringify(comm));
-		on_overlay();
-		document.getElementById("circularG").style.display = 'block';
-		document.getElementById("success_button").style.display="none";
-		document.getElementById("failed_button").style.display="none";
-		document.getElementById("spinner_info").innerHTML = "Saving..";
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState == 4 && xhr.status == 200)  {
-			var data = JSON.parse(this.responseText);
-			old_json = JSON.parse(window.atob(data.data));
-			old_json.ctrl_page.sensor_input = a;
-			old_json.ctrl_page.prog_ctrl = b;
-			old_json.ctrl_page.override=e;
-			old_json.ctrl_page.ovr_val = f;
-			old_json.ctrl_page.LED = g;
-			old_json.ctrl_page.IO14 = h;
-			old_json.ctrl_page.active_prog = b1;
-			old_json.ctrl_page.LED_prog = g1;
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST", "/rpc/FS.Put", true);
-			xhttp.setRequestHeader('Content-Type', 'application/json');
-			var string = window.btoa(JSON.stringify(old_json));
-			var contain = {"filename": "setting.json", "append":false, "data": string}
-			xhttp.send(JSON.stringify(contain));
-			
-			xhttp.onreadystatechange = function() {
-				if (xhttp.readyState == 4 && xhttp.status == 200)  {
-			//	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
-				document.getElementById("circularG").style.display = 'none';
-				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
-				document.getElementById("success_button").style.display="block";
-				document.getElementById("failed_button").style.display="none";
-				}else if(xhttp.readyState == 4 && xhttp.status != 200){
-				document.getElementById("circularG").style.display = 'none';
-				document.getElementById("spinner_info").innerHTML = "Device does not respond!";
-				document.getElementById("success_button").style.display="none";
-				document.getElementById("failed_button").style.display="block";
-				return;
-				}
-			}//xhttp readystate	
-			var xhttp2 = new XMLHttpRequest();
-			xhttp2.open("POST", "/rpc/setting", true);
-			xhttp2.send();
-			}else if(xhr.readyState == 4 && xhr.status != 200){
-				document.getElementById("circularG").style.display = 'none';
-				document.getElementById("spinner_info").innerHTML = "Device does not respond!";
-				document.getElementById("success_button").style.display="none";
-				document.getElementById("failed_button").style.display="block";
-			}
-		}//xhr readystate
-		
-		
-	}
-	
-	function fetch_IO_status(){
-		var xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "/rpc/reqIOinfo", true);
-		xhttp.setRequestHeader('Content-Type', 'application/json');
-		xhttp.send();
-		xhttp.onload = function(){
-			var json_data = JSON.parse(xhttp.responseText);
-			var a_el = document.getElementById("relay1_sta");
-			var b_el = document.getElementById("relay2_sta");
-			var c_el = document.getElementById("IO14_sta");
-			var d_el = document.getElementById("led_sta");
-			var a1_el = document.getElementById("relay1_prog");
-			var b1_el = document.getElementById("relay2_prog");
-			var c1_el = document.getElementById("IO14_prog");
-			var d1_el = document.getElementById("led_prog");
-			var pin_state = json_data.pin_state
-			var prog_name = json_data.prog_name;
-			var prog_state = json_data.prog_state;
-			var prog_state1;
-			var prog_state2;
-			var prog_state3;
-			var prog_state4;
-			if(prog_state[0] == '1'){
-			a1_el.className = "on_label";
-			prog_state1 = "Active: ";
-			}else{
-			var a = (prog_state[0] == '2') ? "Scheduled" : "Inactive";
-			a1_el.className = "off_label_prog";
-			prog_state1 = a+": ";
-			}
-			if(prog_state[1] == '1'){
-			b1_el.className = "on_label";
-			prog_state2 = "Active: ";
-			}else{
-			var a = (prog_state[1] == '2') ? "Scheduled" : "Inactive";
-			b1_el.className = "off_label_prog";
-			prog_state2 =  a+": ";
-			}
-			if(prog_state[2] == '1'){
-			d1_el.className = "on_label";
-			prog_state3 = "Active: ";
-			}else{
-			var a = (prog_state[2] == '2') ? "Scheduled" : "Inactive";
-			d1_el.className = "off_label_prog";
-			prog_state3 =  a+": ";
-			}
-			if(prog_state[3] == '1'){
-			prog_state4 = "Active: ";
-			c1_el.className = "on_label";
-			}else{
-			var a = (prog_state[3] == '2') ? "Scheduled" : "Inactive";
-			c1_el.className = "off_label_prog";
-			prog_state4 = a+": ";
-			}
-			var a = prog_name.split(",");
-			if(a[0] != -1){ prog_state1 += program_list[a[0]-1].name;}
-			if(a[1] != -1){ prog_state2 += program_list[a[1]-1].name;}
-			if(a[2] != -1){ prog_state3 += program_list[a[2]-1].name;}
-			if(a[3] != -1){ prog_state4 += program_list[a[3]-1].name;}
-			
-			a1_el.innerHTML = prog_state1;
-			b1_el.innerHTML = prog_state2;
-			d1_el.innerHTML = prog_state3;
-			c1_el.innerHTML = prog_state4;
-			
-			if(pin_state[0] == '1'){
-				a_el.className = "on_label";
-				a_el.innerHTML = "Output Switched: ON";
-			}else{
-				a_el.className = "off_label";
-				a_el.innerHTML = "Output Switched: OFF";
-			}
-			if(pin_state[1] == '1'){
-				b_el.className = "on_label";
-				b_el.innerHTML = "Output Switched: ON";
-			}else{
-				b_el.className = "off_label";
-				b_el.innerHTML = "Output Switched: OFF";
-			}
-			if(pin_state[3] == 1){
-				c_el.className = "on_label";
-				c_el.innerHTML = "Output Switched: ON";
-			}else{
-				c_el.className = "off_label";
-				c_el.innerHTML = "Output Switched: OFF";
-			}
-			if(pin_state[2] == 1){
-				d_el.className = "on_label";
-				d_el.innerHTML = "Output Switched: ON";
-			}else if(pin_state[2] == 2){
-				d_el.className = "off_label";
-				d_el.innerHTML = "Scheduled: Glowing";
-			}else if(pin_state[2] == 0){
-				d_el.className = "off_label";
-				d_el.innerHTML = "Output Switched: OFF ";
-			}
-		}
-	}
-	setInterval(function(){
-		fetch_uptime();
-		fetch_IO_status();
-	},2500);
-	function download_file(input){
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "/rpc/FS.Get", true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		var comm = {"filename": input};
-		xhr.send(JSON.stringify(comm));
-		xhr.onload = function() {
-			var data = JSON.parse(this.responseText);
-			var data1 = new Blob([window.atob(data.data)]);
-			var link = document.createElement("a");
-			link.download = input;
-			link.href = URL.createObjectURL(data1);
-			link.click();
-		}
-	}
-	function on_overlay() {
-	  document.getElementById("overlay_save").style.display = "block";
-	  document.getElementById("main_div").style.filter = "blur(2px)";
-	  document.getElementById("overlay_save").style.filter = "none";
-	}
+        }
+    }//for
+}
 
-	function off_overlay() {
-	  document.getElementById("overlay_save").style.display = "none";
-	  document.getElementById("main_div").style.filter = "none";
-	}
-	function update_time(){
-		var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function(){
-		if(xhr.readyState == 4){
-		var x = xhr.responseText;
-		var d = new Date();
-		var hour = Math.floor(Math.abs(dev_offset)/3600);
-		hour = Math.abs(hour);
-		var minute = Math.abs(dev_offset) - hour*3600; 
-		minute /= 60;
-		var a = new Date();
-		var pub_string = "Device Time: "+ epochToJsDate(x)+  (dev_offset >= 0 ? " (+": " (-") + hour +"." +minute + ") ";					
-		if(a.getTimezoneOffset()*(-60) != dev_offset){
-		pub_string += '<br><a href="/setting.html?'+ Math.random()* Math.random()+'" style="color:red">Device time zone doesn\'t match web browser - change</a>';
-		}
-		document.getElementById("devtime").innerHTML = pub_string;
-		}
-		};
-		xhr.open("GET", "/rpc/getTime", true);
-		xhr.send();
-	}
-	function epochToJsDate(ts){
-	var a = new Date();
-	var offset = a.getTimezoneOffset();
-	a = new Date(ts* 1000 + (offset*60000) + dev_offset*1000);
-	var ret = (a.getHours() < 10 ? '0' + a.getHours() : a.getHours()) + ':' +(a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes())  + ':' + (a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds())  + ", ";
-	ret +=  a.getDate() + '/' + (a.getMonth() + 1) + '/' + a.getFullYear();
-	return ret; 
-	}
+function new_program(){
+    var i = 0;
+    var id;
+    for(i = 0; i < 11; i++){
+        if(i == 10){ alert("program full"); return;};
+        if(program_list[i].id == ""){
+            id = i+1;
+            break;
+        }
+
+    }
+    location.href="program_editor.html?x=new&y=" + id + "&" + Math.random() * Math.random();
+}
+function fetch_uptime(){
+    var xhttp = new XMLHttpRequest();	
+    xhttp.open("POST", "/rpc/Sys.GetInfo", true);
+    xhttp.send();
+    xhttp.onload = function(){
+        var response = JSON.parse(this.responseText);
+        var res = Number(response.uptime);		
+        var d = Math.floor(res/86400);
+        var h = Math.floor((res - d*86400)/3600) ; 
+        var s = res%60; 
+        var m = Math.floor((res-(d*86400 + h*3600))/60);
+        document.getElementById("uptime").innerHTML = "Device Uptime: " +s+ " s, " + m+ " mins, " + h + " hrs, " + d + " days";	
+    }
+}
+function create_program_link(){
+    var link = '<ul style="padding-left:20px; margin-top:10px">';
+    var i = 0;
+    while(i < 10){
+        if( program_list[i].name != ""){
+            link += '<table><td><li></li> </td><td style="width:100px"><a href="program_editor.html?x=program' + (i+1) +'&y='+program_list[i].id+'&'+ Math.random() * Math.random()+'">' + program_list[i].name + '</a></td>';
+            link+= '<td style="width:15px">';
+            if(program_list[i].control_opt == 3 && !LED){
+                link+= '<abbr class="title_attr" style="color:red" title="Config error (LED RED)">(!)</abbr></td>';
+            }else if(program_list[i].control_opt == 4 && !IO14){
+                link+= '<abbr class= "title_attr" style="color:red" title="Config error (IO14)">(!)</abbr></td>';
+            }else{
+                link+= '</td>';
+            }
+            link += '<td><input type="button" style="margin-left:10px; margin-right:2px" value="Export" onClick="download_file(\'program'+program_list[i].id+'.json\')"> <input type="button" style="margin-right:10px" value="Delete" onClick="delete_prog('+program_list[i].id+')"></td></table>';
+        }
+        i++;
+    }
+    link += '</ul>';
+    document.getElementById("program_link").innerHTML = link;
+}
+function delete_prog(input){
+    var conf = confirm("Are you sure want to delete " + program_list[input-1].name + " program?");
+    if(conf){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/rpc/FS.Remove", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        var  comm = {  "filename": "program" + input+".json" };
+        xhr.send(JSON.stringify(comm));
+        xhr.onload = function() {window.location.reload(true)}
+    }
+}
+function create_dropdown(){
+    var i;
+    for(i = 0 ; i < 10; i++){
+        if(program_list[i].name != ""){
+            var x = document.getElementById("prog_list");
+            var opt = document.createElement("option");
+            opt.text = program_list[i].name;
+            opt.value = i+1;
+            x.add(opt);
+        }
+    }
+}
+
+document.getElementById("cont_prog").onclick = function() {
+    var holder = document.getElementById("prog_holder");
+    if(this.checked){
+        holder.innerHTML = dropdown_menu;
+        create_dropdown();
+    }else{
+        holder.innerHTML = "";
+    }
+}
+function IO14_en_func(halo){
+    if(halo.checked){
+        var conf = confirm("Are you sure want to enable this output?");
+        if(!conf){
+            halo.checked = false;
+        }
+    }
+}
+function toggle_led_prog(){
+    var a = "Select Program: <select id='prog_led_list'></select>";
+    if(document.getElementById("as_output").checked ||document.getElementById("led_disable").checked){
+        document.getElementById("prog_led_holder").innerHTML = "";
+    }else{
+        document.getElementById("prog_led_holder").innerHTML = a;
+        for(var i = 0 ; i < 10; i++){
+            if(program_list[i].name != ""){
+                var x = document.getElementById("prog_led_list");
+                var opt = document.createElement("option");
+                opt.text = program_list[i].name;
+                opt.value = i+1;
+                x.add(opt);
+            }
+        }
+    }
+}
+function toogle_override() {
+    if(document.getElementById("for").checked){
+        document.getElementById("ovr_day").readOnly = false;
+        document.getElementById("ovr_hour").readOnly = false;
+        document.getElementById("ovr_sec").readOnly = false;
+        document.getElementById("ovr_min").readOnly = false;
+        document.getElementById("ovr_for_holder").style.color= "";
+    }else{
+        document.getElementById("ovr_day").readOnly = true;
+        document.getElementById("ovr_hour").readOnly = true;
+        document.getElementById("ovr_sec").readOnly = true;
+        document.getElementById("ovr_min").readOnly = true;
+        document.getElementById("ovr_for_holder").style.color= "grey";
+    }
+
+    if(document.getElementById("until").checked){
+        document.getElementById("until_time").readOnly = false;
+    }else{
+        document.getElementById("until_time").readOnly = true;
+    }
+}
+
+function load_conf(){
+    //	create_dropdown();
+    console.log("loading setting");
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/rpc/FS.Get", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    var comm = {"filename": "setting.json"};
+    xhr.send(JSON.stringify(comm));
+    xhr.onload = function() {
+        var data = JSON.parse(this.responseText);
+        var old_json = JSON.parse(window.atob(data.data));
+        //load theme first
+        document.getElementById("sens_in").checked = old_json.ctrl_page.sensor_input;
+        document.getElementById("cont_prog").checked = old_json.ctrl_page.prog_ctrl;
+        dev_offset = old_json.timezone;
+        if(old_json.ctrl_page.prog_ctrl){
+            document.getElementById("prog_holder").innerHTML = dropdown_menu;
+            create_dropdown();
+            document.getElementById("prog_list").value = old_json.ctrl_page.active_prog;
+            var a = old_json.ctrl_page.override;
+            var b = (old_json.ctrl_page.ovr_val);
+            if(a == 1){
+                document.getElementById("always").checked = true;
+            }else if(a == 2){
+                document.getElementById("for").checked = true;
+                toogle_override();
+                b = Number(b);
+                var d = Math.floor(b/86400);
+                var h = Math.floor((b - d*86400)/3600) ; 
+                var s = b%60; 
+                var m = Math.floor((b-(d*86400 + h*3600))/60);
+                document.getElementById("ovr_sec").value = s;
+                document.getElementById("ovr_min").value = m;
+                document.getElementById("ovr_hour").value = h;
+                document.getElementById("ovr_day").value = d;
+            }else{
+                document.getElementById("until").checked = true;
+                toogle_override();
+                var date_local = new Date();
+                var offset_local = date_local.getTimezoneOffset()*60;
+                b = b- offset_local;
+                if(b > 86400){ b = b- 86400;}
+                var hh = Math.floor(b/3600);
+                hh = (hh < 10) ? ("0"+hh) : hh;
+                var mm = (b%3600)/60;
+                mm = (mm < 10) ? ("0"+mm) : mm;
+                var all = hh + ":" + mm;
+                console.log(all);
+                document.getElementById("until_time").value = all;
+            }		
+        }
+
+        var c = old_json.ctrl_page.LED;
+        var cx= old_json.dev_mode;
+        LED = false;
+        if(c == 0){
+            document.getElementById("led_disable").checked = true;
+        }else if(c == 1){
+            LED = true;
+            document.getElementById("as_output").checked = true;
+        }else if(c == 2){
+            document.getElementById("output_stat").checked = true;
+        }else{
+            document.getElementById("prog_stat").checked = true;
+        }
+        toggle_led_prog();
+        if(c == 2 || c == 3){
+            document.getElementById("prog_led_list").value = old_json.ctrl_page.LED_prog;
+        }
+        if(cx){
+            document.getElementById("as_output_holder").style.display="block";
+            document.getElementById("IO14_holder").style.display="block";
+        }else{
+            document.getElementById("led_prog").style.display = "none";
+        }
+        document.getElementById("IO14_en").checked = old_json.ctrl_page.IO14;
+        IO14 = old_json.ctrl_page.IO14;
+
+
+        create_program_link();
+    }//onload
+
+}
+function save_func(){
+    var a = document.getElementById("sens_in").checked;
+    var b = document.getElementById("cont_prog").checked;
+    var b1 =0;
+    var c; var d; var d1;
+    if(b){
+        b1 = document.getElementById("prog_list").value;
+        c = document.getElementById("always").checked;
+        d = document.getElementById("for").checked;
+        d1 = document.getElementById("until").checked;
+    }
+
+    var e =0;
+    var f ="";
+    if(c){
+        e = 1;
+    }else if(d){
+        e = 2;
+        f = Number(document.getElementById("ovr_sec").value);
+        f += Number(document.getElementById("ovr_min").value) * 60;
+        f += Number(document.getElementById("ovr_hour").value) * 3600;
+        f += Number(document.getElementById("ovr_day").value) *3600 * 24;
+    }else if(d1){
+        e = 3;
+        f = document.getElementById("until_time").value;
+        f = f.split(":");
+        var date_local = new Date();
+        var offset_local = date_local.getTimezoneOffset() * 60;
+        f = f[0] * 3600 + f[1] * 60 + offset_local;
+        if(f < 0){f = 86400 + f;}
+    }
+    var g;
+    if(document.getElementById("led_disable").checked){
+        g = 0;
+    }else if(document.getElementById("as_output").checked){
+        g = 1;
+    }else if(document.getElementById("output_stat").checked){
+        g = 2;
+    }else{
+        g = 3;
+    }
+    var g1 = (g == 2 || g == 3) ? document.getElementById("prog_led_list").value : 0;
+    var h = document.getElementById("IO14_en").checked;
+    var old_json;
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/rpc/FS.Get", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    var comm = {"filename": "setting.json"};
+    xhr.send(JSON.stringify(comm));
+    on_overlay();
+    document.getElementById("circularG").style.display = 'block';
+    document.getElementById("success_button").style.display="none";
+    document.getElementById("failed_button").style.display="none";
+    document.getElementById("spinner_info").innerHTML = "Saving..";
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200)  {
+            var data = JSON.parse(this.responseText);
+            old_json = JSON.parse(window.atob(data.data));
+            old_json.ctrl_page.sensor_input = a;
+            old_json.ctrl_page.prog_ctrl = b;
+            old_json.ctrl_page.override=e;
+            old_json.ctrl_page.ovr_val = f;
+            old_json.ctrl_page.LED = g;
+            old_json.ctrl_page.IO14 = h;
+            old_json.ctrl_page.active_prog = b1;
+            old_json.ctrl_page.LED_prog = g1;
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/rpc/FS.Put", true);
+            xhttp.setRequestHeader('Content-Type', 'application/json');
+            var string = window.btoa(JSON.stringify(old_json));
+            var contain = {"filename": "setting.json", "append":false, "data": string}
+            xhttp.send(JSON.stringify(contain));
+
+            xhttp.onreadystatechange = function() {
+                if (xhttp.readyState == 4 && xhttp.status == 200)  {
+                    //	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
+                    document.getElementById("circularG").style.display = 'none';
+                    document.getElementById("spinner_info").innerHTML = "Configuration Saved"
+                    document.getElementById("success_button").style.display="block";
+                    document.getElementById("failed_button").style.display="none";
+                }else if(xhttp.readyState == 4 && xhttp.status != 200){
+                    document.getElementById("circularG").style.display = 'none';
+                    document.getElementById("spinner_info").innerHTML = "Device does not respond!";
+                    document.getElementById("success_button").style.display="none";
+                    document.getElementById("failed_button").style.display="block";
+                    return;
+                }
+            }//xhttp readystate	
+            var xhttp2 = new XMLHttpRequest();
+            xhttp2.open("POST", "/rpc/setting", true);
+            xhttp2.send();
+        }else if(xhr.readyState == 4 && xhr.status != 200){
+            document.getElementById("circularG").style.display = 'none';
+            document.getElementById("spinner_info").innerHTML = "Device does not respond!";
+            document.getElementById("success_button").style.display="none";
+            document.getElementById("failed_button").style.display="block";
+        }
+    }//xhr readystate
+
+
+}
+
+function fetch_IO_status(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/rpc/reqIOinfo", true);
+    xhttp.setRequestHeader('Content-Type', 'application/json');
+    xhttp.send();
+    xhttp.onload = function(){
+        var json_data = JSON.parse(xhttp.responseText);
+        var a_el = document.getElementById("relay1_sta");
+        var b_el = document.getElementById("relay2_sta");
+        var c_el = document.getElementById("IO14_sta");
+        var d_el = document.getElementById("led_sta");
+        var a1_el = document.getElementById("relay1_prog");
+        var b1_el = document.getElementById("relay2_prog");
+        var c1_el = document.getElementById("IO14_prog");
+        var d1_el = document.getElementById("led_prog");
+        var pin_state = json_data.pin_state
+        var prog_name = json_data.prog_name;
+        var prog_state = json_data.prog_state;
+        var prog_state1;
+        var prog_state2;
+        var prog_state3;
+        var prog_state4;
+        if(prog_state[0] == '1'){
+            a1_el.className = "on_label";
+            prog_state1 = "Active: ";
+        }else{
+            var a = (prog_state[0] == '2') ? "Scheduled" : "Inactive";
+            a1_el.className = "off_label_prog";
+            prog_state1 = a+": ";
+        }
+        if(prog_state[1] == '1'){
+            b1_el.className = "on_label";
+            prog_state2 = "Active: ";
+        }else{
+            var a = (prog_state[1] == '2') ? "Scheduled" : "Inactive";
+            b1_el.className = "off_label_prog";
+            prog_state2 =  a+": ";
+        }
+        if(prog_state[2] == '1'){
+            d1_el.className = "on_label";
+            prog_state3 = "Active: ";
+        }else{
+            var a = (prog_state[2] == '2') ? "Scheduled" : "Inactive";
+            d1_el.className = "off_label_prog";
+            prog_state3 =  a+": ";
+        }
+        if(prog_state[3] == '1'){
+            prog_state4 = "Active: ";
+            c1_el.className = "on_label";
+        }else{
+            var a = (prog_state[3] == '2') ? "Scheduled" : "Inactive";
+            c1_el.className = "off_label_prog";
+            prog_state4 = a+": ";
+        }
+        var a = prog_name.split(",");
+        if(a[0] != -1){ prog_state1 += program_list[a[0]-1].name;}
+        if(a[1] != -1){ prog_state2 += program_list[a[1]-1].name;}
+        if(a[2] != -1){ prog_state3 += program_list[a[2]-1].name;}
+        if(a[3] != -1){ prog_state4 += program_list[a[3]-1].name;}
+
+        a1_el.innerHTML = prog_state1;
+        b1_el.innerHTML = prog_state2;
+        d1_el.innerHTML = prog_state3;
+        c1_el.innerHTML = prog_state4;
+
+        if(pin_state[0] == '1'){
+            a_el.className = "on_label";
+            a_el.innerHTML = "Output Switched: ON";
+        }else{
+            a_el.className = "off_label";
+            a_el.innerHTML = "Output Switched: OFF";
+        }
+        if(pin_state[1] == '1'){
+            b_el.className = "on_label";
+            b_el.innerHTML = "Output Switched: ON";
+        }else{
+            b_el.className = "off_label";
+            b_el.innerHTML = "Output Switched: OFF";
+        }
+        if(pin_state[3] == 1){
+            c_el.className = "on_label";
+            c_el.innerHTML = "Output Switched: ON";
+        }else{
+            c_el.className = "off_label";
+            c_el.innerHTML = "Output Switched: OFF";
+        }
+        if(pin_state[2] == 1){
+            d_el.className = "on_label";
+            d_el.innerHTML = "Output Switched: ON";
+        }else if(pin_state[2] == 2){
+            d_el.className = "off_label";
+            d_el.innerHTML = "Scheduled: Glowing";
+        }else if(pin_state[2] == 0){
+            d_el.className = "off_label";
+            d_el.innerHTML = "Output Switched: OFF ";
+        }
+    }
+}
+setInterval(function(){
+    fetch_uptime();
+    fetch_IO_status();
+},2500);
+function download_file(input){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/rpc/FS.Get", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    var comm = {"filename": input};
+    xhr.send(JSON.stringify(comm));
+    xhr.onload = function() {
+        var data = JSON.parse(this.responseText);
+        var data1 = new Blob([window.atob(data.data)]);
+        var link = document.createElement("a");
+        link.download = input;
+        link.href = URL.createObjectURL(data1);
+        link.click();
+    }
+}
+function on_overlay() {
+    document.getElementById("overlay_save").style.display = "block";
+    document.getElementById("main_div").style.filter = "blur(2px)";
+    document.getElementById("overlay_save").style.filter = "none";
+}
+
+function off_overlay() {
+    document.getElementById("overlay_save").style.display = "none";
+    document.getElementById("main_div").style.filter = "none";
+}
+function update_time(){
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function(){
+        if(xhr.readyState == 4){
+            var x = xhr.responseText;
+            var d = new Date();
+            var hour = Math.floor(Math.abs(dev_offset)/3600);
+            hour = Math.abs(hour);
+            var minute = Math.abs(dev_offset) - hour*3600; 
+            minute /= 60;
+            var a = new Date();
+            var pub_string = "Device Time: "+ epochToJsDate(x)+  (dev_offset >= 0 ? " (+": " (-") + hour +"." +minute + ") ";					
+            if(a.getTimezoneOffset()*(-60) != dev_offset){
+                pub_string += '<br><a href="/setting.html?'+ Math.random()* Math.random()+'" style="color:red">Device time zone doesn\'t match web browser - change</a>';
+            }
+            document.getElementById("devtime").innerHTML = pub_string;
+        }
+    };
+    xhr.open("GET", "/rpc/getTime", true);
+    xhr.send();
+}
+function epochToJsDate(ts){
+    var a = new Date();
+    var offset = a.getTimezoneOffset();
+    a = new Date(ts* 1000 + (offset*60000) + dev_offset*1000);
+    var ret = (a.getHours() < 10 ? '0' + a.getHours() : a.getHours()) + ':' +(a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes())  + ':' + (a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds())  + ", ";
+    ret +=  a.getDate() + '/' + (a.getMonth() + 1) + '/' + a.getFullYear();
+    return ret; 
+}
 </script>
 
 <style>
-	
-	.greycolor{
-		border:1px solid grey;
-		width:30px;
-	}
-	.on_label{
-		background-color: green;
-		color:white;
-	}
-	.off_label{
-		background-color: red;
-		color: white;
-	}
-	.off_label_prog{
-		background-color: orange;
-		color: white;
-	}
-	.title_attr{
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		user-select: none;
-	}
+.on_label{
+    background-color: green;
+    color:white;
+}
+.off_label{
+    background-color: red;
+    color: white;
+}
+.off_label_prog{
+    background-color: orange;
+    color: white;
+}
+.title_attr{
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 </style>
 </html>

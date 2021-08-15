@@ -9,7 +9,7 @@ a:hover{
     color: #ff6200;
 }
 input[type=button]{
-	background-color:black;
+	background: #0e0e0e;
 	border:1px solid #FFA700;
 	cursor:pointer;
 	border-radius:5px;
@@ -21,10 +21,34 @@ input[type=button]{
 input[type=text]{
 	border:1px solid #FFA700;
 	border-radius: 5px;
+    background: #0e0e0e;
 }
 .main_container{
     background-color: #131916;
 }
 .trigger_container{
     background-color:  #131916;
+}
+input[type=file]{
+    background: #131916;
+    color:#FFA700;
+}
+input[type=submit]{
+    background: #0e0e0e;
+    color:#FFA700;
+}
+input[type=number]{
+    background: #0e0e0e;
+    color:#FFA700;
+}
+input[type=password]{
+    background: #0e0e0e;
+    color:#FFA700;
+}
+.section{
+    border-color:#FFA700;
+}
+select{
+    background: #0e0e0e;
+    color:#FFA700;
 }

@@ -6,22 +6,22 @@
 <script>
 load_conf();
 function load_conf(){
-var xhr = new XMLHttpRequest();
-xhr.open("POST", "/rpc/FS.Get", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-var comm = {"filename": "setting.json"};
-xhr.send(JSON.stringify(comm));
-xhr.onload = function() {
-var data = JSON.parse(this.responseText);
-var old_json = JSON.parse(window.atob(data.data));
-changetheme(old_json.theme);
-}
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/rpc/FS.Get", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    var comm = {"filename": "setting.json"};
+    xhr.send(JSON.stringify(comm));
+    xhr.onload = function() {
+        var data = JSON.parse(this.responseText);
+        var old_json = JSON.parse(window.atob(data.data));
+        changetheme(old_json.theme);
+    }
 }
 function changetheme(input){
-var sheets = document.getElementsByTagName('link');
-if(input == 1){
-	sheets[0].href = "./light.css";
-}
+    var sheets = document.getElementsByTagName('link');
+    if(input == 1){
+        sheets[0].href = "./light.css";
+    }
 }
 </script>
 </head>
@@ -55,139 +55,138 @@ background-color: #3e8e41;
 <body>
 <h1 id = "header"> Power Monitor ESP32 Web Server </h1> 
 <div style="display:inline">
-<a href="./setting.html">Settings</a>
-<a href="./control_page.html">Control page</a>
+<h1><a href="./setting.html">Settings</a> <a href="./control_page.html">Control page</a></h1>
 </div>
 <table style="width:100%;" >	
 <tr>
-<td>
-<p>This Hour Logging</p>
-<div class="btn-group">
-<form method="get" action="/thisHour_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick ="open_new_tab('/mnt/thisHour.csv')">View Raw</button>
-<button onClick = "download(0)">Download CSV</button>
-<input type= "checkbox" id="thishour_del" >
-<label for= "thishour_del"> thisHour delete </label>	
-</div> 
-</td>
-<td>
-<p>1970 Hour Logging</p>
-<div class="btn-group">
-<form method="get" action="/1970Hour_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick="open_new_tab('/mnt/1970Hour.csv')">View Raw</button>            
-<button onClick = "download(5)">Download CSV</button>
-<input type= "checkbox" id="1970hour_del" >
-<label for= "1970hour_del"> 1970Hour delete </label>	
-</div> 
-</td>
+    <td>
+        <p>This Hour Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/thisHour_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick ="open_new_tab('/mnt/thisHour.csv')">View Raw</button>
+            <button onClick = "download(0)">Download CSV</button>
+            <input type= "checkbox" id="thishour_del" >
+            <label for= "thishour_del"> thisHour delete </label>	
+        </div> 
+    </td>
+    <td>
+        <p>1970 Hour Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/1970Hour_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick="open_new_tab('/mnt/1970Hour.csv')">View Raw</button>            
+            <button onClick = "download(5)">Download CSV</button>
+            <input type= "checkbox" id="1970hour_del" >
+            <label for= "1970hour_del"> 1970Hour delete </label>	
+        </div> 
+    </td>
 </tr>
 <tr>
-<td>
-<p>This Day Logging</p>
-<div class="btn-group">
-<form method="get" action="/thisDay_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick="open_new_tab('/mnt/thisDay.csv')">View Raw</button>
-<button onClick="download(1)">Download CSV</button>
-<input type= "checkbox" id="thisday_del" >
-<label for= "thisday_del"> thisDay delete </label>
-</div> 
-</td>
-<td>
-<p>1970 Day Logging</p>
-<div class="btn-group">
-<form method="get" action="/1970Day_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick="open_new_tab('/mnt/1970Day.csv')">View Raw</button>
-<button onClick= "download(6)">Download CSV</button>
-<input type= "checkbox" id="1970day_del" >
-<label for= "1970day_del"> 1970Day delete </label>
-</div> 
-</td>
+    <td>
+        <p>This Day Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/thisDay_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick="open_new_tab('/mnt/thisDay.csv')">View Raw</button>
+            <button onClick="download(1)">Download CSV</button>
+            <input type= "checkbox" id="thisday_del" >
+            <label for= "thisday_del"> thisDay delete </label>
+        </div> 
+    </td>
+    <td>
+        <p>1970 Day Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/1970Day_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick="open_new_tab('/mnt/1970Day.csv')">View Raw</button>
+            <button onClick= "download(6)">Download CSV</button>
+            <input type= "checkbox" id="1970day_del" >
+            <label for= "1970day_del"> 1970Day delete </label>
+        </div> 
+    </td>
 </tr>
 <tr>
-<td>
-<p>This Week Logging</p>
-<div class="btn-group">
-<form method="get" action="/thisWeek_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick="open_new_tab('/mnt/thisWeek.csv')">View Raw</button>
-<button onClick = "download(2)">Download CSV</button>
-<input type= "checkbox" id="thisweek_del" >
-<label for= "thisweek_del"> thisWeek delete </label>
-</div>
-</td>
-<td>
-<p>1970 Week Logging</p>
-<div class="btn-group">
-<form method="get" action="/1970Week_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button  onClick="open_new_tab('/mnt/1970Week.csv')">View Raw</button>
-<button onClick= "download(7)">Download CSV</button>
-<input type= "checkbox" id="1970week_del" >
-<label for= "1970week_del"> 1970Week delete </label>
-</div>
-</td>
+    <td>
+        <p>This Week Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/thisWeek_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick="open_new_tab('/mnt/thisWeek.csv')">View Raw</button>
+            <button onClick = "download(2)">Download CSV</button>
+            <input type= "checkbox" id="thisweek_del" >
+            <label for= "thisweek_del"> thisWeek delete </label>
+        </div>
+    </td>
+    <td>
+        <p>1970 Week Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/1970Week_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button  onClick="open_new_tab('/mnt/1970Week.csv')">View Raw</button>
+            <button onClick= "download(7)">Download CSV</button>
+            <input type= "checkbox" id="1970week_del" >
+            <label for= "1970week_del"> 1970Week delete </label>
+        </div>
+    </td>
 </tr>
 <tr>
-<td>
-<p>This Month Logging</p>
-<div class="btn-group">
-<form method="get" action="/thisMonth_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick="open_new_tab('/mnt/thisMonth.csv')">View Raw</button>
-<button onClick = "download(3)">Download CSV</button>
-<input type= "checkbox" id="thismonth_del" >
-<label for= "thismonth_del"> thisMonth delete </label>
-</div>
-</td>
-<td>
-<p>1970 Month Logging</p>
-<div class="btn-group">
-<form method="get" action="/1970Month_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick="open_new_tab('/mnt/1970Month.csv')">View Raw</button>
-<button onClick= "download(8)">Download CSV</button>
-<input type= "checkbox" id="1970month_del" >
-<label for= "1970month_del"> 1970Month delete </label>
-</td>
+    <td>
+        <p>This Month Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/thisMonth_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick="open_new_tab('/mnt/thisMonth.csv')">View Raw</button>
+            <button onClick = "download(3)">Download CSV</button>
+            <input type= "checkbox" id="thismonth_del" >
+            <label for= "thismonth_del"> thisMonth delete </label>
+        </div>
+    </td>
+    <td>
+        <p>1970 Month Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/1970Month_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick="open_new_tab('/mnt/1970Month.csv')">View Raw</button>
+            <button onClick= "download(8)">Download CSV</button>
+            <input type= "checkbox" id="1970month_del" >
+            <label for= "1970month_del"> 1970Month delete </label>
+            </td>
 </tr>
 <tr>
-<td>
-<p>Long Term Logging</p>
-<div class="btn-group">
-<form method="get" action="/longterm_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick="open_new_tab('/mnt/longTermData.csv')">View Raw</button>
-<button onClick = "download(4)">Download CSV</button>
-<input type= "checkbox" id="longterm_del" >
-<label for= "longterm_del"> longTermData delete </label>
-</div>
-</td>
-<td>
-<p>1970 Long Term Logging</p>
-<div class="btn-group">
-<form method="get" action="/1970longterm_plot.html">
-<button type="submit">View Graph</button>
-</form>
-<button onClick="open_new_tab('/mnt/1970longTermData.csv')">View Raw</button>
-<button onClick= "download(9)">Download CSV</button>
+    <td>
+        <p>Long Term Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/longterm_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick="open_new_tab('/mnt/longTermData.csv')">View Raw</button>
+            <button onClick = "download(4)">Download CSV</button>
+            <input type= "checkbox" id="longterm_del" >
+            <label for= "longterm_del"> longTermData delete </label>
+        </div>
+    </td>
+    <td>
+        <p>1970 Long Term Logging</p>
+        <div class="btn-group">
+            <form method="get" action="/1970longterm_plot.html">
+                <button type="submit">View Graph</button>
+            </form>
+            <button onClick="open_new_tab('/mnt/1970longTermData.csv')">View Raw</button>
+            <button onClick= "download(9)">Download CSV</button>
 
-<input type= "checkbox" id="1970longterm_del" >
-<label for= "1970longterm_del"> 1970 longTermData delete </label>
-</div>
-</td>
+            <input type= "checkbox" id="1970longterm_del" >
+            <label for= "1970longterm_del"> 1970 longTermData delete </label>
+        </div>
+    </td>
 </tr>
 </table>
 <div class = "btn-group">
@@ -203,100 +202,100 @@ background-color: #3e8e41;
 
 
 <script>
-	load_conf();
-	function open_new_tab(link){
-		window.open(link+"?"+Math.random() * Math.random(), "_self");
-	}
-	function conDelete(){
-		//check checkboxes
-		var hour = document.getElementById("thishour_del").checked;
-		var day = document.getElementById("thisday_del").checked;
-		var week = document.getElementById("thisweek_del").checked;
-		var month = document.getElementById("thismonth_del").checked;
-		var longterm = document.getElementById("longterm_del").checked;
-		
-		var hour_1970 = document.getElementById("1970hour_del").checked;
-		var day_1970 = document.getElementById("1970day_del").checked;
-		var week_1970 = document.getElementById("1970week_del").checked;
-		var month_1970 = document.getElementById("1970month_del").checked;
-		var longterm_1970 = document.getElementById("1970longterm_del").checked;
-		if(!hour && !day && !week && !month && !longterm && !hour_1970 & !day_1970 && !week_1970 && !month_1970 && !longterm_1970){
-			//none selected 
-			alert("none selected");
-		}else{
-		var conText = "Confirm to delete: " + (hour ? "thishour, ": "") + (day ? "thisday, " : "") + (week ? "thisweek, " : "") + (month ? "thismonth, ": "") + (longterm ? "longterm, " : "");
-		conText += (hour_1970 ? "1970hour, ": "") + (day_1970 ? "1970day, ": "") + (week_1970 ? "1970week, ": "")+ (month_1970 ? "1970month, ": "") + (longterm_1970 ? "1970longterm ": "")+  "dataset?";
-		//make confirm request
-		var con = confirm(conText);
-		
-		if (con == true){
-			
-			var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");			
-			//proceed to send request to esp
-			jsonobj = {comm:data};
-			var string = JSON.stringify(jsonobj);
-			console.log(string);
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "/rpc/delReq", true);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-			xhr.send(string);
-			document.getElementById("thishour_del").checked = false; document.getElementById("thisday_del").checked =false; document.getElementById("thisweek_del").checked= false;
-			document.getElementById("thismonth_del").checked =false; document.getElementById("longterm_del").checked =false;
-			document.getElementById("1970hour_del").checked = false; document.getElementById("1970day_del").checked =false; document.getElementById("1970week_del").checked= false;
-			document.getElementById("1970month_del").checked =false; document.getElementById("1970longterm_del").checked =false;
-		}
-		}
-	}
-	
-	function epochToJsDate(ts){
-            // ts = epoch timestamp
-            // returns date obj
-            var a = new Date(ts*1000);
-			var months  = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            var ret = (a.getHours() < 10 ? '0' + a.getHours() : a.getHours()) + ':' +(a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes())  + " ";
-			ret +=  a.getDate() + ' ' + months[a.getMonth()] + ' ' + a.getFullYear();
-            return ret; 
+load_conf();
+function open_new_tab(link){
+window.open(link+"?"+Math.random() * Math.random(), "_self");
+}
+function conDelete(){
+//check checkboxes
+var hour = document.getElementById("thishour_del").checked;
+var day = document.getElementById("thisday_del").checked;
+var week = document.getElementById("thisweek_del").checked;
+var month = document.getElementById("thismonth_del").checked;
+var longterm = document.getElementById("longterm_del").checked;
+
+var hour_1970 = document.getElementById("1970hour_del").checked;
+var day_1970 = document.getElementById("1970day_del").checked;
+var week_1970 = document.getElementById("1970week_del").checked;
+var month_1970 = document.getElementById("1970month_del").checked;
+var longterm_1970 = document.getElementById("1970longterm_del").checked;
+if(!hour && !day && !week && !month && !longterm && !hour_1970 & !day_1970 && !week_1970 && !month_1970 && !longterm_1970){
+//none selected 
+alert("none selected");
+}else{
+var conText = "Confirm to delete: " + (hour ? "thishour, ": "") + (day ? "thisday, " : "") + (week ? "thisweek, " : "") + (month ? "thismonth, ": "") + (longterm ? "longterm, " : "");
+conText += (hour_1970 ? "1970hour, ": "") + (day_1970 ? "1970day, ": "") + (week_1970 ? "1970week, ": "")+ (month_1970 ? "1970month, ": "") + (longterm_1970 ? "1970longterm ": "")+  "dataset?";
+//make confirm request
+var con = confirm(conText);
+
+if (con == true){
+
+    var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");			
+    //proceed to send request to esp
+    jsonobj = {comm:data};
+    var string = JSON.stringify(jsonobj);
+    console.log(string);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/rpc/delReq", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(string);
+    document.getElementById("thishour_del").checked = false; document.getElementById("thisday_del").checked =false; document.getElementById("thisweek_del").checked= false;
+    document.getElementById("thismonth_del").checked =false; document.getElementById("longterm_del").checked =false;
+    document.getElementById("1970hour_del").checked = false; document.getElementById("1970day_del").checked =false; document.getElementById("1970week_del").checked= false;
+    document.getElementById("1970month_del").checked =false; document.getElementById("1970longterm_del").checked =false;
+}
+}
+}
+
+function epochToJsDate(ts){
+// ts = epoch timestamp
+// returns date obj
+var a = new Date(ts*1000);
+var months  = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var ret = (a.getHours() < 10 ? '0' + a.getHours() : a.getHours()) + ':' +(a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes())  + " ";
+ret +=  a.getDate() + ' ' + months[a.getMonth()] + ' ' + a.getFullYear();
+return ret; 
+}
+
+function pushtime(){
+var xhr = new XMLHttpRequest();
+var gotTime = [];
+xhr.onreadystatechange = function(){
+if(xhr.readyState == 4){
+
+    gotTime = xhr.responseText;
+    //get data time
+    var time_dev_string = epochToJsDate(gotTime);
+    //compare with time browser
+    var a = Math.floor(Date.now() / 1000);
+    var d = new Date();
+    var offset = d.getTimezoneOffset();
+
+    var pub_time_string = epochToJsDate(a);
+    if(Math.abs(a - gotTime) >= 10){ //10 sec tolerance 
+        //push time to esp
+        //need confirmation 
+        var conText = "Time will change from " + time_dev_string + " to " + pub_time_string + (offset < 0 ? " (+": " (-") + Math.abs(offset)/60 + "), OK?"; 
+        var con = confirm(conText);
+        if(con == true){
+            a = Math.floor(Date.now() / 1000); //recapture epoch
+            var jsonobj = {epoch: a};
+            var string = JSON.stringify(jsonobj);
+            console.log(string);
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/rpc/pushTime", true);
+            xhttp.setRequestHeader('Content-Type', 'application/json');
+            xhttp.send(string);
         }
-		
-	function pushtime(){
-		var xhr = new XMLHttpRequest();
-		var gotTime = [];
-		xhr.onreadystatechange = function(){
-			if(xhr.readyState == 4){
-				
-				gotTime = xhr.responseText;
-				//get data time
-				var time_dev_string = epochToJsDate(gotTime);
-				//compare with time browser
-				var a = Math.floor(Date.now() / 1000);
-				var d = new Date();
-				var offset = d.getTimezoneOffset();
-				
-				var pub_time_string = epochToJsDate(a);
-				if(Math.abs(a - gotTime) >= 10){ //10 sec tolerance 
-					//push time to esp
-					//need confirmation 
-					var conText = "Time will change from " + time_dev_string + " to " + pub_time_string + (offset < 0 ? " (+": " (-") + Math.abs(offset)/60 + "), OK?"; 
-					var con = confirm(conText);
-					if(con == true){
-						a = Math.floor(Date.now() / 1000); //recapture epoch
-						var jsonobj = {epoch: a};
-						var string = JSON.stringify(jsonobj);
-						console.log(string);
-						var xhttp = new XMLHttpRequest();
-						xhttp.open("POST", "/rpc/pushTime", true);
-						xhttp.setRequestHeader('Content-Type', 'application/json');
-						xhttp.send(string);
-					}
-				}else{
-					alert("time already set");			
-				}
-				
-			}
-		};
-		xhr.open("GET", "/rpc/getTime", true);
-		xhr.send();
-	}
-	
-	
+    }else{
+        alert("time already set");			
+    }
+
+}
+};
+xhr.open("GET", "/rpc/getTime", true);
+xhr.send();
+}
+
+
 </script>

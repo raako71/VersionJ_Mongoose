@@ -1,6 +1,8 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.9.7.5b: CSS changes<br>
+0.9.7.5: CSS changes<br>
 0.9.7.4: mobile html formatting<br>
 0.9.7.3: add wifi sta+ap<br>
 0.9.7.2: fix program editor bug<br>
