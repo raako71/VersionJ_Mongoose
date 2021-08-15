@@ -1,5 +1,7 @@
 html{
-    font-family: Arial; display: inline-block; text-align: center;
+    font-family: Arial; 
+    display: inline-block; 
+    text-align: center;
     -webkit-text-size-adjust:none;
 }
 .main_container{
@@ -7,6 +9,7 @@ html{
     padding:15px;
     margin: 10px auto ;
     text-align: left;
+    border-radius: 10px;
 }
 .trigger_container{
     border:1px solid; 
