@@ -1,6 +1,6 @@
 author: alifnl
 description: CSS changes
-version: 0.9.7.5e
+version: 0.9.7.5f
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
