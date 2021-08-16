@@ -1,10 +1,11 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.9.7.6: add login function
 0.9.7.5b->f: CSS changes<br>
 0.9.7.5: CSS changes<br>
 0.9.7.4: mobile html formatting<br>
-0.9.7.3: add wifi sta+ap<br>
+0.9.7.2: add wifi sta+ap<br>
 0.9.7.2: fix program editor bug<br>
 0.9.7.1: match Harry push<br>
 0.9.7.0: 12th milestone (wifi only), fix last version bug<br>

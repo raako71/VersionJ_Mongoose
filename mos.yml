@@ -1,6 +1,6 @@
 author: alifnl
-description: CSS changes
-version: 0.9.7.5f
+description: add login function
+version: 0.9.7.6
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -30,6 +30,7 @@ cdefs:
   
 config_schema:
   - ["http.hidden_files", "*.json"]
+  - ["http.hidden_files", "password"]
   - ["debug.level", 0]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]

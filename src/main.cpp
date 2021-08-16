@@ -184,6 +184,7 @@ int read_R2_button();
 int read_RPB_button();
 void check_override_func();
 void led_red_ctrl_asprog(void *arg);
+unsigned int randomGen();
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
 	mgos_clear_timer(prog_timer_id[0]);
@@ -230,6 +231,8 @@ void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_i
 void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void get_wifi_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void check_access_login(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void change_password(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	//dns_advert = true;
 	mg_rpc_send_responsef(ri, "OK");
@@ -419,7 +422,8 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reqIOinfo", "", request_IO_info, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reset_timer", "{file:%Q}", reset_timer, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "wifi.status", "", get_wifi_status, NULL);
-	
+	mg_rpc_add_handler(mgos_rpc_get_global(), "login", "{pass:%Q}", check_access_login, NULL);
+	mg_rpc_add_handler(mgos_rpc_get_global(), "change_pass", "{old_pass:%Q, new_pass:%Q}", change_password, NULL);		
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	mgos_msleep(1000);
 	load_wifi_setting();
@@ -448,10 +452,62 @@ int wifi_rssi = mgos_wifi_sta_get_rssi();
 const char* ap_ip = mgos_sys_config_get_wifi_ap_ip();
 const char* ap_ssid = mgos_sys_config_get_wifi_ap_ssid();
 const char* ap_pass = mgos_sys_config_get_wifi_ap_pass();
-mg_rpc_send_responsef(ri, "{sta_rssi: %d, ap_ip: %Q, ap_ssid: %Q, ap_pass: %Q}",wifi_rssi,ap_ip, ap_ssid, ap_pass);
-///free(ap_ip); free(ap_ssid); free(ap_pass);
+bool ap_en = mgos_sys_config_get_wifi_ap_enable();
+bool sta_en = mgos_sys_config_get_wifi_sta_enable();
+sta_en |= mgos_sys_config_get_wifi_sta1_enable();
+sta_en |= mgos_sys_config_get_wifi_sta2_enable();
+mg_rpc_send_responsef(ri, "{ap_en: %B, sta_en: %B, sta_rssi: %d, ap_ip: %Q, ap_ssid: %Q, ap_pass: %Q}", ap_en, sta_en, wifi_rssi,ap_ip, ap_ssid, ap_pass);
+//free(ap_ip); free(ap_ssid); free(ap_pass);
 (void) cb_arg;
 (void) fi;	
+}
+void check_access_login(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	char* pass = (char*)malloc(64);
+	if (json_scanf(args.p, args.len, ri->args_fmt, &pass) == 1) {
+		FILE * pFile;
+		pFile = fopen ("password" , "r");
+		char* mystring = (char*)malloc(64);
+		fgets (mystring , 100 , pFile);
+   		if(strcmp(pass, mystring)== 0){
+   			mg_rpc_send_responsef(ri, "{status: authorized}");	
+		}else{
+			mg_rpc_send_responsef(ri, "{status: unauthorized}");
+		}	
+		free(mystring);
+		free(pass);
+  	} else {
+    	mg_rpc_send_errorf(ri, -1, "Bad request");
+    	return;
+  	}
+}
+void change_password(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	char* pass = (char*)malloc(64);
+	char* new_pass = (char*)malloc(64);
+	if (json_scanf(args.p, args.len, ri->args_fmt, &pass, &new_pass) == 2) {
+		FILE * pFile;
+		pFile = fopen ("password" , "r");
+		char* mystring = (char*)malloc(64);
+		fgets (mystring , 100 , pFile);
+   		if(strcmp(pass, mystring)!= 0){
+   			mg_rpc_send_responsef(ri, "{status: unauthorized}");
+   			fclose(pFile);
+		}else{
+			fclose (pFile);
+			FILE * file = fopen("password", "w");
+			fputs (new_pass,file);
+			fclose(file);
+			mg_rpc_send_responsef(ri, "{status: confirm}");
+		}	
+		
+		free(new_pass);
+		free(mystring);
+		free(pass);
+  	} else {
+    	mg_rpc_send_errorf(ri, -1, "Bad request");
+    	free(new_pass);
+		free(pass);
+    	return;
+  	}
 }
 //V2////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2130,4 +2186,9 @@ int read_RPB_button() { // read button if there is logic change
     timer++;
   }
   return result;
+}
+
+unsigned int randomGen(){
+	srand(time(NULL));
+	return (rand()%100)*(rand()%222);
 }
