@@ -1,7 +1,8 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.9.7.6: add login function
+0.9.7.7: revert CSS .section etc<br>
+0.9.7.6: add login function<br>
 0.9.7.5b->f: CSS changes<br>
 0.9.7.5: CSS changes<br>
 0.9.7.4: mobile html formatting<br>

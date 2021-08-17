@@ -89,7 +89,6 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 </span>
 <br>
 <h1> Settings</h1>
-<h1> <a href="./">Home</a></h1>
 <div style="margin-top:10px; margin-bottom:20px" id="fw_version"> FW VERSION </div>
 <div class="main_container">
 	<div class="section">
@@ -676,7 +675,7 @@ b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="w
 b += '<label for="wifi_saved'+i+'">'+input[i].ssid+'</label></div>';
 }
 }//for
-b += "<div style='margin-top:5px; margin-bttom:5px'><b>Checked Networks will be deleted on save (reset is required after saving)</b></div>"
+b += "<div style='margin-top:5px; margin-bttom:5px'><b>Checked Networks will be deleted on save<br>WiFi settings updated on reboot</b></div>"
 document.getElementById("wifi_saved_list").innerHTML = b;
 }
 function dbm_2_percent(input){
@@ -722,17 +721,6 @@ form.addEventListener("submit", e => {
 </script>
 
 <style>
-	.switch { position: relative; display: inline-block; width: 42px; height: 25px;}
-	.switch input { opacity: 0; width: 0; height: 0;}
-	.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: red; -webkit-transition: .4s; transition: .4s;}
-	.slider:before { position: absolute; content: ""; height: 19px; width: 19px; left: 4px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s;}
-	input:checked + .slider { background-color: #03b000;}
-	input:focus + .slider { box-shadow: 0 0 1px #2196F3;}
-	input:checked + .slider:before { -webkit-transform: translateX(15px); -ms-transform: translateX(15px); transform: translateX(15px);}
-	/* Rounded sliders */
-	.slider.round { border-radius: 34px;}
-	.slider.round:before { border-radius: 50%;}
-	
 	.sliding_range {
 		-webkit-appearance: none;
 		width: 50%;

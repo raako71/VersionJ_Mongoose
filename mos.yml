@@ -1,6 +1,6 @@
 author: alifnl
 description: add login function
-version: 0.9.7.6
+version: 0.9.7.7
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
