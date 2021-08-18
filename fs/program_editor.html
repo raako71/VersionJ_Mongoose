@@ -24,7 +24,7 @@
   </div>
   <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div style="margin-top:15px" id="failed_button"> 
-  <input type="button" style="width:75px" value="retry" onClick="save_new()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <input type="button" style="width:75px" value="retry" onClick="save_conf()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div style="margin-top:15px" id="success_button">
   <input type="button" style="width:75px" value="OK" onClick="blabla()"></div>
   </div>
@@ -34,7 +34,7 @@
 <div class="confirmation_box">
 <b>Login</b><br>
 <div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Passowrd: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
+Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
 <div style="margin-top:10px">
 <input type="button" value="Change Password" onClick="change_password()">
 </div>
@@ -728,7 +728,7 @@ var b4 = Number(document.getElementById("sec_value_off").value);
 }
 
 //if(program2load == "new"){ save_new(); } else {save_old();}
-save_new();
+save_conf();
 }
 
 
@@ -807,7 +807,8 @@ console.log(JSON.stringify(old_json.control_trigger));
 return old_json;
 }
 
-function save_new(){
+function save_conf(){
+save_command = true;
 if(!check_password()){
 	on_overlay_login();
 	return;
@@ -858,7 +859,8 @@ xhttp.onreadystatechange = function() {
 	document.getElementById("success_button").style.display="none";
 	document.getElementById("failed_button").style.display="block";
 	}
-}	
+}
+save_command = false;
 }
 
 

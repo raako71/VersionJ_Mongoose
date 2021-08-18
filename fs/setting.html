@@ -48,7 +48,7 @@
 <div class="confirmation_box">
 <b>Login</b><br>
 <div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Passowrd: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
+Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
 <div style="margin-top:10px">
 <input type="button" value="Change Password" onClick="change_password()">
 </div>
@@ -132,7 +132,13 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			</tr>
 		</table>
 	</div>
-	
+	<div class="section">
+	<b> Enable I2C </b><br>
+		<label class="switch" style="margin: 10px 0">
+		<input type="checkbox" id="i2c_en">
+		<span class="slider round"></span>
+	</label><br>
+	</div>
 	
 	<div class="section">
 		<input type="checkbox" id="pwr_sensor_check" name="pwr_sensor_check">	
@@ -224,7 +230,6 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 </body>
 
 <script>
-	
 	window.addEventListener('load', onLoad);	
 	function onLoad(){
 		console.log("DOM loaded");
@@ -264,6 +269,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			var data = JSON.parse(this.responseText);
 			old_json = JSON.parse(window.atob(data.data));
 			document.getElementById("eth_en").checked = old_json.eth_en;
+			document.getElementById("i2c_en").checked = old_json.i2c_en;
 			if(old_json.eth_en){
 				getconfig();
 			}
@@ -321,8 +327,8 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	}
 	function save_conf(){
 		var old_json;
-		var logged = check_password();
-		if(!logged){
+		if(!check_password()){
+			save_command = true;
 			on_overlay_login();
 			return;
 		}
@@ -379,6 +385,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
 			var theme_mode = (document.getElementById("light_theme").checked? 1 : 2);
 			old_json.eth_en = document.getElementById("eth_en").checked;
+			old_json.i2c_en = document.getElementById("i2c_en").checked;
 			old_json.wifi.mode = mode;
 			old_json.pwr_sensor[0].enable = pwr_sensor_en;
 			old_json.static_IP_conf[0].enable = net_conf_en;
@@ -434,7 +441,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 				return;
 				}
 			}//xhttp readystate	
-			save_eth_conf(old_json.eth_en, IP, GW, SN);	
+			save_eth_conf(old_json.eth_en, IP, GW, SN, old_json.i2c_en);	
 			var xhttp2 = new XMLHttpRequest();
 			xhttp2.open("POST", "/rpc/setting", true);
 			xhttp2.send();
@@ -445,12 +452,13 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			document.getElementById("failed_button").style.display="block";
 		}
 		}//xhr readystate
+		save_command = false;
 	}//save conf function
-	function save_eth_conf(en, ip, gw, netmask){
+	function save_eth_conf(en, ip, gw, netmask, i2c_en){
 		var xhttp = new XMLHttpRequest();
 		xhttp.open("POST", "/rpc/Config.Set", true);
 		xhttp.setRequestHeader('Content-Type', 'application/json');
-		var contain = {"config": {"eth": {"enable": en, "ip": ip, "gw": gw, "netmask":netmask}}};
+		var contain = {"config": {"i2c":{"enable":i2c_en}, "eth": {"enable": en, "ip": ip, "gw": gw, "netmask":netmask}}};
 		xhttp.send(JSON.stringify(contain));
 	}
 	function reboot(){
