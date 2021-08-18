@@ -1,6 +1,6 @@
 author: alifnl
-description: add login function
-version: 0.9.7.7
+description: fix login function and add i2c enable
+version: 0.9.7.8
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

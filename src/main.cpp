@@ -461,51 +461,60 @@ mg_rpc_send_responsef(ri, "{ap_en: %B, sta_en: %B, sta_rssi: %d, ap_ip: %Q, ap_s
 (void) cb_arg;
 (void) fi;	
 }
+bool check_password(std::string input){
+	FILE * pFile;
+	pFile = fopen ("password" , "r");
+	//find out file size
+	fseek (pFile , 0 , SEEK_END);
+	long lSize = ftell (pFile);
+	rewind (pFile);
+	char * mystring = (char*)malloc(64);
+	fgets (mystring , 64 , pFile);
+	if(strcmp(input.c_str(),"")==0 && lSize == 0){
+		free(mystring);
+		return true;
+	}
+	if(strcmp(input.c_str(), mystring) == 0){
+		free(mystring);
+		return true;
+	}else{
+		free(mystring);
+		return false;
+	}
+}
 void check_access_login(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
-	char* pass = (char*)malloc(64);
-	if (json_scanf(args.p, args.len, ri->args_fmt, &pass) == 1) {
-		FILE * pFile;
-		pFile = fopen ("password" , "r");
-		char* mystring = (char*)malloc(64);
-		fgets (mystring , 100 , pFile);
-   		if(strcmp(pass, mystring)== 0){
+	char* pass_buff = (char*)malloc(64);
+	if (json_scanf(args.p, args.len, ri->args_fmt, &pass_buff) == 1) {
+   		if(check_password(pass_buff)){
    			mg_rpc_send_responsef(ri, "{status: authorized}");	
 		}else{
 			mg_rpc_send_responsef(ri, "{status: unauthorized}");
 		}	
-		free(mystring);
-		free(pass);
+		free(pass_buff);
   	} else {
     	mg_rpc_send_errorf(ri, -1, "Bad request");
+    	free(pass_buff);
     	return;
   	}
 }
 void change_password(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
-	char* pass = (char*)malloc(64);
+	char* pass_buff = (char*)malloc(64);
 	char* new_pass = (char*)malloc(64);
-	if (json_scanf(args.p, args.len, ri->args_fmt, &pass, &new_pass) == 2) {
-		FILE * pFile;
-		pFile = fopen ("password" , "r");
-		char* mystring = (char*)malloc(64);
-		fgets (mystring , 100 , pFile);
-   		if(strcmp(pass, mystring)!= 0){
+	if (json_scanf(args.p, args.len, ri->args_fmt, &pass_buff, &new_pass) == 2) {
+   		if(!check_password(pass_buff)){
    			mg_rpc_send_responsef(ri, "{status: unauthorized}");
-   			fclose(pFile);
 		}else{
-			fclose (pFile);
 			FILE * file = fopen("password", "w");
 			fputs (new_pass,file);
 			fclose(file);
 			mg_rpc_send_responsef(ri, "{status: confirm}");
 		}	
-		
+		free(pass_buff);
 		free(new_pass);
-		free(mystring);
-		free(pass);
   	} else {
     	mg_rpc_send_errorf(ri, -1, "Bad request");
     	free(new_pass);
-		free(pass);
+		free(pass_buff);
     	return;
   	}
 }

@@ -34,5 +34,5 @@ input[type=password]{
     background-color:  aliceblue;
 } 
 .dropdown:hover .dropbtn {background-color: black; color:white;}
-.dropdown-content a:hover {background-color: black; color:white;}
+.dropdown-content a:hover {background-color: white; color:black;}
 .dropdown-content{border: 1px solid black;}

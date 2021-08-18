@@ -13,12 +13,14 @@ html{
   position: absolute;
   min-width: 145px;
   right:0px;
-  z-index: 1;
   text-align:left;
+  z-index:1;
+  background-color:black;
 }
 .dropdown-content a {
   padding: 5px 14px;
   text-decoration: none;
+  color:white;
   display: block;
 }
 .dropdown:hover .dropdown-content {
@@ -30,6 +32,7 @@ html{
 	margin: 10px auto ;
 	text-align: left;
 	border-radius: 10px;
+	z-index:-1;
 }
 .trigger_container{
     border:1px solid; 

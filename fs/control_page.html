@@ -22,7 +22,7 @@
   </div>
   <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div style="margin-top:15px" id="failed_button"> 
-  <input type="button" style="width:75px" value="retry" onClick="save_func()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <input type="button" style="width:75px" value="retry" onClick="save_conf()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div style="margin-top:15px" id="success_button">
   <input type="button" style="width:75px" value="OK" onClick="off_overlay()"></div>
   </div>
@@ -32,7 +32,7 @@
 <div class="confirmation_box">
 <b>Login</b><br>
 <div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Passowrd: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
+Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
 <div style="margin-top:10px">
 <input type="button" value="Change Password" onClick="change_password()">
 </div>
@@ -114,7 +114,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	</div>
 	</div>
 	<br>
-	<input type="button" value="SAVE" onClick="save_func()">
+	<input type="button" value="SAVE" onClick="save_conf()">
 </div>
 </body>
 
@@ -397,7 +397,8 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	}//onload
 	
 	}
-	function save_func(){
+	function save_conf(){
+		save_command = true;
 		if(!check_password()){
 			on_overlay_login();
 			return;
@@ -513,7 +514,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			}
 		}//xhr readystate
 		
-		
+		save_command = false;
 	}
 	
 	function fetch_IO_status(){
