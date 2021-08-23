@@ -1,3 +1,6 @@
-build
+build/fw/*
+build/gen/*
+build/objs/*
+*.log
 core*
-*.zip
+
