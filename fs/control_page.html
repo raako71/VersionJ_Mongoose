@@ -75,18 +75,22 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div class="main_container">
 	<h3 id="devtime"> DEVICE TIME: </h3>
 	<h3 id="uptime"> DEVICE UPTIME: </h3>
+	<div class="section">
 	<b> Programs (descending priority)</b>
 	<div id="program_link"></div>
 	<div style="margin-bottom:10px; margin-top:10px">
 	<input type="button" value="Create New Program" onClick="new_program()">
 	</div>
+	</div>
+	<div class="section">
 	<b> Remote Push Button</b><br>
 	<input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
 	<input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
 	<div id="prog_holder" style="padding-left:20px;">
 	
 	</div>
-	
+	</div>
+	<div class="section">
 	<b>Programmable Indicator LED</b>
 	<br>
 	
@@ -95,9 +99,10 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label></div>
 	<input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog()"><label for ="output_stat">Show output status</label><br>
 	<div id="prog_stat_holder" >
-	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for program active, On for output active, off for program inactive)</label></div>
+	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for program active, On for output active, Off for program inactive)</label></div>
 	<span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
-	
+	</div>
+	<div class="section">
 	<b>Outputs</b>
 	<br>
 	<div style="margin-bottom:5px; margin-top:5px">
@@ -111,6 +116,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	</div>
 	<div style="margin-bottom:5px; margin-top:5px; display:none" id="IO14_holder" >
 	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> IO14: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
+	</div>
 	</div>
 	</div>
 	<br>

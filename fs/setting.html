@@ -20,7 +20,7 @@
 	<div id="circularG_7" class="circularG"></div>
 	<div id="circularG_8" class="circularG"></div>
   </div>
-  <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
+  <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div style="margin-top:15px" id="failed_button"> 
   <input type="button" style="width:75px;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div style="margin-top:15px" id="success_button">
@@ -133,7 +133,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 		</table>
 	</div>
 	<div class="section">
-	<b> Enable I2C </b><br>
+	<b> Enable Remote Sensors </b><br>
 		<label class="switch" style="margin: 10px 0">
 		<input type="checkbox" id="i2c_en">
 		<span class="slider round"></span>
@@ -683,7 +683,7 @@ b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="w
 b += '<label for="wifi_saved'+i+'">'+input[i].ssid+'</label></div>';
 }
 }//for
-b += "<div style='margin-top:5px; margin-bttom:5px'><b>Checked Networks will be deleted on save<br>WiFi settings updated on reboot</b></div>"
+b += "<div style='margin-top:15px; margin-bttom:5px'><b>Checked Networks will be deleted on save<br>WiFi settings updated on reboot</b></div>"
 document.getElementById("wifi_saved_list").innerHTML = b;
 }
 function dbm_2_percent(input){
