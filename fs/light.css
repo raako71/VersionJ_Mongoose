@@ -1,0 +1,38 @@
+body {
+  background-color: white;
+  color: black;
+}
+a, a :visited{
+  color: black;
+}
+a:hover{
+    color: #00cc08;
+}
+input[type=button]{
+	background-color:white;
+	border:1px solid;
+	border-radius: 5px;
+	cursor:pointer;
+	color:black;
+}
+.confirmation_box{
+	border:2px solid red;
+	background-color: white;
+}
+input[type=text]{
+	border:1px solid;
+	border-radius: 5px;
+}
+input[type=password]{
+	border:1px solid;
+	border-radius: 5px;
+}
+.main_container{
+    background-color: aliceblue;
+}
+.trigger_container{
+    background-color:  aliceblue;
+} 
+.dropdown:hover .dropbtn {background-color: black; color:white;}
+.dropdown-content a:hover {background-color: white; color:black;}
+.dropdown-content{border: 1px solid black;}

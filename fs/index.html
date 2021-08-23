@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Power Monitor Web Server</title>
+<title>Socket Controller</title>
+<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
+<script src="./login.js.gz" ></script>
+<link rel="stylesheet" type="text/css" href="general.css" />
 </head>
 <style>
+html{
+text-align:left;
+}
 body{
-background-color: black;
-color: rgb(255, 167, 0);
 font-family: monospace, sans-serif;
 }
 .btn-group button {
@@ -20,7 +24,6 @@ float: left; /* Float the buttons side by side */
 .btn-group button:not(:last-child) {
 border-right: none; /* Prevent double borders */
 }
-
 /* Clear floats (clearfix hack) */
 .btn-group:after {
 content: "";
@@ -33,11 +36,49 @@ background-color: #3e8e41;
 }
 </style>
 <body>
-<h1 id = "header"> Power Monitor ESP32 Web Server </h1> 
-<div style="display:inline">
-<a href="./setting.html">Settings</a>
-<a href="./control_page.html">Control page</a>
+<div id="overlay_login" class="overlay" style="display:none;font-size:16px">
+<div class="confirmation_box">
+<b>Login</b><br>
+<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
+Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
+<div style="margin-top:10px">
+<input type="button" value="Change Password" onClick="change_password()">
 </div>
+</div>
+<span style="margin-top:10px;display:block;" id="login_warning"></span>
+<div style="margin-top:10px">
+<input type="button" style="margin:10px;width:100px" onClick="confirm_password(document.getElementById('log_button').innerHTML)" id="enter_password" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_login()">
+</div>
+</div>
+</div>
+
+<div id="overlay_change_pass" class="overlay" style="display:none;font-size:16px">
+<div class="confirmation_box">
+<b>Change Password</b><br>
+<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
+Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"><br>
+New Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass1"><br>
+Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
+</div>
+<span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
+<div style="margin-top:10px">
+<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login()">
+</div>
+</div> 
+</div>
+<div id="main_div">
+<span style="float:right;margin-right:25px;">
+<span id='log_info'>Logged in</span>
+<span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
+<div class="dropdown-content">
+	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
+    <a href="./">Home</a>
+    <a href="./control_page.html">Control Logic</a>
+    <a href="./setting.html">Settings</a>
+ </div>
+ </span>
+</span>
+<h1 id = "header"> Power Monitor ESP32 Web Server </h1> 
 <table style="width:100%;" >	
 <tr>
 <td>
@@ -178,11 +219,12 @@ background-color: #3e8e41;
 <p> push Time to ESP </p>
 <button type="button" onClick="pushtime()"> Push Time </button>
 </div>
+</div>
 </body>
 </html>
-
-
 <script>
+	load_conf();
+	login_session_check();
 	function open_new_tab(link){
 		window.open(link+"?"+Math.random() * Math.random(), "_self");
 	}
@@ -276,4 +318,6 @@ background-color: #3e8e41;
 		xhr.open("GET", "/rpc/getTime", true);
 		xhr.send();
 	}
+	
+	
 </script>

@@ -13,12 +13,13 @@
 "col13_en":false, 
 "rc_1970day": true, 
 "rc_thisday":true,
-"eth_en":true,
-"wifi": [{"mode":1,  "ssid": "WiFi-5902", "pass":"31315418"}], 
+"eth_en":true, "i2c_en":true,
+"wifi": {"mode": 1, "cfg":[{"ssid": "WiFi-5902", "pass":"31315418"}, {"ssid":"", "pass":""}, {"ssid":"", "pass":""}]}, 
 "pwr_sensor":[{"enable":true}],
 "static_IP_conf": [{"enable": false, "IP":"" , "SN":"" , "GW":""}],
-"timezone":0,
+"timezone":0, "dec_place": 2, "dev_mode": false,
 "temp_scale" : 1,
 "brightness": [{"panel": 255, "remote": 255}],
-"ctrl_page": {"sensor_input":false, "prog_ctrl":false, "override":0, "ovr_val":"" , "LED" :1, "IO14":false, "active_prog": 0}
+"theme":1,
+"ctrl_page": {"sensor_input":false, "prog_ctrl":false, "override":0, "ovr_val":"" , "LED" :0, "LED_prog": 0, "IO14":false, "active_prog": 0}
 }
