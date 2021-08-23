@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title> SC Setting</title>
-	<link id="theme" rel="stylesheet" type="text/css" href="light.css" />
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
 	<link rel="stylesheet" type="text/css" href="general.css" />
-	<script src="./login.js.gz" ></script>
+	<script src="./login.js.gz" defer></script>
 </head>
 <body>
 <div id="overlay_save" class="overlay" style="display:none;">
@@ -20,7 +20,7 @@
 	<div id="circularG_7" class="circularG"></div>
 	<div id="circularG_8" class="circularG"></div>
   </div>
-  <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
+  <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div style="margin-top:15px" id="failed_button"> 
   <input type="button" style="width:75px;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div style="margin-top:15px" id="success_button">
@@ -39,7 +39,7 @@
 	</div>
 	<span style="margin-top:10px;display:block;" id="wifi_warning"></span>
 	<div style="margin-top:5px">
-	<input type="button" style="margin:10px;width:100px" onClick="connect_wifi()" id="save_wifi" value="save"><input style="margin:10px;width:100px" type="button" value="cancel" onClick="off_overlay_wifi()">
+	<input type="button" style="margin:10px;width:100px" onClick="this.value=='save' ? connect_wifi() : off_overlay_wifi()" id="save_wifi" value="save"><input style="margin:10px;width:100px" type="button" value="cancel" onClick="off_overlay_wifi()">
 	</div>
   </div>
 </div>
@@ -80,7 +80,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
+	<a href="#" id="log_button" onClick='login_confirm(this)' class="disabled">Login</a>
     <a href="./">Home</a>
     <a href="./control_page.html">Control Logic</a>
     <a href="./setting.html">Settings</a>
@@ -133,7 +133,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 		</table>
 	</div>
 	<div class="section">
-	<b> Enable I2C </b><br>
+	<b> Enable Remote Sensors</b><br>
 		<label class="switch" style="margin: 10px 0">
 		<input type="checkbox" id="i2c_en">
 		<span class="slider round"></span>
@@ -234,9 +234,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	function onLoad(){
 		console.log("DOM loaded");
 		load_conf();
-		fetch_version();
-		login_session_check();
-		
+		fetch_version();		
 	}
 	function LAN_conf(){
 		var logic = document.getElementById("LAN_conf").checked;
@@ -331,28 +329,31 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			save_command = true;
 			on_overlay_login();
 			return;
-		}
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "/rpc/FS.Get", true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		var comm = {"filename": "setting.json"};
-		xhr.send(JSON.stringify(comm));
-		on_overlay();
-		document.getElementById("circularG").style.display = 'block';
-		document.getElementById("success_button").style.display="none";
-		document.getElementById("failed_button").style.display="none";
-		document.getElementById("spinner_info").innerHTML = "Saving..";
-		xhr.timeout = 5000;
-		xhr.ontimeout = function (e) {
-		document.getElementById("circularG").style.display = 'none';
-		document.getElementById("spinner_info").innerHTML = "No response from controller!";
-		document.getElementById("success_button").style.display="none";
-		document.getElementById("failed_button").style.display="block";
-		};
-		xhr.onreadystatechange = function() {
-		if (xhr.readyState == 4 && xhr.status == 200)  {
-			var data = JSON.parse(this.responseText);
-			old_json = JSON.parse(window.atob(data.data));
+		}else{
+			//validate cookie
+			on_overlay();
+			document.getElementById("circularG").style.display = 'block';
+			document.getElementById("success_button").style.display="none";
+			document.getElementById("failed_button").style.display="none";
+			document.getElementById("spinner_info").innerHTML = "Saving..";
+		validate_cookie(function(i){
+			if(i == false){
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";
+				document.getElementById("success_button").style.display="block";
+				document.getElementById("failed_button").style.display="none";
+				return;
+			}
+		
+		xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(i){
+			if(i.status != "success"){
+			document.getElementById("circularG").style.display = 'none';
+			document.getElementById("spinner_info").innerHTML = i.status;
+			document.getElementById("success_button").style.display="none";
+			document.getElementById("failed_button").style.display="block";
+			return;
+			}else{
+			old_json = JSON.parse(window.atob(i.data.data));
 			var mode = document.getElementById("mode").value;
 			var network_conf = document.getElementById("mode").value;
 			var pwr_sensor_en = document.getElementById("pwr_sensor_check").checked;
@@ -413,45 +414,28 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 				}
 			}
 			}
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST", "/rpc/FS.Put", true);
-			xhttp.setRequestHeader('Content-Type', 'application/json');
-			var string = window.btoa(JSON.stringify(old_json));
-			var contain = {"filename": "setting.json", "append":false, "data": string}
-			xhttp.send(JSON.stringify(contain));
-			xhttp.timeout = 5000;
-			xhttp.timeout = function (e) {
-			document.getElementById("circularG").style.display = 'none';
-			document.getElementById("spinner_info").innerHTML = "No response from controller!";
-			document.getElementById("success_button").style.display="none";
-			document.getElementById("failed_button").style.display="block";
-			};
-			xhttp.onreadystatechange = function() {
-				if (xhttp.readyState === 4 && xhttp.status == 200)  {
-			//	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
+			xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
+			if(u.status != "success"){
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = u.status;
+				document.getElementById("success_button").style.display="none";
+				document.getElementById("failed_button").style.display="block";
+			}else{
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 				document.getElementById("success_button").style.display="block";
 				document.getElementById("failed_button").style.display="none";
-				}else if(xhttp.readyState == 4 && xhttp.status != 200){
-				document.getElementById("circularG").style.display = 'none';
-				document.getElementById("spinner_info").innerHTML = "Request error!";
-				document.getElementById("success_button").style.display="none";
-				document.getElementById("failed_button").style.display="block";
-				return;
-				}
-			}//xhttp readystate	
-			save_eth_conf(old_json.eth_en, IP, GW, SN, old_json.i2c_en);	
-			var xhttp2 = new XMLHttpRequest();
-			xhttp2.open("POST", "/rpc/setting", true);
-			xhttp2.send();
-		}else if(xhr.readyState == 4 && xhr.status != 200){
-			document.getElementById("circularG").style.display = 'none';
-			document.getElementById("spinner_info").innerHTML = "Request error!";
-			document.getElementById("success_button").style.display="none";
-			document.getElementById("failed_button").style.display="block";
-		}
-		}//xhr readystate
+				save_eth_conf(old_json.eth_en, IP, GW, SN, old_json.i2c_en);	
+				var xhttp2 = new XMLHttpRequest();
+				xhttp2.open("POST", "/rpc/setting", true);
+				xhttp2.send();
+			}//else success
+			});
+			}//else success
+		});		
+		});//validate cookie
+		}//else
+		
 		save_command = false;
 	}//save conf function
 	function save_eth_conf(en, ip, gw, netmask, i2c_en){
@@ -505,6 +489,7 @@ function on_overlay_wifi(){
   document.getElementById("scan_wifi").disabled = false;
   document.getElementById("scan_result").innerHTML = "Press Scan Button to start wifi scanning!";
   document.getElementById("wifi_warning").innerHTML = "";
+  document.getElementById("save_wifi").value = "save";
   document.getElementById("wifi_pass").value = "";
   document.getElementById("wifi_ssid").value = "";
   document.getElementById("save_wifi").disabled = false;
@@ -525,15 +510,10 @@ spinner_load += '<div id="circularG_6" class="circularG"></div><div id="circular
 function scan_wifi(){
 	document.getElementById("scan_result").innerHTML = spinner_load;
 	document.getElementById("scan_wifi").disabled = true;
-	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/rpc/wifi.scan", true);
-	xhttp.setRequestHeader('Content-Type', 'application/json');
-	xhttp.send();
-	xhttp.onreadystatechange = function() {
-		if (xhttp.readyState == 4) {
+	xhr_send("wifi.scan", null,  function(i){
+		if(i.status == "success"){
 			document.getElementById("scan_wifi").disabled = false;
-			if(xhttp.status == 200){
-			var data = JSON.parse(this.responseText);
+			var data = i.data;
 			var build_net="";
 			var sec_type = ["OPEN", "WEP", "WPA/PSK", "WPA2/PSK", "WPA2/PSK", "WPA2/ENT"];
 			for(var i = 0; i < data.length; i++){
@@ -551,48 +531,39 @@ function scan_wifi(){
 				build_net += '</td></table>';
 			}
 			document.getElementById("scan_result").innerHTML = build_net;
-			}else{
-			document.getElementById("scan_result").innerHTML = "Failed to scan wifi!";
-			}
+		}else{
+			document.getElementById("scan_result").innerHTML = i.status;
 		}
-	}//onready
+	});
 }
+
 function fetch_wifi_status(){
 var c = "";
-var xhr = new XMLHttpRequest();
-xhr.open("GET", "/rpc/wifi.status", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-xhr.send();
 document.getElementById("wifi_info0").innerHTML = "";
 document.getElementById("wifi_info1").innerHTML = "";
-xhr.onload = function() {
-var data = JSON.parse(this.responseText);
-if(data.ap_en){ // ap_mode
-c += "<div><b>AP SSID</b>: " + data.ap_ssid + "</div>";
-c += "<div><b>Key</b> : " + data.ap_pass + "</div>";
-c += "<div style='margin-bottom:10px'><b>IP</b>&nbsp; : " + data.ap_ip + "</div>";
-document.getElementById("wifi_info0").innerHTML = c;
-}
-if(data.sta_en){ // sta mode
-fetch_wifi_status_sec(data.sta_rssi);
-}
-}//onload
+xhr_send("wifi.status", null,  function(i){
+	if(i.data.ap_en){ // ap_mode
+	c += "<div><b>AP SSID</b>: " + i.data.ap_ssid + "</div>";
+	c += "<div><b>Key</b> : " + i.data.ap_pass + "</div>";
+	c += "<div style='margin-bottom:10px'><b>IP</b>&nbsp; : " + i.data.ap_ip + "</div>";
+	document.getElementById("wifi_info0").innerHTML = c;
+	}
+	if(i.data.sta_en){ // sta mode
+	fetch_wifi_status_sec(i.data.sta_rssi);
+	}
+});
 }
 
 function fetch_wifi_status_sec(input1){
 var c = "";
-var xhr = new XMLHttpRequest();
-xhr.open("GET", "/rpc/sys.getinfo", true);
-xhr.setRequestHeader('Content-Type', 'application/json');
-xhr.send();
-xhr.onload = function() {
-var data = JSON.parse(this.responseText);
-c += "<div><b>Client SSID</b>: " + data.wifi.ssid +"</div>";
+xhr_send("sys.getinfo", null,  function(i){
+c += "<div><b>Client SSID</b>: " + i.data.wifi.ssid +"</div>";
 c += "<div><b>RSSI</b>: " + input1 + " dBm</div>"; 
-c += "<div style='margin-bottom:10px'><b>IP</b> : " + data.wifi.sta_ip + "</div>";
+c += "<div style='margin-bottom:10px'><b>IP</b> : " + i.data.wifi.sta_ip + "</div>";
 document.getElementById("wifi_info1").innerHTML = c;
-}//onload
+});
 }
+
 function connect_wifi(){
 	var ssid_saved = document.getElementById("wifi_ssid").value;
 	var x = document.getElementById("wifi_warning");
@@ -612,63 +583,49 @@ function connect_wifi(){
 	}
 	var json_ssid = {ssid:ssid_saved, pass:pass_saved};
 	json_ssid = JSON.stringify(json_ssid);
-	console.log(json_ssid);
 	document.getElementById("save_wifi").disabled = true;
 	//validation on client side
 	x.innerHTML = spinner_load; //pop spinner up
 	
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "/rpc/FS.Get", true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	var comm = {filename: "setting.json"};
-	xhr.send(JSON.stringify(comm));
-	xhr.onreadystatechange = function() {
-	if (xhr.readyState == 4 && xhr.status == 200)  {
-		var data = JSON.parse(xhr.responseText);
-		data = JSON.parse(window.atob(data.data));
-		//check all wifi field
-		console.log(data);
-		for (var i = 0; i < 3; i++){
-			console.log(data.wifi.cfg[i].ssid);
-			if(data.wifi.cfg[i].ssid == ssid_saved){
-				x.innerHTML = "Same SSID name is already saved!";
-				document.getElementById("save_wifi").disabled = false;
-				return;
-			}
-			if(data.wifi.cfg[i].ssid == ""){
-				data.wifi.cfg[i].ssid = ssid_saved;
-				data.wifi.cfg[i].pass = pass_saved;
-				break;
-			}
-			if(i == 2){ // no empty slot
-				x.innerHTML = "WiFi credentials storage is full (Max 3)!";
-				document.getElementById("save_wifi").disabled = false;
-				return;
-			}
-		}
-		//commit to save new config
-		var xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "/rpc/FS.Put", true);
-		xhttp.setRequestHeader('Content-Type', 'application/json');
-		var string = window.btoa(JSON.stringify(data));
-		var contain = {"filename": "setting.json", "append":false, "data": string}
-		xhttp.send(JSON.stringify(contain));
-		xhttp.onreadystatechange = function() {
-			if(xhttp.readyState == 4){
-			if(xhttp.status == 200){
-			x.innerHTML = "Configuration saved, please restart the device!";
-			document.getElementById("save_wifi").disabled = false;
-			}else{
-			x.innerHTML = "Device does not respond! save failed";
-			document.getElementById("save_wifi").disabled = false;
-			}			
-			}	
-		}
-	}else if(xhr.readyState == 4 && xhr.status != 200){
-		document.getElementById("save_wifi").disabled = false;
-		x.innerHTML = "Device does not response!";
+	xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(i){
+	if(i.status != "success"){
+	x.innerHTML = i.status;
+	document.getElementById("save_wifi").disabled = false;
+	return;
 	}
-	}//xhr readystate func
+	data = i.data;
+	data = JSON.parse(window.atob(data.data));
+	for (var i = 0; i < 3; i++){
+		if(data.wifi.cfg[i].ssid == ssid_saved){
+			x.innerHTML = "Same SSID name is already saved!";
+			document.getElementById("save_wifi").disabled = false;
+			return;
+		}
+		if(data.wifi.cfg[i].ssid == ""){
+			data.wifi.cfg[i].ssid = ssid_saved;
+			data.wifi.cfg[i].pass = pass_saved;
+			break;
+		}
+		if(i == 2){ // no empty slot
+			x.innerHTML = "WiFi credentials storage is full (Max 3)!";
+			document.getElementById("save_wifi").disabled = false;
+			return;
+		}
+	}
+	var string = window.btoa(JSON.stringify(data));
+	var contain = {"filename": "setting.json", "append":false, "data": string}
+	xhr_send("fs.put", JSON.stringify(contain), function(m){
+	if(m.status != "success"){
+		x.innerHTML = m.status;
+		document.getElementById("save_wifi").disabled = false;
+		return;
+	}else{
+		x.innerHTML = "Configuration saved! New config will be applied on reboot.";
+		document.getElementById("save_wifi").disabled = false;
+		document.getElementById("save_wifi").value = "OK";
+		}	
+	});
+	}); //first xhr
 }
 function wifi_list(input){
 	document.getElementById("wifi_ssid").value = input;
@@ -683,7 +640,7 @@ b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="w
 b += '<label for="wifi_saved'+i+'">'+input[i].ssid+'</label></div>';
 }
 }//for
-b += "<div style='margin-top:5px; margin-bttom:5px'><b>Checked Networks will be deleted on save<br>WiFi settings updated on reboot</b></div>"
+b += "<div style='margin-top:15px; margin-bttom:5px'><b>Checked Networks will be deleted on save<br>WiFi settings updated on reboot</b></div>"
 document.getElementById("wifi_saved_list").innerHTML = b;
 }
 function dbm_2_percent(input){
@@ -782,5 +739,6 @@ background-color: #4CAF50;
 #status{
 text-align:center;
 }
+
 </style>
 </html>

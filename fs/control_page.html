@@ -5,7 +5,7 @@
 	<title>SC Control Logic</title>
 	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
     <link rel="stylesheet" type="text/css" href="./general.css" />
-	<script src="./login.js.gz" ></script>
+	<script src="./login.js.gz" defer></script>
 </head>
 <body>
 <div id="overlay_save" class="overlay" style="display:none">
@@ -75,18 +75,21 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div class="main_container">
 	<h3 id="devtime"> DEVICE TIME: </h3>
 	<h3 id="uptime"> DEVICE UPTIME: </h3>
+	<div class="section">
 	<b> Programs (descending priority)</b>
 	<div id="program_link"></div>
 	<div style="margin-bottom:10px; margin-top:10px">
 	<input type="button" value="Create New Program" onClick="new_program()">
 	</div>
+	</div>
+	<div class="section">
 	<b> Remote Push Button</b><br>
 	<input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
 	<input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
 	<div id="prog_holder" style="padding-left:20px;">
-	
 	</div>
-	
+	</div>
+	<div class="section">
 	<b>Programmable Indicator LED</b>
 	<br>
 	
@@ -95,9 +98,10 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label></div>
 	<input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog()"><label for ="output_stat">Show output status</label><br>
 	<div id="prog_stat_holder" >
-	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for program active, On for output active, off for program inactive)</label></div>
+	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for program active, On for output active, Off for program inactive)</label></div>
 	<span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
-	
+	</div>
+	<div class="section">
 	<b>Outputs</b>
 	<br>
 	<div style="margin-bottom:5px; margin-top:5px">
@@ -111,6 +115,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	</div>
 	<div style="margin-bottom:5px; margin-top:5px; display:none" id="IO14_holder" >
 	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> IO14: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
+	</div>
 	</div>
 	</div>
 	<br>
@@ -150,7 +155,6 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 		console.log("DOM loaded");
 		fetch_uptime();
 		fetch_program_list();
-		login_session_check();
 	}
 	function fetch_program_list(){
 		console.log("fetch program list");
@@ -395,127 +399,69 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	
 	create_program_link();
 	}//onload
-	
 	}
 	function save_conf(){
-		save_command = true;
-		if(!check_password()){
-			on_overlay_login();
-			return;
-		}
+	save_command = true;
+	var old_json;
+	if(!check_password()){on_overlay_login(); return;}
 		var a = document.getElementById("sens_in").checked;
 		var b = document.getElementById("cont_prog").checked;
 		var b1 =0;
 		var c; var d; var d1;
-		if(b){
-			b1 = document.getElementById("prog_list").value;
-			c = document.getElementById("always").checked;
-			d = document.getElementById("for").checked;
-			d1 = document.getElementById("until").checked;
-		}
-		
-		var e =0;
-		var f ="";
-		if(c){
-			e = 1;
-		}else if(d){
-			e = 2;
-			f = Number(document.getElementById("ovr_sec").value);
-			f += Number(document.getElementById("ovr_min").value) * 60;
-			f += Number(document.getElementById("ovr_hour").value) * 3600;
-			f += Number(document.getElementById("ovr_day").value) *3600 * 24;
+		if(b){b1 = document.getElementById("prog_list").value;c = document.getElementById("always").checked;d = document.getElementById("for").checked;	d1 = document.getElementById("until").checked;}
+		var e =0;var f ="";
+		if(c){e = 1;}else if(d){
+			e = 2;f=Number(document.getElementById("ovr_sec").value);f+=Number(document.getElementById("ovr_min").value) * 60;f+=Number(document.getElementById("ovr_hour").value) * 3600;f+=Number(document.getElementById("ovr_day").value) *3600 * 24;
 		}else if(d1){
-			e = 3;
-			f = document.getElementById("until_time").value;
-			f = f.split(":");
-			var date_local = new Date();
-			var offset_local = date_local.getTimezoneOffset() * 60;
-			f = f[0] * 3600 + f[1] * 60 + offset_local;
-			if(f < 0){f = 86400 + f;}
+			e = 3;f = document.getElementById("until_time").value;f = f.split(":");var date_local = new Date();var offset_local = date_local.getTimezoneOffset() * 60;f = f[0] * 3600 + f[1] * 60 + offset_local;if(f < 0){f = 86400 + f;}
 		}
-		var g;
-		if(document.getElementById("led_disable").checked){
-		g = 0;
-		}else if(document.getElementById("as_output").checked){
-		g = 1;
-		}else if(document.getElementById("output_stat").checked){
-		g = 2;
-		}else{
-		g = 3;
-		}
+		var g;if(document.getElementById("led_disable").checked){g=0;}else if(document.getElementById("as_output").checked){g=1;}else if(document.getElementById("output_stat").checked){g=2;}else{g=3;}
 		var g1 = (g == 2 || g == 3) ? document.getElementById("prog_led_list").value : 0;
 		var h = document.getElementById("IO14_en").checked;
-		var old_json;
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "/rpc/FS.Get", true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		var comm = {"filename": "setting.json"};
-		xhr.send(JSON.stringify(comm));
-		xhr.timeout = 5000;
 		on_overlay();
 		document.getElementById("circularG").style.display = 'block';
 		document.getElementById("success_button").style.display="none";
 		document.getElementById("failed_button").style.display="none";
 		document.getElementById("spinner_info").innerHTML = "Saving..";
-		xhr.ontimeout = function (e) {
+		validate_cookie(function(i){
+			if(i == false){
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";
+				document.getElementById("success_button").style.display="block";
+				document.getElementById("failed_button").style.display="none";
+				return;
+			}
+			xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(i){
+			if(i.status != "success"){
 			document.getElementById("circularG").style.display = 'none';
-			document.getElementById("spinner_info").innerHTML = "No response from controller!";
+			document.getElementById("spinner_info").innerHTML = i.status;
 			document.getElementById("success_button").style.display="none";
 			document.getElementById("failed_button").style.display="block";
-		};
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState == 4 && xhr.status == 200)  {
-			var data = JSON.parse(this.responseText);
-			old_json = JSON.parse(window.atob(data.data));
-			old_json.ctrl_page.sensor_input = a;
-			old_json.ctrl_page.prog_ctrl = b;
-			old_json.ctrl_page.override=e;
-			old_json.ctrl_page.ovr_val = f;
-			old_json.ctrl_page.LED = g;
-			old_json.ctrl_page.IO14 = h;
-			old_json.ctrl_page.active_prog = b1;
-			old_json.ctrl_page.LED_prog = g1;
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST", "/rpc/FS.Put", true);
-			xhttp.setRequestHeader('Content-Type', 'application/json');
-			var string = window.btoa(JSON.stringify(old_json));
-			var contain = {"filename": "setting.json", "append":false, "data": string}
-			xhttp.send(JSON.stringify(contain));
-			xhttp.timeout = 5000;
-			xhttp.timeout = function (e) {
-			document.getElementById("circularG").style.display = 'none';
-			document.getElementById("spinner_info").innerHTML = "No response from controller!";
-			document.getElementById("success_button").style.display="none";
-			document.getElementById("failed_button").style.display="block";
-			};
-			xhttp.onreadystatechange = function() {
-				if (xhttp.readyState == 4 && xhttp.status == 200)  {
-			//	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
+			return;
+			}
+			var data = i.data;old_json = JSON.parse(window.atob(data.data));
+			old_json.ctrl_page.sensor_input = a;old_json.ctrl_page.prog_ctrl = b;old_json.ctrl_page.override=e;	old_json.ctrl_page.ovr_val = f;
+			old_json.ctrl_page.LED = g;old_json.ctrl_page.IO14 = h;old_json.ctrl_page.active_prog = b1;old_json.ctrl_page.LED_prog = g1;
+			xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
+			if(u.status != "success"){
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = u.status;
+				document.getElementById("success_button").style.display="none";
+				document.getElementById("failed_button").style.display="block";
+			}else{
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 				document.getElementById("success_button").style.display="block";
-				document.getElementById("failed_button").style.display="none";
-				}else if(xhttp.readyState == 4 && xhttp.status != 200){
-				document.getElementById("circularG").style.display = 'none';
-				document.getElementById("spinner_info").innerHTML = "Request error";
-				document.getElementById("success_button").style.display="none";
-				document.getElementById("failed_button").style.display="block";
-				return;
-				}
-			}//xhttp readystate	
-			var xhttp2 = new XMLHttpRequest();
-			xhttp2.open("POST", "/rpc/setting", true);
-			xhttp2.send();
-			}else if(xhr.readyState == 4 && xhr.status != 200){
-				document.getElementById("circularG").style.display = 'none';
-				document.getElementById("spinner_info").innerHTML = "Request error";
-				document.getElementById("success_button").style.display="none";
-				document.getElementById("failed_button").style.display="block";
+				document.getElementById("failed_button").style.display="none";	
+				var xhttp2 = new XMLHttpRequest();
+				xhttp2.open("POST", "/rpc/setting", true);
+				xhttp2.send();
 			}
-		}//xhr readystate
-		
+			});//end of fs put
+			});//end of fs.get
+		});//end of validate_cookie
 		save_command = false;
-	}
+	}//end of function
 	
 	function fetch_IO_status(){
 		var xhttp = new XMLHttpRequest();

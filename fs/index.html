@@ -3,7 +3,7 @@
 <head>
 <title>Socket Controller</title>
 <link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
-<script src="./login.js.gz" ></script>
+<script src="./login.js.gz" defer></script>
 <link rel="stylesheet" type="text/css" href="general.css" />
 </head>
 <style>
@@ -223,8 +223,6 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 </body>
 </html>
 <script>
-	load_conf();
-	login_session_check();
 	function open_new_tab(link){
 		window.open(link+"?"+Math.random() * Math.random(), "_self");
 	}

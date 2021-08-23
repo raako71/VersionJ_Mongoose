@@ -8,6 +8,11 @@ html{
   position: relative;
   display: inline-block;
 }
+.disabled {
+  pointer-events: none;
+  cursor: default;
+  background-color:grey;
+}
 .dropdown-content {
   display: none;
   position: absolute;
