@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.9.7.9: fix login (blank password) 5 mins free acess on ap button, validate cookie when saving<br>
 0.9.7.8b: CSS changes<br>
 0.9.7.8: fix login function add i2c enable<br>
 0.9.7.7: revert CSS .section etc<br>

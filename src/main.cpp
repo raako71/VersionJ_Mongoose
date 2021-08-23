@@ -117,6 +117,8 @@ int ext_PB_state[3] = {0,0,0};
 int led_red_status = 0;
 int dec_place_global;
 bool dev_mode_global;
+unsigned long current_ver_key = 0;
+bool ap_button_mode = false;
 //addition variable V2
 char wifi_mode = 0; // 1 -> STA ; 2 -> AP; 3 -> OFF
 void load_wifi_setting();
@@ -183,8 +185,9 @@ int read_R1_button();
 int read_R2_button();
 int read_RPB_button();
 void check_override_func();
+unsigned long randomGen();
 void led_red_ctrl_asprog(void *arg);
-unsigned int randomGen();
+
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
 	mgos_clear_timer(prog_timer_id[0]);
@@ -233,11 +236,15 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
 void get_wifi_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void check_access_login(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void change_password(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void validate_cookie(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	//dns_advert = true;
 	mg_rpc_send_responsef(ri, "OK");
 	LOG(LL_WARN,("halo dns advertise"));
 	mgos_dns_sd_advertise();
+}
+void check_ap_mode(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	mg_rpc_send_responsef(ri, "{mode:%B, uptime:%lu}", ap_button_mode, (unsigned long)mgos_uptime());	
 }
 //function prototype
 static void button_check_cb(void *arg){
@@ -257,6 +264,11 @@ static void button_check_cb(void *arg){
 static void timer_cb(void *arg) {
 	time_t now;
 	time(&now);
+	static bool first_time = true;
+	if(first_time && (unsigned long)mgos_uptime() >= 300){
+		first_time = false;
+		current_ver_key= randomGen();
+	}
 	if(now > 946684800){
 		online_epoch = now;
 		NTPflag = true;
@@ -410,7 +422,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
    	mgos_set_timer(100, MGOS_TIMER_REPEAT, button_check_cb, NULL);
-	mgos_set_hw_timer(100000, MGOS_TIMER_REPEAT, button_check_cb, NULL);
+	//mgos_set_hw_timer(100000, MGOS_TIMER_REPEAT, button_check_cb, NULL);
   	
   	//RPC handler function
 
@@ -423,7 +435,9 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reset_timer", "{file:%Q}", reset_timer, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "wifi.status", "", get_wifi_status, NULL);
 	mg_rpc_add_handler(mgos_rpc_get_global(), "login", "{pass:%Q}", check_access_login, NULL);
-	mg_rpc_add_handler(mgos_rpc_get_global(), "change_pass", "{old_pass:%Q, new_pass:%Q}", change_password, NULL);		
+	mg_rpc_add_handler(mgos_rpc_get_global(), "change_pass", "{old_pass:%Q, new_pass:%Q}", change_password, NULL);
+	mg_rpc_add_handler(mgos_rpc_get_global(), "validate_key", "{key:%lu}", validate_cookie, NULL);	
+	mg_rpc_add_handler(mgos_rpc_get_global(), "check_ap_mode", "", check_ap_mode, NULL);		
 	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
 	mgos_msleep(1000);
 	load_wifi_setting();
@@ -462,18 +476,11 @@ mg_rpc_send_responsef(ri, "{ap_en: %B, sta_en: %B, sta_rssi: %d, ap_ip: %Q, ap_s
 (void) fi;	
 }
 bool check_password(std::string input){
-	FILE * pFile;
-	pFile = fopen ("password" , "r");
+	char* buff = (char*)malloc(128); 
 	//find out file size
-	fseek (pFile , 0 , SEEK_END);
-	long lSize = ftell (pFile);
-	rewind (pFile);
-	char * mystring = (char*)malloc(64);
-	fgets (mystring , 64 , pFile);
-	if(strcmp(input.c_str(),"")==0 && lSize == 0){
-		free(mystring);
-		return true;
-	}
+	buff = json_fread("8f2js9ddfk.json"); //random file name for password file
+	char* mystring = (char*)malloc(120);
+	json_scanf(buff, strlen(buff), "{pass:%Q}", &mystring);
 	if(strcmp(input.c_str(), mystring) == 0){
 		free(mystring);
 		return true;
@@ -482,11 +489,22 @@ bool check_password(std::string input){
 		return false;
 	}
 }
+void validate_cookie(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	unsigned long ver_key_local;
+	if (json_scanf(args.p, args.len, ri->args_fmt, &ver_key_local) == 1) {
+		if(current_ver_key == ver_key_local){
+			mg_rpc_send_responsef(ri, "{status: confirm}", current_ver_key);
+		}else{
+			mg_rpc_send_responsef(ri, "{status: illegal}", current_ver_key);
+		}
+	}
+}
 void check_access_login(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	char* pass_buff = (char*)malloc(64);
 	if (json_scanf(args.p, args.len, ri->args_fmt, &pass_buff) == 1) {
    		if(check_password(pass_buff)){
-   			mg_rpc_send_responsef(ri, "{status: authorized}");	
+   			current_ver_key = randomGen();
+   			mg_rpc_send_responsef(ri, "{status: authorized, key:%lu}", current_ver_key);	
 		}else{
 			mg_rpc_send_responsef(ri, "{status: unauthorized}");
 		}	
@@ -504,10 +522,9 @@ void change_password(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_
    		if(!check_password(pass_buff)){
    			mg_rpc_send_responsef(ri, "{status: unauthorized}");
 		}else{
-			FILE * file = fopen("password", "w");
-			fputs (new_pass,file);
-			fclose(file);
+			json_fprintf("8f2js9ddfk.json", "{pass: %Q}", new_pass);
 			mg_rpc_send_responsef(ri, "{status: confirm}");
+			current_ver_key = 0;
 		}	
 		free(pass_buff);
 		free(new_pass);
@@ -555,6 +572,7 @@ void load_wifi_setting(){
 	
 	if(a == 1){
 		LOG(LL_WARN, ("AP mode (button) %d", a));
+		ap_button_mode = true;
 		wifi_mode = 2;
 		mgos_sys_config_set_wifi_ap_enable(true);
 		mgos_sys_config_set_wifi_sta_enable(false);
@@ -2200,7 +2218,7 @@ int read_RPB_button() { // read button if there is logic change
   return result;
 }
 
-unsigned int randomGen(){
+unsigned long randomGen(){
 	srand(time(NULL));
-	return (rand()%100)*(rand()%222);
+	return rand()*(rand()%222);
 }

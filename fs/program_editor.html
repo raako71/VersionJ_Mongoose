@@ -7,7 +7,7 @@
 	<link rel="stylesheet" href="./dtsel.css.gz" type="text/css"/>
 	<script src="./dtsel.js.gz"></script>
 	<title>SC Program Editor</title>
-	<script src="./login.js.gz" ></script>
+	<script src="./login.js.gz" defer></script>
 </head>
 <body>
 <div id="overlay_save" class="overlay" style="display:none">
@@ -224,7 +224,6 @@ var IO14 = true;
 function onLoad(){
 //check setting.json
 load_setting_json();
-login_session_check();
 }
 //function to detect page param
 function getUrlVars() {var vars = {};var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key] = value;});return vars;}
@@ -528,16 +527,6 @@ function save_setting(){
 var d = document.getElementById("input_remote");
 var zzz = document.getElementById("ctrl_trigger").value;
 var sec_opt = document.getElementById("sec_trigger_on");
-/*
-if( d != null){
-	if(d.value == 1 || d.value == 2){
-		if(d.value == document.getElementById("ctrl_out_opt").value){
-			alert("input remote cannot be same with control output");
-			return;
-		}
-	}
-}
-*/
 //checking 17.a
 var a4 = document.getElementById("sec_switched_on");
 var a6 = document.getElementById("sec_switched_off");
@@ -808,60 +797,42 @@ return old_json;
 }
 
 function save_conf(){
-save_command = true;
-if(!check_password()){
-	on_overlay_login();
-	return;
-}
+save_command = true;if(!check_password()){on_overlay_login();return;}
 var old_json = {"id": idprogram, "name":"", "en":false, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "", "off_time_global":""
 ,"control_opt": "","control_trigger":[{"main_option": 1, "main_info": "", "sec_option": -1, "sec_info":""}]};
 old_json = build_save_json(old_json);
-//turn on overlay
-console.log("save new");
-var xhttp = new XMLHttpRequest();
-xhttp.open("POST", "/rpc/FS.Put", true);
-xhttp.setRequestHeader('Content-Type', 'application/json');
-var string = window.btoa(JSON.stringify(old_json));
-var contain;
-if(program2load == "new"){
-contain = {"filename": "program"+idprogram+".json", "append":false, "data": string};
-}else{
-contain = {"filename": program2load+".json", "append":false, "data": string};
-}
-xhttp.send(JSON.stringify(contain));
-xhttp.timeout = 5000;
-xhttp.ontimeout = function (e) {
-document.getElementById("circularG").style.display = 'none';
-document.getElementById("spinner_info").innerHTML = "No response from controller!";
-document.getElementById("success_button").style.display="none";
-document.getElementById("failed_button").style.display="block";
-};
 on_overlay();
 document.getElementById("circularG").style.display = 'block';
 document.getElementById("success_button").style.display="none";
 document.getElementById("failed_button").style.display="none";
 document.getElementById("spinner_info").innerHTML = "Saving..";
-xhttp.onreadystatechange = function() {
-	if (xhttp.readyState == 4 && xhttp.status == 200)  {
-//	window.open("program_editor.html?x=program"+idprogram +"&y=" +idprogram +"&"+Math.random() * Math.random(), "_self");
-	document.getElementById("circularG").style.display = 'none';
-	document.getElementById("spinner_info").innerHTML = "Configuration Saved"
-	document.getElementById("success_button").style.display="block";
-	document.getElementById("failed_button").style.display="none";
-		if(program2load != "new"){
-		var a = new XMLHttpRequest();
-		a.open("POST", "/rpc/reset_timer", true);
-		a.send(JSON.stringify({file:program2load+".json"}));
-		}
-	}else if(xhttp.readyState == 4 && xhttp.status != 200){
-	document.getElementById("circularG").style.display = 'none';
-	document.getElementById("spinner_info").innerHTML = "Request error!";
-	document.getElementById("success_button").style.display="none";
-	document.getElementById("failed_button").style.display="block";
+validate_cookie(function(i){
+	if(i == false){
+		document.getElementById("circularG").style.display = 'none';
+		document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";
+		document.getElementById("success_button").style.display="block";
+		document.getElementById("failed_button").style.display="none";
+		return;
 	}
-}
+	var string = window.btoa(JSON.stringify(old_json));
+	var contain = (program2load == "new") ? {"filename": "program"+idprogram+".json", "append":false, "data": string} : {"filename": program2load+".json", "append":false, "data": string};
+	xhr_send("FS.put", JSON.stringify(contain), function(i){
+		if(i.status != "success"){
+		document.getElementById("circularG").style.display = 'none';
+		document.getElementById("spinner_info").innerHTML = i.status;
+		document.getElementById("success_button").style.display="none";
+		document.getElementById("failed_button").style.display="block";
+		return;
+		}
+		document.getElementById("circularG").style.display = 'none';
+		document.getElementById("spinner_info").innerHTML = "Configuration Saved"
+		document.getElementById("success_button").style.display="block";
+		document.getElementById("failed_button").style.display="none";
+		if(program2load != "new"){var a = new XMLHttpRequest();	a.open("POST", "/rpc/reset_timer", true);a.send(JSON.stringify({file:program2load+".json"}));}
+	});//end of fs.put
+});//end of validate_cookie
 save_command = false;
-}
+}//end of function
 
 
 function setInputFilter(textbox, inputFilter) {["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {textbox.addEventListener(event, function() {if (inputFilter(this.value)) {this.oldValue = this.value;this.oldSelectionStart = this.selectionStart;this.oldSelectionEnd = this.selectionEnd;} else if (this.hasOwnProperty("oldValue")) {this.value = this.oldValue;this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);} else {this.value = "";}});});}
