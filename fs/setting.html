@@ -57,7 +57,7 @@ Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_
 </div>
 <span style="margin-top:10px;display:block;" id="login_warning"></span>
 <div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" onClick="confirm_password(document.getElementById('log_button').innerHTML)" id="enter_password" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_login()">
+<input type="button" style="margin:10px;width:100px" onClick="confirm_password()" id="enter_password" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_login()">
 </div>
 </div>
 </div>
@@ -72,7 +72,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 </div>
 <span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
 <div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login()">
+<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input style="margin:10px;width:100px" id="cancel_change_password" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login()">
 </div>
 </div> 
 </div>

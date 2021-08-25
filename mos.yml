@@ -1,6 +1,6 @@
 author: alifnl
-description: fix bug on 12th milestone
-version: 0.9.7.9a
+description: change minor text and change password feature
+version: 0.9.7.9b
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
