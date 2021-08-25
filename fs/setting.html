@@ -8,7 +8,7 @@
 	<script src="./login.js.gz" defer></script>
 </head>
 <body>
-<div id="overlay_save" class="overlay" style="display:none;">
+<div id="overlay_save" class="overlay" style="display:none;z-index:3;">
   <div class="confirmation_box" >
   <div id="circularG" >
 	<div id="circularG_1" class="circularG"></div>
@@ -21,10 +21,12 @@
 	<div id="circularG_8" class="circularG"></div>
   </div>
   <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
-  <div style="margin-top:15px" id="failed_button"> 
+  <div class="invsi_button" id="failed_button"> 
   <input type="button" style="width:75px;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
-  <div style="margin-top:15px" id="success_button">
+  <div class="invsi_button" id="success_button">
   <input type="button" style="width:75px;font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
+  <div class="invsi_button" id="relogin_button">
+  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login();"></div>
   </div>
 </div>
 <div id="overlay_wifi" class="overlay" style="display:none;font-size:16px">
@@ -39,7 +41,7 @@
 	</div>
 	<span style="margin-top:10px;display:block;" id="wifi_warning"></span>
 	<div style="margin-top:5px">
-	<input type="button" style="margin:10px;width:100px" onClick="this.value=='save' ? connect_wifi() : off_overlay_wifi()" id="save_wifi" value="save"><input style="margin:10px;width:100px" type="button" value="cancel" onClick="off_overlay_wifi()">
+	<input type="button" style="margin:10px;width:100px" onClick="this.value=='save' ? connect_wifi() : off_overlay_wifi()" id="save_wifi" value="save"><input style="margin:10px;width:100px" id="cancel_wifi" type="button" value="cancel" onClick="off_overlay_wifi()">
 	</div>
   </div>
 </div>
@@ -64,7 +66,7 @@ Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_
 <div class="confirmation_box">
 <b>Change Password</b><br>
 <div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"><br>
+<span id="old_password_holder">Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"></span><br>
 New Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass1"><br>
 Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
 </div>
@@ -80,7 +82,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-	<a href="#" id="log_button" onClick='login_confirm(this)' class="disabled">Login</a>
+	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
     <a href="./">Home</a>
     <a href="./control_page.html">Control Logic</a>
     <a href="./setting.html">Settings</a>
@@ -329,59 +331,45 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			save_command = true;
 			on_overlay_login();
 			return;
-		}else{
-			//validate cookie
-			on_overlay();
-			document.getElementById("circularG").style.display = 'block';
-			document.getElementById("success_button").style.display="none";
-			document.getElementById("failed_button").style.display="none";
-			document.getElementById("spinner_info").innerHTML = "Saving..";
+		}
+		//validate cookie
+		on_overlay();
+		document.getElementById("circularG").style.display = 'block';
+		document.getElementById("spinner_info").innerHTML = "Saving..";
 		validate_cookie(function(i){
-			if(i == false){
+			if(i.code == 200 && i.data.status == "illegal"){
+				save_command = true;
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";
-				document.getElementById("success_button").style.display="block";
-				document.getElementById("failed_button").style.display="none";
+				document.getElementById("relogin_button").style.display="block";
+				return;
+			}else if(i.code != 200){
+				save_command = true;
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = i.status;
+				document.getElementById("failed_button").style.display="block";
 				return;
 			}
-		
 		xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(i){
 			if(i.status != "success"){
 			document.getElementById("circularG").style.display = 'none';
 			document.getElementById("spinner_info").innerHTML = i.status;
-			document.getElementById("success_button").style.display="none";
 			document.getElementById("failed_button").style.display="block";
 			return;
-			}else{
+			}
 			old_json = JSON.parse(window.atob(i.data.data));
 			var mode = document.getElementById("mode").value;
 			var network_conf = document.getElementById("mode").value;
 			var pwr_sensor_en = document.getElementById("pwr_sensor_check").checked;
 			var net_conf_en = document.getElementById("LAN_conf").checked;
 			var IP ="";var GW ="";var SN ="" ;
-			if(net_conf_en){
-				IP = document.getElementById("IP").value;
-				GW = document.getElementById("GW").value;
-				SN = document.getElementById("SN").value;
-				if(!ValidateIPaddress(IP)){return;}
-				if(!ValidateIPaddress(GW)){return;}
-				if(!ValidateIPaddress(SN)){return;}
-			}
+			if(net_conf_en){IP = document.getElementById("IP").value;GW = document.getElementById("GW").value;SN = document.getElementById("SN").value;if(!ValidateIPaddress(IP)){return;}if(!ValidateIPaddress(GW)){return;}if(!ValidateIPaddress(SN)){return;}}
 			var mark_tz = (document.getElementById("pos_tz").checked ? 1 : -1);
 			var hour = document.getElementById("hour").value;
 			var minute = document.getElementById("minute").value;
-			if(hour == "" || minute==""){
-				alert("time zone must not empty");
-				return;
-			}
-			if(!(hour >= 0 && hour <= 12)){
-				alert("invalid hour value ( 0 to 12)");
-				return;
-			}
-			if(!(minute >= 0 && minute <= 59)){
-				alert("invalid minute value (0 to 59)");
-				return;
-			}
+			if(hour == "" || minute==""){alert("time zone must not empty");return;}
+			if(!(hour >= 0 && hour <= 12)){alert("invalid hour value ( 0 to 12)");return;}
+			if(!(minute >= 0 && minute <= 59)){alert("invalid minute value (0 to 59)");return;}
 			var time_zone = ((hour * 3600) + (minute * 60)) * mark_tz;
 			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
 			var theme_mode = (document.getElementById("light_theme").checked? 1 : 2);
@@ -394,11 +382,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json.static_IP_conf[0].GW = GW;
 			old_json.static_IP_conf[0].SN = SN;
 			old_json.dev_mode = document.getElementById("dev_mode_en").checked;
-			if(!old_json.dev_mode){
-			old_json.ctrl_page.LED = 0;
-			old_json.ctrl_page.LED_prog = 0;
-			old_json.ctrl_page.IO14 = false;
-			}
+			if(!old_json.dev_mode){old_json.ctrl_page.LED = 0;old_json.ctrl_page.LED_prog = 0;old_json.ctrl_page.IO14 = false;}
 			old_json.timezone = time_zone;
 			old_json.temp_scale = temp_mode;
 			old_json.theme = theme_mode;
@@ -406,36 +390,25 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json.brightness[0].panel = document.getElementById("panel_brightness").value;
 			old_json.brightness[0].remote = document.getElementById("remote_brightness").value;
 			//check deleted save network_conf
-			for (var i = 0; i < 3 ; i++){
-			if(document.getElementById("wifi_saved"+i) != null){
-				if(document.getElementById("wifi_saved"+i).checked){
-				old_json.wifi.cfg[i].ssid = "";
-				old_json.wifi.cfg[i].pass = "";
-				}
-			}
-			}
-			xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
+			for (var i = 0; i < 3 ; i++){if(document.getElementById("wifi_saved"+i) != null){if(document.getElementById("wifi_saved"+i).checked){old_json.wifi.cfg[i].ssid = "";old_json.wifi.cfg[i].pass = "";}}}
+			
+		xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
 			if(u.status != "success"){
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = u.status;
-				document.getElementById("success_button").style.display="none";
 				document.getElementById("failed_button").style.display="block";
-			}else{
+				return;
+			}
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 				document.getElementById("success_button").style.display="block";
-				document.getElementById("failed_button").style.display="none";
 				save_eth_conf(old_json.eth_en, IP, GW, SN, old_json.i2c_en);	
 				var xhttp2 = new XMLHttpRequest();
 				xhttp2.open("POST", "/rpc/setting", true);
 				xhttp2.send();
-			}//else success
-			});
-			}//else success
-		});		
-		});//validate cookie
-		}//else
-		
+		});//end of fs.put
+		});//end of fs.get
+		});//validate cookie		
 		save_command = false;
 	}//save conf function
 	function save_eth_conf(en, ip, gw, netmask, i2c_en){
@@ -473,14 +446,21 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 		}
 	}
 function on_overlay() {
-  document.getElementById("overlay_save").style.display = "block";
-  document.getElementById("main_div").style.filter = "blur(2px)";
-  document.getElementById("overlay_save").style.filter = "none";
+	document.getElementById("overlay_save").style.display = "block";
+	document.getElementById("main_div").style.filter = "blur(2px)";
+	document.getElementById("overlay_save").style.filter = "none";
+	document.getElementById("failed_button").style.display="none";
+	document.getElementById("success_button").style.display="none";
+	document.getElementById("relogin_button").style.display="none";
 }
 
 function off_overlay() {
   document.getElementById("overlay_save").style.display = "none";
   document.getElementById("main_div").style.filter = "none";
+  document.getElementById("relogin_button").style.display="none";
+  document.getElementById("success_button").style.display="none";
+  document.getElementById("failed_button").style.display="none";
+  
 }
 function on_overlay_wifi(){
   document.getElementById("overlay_wifi").style.display = "block";
@@ -493,6 +473,7 @@ function on_overlay_wifi(){
   document.getElementById("wifi_pass").value = "";
   document.getElementById("wifi_ssid").value = "";
   document.getElementById("save_wifi").disabled = false;
+  document.getElementById("cancel_wifi").style.display = "inline";
 }
 
 
@@ -565,28 +546,37 @@ document.getElementById("wifi_info1").innerHTML = c;
 }
 
 function connect_wifi(){
+	if(!check_password()){
+		save_command_wifi = true;
+		on_overlay_login();
+		return;
+	}
 	var ssid_saved = document.getElementById("wifi_ssid").value;
 	var x = document.getElementById("wifi_warning");
 	x.innerHTML = "";
 	var pass_saved = document.getElementById("wifi_pass").value;
-	if(ssid_saved == ""){
-		x.innerHTML = "SSID cannot be empty!";
-		return;
-	}
-	if(ssid_saved.length > 31){
-		x.innerHTML = "SSID must be between 1 to 31 chars";
-		return;
-	}
-	if(pass_saved != "" && (pass_saved.length < 5 || pass_saved.length > 63)){
-		x.innerHTML = "password must be between 8 to 63 chars!";
-		return;
-	}
+	if(ssid_saved == ""){x.innerHTML = "SSID cannot be empty!";	return;}
+	if(ssid_saved.length > 31){x.innerHTML = "SSID must be between 1 to 31 chars";return;}
+	if(pass_saved != "" && (pass_saved.length < 5 || pass_saved.length > 63)){x.innerHTML = "password must be between 8 to 63 chars!";return;}
 	var json_ssid = {ssid:ssid_saved, pass:pass_saved};
 	json_ssid = JSON.stringify(json_ssid);
 	document.getElementById("save_wifi").disabled = true;
-	//validation on client side
 	x.innerHTML = spinner_load; //pop spinner up
-	
+	validate_cookie(function(i){
+		if(i.code == 200 && i.data.status == "illegal"){
+			save_command_wifi = true;
+			on_overlay();
+			document.getElementById("circularG").style.display = 'none';
+			document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";
+			document.getElementById("relogin_button").style.display="block";
+			return;
+		}else if(i.code != 200){
+			save_command_wifi = true;
+			x.innerHTML = i.status;
+			document.getElementById("save_wifi").disabled = false;
+			return;
+		}
+		
 	xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(i){
 	if(i.status != "success"){
 	x.innerHTML = i.status;
@@ -595,22 +585,9 @@ function connect_wifi(){
 	}
 	data = i.data;
 	data = JSON.parse(window.atob(data.data));
-	for (var i = 0; i < 3; i++){
-		if(data.wifi.cfg[i].ssid == ssid_saved){
-			x.innerHTML = "Same SSID name is already saved!";
-			document.getElementById("save_wifi").disabled = false;
-			return;
-		}
-		if(data.wifi.cfg[i].ssid == ""){
-			data.wifi.cfg[i].ssid = ssid_saved;
-			data.wifi.cfg[i].pass = pass_saved;
-			break;
-		}
-		if(i == 2){ // no empty slot
-			x.innerHTML = "WiFi credentials storage is full (Max 3)!";
-			document.getElementById("save_wifi").disabled = false;
-			return;
-		}
+	for (var i = 0; i < 3; i++){if(data.wifi.cfg[i].ssid == ssid_saved){x.innerHTML = "Same SSID name is already saved!";document.getElementById("save_wifi").disabled = false;return;}
+		if(data.wifi.cfg[i].ssid == ""){data.wifi.cfg[i].ssid = ssid_saved;data.wifi.cfg[i].pass = pass_saved;break;}
+		if(i == 2){x.innerHTML = "WiFi credentials storage is full (Max 3)!";document.getElementById("save_wifi").disabled = false;	return;}
 	}
 	var string = window.btoa(JSON.stringify(data));
 	var contain = {"filename": "setting.json", "append":false, "data": string}
@@ -619,13 +596,14 @@ function connect_wifi(){
 		x.innerHTML = m.status;
 		document.getElementById("save_wifi").disabled = false;
 		return;
-	}else{
-		x.innerHTML = "Configuration saved! New config will be applied on reboot.";
-		document.getElementById("save_wifi").disabled = false;
-		document.getElementById("save_wifi").value = "OK";
-		}	
-	});
-	}); //first xhr
+	}
+	x.innerHTML = "Configuration saved! New config will be applied on reboot.";
+	document.getElementById("save_wifi").disabled = false;
+	document.getElementById("save_wifi").value = "OK";
+	document.getElementById("cancel_wifi").style.display="none";
+	}); //end of fs.put
+	}); //end of fs.get
+	}); //end of validate_cookie
 }
 function wifi_list(input){
 	document.getElementById("wifi_ssid").value = input;

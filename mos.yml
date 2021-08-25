@@ -1,6 +1,6 @@
 author: alifnl
-description: fix login (blank password) 5 mins free acess on ap button, validate cookie when saving
-version: 0.9.7.9
+description: fix bug on 12th milestone
+version: 0.9.7.9a
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

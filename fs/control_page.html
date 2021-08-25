@@ -8,8 +8,8 @@
 	<script src="./login.js.gz" defer></script>
 </head>
 <body>
-<div id="overlay_save" class="overlay" style="display:none">
-  <div id="cb_save" class="confirmation_box">
+<div id="overlay_save" class="overlay" style="display:none;">
+  <div class="confirmation_box" >
   <div id="circularG" >
 	<div id="circularG_1" class="circularG"></div>
 	<div id="circularG_2" class="circularG"></div>
@@ -20,11 +20,13 @@
 	<div id="circularG_7" class="circularG"></div>
 	<div id="circularG_8" class="circularG"></div>
   </div>
-  <div style="margin-top:15px;font-size:20px" id="spinner_info"> Saving.. </div>
-  <div style="margin-top:15px" id="failed_button"> 
-  <input type="button" style="width:75px" value="retry" onClick="save_conf()"> <input style="width:75px" type="button" value="cancel" onClick="off_overlay()"></div>
-  <div style="margin-top:15px" id="success_button">
-  <input type="button" style="width:75px" value="OK" onClick="off_overlay()"></div>
+  <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
+  <div class="invsi_button" id="failed_button"> 
+  <input type="button" style="width:75px;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <div class="invsi_button" id="success_button">
+  <input type="button" style="width:75px;font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
+  <div class="invsi_button" id="relogin_button">
+  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login();"></div>
   </div>
 </div>
 <!--overlay login-->
@@ -47,7 +49,7 @@ Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_
 <div class="confirmation_box">
 <b>Change Password</b><br>
 <div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"><br>
+<span id="old_password_holder">Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"></span><br>
 New Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass1"><br>
 Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
 </div>
@@ -401,9 +403,8 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	}//onload
 	}
 	function save_conf(){
-	save_command = true;
 	var old_json;
-	if(!check_password()){on_overlay_login(); return;}
+	if(!check_password()){save_command = true;on_overlay_login(); return;}
 		var a = document.getElementById("sens_in").checked;
 		var b = document.getElementById("cont_prog").checked;
 		var b1 =0;
@@ -424,35 +425,38 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 		document.getElementById("failed_button").style.display="none";
 		document.getElementById("spinner_info").innerHTML = "Saving..";
 		validate_cookie(function(i){
-			if(i == false){
+			if(i.code == 200 && i.data.status == "illegal"){
+				save_command = true;
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";
-				document.getElementById("success_button").style.display="block";
-				document.getElementById("failed_button").style.display="none";
+				document.getElementById("relogin_button").style.display="block";
+				return;
+			}else if(i.code != 200){
+				save_command = true;
+				document.getElementById("circularG").style.display = 'none';
+				document.getElementById("spinner_info").innerHTML = i.status;
+				document.getElementById("failed_button").style.display="block";
 				return;
 			}
-			xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(i){
+		xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(i){
 			if(i.status != "success"){
 			document.getElementById("circularG").style.display = 'none';
 			document.getElementById("spinner_info").innerHTML = i.status;
-			document.getElementById("success_button").style.display="none";
 			document.getElementById("failed_button").style.display="block";
 			return;
 			}
 			var data = i.data;old_json = JSON.parse(window.atob(data.data));
 			old_json.ctrl_page.sensor_input = a;old_json.ctrl_page.prog_ctrl = b;old_json.ctrl_page.override=e;	old_json.ctrl_page.ovr_val = f;
 			old_json.ctrl_page.LED = g;old_json.ctrl_page.IO14 = h;old_json.ctrl_page.active_prog = b1;old_json.ctrl_page.LED_prog = g1;
-			xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
+		xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
 			if(u.status != "success"){
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = u.status;
-				document.getElementById("success_button").style.display="none";
 				document.getElementById("failed_button").style.display="block";
 			}else{
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 				document.getElementById("success_button").style.display="block";
-				document.getElementById("failed_button").style.display="none";	
 				var xhttp2 = new XMLHttpRequest();
 				xhttp2.open("POST", "/rpc/setting", true);
 				xhttp2.send();
@@ -581,9 +585,12 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 		}
 	}
 	function on_overlay() {
-	  document.getElementById("overlay_save").style.display = "block";
-	  document.getElementById("main_div").style.filter = "blur(2px)";
-	  document.getElementById("overlay_save").style.filter = "none";
+	document.getElementById("overlay_save").style.display = "block";
+	document.getElementById("main_div").style.filter = "blur(2px)";
+	document.getElementById("overlay_save").style.filter = "none";
+	document.getElementById("success_button").style.display="none";
+	document.getElementById("failed_button").style.display="none";
+	document.getElementById("relogin_button").style.display="none";
 	}
 
 	function off_overlay() {
