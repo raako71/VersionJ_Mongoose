@@ -1427,7 +1427,7 @@ void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame
 }
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	if (json_scanf(args.p, args.len, ri->args_fmt, &online_epoch) == 1) {
-    	mg_rpc_send_responsef(ri, "OK");
+    	mg_rpc_send_responsef(ri, "{status: %Q}", "New time is pushed!");
 		LOG(LL_WARN, ("push time requested"));
   	} else {
     	mg_rpc_send_errorf(ri, -1, "Bad request");

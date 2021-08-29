@@ -2,7 +2,7 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
-	<link id="theme" rel="stylesheet" type="text/css" href="./dark.css" />
+	<link id="theme" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="./general.css" />
 	<link rel="stylesheet" href="./dtsel.css.gz" type="text/css"/>
 	<script src="./dtsel.js.gz"></script>
@@ -28,23 +28,12 @@
   <div class="invsi_button" id="success_button">
   <input type="button" style="width:75px;font-size:16px" value="OK" onClick="blabla()"></div>
   <div class="invsi_button" id="relogin_button">
-  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login();"></div>
+  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
   </div>
 </div>
 <!--overlay login-->
 <div id="overlay_login" class="overlay" style="display:none;font-size:16px">
-<div class="confirmation_box">
-<b>Login</b><br>
-<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
-<div style="margin-top:10px">
-<input type="button" value="Change Password" onClick="change_password()">
-</div>
-</div>
-<span style="margin-top:10px;display:block;" id="login_warning"></span>
-<div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" onClick="confirm_password()" id="enter_password" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_login()">
-</div>
+<div class="confirmation_box" id="multipurpose">
 </div>
 </div>
 <div id="overlay_change_pass" class="overlay" style="display:none;font-size:16px">
@@ -57,12 +46,15 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 </div>
 <span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
 <div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input id="cancel_change_password" style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login()">
+<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input id="cancel_change_password" style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login(2)">
 </div>
 </div> 
 </div>
 <!--eof overlay login-->
 <div id="main_div">
+<div class="top_panel">
+<span style="float:left;margin-left:25px" id="clock_info">
+</span>
 <span style="float:right;margin-right:25px;">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
@@ -74,7 +66,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
  </div>
  </span>
 </span>
-<br>
+</div>
 <h1> Program Editor</h1>
 <input type="file" id="selectedFile" style="display: none;"  accept=".json"/>
 <input type="button" value="Import Program" onclick="document.getElementById('selectedFile').value = '';document.getElementById('selectedFile').click();" /><br>	
@@ -225,6 +217,8 @@ var IO14 = true;
 function onLoad(){
 //check setting.json
 load_setting_json();
+update_time();
+setInterval(update_time, 1000);	
 }
 //function to detect page param
 function getUrlVars() {var vars = {};var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key] = value;});return vars;}
@@ -798,7 +792,7 @@ return old_json;
 }
 
 function save_conf(){
-save_command = true;if(!check_password()){on_overlay_login();return;}
+save_command = true;if(!check_password()){on_overlay_login(2);return;}
 var old_json = {"id": idprogram, "name":"", "en":false, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "", "off_time_global":""
 ,"control_opt": "","control_trigger":[{"main_option": 1, "main_info": "", "sec_option": -1, "sec_info":""}]};
 old_json = build_save_json(old_json);

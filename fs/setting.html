@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title> SC Setting</title>
-	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
+	<link id="theme" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet" type="text/css" href="general.css" />
 	<script src="./login.js.gz" defer></script>
 </head>
@@ -26,7 +26,7 @@
   <div class="invsi_button" id="success_button">
   <input type="button" style="width:75px;font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
   <div class="invsi_button" id="relogin_button">
-  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login();"></div>
+  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
   </div>
 </div>
 <div id="overlay_wifi" class="overlay" style="display:none;font-size:16px">
@@ -47,18 +47,7 @@
 </div>
 <!--overlay login-->
 <div id="overlay_login" class="overlay" style="display:none;font-size:16px">
-<div class="confirmation_box">
-<b>Login</b><br>
-<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
-<div style="margin-top:10px">
-<input type="button" value="Change Password" onClick="change_password()">
-</div>
-</div>
-<span style="margin-top:10px;display:block;" id="login_warning"></span>
-<div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" onClick="confirm_password()" id="enter_password" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_login()">
-</div>
+<div class="confirmation_box" id="multipurpose">
 </div>
 </div>
 
@@ -72,12 +61,15 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 </div>
 <span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
 <div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input style="margin:10px;width:100px" id="cancel_change_password" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login()">
+<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input style="margin:10px;width:100px" id="cancel_change_password" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login(2)">
 </div>
 </div> 
 </div>
 <!--eof overlay login-->
 <div id="main_div">
+<div class="top_panel">
+<span style="float:left;margin-left:25px" id="clock_info">
+</span>
 <span style="float:right;margin-right:25px;">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
@@ -89,7 +81,8 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
  </div>
  </span>
 </span>
-<br>
+</div>
+
 <h1> Settings</h1>
 <div style="margin-top:10px; margin-bottom:20px" id="fw_version"> FW VERSION </div>
 <div class="main_container">
@@ -233,10 +226,13 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 
 <script>
 	window.addEventListener('load', onLoad);	
+	var sys_info ="";
+	fetch_version();
 	function onLoad(){
 		console.log("DOM loaded");
-		load_conf();
-		fetch_version();		
+		load_conf();	
+		update_time();
+		setInterval(update_time, 1000);		
 	}
 	function LAN_conf(){
 		var logic = document.getElementById("LAN_conf").checked;
@@ -329,10 +325,16 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 		var old_json;
 		if(!check_password()){
 			save_command = true;
-			on_overlay_login();
+			on_overlay_login(2);
 			return;
 		}
 		//validate cookie
+		var mark_tz = (document.getElementById("pos_tz").checked ? 1 : -1);
+		var hour = document.getElementById("hour").value;
+		var minute = document.getElementById("minute").value;
+		if(hour == "" || minute==""){alert("time zone must not empty"); off_overlay(); return;}
+		if(!(hour >= 0 && hour <= 12)){alert("invalid hour value ( 0 to 12)"); off_overlay(); return;}
+		if(!(minute >= 0 && minute <= 59)){alert("invalid minute value (0 to 59)"); off_overlay();return;}
 		on_overlay();
 		document.getElementById("circularG").style.display = 'block';
 		document.getElementById("spinner_info").innerHTML = "Saving..";
@@ -364,12 +366,6 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			var net_conf_en = document.getElementById("LAN_conf").checked;
 			var IP ="";var GW ="";var SN ="" ;
 			if(net_conf_en){IP = document.getElementById("IP").value;GW = document.getElementById("GW").value;SN = document.getElementById("SN").value;if(!ValidateIPaddress(IP)){return;}if(!ValidateIPaddress(GW)){return;}if(!ValidateIPaddress(SN)){return;}}
-			var mark_tz = (document.getElementById("pos_tz").checked ? 1 : -1);
-			var hour = document.getElementById("hour").value;
-			var minute = document.getElementById("minute").value;
-			if(hour == "" || minute==""){alert("time zone must not empty");return;}
-			if(!(hour >= 0 && hour <= 12)){alert("invalid hour value ( 0 to 12)");return;}
-			if(!(minute >= 0 && minute <= 59)){alert("invalid minute value (0 to 59)");return;}
 			var time_zone = ((hour * 3600) + (minute * 60)) * mark_tz;
 			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
 			var theme_mode = (document.getElementById("light_theme").checked? 1 : 2);
@@ -403,6 +399,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 				document.getElementById("success_button").style.display="block";
 				save_eth_conf(old_json.eth_en, IP, GW, SN, old_json.i2c_en);	
+				load_conf_login();
 				var xhttp2 = new XMLHttpRequest();
 				xhttp2.open("POST", "/rpc/setting", true);
 				xhttp2.send();
@@ -426,24 +423,17 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			xhr.send();
 		}
 	}
-	function getconfig(){
-		var xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "/rpc/Sys.GetInfo", true);
-		xhttp.send();
-		xhttp.onload = function(){
-			var response = JSON.parse(this.responseText);
-			document.getElementById("IP").value = response.eth.ip;
-			
-		}
-	}
 	function fetch_version(){
 		var xhttp = new XMLHttpRequest();
 		xhttp.open("POST", "/rpc/Sys.GetInfo", true);
 		xhttp.send();
 		xhttp.onload = function(){
-			var response = JSON.parse(this.responseText);
-			document.getElementById("fw_version").innerHTML = "<b>FW version: " + response.fw_version + "</b>";
+			sys_info = JSON.parse(this.responseText);
+			document.getElementById("fw_version").innerHTML = "<b>FW version: " + sys_info.fw_version + "</b>";
 		}
+	}
+	function getconfig(){
+	document.getElementById("IP").value = sys_info.eth.ip;
 	}
 function on_overlay() {
 	document.getElementById("overlay_save").style.display = "block";
@@ -537,18 +527,16 @@ xhr_send("wifi.status", null,  function(i){
 
 function fetch_wifi_status_sec(input1){
 var c = "";
-xhr_send("sys.getinfo", null,  function(i){
-c += "<div><b>Client SSID</b>: " + i.data.wifi.ssid +"</div>";
+c += "<div><b>Client SSID</b>: " + sys_info.wifi.ssid +"</div>";
 c += "<div><b>RSSI</b>: " + input1 + " dBm</div>"; 
-c += "<div style='margin-bottom:10px'><b>IP</b> : " + i.data.wifi.sta_ip + "</div>";
+c += "<div style='margin-bottom:10px'><b>IP</b> : " + sys_info.wifi.sta_ip + "</div>";
 document.getElementById("wifi_info1").innerHTML = c;
-});
 }
 
 function connect_wifi(){
 	if(!check_password()){
 		save_command_wifi = true;
-		on_overlay_login();
+		on_overlay_login(2);
 		return;
 	}
 	var ssid_saved = document.getElementById("wifi_ssid").value;

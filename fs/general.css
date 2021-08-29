@@ -88,7 +88,7 @@ font-size:16px;
 transform: translate(-50%,-50%);
 -ms-transform: translate(-50%,-50%);
 min-height:200px; 
-width:35%; 
+width:45%; 
 text-align:center;
 border-style:solid;
 padding-top: 15px;
@@ -109,7 +109,15 @@ input:checked + .slider:before { -webkit-transform: translateX(15px); -ms-transf
     border:1px solid grey;
     width:30px;
 }
-
+.top_panel{
+display:block;
+position:sticky;
+top:3px;
+border-radius:5px;
+height:25px;
+padding-top:5px;
+z-index:4;
+}
 .section{
     border: solid;
     border-radius:5px;
