@@ -1,5 +1,5 @@
 author: alifnl
-description:add tiny top panel for clock and login
+description: add tiny top panel for clock and login
 version: 0.10.1
 
 libs_version: ${mos.version}
