@@ -19,9 +19,7 @@ input[type=button]{
 	border:2px solid red;
 	background-color: white;
 }
-.top_panel {
-	background-color: white;
-}
+
 input[type=text]{
 	border:1px solid;
 	border-radius: 5px;
@@ -39,3 +37,7 @@ input[type=password]{
 .dropdown:hover .dropbtn {background-color: black; color:white;}
 .dropdown-content a:hover {background-color: white; color:black;}
 .dropdown-content{border: 1px solid black;}
+
+@media screen and (max-width: 481px){
+	.top_panel { background-color: white; }
+}
