@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.1a: no border for top_panel<br>
 0.10.1: add tiny top panel for clock and login <br>
 0.9.7.9b: change minor text and change password feature<br>
 0.9.7.9a: fix bug 12th milestone<br>
