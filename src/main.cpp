@@ -244,7 +244,7 @@ void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 	mgos_dns_sd_advertise();
 }
 void check_ap_mode(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
-	mg_rpc_send_responsef(ri, "{mode:%B, uptime:%lu}", ap_button_mode, (unsigned long)mgos_uptime());	
+	mg_rpc_send_responsef(ri, "{mode:%B, uptime:%f}", ap_button_mode, mgos_uptime());	
 }
 //function prototype
 static void button_check_cb(void *arg){
@@ -264,11 +264,6 @@ static void button_check_cb(void *arg){
 static void timer_cb(void *arg) {
 	time_t now;
 	time(&now);
-	static bool first_time = true;
-	if(first_time && (unsigned long)mgos_uptime() >= 300){
-		first_time = false;
-		current_ver_key= randomGen();
-	}
 	if(now > 946684800){
 		online_epoch = now;
 		NTPflag = true;
@@ -362,6 +357,7 @@ static void logging_cb(void *arg){
 
 enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
+	current_ver_key= randomGen();
 	header_column_logging(logColumn);
   	oldcheck_onboot();
   	
@@ -519,12 +515,11 @@ void change_password(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_
 	char* pass_buff = (char*)malloc(64);
 	char* new_pass = (char*)malloc(64);
 	if (json_scanf(args.p, args.len, ri->args_fmt, &pass_buff, &new_pass) == 2) {
-   		if(!check_password(pass_buff)){
+   		if(!check_password(pass_buff) && !(ap_button_mode && mgos_uptime() < 300.0)){
    			mg_rpc_send_responsef(ri, "{status: unauthorized}");
 		}else{
 			json_fprintf("8f2js9ddfk.json", "{pass: %Q}", new_pass);
 			mg_rpc_send_responsef(ri, "{status: confirm}");
-			current_ver_key = 0;
 		}	
 		free(pass_buff);
 		free(new_pass);
@@ -1432,7 +1427,7 @@ void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame
 }
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	if (json_scanf(args.p, args.len, ri->args_fmt, &online_epoch) == 1) {
-    	mg_rpc_send_responsef(ri, "OK");
+    	mg_rpc_send_responsef(ri, "{status: %Q}", "New time is pushed!");
 		LOG(LL_WARN, ("push time requested"));
   	} else {
     	mg_rpc_send_errorf(ri, -1, "Bad request");

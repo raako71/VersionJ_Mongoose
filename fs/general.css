@@ -11,7 +11,7 @@ html{
 .disabled {
   pointer-events: none;
   cursor: default;
-  background-color:grey;
+  color:grey;
 }
 .dropdown-content {
   display: none;
@@ -55,6 +55,14 @@ input[type="button"][disabled] {
    color: grey;
    cursor: wait;
 }
+input[type="password"][disabled] {
+   background-color: #cfcfcf;
+   cursor: default;
+}
+input[type="text"][disabled] {
+   background-color: #cfcfcf;
+   cursor: default;
+}
 .overlay {
   position: fixed;
   display: none;
@@ -68,7 +76,9 @@ input[type="button"][disabled] {
   z-index: 2;
   overflow-y: auto;
 }
-
+.invsi_button{
+	margin-top:15px;display:none;
+}
 .confirmation_box{
 position: absolute;
 top:50%;
@@ -78,7 +88,7 @@ font-size:16px;
 transform: translate(-50%,-50%);
 -ms-transform: translate(-50%,-50%);
 min-height:200px; 
-width:35%; 
+width:45%; 
 text-align:center;
 border-style:solid;
 padding-top: 15px;
@@ -99,7 +109,20 @@ input:checked + .slider:before { -webkit-transform: translateX(15px); -ms-transf
     border:1px solid grey;
     width:30px;
 }
-
+.top_panel{
+display:block;
+position:sticky;
+top:0;
+border-radius:5px;
+min-height:25px;
+z-index:4;
+overflow: visible;
+}
+.top_panel::after{
+	content: "";
+  clear: both;
+  display: table;
+}
 .section{
     border: solid;
     border-radius:5px;

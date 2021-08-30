@@ -15,8 +15,11 @@ input[type=button]{
 	cursor:pointer;
 	color:black;
 }
-.confirmation_box{
+.confirmation_box {
 	border:2px solid red;
+	background-color: white;
+}
+.top_panel {
 	background-color: white;
 }
 input[type=text]{

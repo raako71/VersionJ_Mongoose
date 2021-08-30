@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Socket Controller</title>
-<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
+<link id="theme" rel="stylesheet" type="text/css" />
 <script src="./login.js.gz" defer></script>
 <link rel="stylesheet" type="text/css" href="general.css" />
 </head>
@@ -37,18 +37,7 @@ background-color: #3e8e41;
 </style>
 <body>
 <div id="overlay_login" class="overlay" style="display:none;font-size:16px">
-<div class="confirmation_box">
-<b>Login</b><br>
-<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_password"><br>
-<div style="margin-top:10px">
-<input type="button" value="Change Password" onClick="change_password()">
-</div>
-</div>
-<span style="margin-top:10px;display:block;" id="login_warning"></span>
-<div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" onClick="confirm_password(document.getElementById('log_button').innerHTML)" id="enter_password" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_login()">
-</div>
+<div class="confirmation_box" id="multipurpose">
 </div>
 </div>
 
@@ -56,18 +45,21 @@ Password: <input type="password" style="width:75%; margin-bottom:5px" id="login_
 <div class="confirmation_box">
 <b>Change Password</b><br>
 <div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
-Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"><br>
+<span id="old_password_holder">Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"></span><br>
 New Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass1"><br>
 Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
 </div>
 <span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
 <div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login()">
+<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input id="cancel_change_password" style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login(2)">
 </div>
 </div> 
 </div>
 <div id="main_div">
-<span style="float:right;margin-right:25px;">
+<div class="top_panel">
+<span style="float:left;margin-left:25px;padding:5px" id="clock_info">
+</span>
+<span style="float:right;margin-right:25px;padding:5px">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
@@ -78,6 +70,7 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
  </div>
  </span>
 </span>
+</div>
 <h1 id = "header"> Power Monitor ESP32 Web Server </h1> 
 <table style="width:100%;" >	
 <tr>
@@ -226,6 +219,11 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 	function open_new_tab(link){
 		window.open(link+"?"+Math.random() * Math.random(), "_self");
 	}
+	window.addEventListener('load', onLoad);
+	function onLoad(){
+	update_time();
+	setInterval(update_time, 1000);	
+	}
 	function conDelete(){
 		//check checkboxes
 		var hour = document.getElementById("thishour_del").checked;
@@ -266,17 +264,6 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 		}
 		}
 	}
-	
-	function epochToJsDate(ts){
-            // ts = epoch timestamp
-            // returns date obj
-            var a = new Date(ts*1000);
-			var months  = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            var ret = (a.getHours() < 10 ? '0' + a.getHours() : a.getHours()) + ':' +(a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes())  + " ";
-			ret +=  a.getDate() + ' ' + months[a.getMonth()] + ' ' + a.getFullYear();
-            return ret; 
-        }
-		
 	function pushtime(){
 		var xhr = new XMLHttpRequest();
 		var gotTime = [];
