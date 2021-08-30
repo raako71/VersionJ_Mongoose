@@ -112,11 +112,16 @@ input:checked + .slider:before { -webkit-transform: translateX(15px); -ms-transf
 .top_panel{
 display:block;
 position:sticky;
-top:3px;
+top:0;
 border-radius:5px;
-height:25px;
-padding-top:5px;
+min-height:25px;
 z-index:4;
+overflow: visible;
+}
+.top_panel::after{
+	content: "";
+  clear: both;
+  display: table;
 }
 .section{
     border: solid;
