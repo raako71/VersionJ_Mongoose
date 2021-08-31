@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.2a: inline padding<br>
 0.10.2: fix top panel and typo<br>
 0.10.1a-c: top_panel CSS changes<br>
 0.10.1: add tiny top panel for clock and login <br>
