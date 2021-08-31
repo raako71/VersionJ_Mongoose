@@ -1,9 +1,10 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.10.1b: top_panel CSS changes<br>
-0.10.1a: no border for top_panel<br>
+0.10.2: fix top panel and typo<br>
+0.10.1a-c: top_panel CSS changes<br>
 0.10.1: add tiny top panel for clock and login <br>
+0.9.7.10: include binary in git<br>
 0.9.7.9b: change minor text and change password feature<br>
 0.9.7.9a: fix bug 12th milestone<br>
 0.9.7.9: fix login (blank password) 5 mins free acess on ap button, validate cookie when saving<br>

@@ -57,7 +57,7 @@
 <div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
 <span id="old_password_holder">Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"></span><br>
 New Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass1"><br>
-Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
+Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
 </div>
 <span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
 <div style="margin-top:10px">
@@ -68,16 +68,16 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 <!--eof overlay login-->
 <div id="main_div">
 <div class="top_panel">
-<span style="float:left;margin-left:25px;padding:5px" id="clock_info">
+<span style="float:left;margin-left:25px" id="clock_info">
 </span>
-<span style="float:right;margin-right:25px;padding:5px">
+<span style="float:right;margin-right:25px;">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
-    <a href="./">Home</a>
-    <a href="./control_page.html">Control Logic</a>
-    <a href="./setting.html">Settings</a>
+    <a href="#" onClick ="open_link('index.html')">Home</a>
+    <a href="#" onClick ="open_link('control_page.html')">Control Logic</a>
+    <a href="#" onClick ="open_link('setting.html')" >Settings</a>
  </div>
  </span>
 </span>
