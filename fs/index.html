@@ -47,7 +47,7 @@ background-color: #3e8e41;
 <div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
 <span id="old_password_holder">Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"></span><br>
 New Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass1"><br>
-Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
+Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
 </div>
 <span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
 <div style="margin-top:10px">
@@ -59,14 +59,14 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 <div class="top_panel">
 <span style="float:left;margin-left:25px;padding:5px" id="clock_info">
 </span>
-<span style="float:right;margin-right:25px;padding:5px">
+<span style="float:right;margin-right:25px;padding:5px;">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
-    <a href="./">Home</a>
-    <a href="./control_page.html">Control Logic</a>
-    <a href="./setting.html">Settings</a>
+    <a href="#" onClick ="open_link('index.html')">Home</a>
+    <a href="#" onClick ="open_link('control_page.html')">Control Logic</a>
+    <a href="#" onClick ="open_link('setting.html')" >Settings</a>
  </div>
  </span>
 </span>
@@ -208,10 +208,6 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 <p> delete CSV file </p>
 <button type="button" onClick="conDelete()"> Delete CSV </button>
 </div>
-<div class = "btn-group">
-<p> push Time to ESP </p>
-<button type="button" onClick="pushtime()"> Push Time </button>
-</div>
 </div>
 </body>
 </html>
@@ -263,46 +259,5 @@ Confirm Passowrd: <input type="password" style="width:100%; margin-bottom:5px" i
 			document.getElementById("1970month_del").checked =false; document.getElementById("1970longterm_del").checked =false;
 		}
 		}
-	}
-	function pushtime(){
-		var xhr = new XMLHttpRequest();
-		var gotTime = [];
-		xhr.onreadystatechange = function(){
-			if(xhr.readyState == 4){
-				
-				gotTime = xhr.responseText;
-				//get data time
-				var time_dev_string = epochToJsDate(gotTime);
-				//compare with time browser
-				var a = Math.floor(Date.now() / 1000);
-				var d = new Date();
-				var offset = d.getTimezoneOffset();
-				
-				var pub_time_string = epochToJsDate(a);
-				if(Math.abs(a - gotTime) >= 10){ //10 sec tolerance 
-					//push time to esp
-					//need confirmation 
-					var conText = "Time will change from " + time_dev_string + " to " + pub_time_string + (offset < 0 ? " (+": " (-") + Math.abs(offset)/60 + "), OK?"; 
-					var con = confirm(conText);
-					if(con == true){
-						a = Math.floor(Date.now() / 1000); //recapture epoch
-						var jsonobj = {epoch: a};
-						var string = JSON.stringify(jsonobj);
-						console.log(string);
-						var xhttp = new XMLHttpRequest();
-						xhttp.open("POST", "/rpc/pushTime", true);
-						xhttp.setRequestHeader('Content-Type', 'application/json');
-						xhttp.send(string);
-					}
-				}else{
-					alert("time already set");			
-				}
-				
-			}
-		};
-		xhr.open("GET", "/rpc/getTime", true);
-		xhr.send();
-	}
-	
-	
+	}	
 </script>
