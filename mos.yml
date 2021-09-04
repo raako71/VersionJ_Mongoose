@@ -1,6 +1,6 @@
 author: alifnl
-description: inline padding
-version: 0.10.2a
+description: disable WiFi LED due to solder short
+version: 0.10.2c
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

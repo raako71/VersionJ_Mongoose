@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.2b-c: Change push button IO pins, disable relays on boot, disable WiFi LED due to solder short.
 0.10.2a: inline padding<br>
 0.10.2: fix top panel and typo<br>
 0.10.1a-c: top_panel CSS changes<br>

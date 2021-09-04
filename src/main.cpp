@@ -53,8 +53,8 @@
 #ifdef V2
 #define WIFI_LED 16
 #define WIFI_BTN 36
-#define PB1 39
-#define PB2 35
+#define PB1 35
+#define PB2 39
 #define R_PB 34
 #define GPIO14 14
 #define EN_I2C 13
@@ -130,6 +130,7 @@ struct mgos_config_wifi_ap cfg_ap;
 
 
 static void wifi_led_ctrl(void *arg) {
+	/*
    	if(wifi_mode == 2){
    		fade_blink(WIFI_LED);
 	}else if(wifi_mode == 1){
@@ -148,6 +149,7 @@ static void wifi_led_ctrl(void *arg) {
 		}
 	}
     (void) arg;
+	*/
 }
 
 
@@ -369,10 +371,10 @@ enum mgos_app_init_result mgos_app_init(void) {
 	Wire.begin();
 	//GPIO init
 	mgos_gpio_setup_output(EN_I2C, 1);
-  	mgos_gpio_setup_output(R1, 1);
-  	mgos_gpio_setup_output(R2, 1);
+  	mgos_gpio_setup_output(R1, 0);
+  	mgos_gpio_setup_output(R2, 0);
   	mgos_gpio_setup_output(LED_RED,0);
-  	mgos_gpio_setup_output(WIFI_LED, 0);
+  	//mgos_gpio_setup_output(WIFI_LED, 0);
   	mgos_gpio_setup_output(RL_LED_EN, 0);
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); 
 	mgos_gpio_setup_input(R_PB, MGOS_GPIO_PULL_DOWN);
@@ -619,7 +621,7 @@ void load_wifi_setting(){
 		mgos_sys_config_set_wifi_sta1_enable(false);
 		mgos_sys_config_set_wifi_sta2_enable(false);
 		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
-		mgos_gpio_write(WIFI_LED, false);
+		//mgos_gpio_write(WIFI_LED, false);
 	}else if(mode == 2){
 		LOG(LL_WARN, ("AP mode (setting)"));
 		mgos_sys_config_set_wifi_ap_enable(true);
