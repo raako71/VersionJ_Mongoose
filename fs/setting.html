@@ -2,8 +2,8 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
-	<title> SC Setting</title>
-	<link id="theme" rel="stylesheet" type="text/css" />
+	<title>Socket Controller Settings</title>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css"/>
 	<link rel="stylesheet" type="text/css" href="general.css" />
 	<script src="./login.js.gz" defer></script>
 </head>
@@ -83,8 +83,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 </span>
 </div>
 
-<h1> Settings</h1>
-<div style="margin-top:10px; margin-bottom:20px" id="fw_version"> FW VERSION </div>
+<h1>Socket Controller Settings</h1>
+
 <div class="main_container">
 	<div class="section">
 		<label for="mode" ><b>Default WiFi Mode:</b></label>
@@ -213,6 +213,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 		<div id="progress_holder" style="border-radius:10px;"></div>
 	</div>
+	<div class="section" style="margin-top:20px; margin-bottom:10px" id="fw_version"> Build Version </div>
 	
 </div>
 <input type="button" value="SAVE" onClick="save_conf()">
@@ -220,7 +221,6 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <input type="button" value="Reboot" onClick="reboot()">
 <br>
 
-	
 </div>
 </body>
 
@@ -429,7 +429,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		xhttp.send();
 		xhttp.onload = function(){
 			sys_info = JSON.parse(this.responseText);
-			document.getElementById("fw_version").innerHTML = "<b>FW version: " + sys_info.fw_version + "</b>";
+			document.getElementById("fw_version").innerHTML = "<p>Build Version: " + sys_info.fw_version + "</p>";
 		}
 	}
 	function getconfig(){
@@ -606,7 +606,7 @@ b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="w
 b += '<label for="wifi_saved'+i+'">'+input[i].ssid+'</label></div>';
 }
 }//for
-b += "<div style='margin-top:15px; margin-bttom:5px'><b>Checked Networks will be deleted on save<br>WiFi settings updated on reboot</b></div>"
+b += "<div style='margin-top:15px; margin-bttom:5px'><b>* Checked Networks will be deleted on save<br>* WiFi settings updated on reboot</b></div>"
 document.getElementById("wifi_saved_list").innerHTML = b;
 }
 function dbm_2_percent(input){
@@ -657,7 +657,7 @@ form.addEventListener("submit", e => {
 		width: 50%;
 		height: 15px;
 		border-radius: 5px;  
-		background: #d3d3d3;
+		background: #292929;
 		outline: none;
 		opacity: 0.7;
 		margin-top:15px;
@@ -676,7 +676,7 @@ form.addEventListener("submit", e => {
 		width: 25px;
 		height: 25px;
 		border-radius: 50%;
-		background: #4CAF50;
+		background: #35a139;
 		cursor: pointer;
 	}
 
