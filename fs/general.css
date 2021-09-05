@@ -1,5 +1,5 @@
 html{
-	font-family: Arial; 
+	font-family: Helvetica, 'Trebuchet MS', Tahoma, sans-serif;
 	display: inline-block; 
 	text-align: center;
 	-webkit-text-size-adjust:none;
@@ -43,13 +43,15 @@ html{
     border:1px solid; 
     padding:10px;
     border-radius:10px;
-    width: 90%;
+    width: 95%;
     margin: 10px auto ;
     text-align: left;
 
 }
-#ctrl_trigger_holder_1{
-    width:850px;
+input[type=button]{
+	padding: 0 30px;
+	height: 22px;
+	margin: 2px;
 }
 input[type="button"][disabled] {
    color: grey;
@@ -95,9 +97,8 @@ padding-top: 15px;
 }
 .switch { position: relative; display: inline-block; width: 42px; height: 25px;}
 .switch input { opacity: 0; width: 0; height: 0;}
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #880404; -webkit-transition: .4s; transition: .4s;}
-.slider:before { position: absolute; content: ""; height: 19px; width: 19px; left: 4px; bottom: 3px; background-color: #d2d2d2; -webkit-transition: .4s; transition: .4s;}
-input:checked + .slider { background-color: #0d8e0a;}
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; -webkit-transition: .4s; transition: .4s;}
+.slider:before { position: absolute; content: ""; height: 19px; width: 19px; left: 4px; bottom: 3px; -webkit-transition: .4s; transition: .4s;}
 input:focus + .slider { box-shadow: 0 0 1px #2196F3;}
 input:checked + .slider:before { -webkit-transform: translateX(15px); -ms-transform: translateX(15px); transform: translateX(15px);}
 /* Rounded sliders */
@@ -128,7 +129,7 @@ overflow: visible;
     padding: 10px;
     width: 70%;
     margin: 10px;
-    border-width: 2px;
+    border-width: 1px;
 }
 
 /* Shout out http://cssload.net */

@@ -58,6 +58,24 @@ select{
     background: #0e0e0e;
     color:#FFA700;
 }
-@media screen and (max-width: 481px){
+.slider {background-color: #880404;}
+.slider:before {background-color: #d2d2d2;}
+input:checked + .slider { background-color: #0d8e0a;}
+
+.slider2{
+    background-color: #1fbdd2;
+}
+
+.sliding_range {
+    background: #292929;
+}
+.sliding_range::-webkit-slider-thumb {
+    background: #35a139;
+}
+.sliding_range::-moz-range-thumb {
+    background: #35a139;
+}
+
+@media screen and (max-width: 1500px){
     .top_panel{ background-color:#000; }
 }

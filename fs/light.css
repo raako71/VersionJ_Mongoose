@@ -37,6 +37,25 @@ input[type=password]{
 .dropdown-content a:hover {background-color: white; color:black;}
 .dropdown-content{border: 1px solid black;}
 
-@media screen and (max-width: 481px){
+.slider {background-color: #ff2424;}
+.slider:before {background-color: #fff;}
+input:checked + .slider { background-color: #22ad1f;}
+
+.sliding_range {
+    background: #a7a7a7;
+}
+
+.slider2{
+    background-color: #5becff;
+}
+
+.sliding_range::-webkit-slider-thumb {
+    background: #1ad820;
+}
+.sliding_range::-moz-range-thumb {
+    background: #1ad820;
+}
+
+@media screen and (max-width: 1500px){
 	.top_panel { background-color: white; }
 }

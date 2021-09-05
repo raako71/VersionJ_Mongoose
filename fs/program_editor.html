@@ -67,10 +67,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
  </span>
 </span>
 </div>
-<h1> Program Editor</h1>
+<h1>Socket Controller Program Editor</h1>
 <input type="file" id="selectedFile" style="display: none;"  accept=".json"/>
 <input type="button" value="Import Program" onclick="document.getElementById('selectedFile').value = '';document.getElementById('selectedFile').click();" /><br>	
 <div class="main_container">
+<div class="section">
 <table>
 <td>
 <input type="text" id="program_name" placeholder="Custom name" style="height:20px">
@@ -89,7 +90,7 @@ Program Enable:
 </td>
 </table>
 </div>
-<div class="main_container">
+<div class="section">
 <table>
 <td style="width:175px">
 Start Date
@@ -106,7 +107,7 @@ Start Date
 </table>
 
 </div>
-<div class="main_container">
+<div class="section">
 <table>
 <tr>
 <td style="width:175px"> End Date </td>
@@ -121,7 +122,7 @@ Start Date
 </table>
 </div>
 
-<div class="main_container">
+<div class="section">
 <table>
 <tr>
 <td style="width:175px"> Days per Week </td>
@@ -138,7 +139,7 @@ Start Date
 </table>
 </div>
 
-<div class="main_container">
+<div class="section">
 <table>
 <tr>
 <td style="width:175px"> Daily Start Time </td>
@@ -152,7 +153,7 @@ Start Date
 </td>
 </table>
 </div>
-<div class="main_container">
+<div class="section">
 <table>
 <tr>
 <td style="width:175px"> Daily Stop Time</td>
@@ -167,7 +168,7 @@ Start Date
 </table>
 </div>
 
-<div class="main_container">
+<div class="section">
 <label for="ctrl_output">Control Output:</label>
 <select name="ctrl_output" id="ctrl_out_opt" onChange="load_ctrl_action();document.getElementById('output_warning').style.display = 'none';">
   <option value=1>A</option>
@@ -199,10 +200,9 @@ Start Date
 </div>
 
 
-<br><br>
-<input type="button" value="SAVE" onClick="save_setting()" style="width:100px"> <input type="button" style="width:100px" onClick="location.href = '/control_page.html';" value="BACK">
-<br><br>
 </div>
+<input type="button" value="SAVE" onClick="save_setting()"> 
+<input type="button" onClick="location.href = '/control_page.html';" value="BACK">
 </body>
 <script>
 var LED_opt_global;
@@ -1124,10 +1124,8 @@ window.open('program_editor.html?x=program'+idprogram +'&y=' +idprogram +'&'+Mat
 
 .switch2 { position: relative; display: inline-block; width: 42px; height: 25px;}
 .switch2 input { opacity: 0; width: 0; height: 0;}
-.slider2 { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4caf50; -webkit-transition: .4s; transition: .4s;}
+.slider2 { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; -webkit-transition: .4s; transition: .4s;}
 .slider2:before { position: absolute; content: ""; height: 19px; width: 19px; left: 4px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s;}
-input:checked + .slider2 { background-color: #00bcd4;}
-input:focus + .slider2 { box-shadow: 0 0 1px #2196F3;}
 input:checked + .slider2:before { -webkit-transform: translateX(15px); -ms-transform: translateX(15px); transform: translateX(15px);}
 /* Rounded sliders */
 .slider2.round { border-radius: 34px;}

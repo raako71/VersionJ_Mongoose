@@ -22,11 +22,11 @@
   </div>
   <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div class="invsi_button" id="failed_button"> 
-  <input type="button" style="width:75px;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <input type="button" style=;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div class="invsi_button" id="success_button">
-  <input type="button" style="width:75px;font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
+  <input type="button" style="font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
   <div class="invsi_button" id="relogin_button">
-  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
+  <input type="button" style="font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
   </div>
 </div>
 <div id="overlay_wifi" class="overlay" style="display:none;font-size:16px">
@@ -34,14 +34,14 @@
 	<b>Add New WiFi Access Point</b><br>
 	<div id="scan_result" style="margin-top:10px;margin-bottom:10px;padding-left:10%;padding-right:10%;text-align:left">
 	</div>
-	<input type="button" style="width:100px" value="scan" id="scan_wifi" onClick="scan_wifi()"><br>
+	<input type="button" value="scan" id="scan_wifi" onClick="scan_wifi()"><br>
 	<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
 	SSID: <input type="text" style="width:80%; margin-bottom:5px" id="wifi_ssid"><br>
 	Key :&nbsp;&nbsp;<input type="password" style="width:80%;margin-left:1px;" id="wifi_pass">
 	</div>
 	<span style="margin-top:10px;display:block;" id="wifi_warning"></span>
 	<div style="margin-top:5px">
-	<input type="button" style="margin:10px;width:100px" onClick="this.value=='save' ? connect_wifi() : off_overlay_wifi()" id="save_wifi" value="save"><input style="margin:10px;width:100px" id="cancel_wifi" type="button" value="cancel" onClick="off_overlay_wifi()">
+	<input type="button" onClick="this.value=='save' ? connect_wifi() : off_overlay_wifi()" id="save_wifi" value="save"><input id="cancel_wifi" type="button" value="cancel" onClick="off_overlay_wifi()">
 	</div>
   </div>
 </div>
@@ -61,7 +61,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 </div>
 <span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
 <div style="margin-top:10px">
-<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input style="margin:10px;width:100px" id="cancel_change_password" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login(2)">
+<input type="button" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input id="cancel_change_password" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login(2)">
 </div>
 </div> 
 </div>
@@ -216,8 +216,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div class="section" style="margin-top:20px; margin-bottom:10px" id="fw_version"> Build Version </div>
 	
 </div>
-<input type="button" value="SAVE" onClick="save_conf()">
-<br><br>
+<input type="button" style="margin-top: 15px;" value="SAVE" onClick="save_conf()">
+
 <input type="button" value="Reboot" onClick="reboot()">
 <br>
 
@@ -657,7 +657,6 @@ form.addEventListener("submit", e => {
 		width: 50%;
 		height: 15px;
 		border-radius: 5px;  
-		background: #292929;
 		outline: none;
 		opacity: 0.7;
 		margin-top:15px;
@@ -676,7 +675,6 @@ form.addEventListener("submit", e => {
 		width: 25px;
 		height: 25px;
 		border-radius: 50%;
-		background: #35a139;
 		cursor: pointer;
 	}
 
@@ -684,7 +682,6 @@ form.addEventListener("submit", e => {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #4CAF50;
   cursor: pointer;
 }
 #myProgress {
@@ -704,6 +701,7 @@ background-color: #4CAF50;
 }
 #status{
 text-align:center;
+margin: 10px;;
 }
 
 </style>
