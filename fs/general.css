@@ -117,6 +117,13 @@ min-height:25px;
 z-index:4;
 overflow: visible;
 }
+.widget_holder{
+	height:300px;min-width:300px;width:fit-content;border: 1px solid white; margin:5px;
+	display:inline-block; border-radius:20px;
+}
+.widget_cluster{
+border: 1px solid white;justify-content: center;display:flex;flex-wrap: wrap;
+}
 .top_panel::after{
   content: "";
   clear: both;
