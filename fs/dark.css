@@ -1,0 +1,85 @@
+body {
+  background-color: black;
+  color: #FFA700;
+}
+a, a :visited{
+  color: #FFA700;
+}
+a:hover{
+    color: #ff6200;
+}
+input[type=button]{
+	background: #0e0e0e;
+	border:1px solid #FFA700;
+	cursor:pointer;
+	border-radius:5px;
+	color:#FFA700;
+}
+.confirmation_box{
+	border:2px solid #FFA700;
+	background-color:#0e0e0e;
+}
+.widget_holder{
+	border:1px solid #FFA700;
+	background-color:#0e0e0e;
+}
+input[type=text]{
+	border:1px solid #FFA700;
+	border-radius: 5px;
+    background: #0e0e0e;
+    color: #FFA700;
+}
+.main_container{
+    background-color: #090c05;
+	box-shadow: 0px 0px 10px -1px #8a7a05;
+}
+.trigger_container{
+    background-color:  #131916;
+}
+.dropdown:hover .dropbtn {background-color: #ffa700; color:black;}
+.dropdown-content a:hover {background-color: #ffa700; color:black;}
+.dropdown-content{border: 1px solid #ffa700;}
+input[type=file]{
+    background: #131916;
+    color:#FFA700;
+}
+input[type=submit]{
+    background: #0e0e0e;
+    color:#FFA700;
+}
+input[type=number]{
+    background: #0e0e0e;
+    color:#FFA700;
+}
+input[type=password]{
+    background: #0e0e0e;
+    color:#FFA700;
+}
+.section{
+    border-color:#FFA700;
+}
+select{
+    background: #0e0e0e;
+    color:#FFA700;
+}
+.slider {background-color: #880404;}
+.slider:before {background-color: #d2d2d2;}
+input:checked + .slider { background-color: #0d8e0a;}
+
+.slider2{
+    background-color: #1fbdd2;
+}
+
+.sliding_range {
+    background: #292929;
+}
+.sliding_range::-webkit-slider-thumb {
+    background: #35a139;
+}
+.sliding_range::-moz-range-thumb {
+    background: #35a139;
+}
+
+@media screen and (max-width: 1500px){
+    .top_panel{ background-color:#000; }
+}

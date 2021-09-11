@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
+<script type="text/javascript" src="/mnt/chart.js@2.8.0.js"></script>
+<script type="text/javascript" src="/mnt/d3-dsv.v1.min.js"></script>
+<script type="text/javascript" src="/mnt/d3-fetch.v1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/webstyle.css">		
+<title>esp32 | 1970 week</title>
+</head>
+<body>
+<div class="btn-group">
+	<form method="get" action="/">
+		<button type="submit">Home</button>
+	</form>
+</div>
+<div class="demoFont" id = "hour_text">
+</div>
+<div class="demoFont">1970 Week Data</div>
+
+<div class="row">
+	<div class="column">
+		<p><a href="./1970Month_plot.html">1970 Month Data &#60;-</a></p>
+	</div>
+	<div class="Graph">
+		<canvas id="main_chart"></canvas>
+	</div>
+	<div class="column">
+		<p><a href="1970Day_plot.html">1970 Day Data -&#62;</a></p></div>
+</div>
+<div class="row">
+	<br><br><br>
+	<div class="column">
+		<p><a href="./1970Month_plot.html">1970 Month Data &#60;-</a></p>
+	</div>
+	<div class="Graph">
+		<canvas id="sec_chart"></canvas>
+	</div>
+	<div class="column">
+		<p><a href="1970Day_plot.html">1970 Day Data -&#62;</a></p></div>	
+</div>
+<div class="row">
+	<br><br><br>
+	<div class="column">
+		<p><a href="./1970Month_plot.html">1970 Month Data &#60;-</a></p>
+	</div>
+	<div class="Graph">
+		<canvas id="trd_chart"></canvas>
+	</div>
+	<div class="column">
+		<p><a href="1970Day_plot.html">1970 Day Data -&#62;</a></p></div>
+</div>
+</body>
+<?php
+	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+	header("Cache-Control: post-check=0, pre-check=0", false);
+	header("Pragma: no-cache");
+?>
+<script src="/chart_init.js.gz" defer></script>
+<script>
+var doc = '/1970Week.csv';
+</script>
+</html>
