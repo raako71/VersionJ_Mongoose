@@ -4,3 +4,4 @@ build/objs/*
 *.log
 core*
 
+deps/*
