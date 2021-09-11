@@ -1,6 +1,6 @@
 author: alifnl
-description: inline padding
-version: 0.10.2a
+description: add widget, add graph page, try to fix IO, and other marked in shared document
+version: 0.10.3a
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -30,6 +30,7 @@ cdefs:
   
 config_schema:
   - ["http.hidden_files", "*.json"]
+  - ["http.index_files", "s", "index.html.gz", {title: "Comma-separated list of index files"}]
   - ["debug.level", 0]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]
