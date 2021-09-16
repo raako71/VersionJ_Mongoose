@@ -1,6 +1,6 @@
 author: alifnl
-description: add widget, add graph page, try to fix IO, and other marked in shared document
-version: 0.10.3a
+description: test io fix
+version: 0.10.3b
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
