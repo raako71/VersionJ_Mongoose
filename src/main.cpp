@@ -374,18 +374,25 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_gpio_setup_output(EN_I2C, 1);
   	mgos_gpio_setup_output(R1, 0);
   	mgos_gpio_setup_output(R2, 0);
-    mgos_gpio_set_mode(R1, MGOS_GPIO_MODE_OUTPUT);
-  	mgos_gpio_set_mode(R2, MGOS_GPIO_MODE_OUTPUT);
 	mgos_gpio_setup_output(LED_RED,0);
   	//mgos_gpio_setup_output(WIFI_LED, 0);
   	mgos_gpio_setup_output(RL_LED_EN, 0);
-  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); 
-	mgos_gpio_setup_input(R_PB, MGOS_GPIO_PULL_DOWN);
-	mgos_gpio_setup_input(PB1, MGOS_GPIO_PULL_DOWN);
-	mgos_gpio_setup_input(PB2, MGOS_GPIO_PULL_DOWN);
+  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN ); 
+	mgos_gpio_setup_input(R_PB, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_setup_input(PB1, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_setup_input(PB2, MGOS_GPIO_PULL_DOWN );
+
 	mgos_gpio_set_mode(PB1, MGOS_GPIO_MODE_INPUT);
 	mgos_gpio_set_mode(PB2, MGOS_GPIO_MODE_INPUT);
-
+	mgos_gpio_set_mode(R1, MGOS_GPIO_MODE_OUTPUT);
+  	mgos_gpio_set_mode(R2, MGOS_GPIO_MODE_OUTPUT);
+  	mgos_gpio_set_mode(R_PB, MGOS_GPIO_MODE_INPUT);
+	mgos_gpio_set_mode(RL_LED_EN, MGOS_GPIO_MODE_OUTPUT);
+	mgos_gpio_set_mode(LED_RED, MGOS_GPIO_MODE_OUTPUT);
+	
+	mgos_gpio_set_pull(PB1, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_set_pull(PB2, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_set_pull(R_PB, MGOS_GPIO_PULL_DOWN );
 	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
