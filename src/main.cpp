@@ -1872,6 +1872,8 @@ else if(main_opt == 8){ ///remote push button
 		}
 		
 	}else if(sec_opt == 0){ ///with duty cycle
+	ext_PB_state[rpb_pin-1] = 0;
+			//LOG(LL_WARN,("rpb with duty cycle"));
 		char* sec_b = NULL; char* value_b = NULL;
 		json_scanf(sec_info_b, strlen(sec_info_b), "{sec: %Q, value: %Q}", &sec_b, &value_b);
 		std::string sec = sec_b; std::string value = value_b; free(sec_b); free(value_b);
@@ -1880,41 +1882,46 @@ else if(main_opt == 8){ ///remote push button
 		int loop = sec[1] == '1'; // 0 -> is loop, 1 -> fired once
 		long on_timer = stol(value.substr(0, value.find(",")));
 		long off_timer = stol(value.substr(value.find(",")+1));
-		static int pin_state_local = 0; //timer state actually
+		static int pin_state_local[3] = {0,0,0}; //timer state actually
 		int sec_info = sec_info_b[0] - '0';
 		//determine initial
 		if(prog_timer_state[ctrl_pin-1] == 0){
-			prog_timer_state[ctrl_pin-1] = -2;//this variable is used to indicate first time //timer is idle
-			pin_state_local = init;
+			prog_timer_state[ctrl_pin-1] = -1;//this variable is used to indicate first time //timer is idle
+			//pin_state_local[rpb_pin-1] = init;
 			ext_PB_state[rpb_pin-1] = 0;
-			//LOG(LL_WARN,("first time, timed cycle rpb"));
+			LOG(LL_WARN,("first time, timed cycle rpb"));
 		}else{
 			if(ext_PB_state[rpb_pin-1] == 1){ //short push event
 				ext_PB_state[rpb_pin-1] = 0;
-				if(rpb_pin == 3 && rpb_as_sens){
-					if(loop == 1){
-						pin_state_local = !init;
+			    if(rpb_pin != 3 || (rpb_pin == 3 && rpb_as_sens)){
+					if(loop == 1 && prog_timer_state[ctrl_pin-1] == 1){ //if no loop and on is working will shutdown timer
+						//pin_state_local[rpb_pin-1] = 0;
+						//reset timer
+						prog_timer_state[ctrl_pin-1] = -1;
+						mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+						LOG(LL_WARN,("timer stop no loop"));
+						pin_state = 0;
+					}else if(loop == 1 && prog_timer_state[ctrl_pin-1]== -1){ //if no loop and on is finished will reengage timer
+						///pin_state_local[rpb_pin-1] = 0;
 						//reset timer
 						prog_timer_state[ctrl_pin-1] = -2;
-						LOG(LL_WARN,("reengage timer"));
-					}else{
-						pin_state_local = !pin_state_local;
-					}
-				}else if(rpb_pin != 3){
-					if(loop == 1){
-						pin_state_local = !init;
-						//reset timer
-						prog_timer_state[ctrl_pin-1] = -2;
-						LOG(LL_WARN,("reengage timer"));
-					}else{
-						pin_state_local = !pin_state_local;
+						LOG(LL_WARN,("reengage timer no loop"));
+						//pin_state = 1;
+					}else if (loop == 0){
+						if(prog_timer_state[ctrl_pin-1] != -1){//if loop and timer is working, will end timer
+							prog_timer_state[ctrl_pin-1] = -1;
+							mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+							LOG(LL_WARN,("timer stop with loop"));
+							pin_state = 0;
+						}else if(prog_timer_state[ctrl_pin-1] == -1){//if loop and timer is stopped will reengage timer
+							prog_timer_state[ctrl_pin-1] = -2;
+							LOG(LL_WARN,("reengage timer with loop"));
+						}
 					}
 				}
-			}
+			}//end of short push event
 		}
 		
-		if(pin_state_local != init){ //activate timer
-		//timer will be active if event push, and deactivate in the next push
 		if(prog_timer_state[ctrl_pin-1] == -2){ // is idle
 			if(on_timer != -1 && init == 1){
 				//start on timer
@@ -1929,38 +1936,26 @@ else if(main_opt == 8){ ///remote push button
 				pin_state = 0;
 			}
 		}else if(prog_timer_state[ctrl_pin-1] == 3){ // on is finished
-			if(off_timer != -1){
-				if(init == 0 && loop == 1){ //start from low no loop -> timer stop
-					mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-					prog_timer_state[ctrl_pin-1] = -1;
-					pin_state = 0;
-				}else{
-					prog_timer_state[ctrl_pin-1] = 2;
-					setup_timer_program(ctrl_pin, off_timer);
-					pin_state = 0;	
-				}
-			}else{
+			if(loop == 1 || off_timer == -1){ //no loop, does not have off timer
+				//will end timer
+				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+				prog_timer_state[ctrl_pin-1] = -1;
+				pin_state = 0;				
+			}else if(loop == 0 ){ //looping and have off timer
+				prog_timer_state[ctrl_pin-1] = 2;
+				setup_timer_program(ctrl_pin, off_timer);
 				pin_state = 0;
 			}
 		}else if(prog_timer_state[ctrl_pin-1] == 4){ //off is finished
-			if(on_timer != -1){
-				if(init == 1 && loop == 1){ //start from on no loop -> timer stop
-					prog_timer_state[ctrl_pin-1] = -1;
-					mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-					pin_state = 0;
-				}else{
-					prog_timer_state[ctrl_pin-1] = 1;
-					setup_timer_program(ctrl_pin, on_timer);
-					pin_state = 1;	
-				}
+			if(on_timer != -1){ // has on timer, restarting on
+				prog_timer_state[ctrl_pin-1] = 1;
+				setup_timer_program(ctrl_pin, on_timer);
+				pin_state = 1;	
+			}else{ //no on timer, timer stop
+				prog_timer_state[ctrl_pin-1] = -1;
+				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+				pin_state = 0;
 			}
-		}
-		
-		}//end of deactivate timer
-		else{
-			//prog_timer_state[ctrl_pin-1]= 0;
-			mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-			pin_state = 0;
 		}
 	} //end of rpb with timed cycle
 }
