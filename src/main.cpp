@@ -1872,7 +1872,6 @@ else if(main_opt == 8){ ///remote push button
 		}
 		
 	}else if(sec_opt == 0){ ///with duty cycle
-	ext_PB_state[rpb_pin-1] = 0;
 			//LOG(LL_WARN,("rpb with duty cycle"));
 		char* sec_b = NULL; char* value_b = NULL;
 		json_scanf(sec_info_b, strlen(sec_info_b), "{sec: %Q, value: %Q}", &sec_b, &value_b);
@@ -1889,10 +1888,12 @@ else if(main_opt == 8){ ///remote push button
 			prog_timer_state[ctrl_pin-1] = -1;//this variable is used to indicate first time //timer is idle
 			//pin_state_local[rpb_pin-1] = init;
 			ext_PB_state[rpb_pin-1] = 0;
+			pin_state=0;
 			LOG(LL_WARN,("first time, timed cycle rpb"));
 		}else{
 			if(ext_PB_state[rpb_pin-1] == 1){ //short push event
 				ext_PB_state[rpb_pin-1] = 0;
+				LOG(LL_WARN,("pushed"));
 			    if(rpb_pin != 3 || (rpb_pin == 3 && rpb_as_sens)){
 					if(loop == 1 && prog_timer_state[ctrl_pin-1] == 1){ //if no loop and on is working will shutdown timer
 						//pin_state_local[rpb_pin-1] = 0;
