@@ -1,0 +1,1169 @@
+<!DOCTYPE HTML>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>	
+	<title>SC Program Editor</title>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css?v0.10.3f"/>
+    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3f" />
+	<script src="./login.js?v0.10.3f" defer></script>
+	<link rel="stylesheet" href="./picker.css.gz" type="text/css"/>
+	<script src="./picker.js.gz"></script>
+	
+</head>
+<body>
+<div id="overlay_save" class="overlay" style="display:none;">
+  <div class="confirmation_box" >
+  <div id="circularG" >
+	<div id="circularG_1" class="circularG"></div>
+	<div id="circularG_2" class="circularG"></div>
+	<div id="circularG_3" class="circularG"></div>
+	<div id="circularG_4" class="circularG"></div>
+	<div id="circularG_5" class="circularG"></div>
+	<div id="circularG_6" class="circularG"></div>
+	<div id="circularG_7" class="circularG"></div>
+	<div id="circularG_8" class="circularG"></div>
+  </div>
+  <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
+  <div class="invsi_button" id="failed_button"> 
+  <input type="button" style="font-size:16px" value="retry" onClick="save_conf()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <div class="invsi_button" id="success_button">
+  <input type="button" style="font-size:16px" value="OK" onClick="blabla()"></div>
+  <div class="invsi_button" id="relogin_button">
+  <input type="button" style="font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
+  </div>
+</div>
+<!--overlay login-->
+<div id="overlay_login" class="overlay" style="display:none;font-size:16px">
+<div class="confirmation_box" id="multipurpose">
+</div>
+</div>
+<div id="overlay_change_pass" class="overlay" style="display:none;font-size:16px">
+<div class="confirmation_box">
+<b>Change Password</b><br>
+<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
+<span id="old_password_holder">Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"></span><br>
+New Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass1"><br>
+Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
+</div>
+<span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
+<div style="margin-top:10px">
+<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input id="cancel_change_password" style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login(2)">
+</div>
+</div> 
+</div>
+<!--eof overlay login-->
+<div id="main_div">
+<div class="top_panel">
+<span style="float:left;margin-left:25px" id="clock_info">
+</span>
+<span style="float:right;margin-right:25px;">
+<span id='log_info'>Logged in</span>
+<span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
+<div class="dropdown-content">
+	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
+    <a href="/index.html?v0.10.3f">Home</a>
+	<a href="/graph.html?v0.10.3f">Graph</a>
+    <a href="/control_page.html?v0.10.3f">Control Logic</a>
+    <a href="/setting.html?v0.10.3f">Settings</a>
+ </div>
+ </span>
+</span>
+</div>
+<h1>Socket Controller Program Editor</h1>
+<input type="file" id="selectedFile" style="display: none;"  accept=".json"/>
+<input type="button" value="Import Program" onclick="document.getElementById('selectedFile').value = '';document.getElementById('selectedFile').click();" /><br>	
+<div class="main_container">
+<div class="section">
+<table>
+<td>
+<input type="text" id="program_name" placeholder="Custom name" style="height:20px">
+</td>
+</table>
+<br>
+<table>
+<td style="width:175px">
+Program Enable:
+</td>
+<td>
+<label class="switch"> 
+<input type="checkbox" id="program_en"checked>
+<span class="slider round"></span>
+</label>
+</td>
+</table>
+</div>
+<div class="section">
+<table>
+<td style="width:175px">
+Start Date
+</td>
+<td>
+	<label class="switch"> 
+	<input type="checkbox" id="start_date_en" onClick="toggle('start_date')">
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="start_date_container" style="padding-left:20px">
+</td>
+
+</table>
+
+</div>
+<div class="section">
+<table>
+<tr>
+<td style="width:175px"> End Date </td>
+<td>
+	<label class="switch">
+	<input type="checkbox" id="end_date_en" onClick="toggle('end_date')">
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="end_date_container" style="padding-left:20px">
+</td>
+</table>
+</div>
+
+<div class="section">
+<table>
+<tr>
+<td style="width:175px"> Days per Week </td>
+<td>
+	<label class="switch">
+	<input type="checkbox" id="day_list_en" onClick="toggle_day()" >
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="day_list_container" style="padding-left:20px">
+</td>
+</tr>
+
+</table>
+</div>
+
+<div class="section">
+<table>
+<tr>
+<td style="width:175px"> Daily Start Time </td>
+<td>
+	<label class="switch">
+	<input type="checkbox" id="on_time_en" onClick="toggle('on_time')">
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="on_time_container" style="padding-left:20px">
+</td>
+</table>
+</div>
+<div class="section">
+<table>
+<tr>
+<td style="width:175px"> Daily Stop Time</td>
+<td>
+	<label class="switch">
+	<input type="checkbox" id="off_time_en" onClick="toggle('off_time')">
+	<span class="slider round"></span>
+	</label>
+</td>
+<td id="off_time_container" style="padding-left:20px">
+</td>
+</table>
+</div>
+
+<div class="section">
+<label for="ctrl_output">Control Output:</label>
+<select name="ctrl_output" id="ctrl_out_opt" onChange="load_ctrl_action();document.getElementById('output_warning').style.display = 'none';">
+  <option value=1>A</option>
+  <option value=2>B</option>
+  <option value=3>LED RED</option>
+  <option value=4>IO14</option>
+  <option value=5>null</option>
+</select> &nbsp;<span id="output_warning" style="color:red;cursor:pointer; display:none" > (!)</span> <span id="warning_message"> Output Disabled</span>
+</div>
+
+<div class="trigger_container" style="border:1px solid; border-radius:10px; padding:10px" id="ctrl_trigger_holder_1">
+<label for="ctrl_trigger">Control Trigger:</label>
+<select name="ctrl_trigger" id="ctrl_trigger" onChange="load_ctrl_action();">
+  <option value=1>Temperature</option>
+  <option value=2>Humidity</option>
+  <option value=3>Light</option>
+  <option value=4>Power</option>
+  <option value=5>MQTT Client</option>
+  <option value=6>Timed Cycle</option>
+  <option value=7>Manual Operation</option>
+  <option value=8>Remote Push Button</option>
+  <option value=9>Output Status</option>
+</select>
+&nbsp;<!--input type="text" id="ctrl_value_1" style="width:75px"--> &nbsp;
+<br>
+
+<span id="trigger_action_holder">
+</span>
+
+</div>
+
+
+</div>
+<input type="button" style="margin: 15px auto;" value="SAVE" onClick="save_setting()"> 
+<input type="button" onClick="location.href = '/control_page.html?v0.10.3f';" value="BACK">
+</body>
+<script>
+var LED_opt_global;
+var IO14_opt_global; var rpb_as_sense;
+load_ctrl_action();
+var program2load = getUrlParam('x','Empty');
+var idprogram = getUrlParam('y','Empty');
+console.log("loading program: " + program2load + " id:" + idprogram);
+window.addEventListener('load', onLoad);
+var LED = true;
+var IO14 = true;
+function onLoad(){
+//check setting.json
+load_setting_json();
+update_time();
+setInterval(update_time, 1000);	
+}
+//function to detect page param
+function getUrlVars() {var vars = {};var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key] = value;});return vars;}
+function getUrlParam(parameter, defaultvalue){var urlparameter = defaultvalue;if(window.location.href.indexOf(parameter) > -1){urlparameter = getUrlVars()[parameter];}return urlparameter;}
+
+//duty cycle div builder
+function duty_cycle_builder(name){
+var ret = '<div class="trigger_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
+ret += '<input type="checkbox" id=\"'+name+'_en_sec_on\" onClick=\"toggle_field(this,\''+name+'_sec_on\')\">';
+ret += '<input type="text" id="'+name+ '_sec_on" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_sec_on_label" class="greyed_label">Sec</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_min_on" onClick="toggle_field(this,\''+name+'_min_on\')\"><input type="text" id="'+name+ '_min_on" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_min_on_label" class="greyed_label">Min</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_hrs_on" onClick="toggle_field(this,\''+name+'_hrs_on\')\"><input type="text" id="'+name+ '_hrs_on" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_hrs_on_label" class="greyed_label">Hrs</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_day_on" onClick="toggle_field(this,\''+name+'_day_on\')\"><input type="text" id="'+name+ '_day_on" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_day_on_label" class="greyed_label">Day</span></div>';
+ret += '<div style="margin-top:15px">Switch output off for: &nbsp; ';
+ret += '<input type="checkbox" id=\"'+name+'_en_sec_off\" onClick="toggle_field(this,\''+name+'_sec_off\')\">';
+ret += '<input type="text" id="'+name+'_sec_off" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_sec_off_label" class="greyed_label">Sec</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_min_off\" onClick="toggle_field(this,\''+name+'_min_off\')\">';
+ret += '<input type="text" id="'+name+'_min_off" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_min_off_label" class="greyed_label">Min</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_hrs_off\" onClick="toggle_field(this,\''+name+'_hrs_off\')\">';
+ret += '<input type="text" id="'+name+'_hrs_off" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_hrs_off_label" class="greyed_label">Hrs</span>';
+ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_day_off\" onClick="toggle_field(this,\''+name+'_day_off\')\">';
+ret += '<input type="text" id="'+name+'_day_off" class="greycolor" readOnly>';
+ret += '<span id="'+name+'_day_off_label" class="greyed_label">Day</span></div>';
+ret += '<div  style="margin-top:15px">';
+ret += 'Loop Cycle &nbsp;<label style="position:relative; top:-4px"class="switch2"><input onchange="if(this.checked){document.getElementById(\'' + name + '_init_box\').style.display=\'none\';}';
+ret += 'else{document.getElementById(\'' + name + '_init_box\').style.display = \'block\'};"';
+ret += 'type="checkbox" id="'+name+'_loop"><span class="slider2 round"></label>&nbsp; Run Cycle Once & reset</div>';
+ret += '<div  style="margin-top:10px" id="'+name+'_init_box">';
+ret += 'Initial state: &nbsp;<label style="position:relative; top:-4px" class="switch"><input type="checkbox" id=\"'+name+'_init\"><span class="slider round"></label></div>';
+ret += '</div>';
+return ret;
+}
+
+function toggle(input){
+	var a = document.getElementById(input+"_en").checked;
+	if(a){
+		if(input == "on_time" || input == "off_time"){
+		document.getElementById(input + "_container").innerHTML = '<input type="time" id="'+input+'_val">';
+		}else{
+		document.getElementById(input+"_container").innerHTML = '<input type="text" name="dateTimePicker" style="height:16px;display:inline" id='+input+' readOnly></span>';
+		var b = input.split("_");
+		new Picker(document.querySelector('#' + input), {
+			format: 'YYYY-MM-DD, HH:mm:ss',
+			headers: true,
+			text:{title: b[0]+ ' ' +b[1]}
+		});
+		}
+	}else{
+		document.getElementById(input+"_container").innerHTML = '';
+	}
+}
+function getEpoch(input){
+	var d= new Date(input);
+	a = d.getTime()/ 1000;
+	return Number(a);
+}
+
+function toggle_day(){
+	var a = '<input type="checkbox" id="sunday" > <label for="sunday"> sun </label>	<input type="checkbox" id="monday" > <label for="monday"> mon </label>';
+	a += '<input type="checkbox" id="tuesday" > <label for="tuesday"> tue </label><input type="checkbox" id="wednesday" > <label for="wednesday"> wed </label>';
+	a += '<input type="checkbox" id="thursday" > <label for="thursday"> thu </label><input type="checkbox" id="friday" > <label for="friday"> fri </label>'
+	a += '<input type="checkbox" id="saturday" > <label for="saturday"> sat </label>';
+	var b = document.getElementById("day_list_en").checked;
+	if(b){
+		document.getElementById("day_list_container").innerHTML = a;
+	}else{
+		document.getElementById("day_list_container").innerHTML = "";
+	}
+}
+
+function toggle_cond(input, name){
+	//detect trigger option
+	var prim_opt = document.getElementById("ctrl_trigger").value;
+	var div_add_condition = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_on" ><span class="slider round"></span></label>';
+	div_add_condition += '&nbsp;&nbsp;<select id="sec_operator_'+name+'"><option value=1>AND</option> <option value=2>OR</option></select>&nbsp;&nbsp;';
+	div_add_condition += '<select id="sec_trigger_'+name+'" onChange="load_sec_off_trigger(this)">';
+	var array = ["if Temperature", "if Humidity", "if Light", "if Power", "Timed Cycle", "If Out A", "If Out B", "If LED RED", "If IO14"];
+	for (i = 0 ; i < array.length ; i++){
+	if( prim_opt != i+1 && Number(document.getElementById("ctrl_out_opt").value)+4 != i){
+	if(prim_opt != 9 || i < 4){
+		if( i < 7 || (i == 7 && LED_opt_global == 1) || (i==8 && IO14_opt_global == true))div_add_condition += '<option value='+(i+1)+'>'+array[i]+'</option>';
+	}
+	}
+	}
+	div_add_condition += ' </select> &nbsp;<select id="sec_comp_'+name+'"><option value=1> ></option><option value=2> < </option></select>';
+	div_add_condition += '&nbsp;<input type="text" id="sec_value_'+name+'" style="width:100px"> <span id="output_status_sec_on_holder" style="display:none; margin-left:-5px">is&nbsp; ';
+	div_add_condition += '<select id="action_E_sec_value_on" onChange="load_os_sens_on(this.value)"><option value=1>Switched On</option><option value=2>Switched Off</option></select></span></div>';
+	div_add_condition += '<span style="display:block" id="sec_dc"></span>';
+	var a = input.value;
+	var holder = document.getElementById("sec_cond_"+name+"_holder");
+	var holder_off = document.getElementById("sec_cond_off_holder");
+	
+	var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" ><span class="slider round"></span></label>';
+	div_add_condition_off += '&nbsp;&nbsp;<select id="sec_operator_off"> <option value=1>AND</option> <option value=2>OR</option></select>';
+	div_add_condition_off += '&nbsp;&nbsp;<span id="sec_trigger_off" style="font-size:15px"></span> &nbsp; <select id="sec_comp_off"><option value=1> ></option><option value=2> < </option></select>';
+	div_add_condition_off += '&nbsp; <input type="text" id="sec_value_off" style="width:100px"></div>';
+	if(a == "Add Condition"){
+		input.value = "Remove Condition";
+		holder.innerHTML = div_add_condition;
+		holder_off.innerHTML = div_add_condition_off;
+		var trig_val = document.getElementById("sec_trigger_on");
+		load_sec_off_trigger(trig_val);
+		///trig_val = array[trig_val -1];
+		//document.getElementById("sec_trigger_off").innerHTML = trig_val;
+		
+	}else{
+		input.value = "Add Condition";
+		holder.innerHTML = "";
+		holder_off.innerHTML = "";
+	}	
+}
+function load_output_status_sec(input){input = input == 1 ? 2 : 1;document.getElementById("action_E_pri_opt_off").value = input;}
+function load_output_status_pri(input){input = input == 1 ? 2 : 1;document.getElementById("action_E_pri_opt_on").value = input;}
+function load_os_sens_on(input){input = input == 1 ? 2 : 1;document.getElementById("action_E_sec_value_off").value = input;}
+function load_os_sens_off(input){input = input == 1 ? 2 : 1;document.getElementById("action_E_sec_value_on").value = input;}
+
+
+function load_sec_off_trigger(input){//for action A secondary
+var holder_off = document.getElementById("sec_cond_off_holder");
+var a = document.getElementById("sec_value_on");
+var b = document.getElementById("sec_comp_on");
+var c = document.getElementById("sec_dc");
+var d = document.getElementById("output_status_sec_on_holder");
+var array = ["if Temperature", "if Humidity", "if Light", "if Power", "", "If Out A", "If Out B", "If LED RED", "If IO14"]; 
+if(input.value == 5){
+	a.style.display = "none";
+	b.style.display = "none";
+	a.value = "";
+	d.style.display = "none";
+	holder_off.innerHTML ="";
+	var x = duty_cycle_builder("sec_dc");
+	c.innerHTML = x;
+	duty_cycle_misc_loader("sec_dc");
+	return;
+}else if(input.value >=6 && input.value <= 9){
+	a.style.display = "none";
+	b.style.display = "none";
+	d.style.display = "inline";
+	c.innerHTML = "";
+	//return;
+}else{
+d.style.display = "none";
+a.style.display = "inline";
+b.style.display = "inline";
+c.innerHTML = "";
+}
+var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" ><span class="slider round"></span></label>';
+div_add_condition_off += '&nbsp;&nbsp;<select id="sec_operator_off"> <option value=1>AND</option> <option value=2>OR</option></select>';
+if(input.value >= 1 && input.value <= 4){
+div_add_condition_off += '&nbsp;&nbsp;<span id="sec_trigger_off" style="font-size:15px"></span> &nbsp; <select id="sec_comp_off"><option value=1> ></option><option value=2> < </option></select>';
+div_add_condition_off += '&nbsp; <input type="text" id="sec_value_off" style="width:100px"></div>';
+holder_off.innerHTML = div_add_condition_off;
+setInputFilter(document.getElementById("sec_value_off"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
+setInputFilter(document.getElementById("sec_value_on"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
+}else{
+div_add_condition_off += '&nbsp; <span id="sec_trigger_off" style="font-size:15px"></span>&nbsp; is <span id="sec_trigger_off" style="font-size:15px"></span><select id="action_E_sec_value_off" onChange="load_os_sens_off(this.value)"><option value=1>Switched On</option><option value=2>';
+div_add_condition_off += 'Switched Off</option></select></div>';
+holder_off.innerHTML = div_add_condition_off;
+load_os_sens_on(document.getElementById("action_E_sec_value_on").value);
+}
+var a = array[input.value - 1]; document.getElementById("sec_trigger_off").innerHTML = a;
+
+}
+
+function load_action_E_pri(input){ //for action D primar off
+var holder = document.getElementById("action_E_pri_off");
+var array = ["Output A", "Output B", "Output LED RED", "Output IO14"];
+holder.innerHTML = array[input.value -1];
+}
+
+function load_action_D_sec(input){ //for action D togggle and duty cycles
+var holder = document.getElementById("action_D_holder");
+var a = '<table><tr><td>Initial State: </td><td>&nbsp;<label class="switch">';
+a += '<input type="checkbox" id="action_D_init"><span class="slider round"></span></label></td></tr></table>';
+if(input.checked){// only toggle
+holder.innerHTML = a;
+}else{
+holder.innerHTML = duty_cycle_builder("action_D");
+duty_cycle_misc_loader("action_D");
+}
+}
+
+function duty_cycle_misc_loader(name){
+setInputFilter(document.getElementById(name+"_sec_on"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_min_on"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_hrs_on"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_day_on"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_sec_off"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_min_off"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_hrs_off"), function(value) { return /^\d*$/.test(value); });
+setInputFilter(document.getElementById(name+"_day_off"), function(value) { return /^\d*$/.test(value); });
+}
+
+function load_ctrl_action(){
+	var action_A = '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px">';
+	action_A += ' <label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_on" ><span class="slider round"></span>';
+	action_A += '</label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
+	action_A += 'if Value &nbsp; <select id="action_A_cmpr_on">';
+	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
+	action_A += '<input type="text" id="action_A_value_on" style="width:100px"> &nbsp; <abbr title="Once triggered, condition is held until reset by another trigger">(One Way Switch)</abbr>';
+	action_A += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition" ><br>';
+	action_A += '<span id="sec_cond_on_holder"></span></div>';
+	action_A += '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px">	';
+	action_A += '<label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;';
+	action_A += 'Switched Off: &nbsp;if Value <select id="action_A_cmpr_off">';
+	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
+	action_A += '<input type="text" id="action_A_value_off" style="width:100px">';
+	action_A += '<br><span id="sec_cond_off_holder"></span></div>';
+	var action_C = duty_cycle_builder("action_C");	
+	var action_B = '<div class="trigger_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
+	action_B += '<input type="checkbox" id="action_B_en"><span class="slider round"></span></label></td></tr></table></div></div>';
+	var action_D = '<div class="trigger_container" style="border:1px solid;border-radius:10px; padding:10px">Input Button: ';
+	action_D += '<select id="input_remote"><option value=1> Relay A </option><option value= 2> Relay B</option><option value = 3> ';
+	action_D += 'Remote PB </option></select>';
+	action_D += '<div  style="margin-top:15px">';
+	action_D += 'Timed Cycle Trigger &nbsp;<label style="position:relative; top:-4px"class="switch2"><input type="checkbox" id="action_D_selector"';
+	action_D += 'onChange="load_action_D_sec(this)" checked><span class="slider2 round"></label>&nbsp; Toggle Switch</div>';
+	action_D += '<span id="action_D_holder"> </span></div></div>'
+	var array = ["Output A", "Output B", "Output LED Red", "Output IO14"];
+	var action_E = '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
+	action_E += '<input type="checkbox" id="pri_switched_on" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
+	action_E += 'if &nbsp; <select id="action_E_pri_on" onChange="load_action_E_pri(this)">';
+	for (i = 0 ; i < 4 ; i++){
+	if(document.getElementById("ctrl_out_opt").value != i+1){
+		if(i < 2 || (i == 2 && LED_opt_global == 1) || (i == 3 && IO14_opt_global == true)){
+		action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
+		}
+	}
+	}action_E += '</select> &nbsp; is &nbsp; <select id="action_E_pri_opt_on" onchange="load_output_status_sec(this.value)"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
+	action_E += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition">';
+	action_E += '<span id="sec_cond_on_holder"></span></div>';
+	action_E += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
+	action_E += '<input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched Off:&nbsp;&nbsp;';
+	action_E += 'if &nbsp; <span id="action_E_pri_off"></span>';//<select id="action_E_pri_off">';
+	//for (i = 0 ; i < 4 ; i++){
+	//if (document.getElementById("ctrl_out_opt").value != i+1)action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
+	//}
+	action_E += '&nbsp; is &nbsp; <select id="action_E_pri_opt_off" onchange="load_output_status_pri(this.value)"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
+	action_E += '<span id="sec_cond_off_holder"></span></div>';
+	
+	var selection = document.getElementById("ctrl_trigger").value;
+	var el = document.getElementById("trigger_action_holder");
+	if(selection >= 1 && selection <= 4){
+		el.innerHTML = action_A;
+		setInputFilter(document.getElementById("action_A_value_on"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
+		setInputFilter(document.getElementById("action_A_value_off"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
+	}else if( selection == 6){
+		el.innerHTML = action_C;
+		duty_cycle_misc_loader("action_C");
+	}else if(selection == 7){
+		el.innerHTML = action_B;
+	}else if (selection == 8){
+		el.innerHTML = action_D;
+		if(rpb_as_sense==false){ document.getElementById("input_remote").remove(2);}
+		load_action_D_sec(document.getElementById("action_D_selector"));
+	}else if(selection == 9){
+		el.innerHTML = action_E;
+		load_output_status_sec(document.getElementById("action_E_pri_opt_on").value);
+		load_action_E_pri(document.getElementById("action_E_pri_on"));
+	}else{
+		el.innerHTML = "";
+	}
+	
+}
+
+
+function toggle_field(input, action){
+	var logic = input.checked;
+	var RO_logic =true; var color ="grey";
+	var color1 = document.getElementById("theme").href;
+	if(color1.search("dark") != 0){
+		color1 = "Orange";
+	}else{
+		color1 = "black";
+	}
+	if(logic){RO_logic = false;	color = color1;}
+	else{document.getElementById(action).value = "";}
+	document.getElementById(action).readOnly = RO_logic;
+	document.getElementById(action+"_label").style.color = color;
+}
+
+function day_list(){ 
+	if(document.getElementById("day_list_en").checked){
+	var day = document.getElementById("sunday").checked ? "1" : "0";
+	day += document.getElementById("monday").checked ? "1" : "0";
+	day += document.getElementById("tuesday").checked ? "1" : "0";
+	day += document.getElementById("wednesday").checked ? "1" : "0";
+	day += document.getElementById("thursday").checked ? "1" : "0";
+	day += document.getElementById("friday").checked ? "1" : "0";
+	day += document.getElementById("saturday").checked ? "1" : "0";
+	return day;
+	}else{
+	return "";
+	}
+}
+
+function save_setting(){
+//checking 17.d cancelled
+
+var d = document.getElementById("input_remote");
+var zzz = document.getElementById("ctrl_trigger").value;
+var sec_opt = document.getElementById("sec_trigger_on");
+//checking 17.a
+var a4 = document.getElementById("sec_switched_on");
+var a6 = document.getElementById("sec_switched_off");
+var a1 = document.getElementById("pri_switched_on");var a2 = document.getElementById("pri_switched_off");
+if( zzz >= 1 && zzz <= 4){
+if( a1 != null){
+var a3 = document.getElementById("action_A_value_on"); 
+if(a1.checked && a3.value == ""){ alert("required a value to be saved (primary on value)"); return;}
+if(a4 != null){
+	if(a4.checked && document.getElementById("sec_value_on").value == "" && document.getElementById("sec_trigger_on").value < 5){alert("required a value to be saved (secondary on value)");return;}
+	if(a4.checked && document.getElementById("sec_trigger_on").value == 5){
+		var c1 = check_timed_cycle("sec_dc","on");
+		var c0 = document.getElementById("sec_dc_loop").checked;
+		if(c1 == -2){ alert("Invalid on time value!"); return;}
+		c1 = (c1 == -1) ? 0 : c1;
+		var c2 = check_timed_cycle("sec_dc","off") ;
+		c2 = (c2 == -1) ? 0 : c2;
+		if(c2 == -2){ alert("Invalid off time value!"); return;}
+		if(c1 + c2 == 0){
+		alert("required value for on or off (timed cycle)");return;
+		}
+		var cx = document.getElementById("sec_dc_init").checked;
+		if(cx == false && c2 == 0 && !c0){
+		alert("failed to save, no off time!");
+		return;
+		}
+		if(cx == true && c1 == 0 && !c0){
+		alert("failed to save, no on time!");
+		return;
+		}
+		if(c1 == 0 && c0 ){
+			alert("on time is mandatory!"); return;
+		}
+		if(c1 + c2< 300 && c0 == false){
+			var x = confirm("frequent switching of relays will shorten their life.\nSave anyway?");
+			if(!x){
+			return;
+			}
+		}
+	}
+}
+}
+if(a2 != null){
+var a5 = document.getElementById("action_A_value_off");
+if(a2.checked && a5.value == ""){ alert("required a value to be saved (primary off value)"); return;}
+if(a6 != null){
+if(document.getElementById("sec_trigger_on") < 5){
+ if(a6.checked && document.getElementById("sec_value_off").value == ""){alert("required a value to be saved (secondary off value)");return;}}
+}
+}
+}
+//check 17 a for output status
+if(zzz == 9){
+if(a4 != null){
+	if(a4.checked && document.getElementById("sec_value_on").value == "" ){alert ("required a value to be saved (secondary on value)");return;}
+}
+if(a6 != null){
+	if(a6.checked && document.getElementById("sec_value_off").value == ""){alert ("required a value to be saved (secondary off value)");return;}
+}
+}
+
+//check 17.c
+c =document.getElementById("ctrl_trigger").value;
+if(c == 6){
+var c1 = check_timed_cycle("action_C","on");
+var c0 = document.getElementById("action_C_loop").checked;
+if(c1 == -2){alert("Invalid on time value!"); return;}
+c1 = (c1 == -1) ? 0 : c1;
+var c2 = check_timed_cycle("action_C","off") ;
+if(c2 == -2){alert("Invalid off time value!"); return;}
+c2 = (c2 == -1) ? 0 : c2;
+if(c1 + c2 == 0){
+alert("please enter valid value for on or off time!");
+return;
+}
+var cx = document.getElementById("action_C_init").checked;
+if(cx == false && c2 == 0 && !c0){
+alert("failed to save, no off time!");
+return;
+}
+if(cx == true && c1 == 0 && !c0){
+alert("failed to save, no on time!");
+return;}
+if(c1 == 0 && c0 ){
+alert("on time is mandatory!"); return;
+}
+if(c1 + c2 < 300 && c0 == false){
+var x = confirm("frequent switching of relays will shorten their life!\nSave anyway?");
+if(!x){
+return;
+}
+}
+}
+
+if(c == 8 && document.getElementById("action_D_selector").checked == false){
+	var c1 = check_timed_cycle("action_D","on");
+	var c0 = document.getElementById("action_D_loop").checked;
+	if(c1 == -2){alert("Invalid on time value!"); return;}
+	c1 = (c1 == -1) ? 0 : c1;
+	var c2 = check_timed_cycle("action_D","off") ;
+	if(c2 == -2){alert("Invalid off time value!"); return;}
+	c2 = (c2 == -1) ? 0 : c2;
+	if(c1 + c2 == 0){
+	alert("please enter valid value for on or off time!");
+	return;
+	}
+	var cx = document.getElementById("action_D_init").checked;
+	if(cx == false && c2 == 0 && !c0){
+	alert("failed to save, no off time!");
+	return;
+	}
+	if(cx == true && c1 == 0 && !c0){
+	alert("failed to save, no on time!");
+	return;
+	}
+	if(c1 == 0 && c0 ){
+	alert("on time is mandatory!"); return;
+	}
+	if(c1 + c2 < 300 &&  c0 == false){
+		var x = confirm("frequent switching of relays will shorten their life!\nSave anyway?");
+		if(!x){
+		return;
+		}
+	}
+}
+//check start date || end date
+var e1 = document.getElementById("start_date");
+var e2 = document.getElementById("end_date");
+if(e1 != null && e2 != null){
+	e1 = getEpoch(e1.value); e2 = getEpoch(e2.value);
+    console.log(e1); console.log(e2);	
+	if(e1 > e2){
+		alert("End Date must be after Start Date!");
+		return;
+	}
+}
+
+//check 17.b
+//check if primary
+if(a1 != null && a2 != null && zzz >= 1 && zzz <= 4){
+	if(a1.checked && a2.checked){
+	//check comparator sign
+		var b1 = document.getElementById("action_A_cmpr_on").value;
+		var b2 = document.getElementById("action_A_cmpr_off").value;
+		if(b1 == b2){
+			alert("Comparator sign cannot be same (primary)!");
+			return;
+		}
+		var b3 = Number(document.getElementById("action_A_value_on").value);
+		var b4 = Number(document.getElementById("action_A_value_off").value);
+		if(b3 == b4){
+			alert("Primary trigger value cannot be same!"); return;
+		}
+		if(b1 == 1 && b2 == 2){
+			if(b3 < b4){
+				alert("invalid logic, primary on must be larger than primary off"); return;
+			}
+		}else if(b1 == 2 && b2 == 1){
+			if(b3 > b4){
+				alert("invalid logic, primary on must be smaller than primary off"); return;
+			}
+		}		
+	}
+}
+if( zzz == 9 && a4 != null && a6 != null){
+if(a4.checked && a6.checked){
+var b1 = document.getElementById("sec_comp_on").value;
+var b2 = document.getElementById("sec_comp_off").value;
+if(b1 == b2){
+	alert("Comparator sign cannot be same (secondary)!");
+	return;
+}
+var b3 = Number(document.getElementById("sec_value_on").value);
+var b4 = Number(document.getElementById("sec_value_off").value);
+	if(b3 == b4){
+		alert("secondary trigger value cannot be same!"); return;
+	}
+	if(b1 == 1 && b2 == 2){
+		if(b3 < b4){
+			alert("invalid logic, secondary on must be larger than primary off"); return;
+		}
+	}else if(b1 == 2 && b2 == 1){
+		if(b3 > b4){
+			alert("invalid logic, secondary on must be smaller than primary off"); return;
+		}
+	}		
+}
+}
+
+//if(program2load == "new"){ save_new(); } else {save_old();}
+save_conf();
+}
+
+
+
+function build_save_json(old_json){
+var a = document.getElementById("program_name").value;
+old_json.name = (a == "") ? ("program"+idprogram) : a;
+old_json.en = document.getElementById("program_en").checked;
+old_json.start_date = (document.getElementById("start_date_en").checked) ? getEpoch(document.getElementById("start_date").value) : "";
+old_json.end_date = (document.getElementById("end_date_en").checked) ? getEpoch(document.getElementById("end_date").value) : "";
+old_json.days_active = day_list();
+old_json.on_time_global =(document.getElementById("on_time_en").checked) ? (document.getElementById("on_time_val").value + "|" + make_day_epoch(document.getElementById("on_time_val").value)) : ("|-1");
+old_json.off_time_global = (document.getElementById("off_time_en").checked) ? (document.getElementById("off_time_val").value + "|" + make_day_epoch(document.getElementById("off_time_val").value)) : ("|-1");
+old_json.control_opt = document.getElementById("ctrl_out_opt").value;
+var k = document.getElementById("ctrl_trigger").value;
+old_json.control_trigger[0].main_option = k;
+var m; var y =""; var n =-1;
+if(k >= 1 && k <= 4){
+	var on_val = ((get_chkbox_val("pri_switched_on") == 1) ? (document.getElementById("action_A_cmpr_on").value + "," + save2decimal(document.getElementById("action_A_value_on").value)) : "");
+	var off_val = ((get_chkbox_val("pri_switched_off") == 1)? (document.getElementById("action_A_cmpr_off").value + "," + save2decimal(document.getElementById("action_A_value_off").value)): "");
+	var on_val_sec = "";var off_val_sec = "";
+	var x = document.getElementById("sec_trigger_on");
+	if(x != null){
+	n = x.value;
+	if(x.value >= 1 && x.value <= 4){
+	n = (get_chkbox_val("sec_switched_on") == 1 || get_chkbox_val("sec_switched_off") == 1) ? x.value : -1;
+	on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("sec_comp_on").value + "," + save2decimal(document.getElementById("sec_value_on").value)) : "");
+	off_val_sec = ((get_chkbox_val("sec_switched_off") == 1) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("sec_comp_off").value + "," + save2decimal(document.getElementById("sec_value_off").value)) : "");
+	y = {sec_on: on_val_sec, sec_off: off_val_sec};
+	y = JSON.stringify(y);
+	}else if (x.value == 5){
+	n = (get_chkbox_val("sec_switched_on") == 1) ? 5 : -1;
+	y = (get_chkbox_val("sec_switched_on") == 1) ? document.getElementById("sec_operator_on").value + ","  + JSON.stringify(fetch_duty_cycle_info("sec_dc")) : "";
+	}else{
+	n = (get_chkbox_val("sec_switched_on") == 1 || get_chkbox_val("sec_switched_off") == 1) ? x.value : -1;
+	on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("action_E_sec_value_on").value) : "");
+	off_val_sec = ((get_chkbox_val("sec_switched_off") == 1 ) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("action_E_sec_value_off").value): "");
+	y = {sec_on: on_val_sec, sec_off: off_val_sec};
+	y = JSON.stringify(y);
+	}
+	}//x != nulll
+	m = {pri_on: on_val,pri_off:off_val};
+	m = JSON.stringify(m);
+}else if(k == 6){
+	n = -1; y = "";
+	m = JSON.stringify(fetch_duty_cycle_info("action_C"));
+}else if(k == 7){
+	n = -1; y = "";
+	m = String(get_chkbox_val("action_B_en"));
+}else if(k == 8){
+	m = document.getElementById("input_remote").value;
+	n = get_chkbox_val("action_D_selector");
+	if( n == '1'){
+	y = get_chkbox_val("action_D_init");
+	}else{
+	y = fetch_duty_cycle_info("action_D"); y = JSON.stringify(y);
+	}
+}else if(k == 9){
+	var on_val = ((get_chkbox_val("pri_switched_on") == 1 ) ? (document.getElementById("action_E_pri_on").value + "," + document.getElementById("action_E_pri_opt_on").value) : "");
+	var off_val = ((get_chkbox_val("pri_switched_off") == 1) ? (document.getElementById("action_E_pri_on").value + "," + document.getElementById("action_E_pri_opt_off").value) :  "");
+	m = {pri_on: on_val, pri_off: off_val}; m = JSON.stringify(m);
+	var x = document.getElementById("sec_trigger_on");
+	if( x != null){
+	n = (get_chkbox_val("sec_switched_on") == 1 || get_chkbox_val("sec_switched_off") == 1) ? x.value : -1;
+	var on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("sec_comp_on").value + "," + save2decimal(document.getElementById("sec_value_on").value)) : "");
+	var off_val_sec = ((get_chkbox_val("sec_switched_off") == 1) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("sec_comp_off").value + "," + save2decimal(document.getElementById("sec_value_off").value)) : "");
+	y = {sec_on: on_val_sec, sec_off: off_val_sec};
+	y = JSON.stringify(y);
+	
+	}
+}
+old_json.control_trigger[0].main_info = m;
+old_json.control_trigger[0].sec_option = n;
+old_json.control_trigger[0].sec_info = y;
+return old_json;
+}
+
+function save_conf(){
+save_command = true;if(!check_password()){on_overlay_login(2);return;}
+var old_json = {"id": idprogram, "name":"", "en":false, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "", "off_time_global":""
+,"control_opt": "","control_trigger":[{"main_option": 1, "main_info": "", "sec_option": -1, "sec_info":""}], "setting":""};
+old_json = build_save_json(old_json);
+on_overlay();
+document.getElementById("circularG").style.display = 'block';
+document.getElementById("spinner_info").innerHTML = "Saving..";
+var z1 = old_json.control_trigger[0].main_option;
+var z2 = old_json.control_trigger[0].sec_option;
+if((z1 >= 1 && z1 <= 4) || (z1 == 9 && z2 != -1)){
+old_json.setting = {type:1, gauge1:{max:1000, min: 0, esz: false, evl: false ,upval:-1, loval:-1, ucolor:"-1", lcolor:"-1"}, 
+gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ucolor:"-1", lcolor:"-1"}};
+}else{
+old_json.setting = "";
+}
+validate_cookie(function(i){
+	if(i.code == 200 && i.data.status == "illegal"){
+		save_command = true;
+		document.getElementById("circularG").style.display = 'none';
+		document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";
+		document.getElementById("relogin_button").style.display="block";
+		return;
+	}else if(i.code != 200){
+		save_command = true;
+		document.getElementById("circularG").style.display = 'none';
+		document.getElementById("spinner_info").innerHTML = i.status;
+		document.getElementById("failed_button").style.display="block";
+		return;
+	}
+	var string = window.btoa(JSON.stringify(old_json));
+	var contain = (program2load == "new") ? {"filename": "program"+idprogram+".json", "append":false, "data": string} : {"filename": program2load+".json", "append":false, "data": string};
+xhr_send("FS.put", JSON.stringify(contain), function(i){
+	if(i.status != "success"){
+	document.getElementById("circularG").style.display = 'none';
+	document.getElementById("spinner_info").innerHTML = i.status;
+	document.getElementById("failed_button").style.display="block";
+	return;
+	}
+	document.getElementById("circularG").style.display = 'none';
+	document.getElementById("spinner_info").innerHTML = "Configuration Saved"
+	document.getElementById("success_button").style.display="block";
+	if(program2load != "new"){var a = new XMLHttpRequest();	a.open("POST", "/rpc/reset_timer", true);a.send(JSON.stringify({file:program2load+".json"}));}
+});//end of fs.put
+});//end of validate_cookie
+save_command = false;
+}//end of function
+
+
+function setInputFilter(textbox, inputFilter) {["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {textbox.addEventListener(event, function() {if (inputFilter(this.value)) {this.oldValue = this.value;this.oldSelectionStart = this.selectionStart;this.oldSelectionEnd = this.selectionEnd;} else if (this.hasOwnProperty("oldValue")) {this.value = this.oldValue;this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);} else {this.value = "";}});});}
+function convert_epoch_from_time(input){return input.substring(0,2)*3600 + input.substring(3,5)*60;}
+function save2decimal(input){input = String(input);var a = input.indexOf(".");if(a == -1){input += ".00";}else{	var b = input.substring(0, a+3);var c = input.substring(a+1,a+3).length;b += (c == 1) ? "0" : "";b += (c == 0) ? "00" : "";	input = b;}return input;}
+function check_timed_cycle(entity, name){
+var array_name=["sec", "min", "hrs", "day"]; var ret = -1;
+var array_time=[1, 60, 3600, 86400];
+for (i = 0 ; i < 4; i++){
+var field_value = document.getElementById(entity + "_"+array_name[i]+"_"+name).value;
+if(get_chkbox_val(entity + "_en_"+array_name[i]+"_"+name) == 1){ 
+if(field_value == ""){
+console.log("hmm");
+return -2;
+}
+ret = (ret == -1) ?  0 : ret; ret += Number(field_value) * array_time[i];
+}
+}
+return ret;}
+
+function make_day_epoch(h){ //h must string
+  if(h == ""){ return -1;}
+  var offset = new Date(); offset = offset.getTimezoneOffset()*60;
+  var time_day = h.substring(0, h.indexOf(":"))* 3600;
+  time_day += h.substring(h.indexOf(":")+1) * 60;
+  time_day += offset;
+  time_day = (time_day < 0)  ?  86400 + time_day: time_day;
+  return time_day;
+}
+
+function get_chkbox_val(input){
+var a = ((document.getElementById(input).checked==true) ? "1" : "0");
+return a;
+}
+
+function load_setting_json(){
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "/rpc/FS.Get", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+var comm = {"filename": "setting.json"};
+xhr.send(JSON.stringify(comm));
+xhr.onload = function() {
+var data = JSON.parse(this.responseText);
+var old_json = JSON.parse(window.atob(data.data));
+var a = old_json.ctrl_page.LED;
+var b = old_json.ctrl_page.IO14;
+var c = old_json.ctrl_page.sensor_input;
+rpb_as_sense = c;
+LED_opt_global = a;
+IO14_opt_global = b;
+var c = document.getElementById("ctrl_out_opt");
+if(!b ) {c.remove(3); IO14 = false;}
+if(a != 1){ c.remove(2); LED = false;}
+if(program2load != "new"){load_setting();}//load program json
+}
+}
+function load_setting(){
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Get", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": program2load+".json"};
+	xhr.send(JSON.stringify(comm));
+	xhr.onload = function() {
+		var data = JSON.parse(this.responseText);
+		parse_config(JSON.parse(window.atob(data.data)));
+	}//onload
+}
+
+function apply_duty_cycle_conf(name, input1, input2){
+var array = ["_sec_on", "_min_on", "_hrs_on", "_day_on", "_sec_off", "_min_off", "_hrs_off", "_day_off"];
+var index = 0;
+var a = 0; var j= 0;
+for (index = 0; index < 8; index++){
+j = input1.indexOf(",", a);
+var logic = (input1.substring(a, j) == "1")? true: false;
+document.getElementById(name+"_en"+ array[index]).checked = logic; 
+a = j+1; j = input1.indexOf(",", a);
+j = (j == -1) ? input1.length : j;
+document.getElementById(name+array[index]).value = input1.substring(a, j);
+document.getElementById(name+array[index]).readOnly = !logic;
+a = j+1;}
+document.getElementById(name+"_init").checked = (input2[0] == 1) ? true : false;
+document.getElementById(name+"_loop").checked = (input2[1] == 1) ? true : false;
+if(input2[1] == 1){ document.getElementById(name+"_init_box").style.display = 'none'};
+}
+
+function fetch_duty_cycle_info(name){
+var tick =  get_chkbox_val(name+"_en_sec_on") + "," + document.getElementById(name+"_sec_on").value + ",";
+tick += get_chkbox_val(name+"_en_min_on") + "," + document.getElementById(name+"_min_on").value + ",";
+tick += get_chkbox_val(name+"_en_hrs_on") + "," + document.getElementById(name+"_hrs_on").value + ",";
+tick += get_chkbox_val(name+"_en_day_on") + "," + document.getElementById(name+"_day_on").value + ",";
+tick += get_chkbox_val(name+"_en_sec_off") + "," + document.getElementById(name+"_sec_off").value + ",";
+tick += get_chkbox_val(name+"_en_min_off") + "," + document.getElementById(name+"_min_off").value + ",";
+tick += get_chkbox_val(name+"_en_hrs_off") + "," + document.getElementById(name+"_hrs_off").value + ",";
+tick += get_chkbox_val(name+"_en_day_off") + "," + document.getElementById(name+"_day_off").value;
+var init_n_loop = get_chkbox_val(name+"_init") + get_chkbox_val(name+"_loop");
+init_n_loop = String(init_n_loop);
+console.log(init_n_loop);
+if(init_n_loop[0] == '0' && init_n_loop[1] == '1'){init_n_loop = '11';}
+var time_val = check_timed_cycle(name, "on") +"," + check_timed_cycle(name, "off");
+var m_json = {tick: tick, sec: init_n_loop, value: time_val};
+return (m_json);
+}
+
+function from_epoch(input){
+	var d= new Date(input * 1000);
+	return d.getFullYear() + "-" +(d.getMonth()+1) + "-" + d.getDate() + ", " + d.getHours()+":"+d.getMinutes() + ":" + d.getSeconds();
+}
+document.getElementById('selectedFile').addEventListener('change', function() {
+	var fr=new FileReader();
+	fr.readAsText(this.files[0]);
+	fr.onload=function(){
+	var json_file;
+    try {
+        json_file = JSON.parse(fr.result);
+    } catch (e) {
+		console.log("error to parse");
+		return;
+	}
+	//check all element
+	if(json_file.id == undefined){alert("File is not suitable"); return;}
+	if(json_file.name == undefined){alert("File is not suitable"); return;}
+	if(json_file.en == undefined){alert("File is not suitable"); return;}
+	if(json_file.start_date == undefined){alert("File is not suitable"); return;}
+	if(json_file.end_date == undefined){alert("File is not suitable"); return;}
+	if(json_file.days_active == undefined){alert("File is not suitable"); return;}
+	if(json_file.on_time_global == undefined){alert("File is not suitable"); return;}
+	if(json_file.off_time_global == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_opt == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_trigger[0].main_info == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_trigger[0].main_option == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_trigger[0].sec_option == undefined){alert("File is not suitable"); return;}
+	if(json_file.control_trigger[0].sec_info == undefined){alert("File is not suitable"); return;}
+	parse_config(json_file);
+	}
+})
+
+function parse_config(input){
+	document.getElementById("program_name").value = input.name;
+	document.getElementById("program_en").checked = input.en;
+	if(input.start_date != ""){document.getElementById("start_date_en").checked = true; toggle("start_date"); document.getElementById("start_date").value = from_epoch(input.start_date);}
+	if(input.end_date != ""){document.getElementById("end_date_en").checked = true; toggle("end_date"); document.getElementById("end_date").value = from_epoch(input.end_date);}
+	if(input.days_active != ""){document.getElementById("day_list_en").checked = true; toggle_day();
+	var day_list_str = input.days_active;
+	document.getElementById("sunday").checked = (day_list_str[0] == 1  ? true: false);
+	document.getElementById("monday").checked = (day_list_str[1] == 1  ? true: false);
+	document.getElementById("tuesday").checked = (day_list_str[2] == 1  ? true: false);
+	document.getElementById("wednesday").checked = (day_list_str[3] == 1  ? true: false);
+	document.getElementById("thursday").checked = (day_list_str[4] == 1  ? true: false);
+	document.getElementById("friday").checked = (day_list_str[5] == 1  ? true: false);
+	document.getElementById("saturday").checked = (day_list_str[6] == 1  ? true: false);}
+	var on_time = input.on_time_global;
+	on_time = on_time.substring(0, on_time.indexOf("|"));
+	var off_time = input.off_time_global;
+	off_time = off_time.substring(0, off_time.indexOf("|"));
+	if(input.on_time_global != "|-1"){document.getElementById("on_time_en").checked = true; toggle("on_time"); document.getElementById("on_time_val").value = on_time;}
+	if(input.off_time_global != "|-1"){document.getElementById("off_time_en").checked = true; toggle("off_time"); document.getElementById("off_time_val").value = off_time;}
+	document.getElementById("ctrl_out_opt").value = input.control_opt;
+	if((input.control_opt == 4 && IO14 == false) || input.dev_mode){
+	document.getElementById("output_warning").style.display = "inline";
+	document.getElementById("warning_message").innerHTML = "Output disabled (IO14)";
+	}
+	if((input.control_opt == 3 && LED == false) || input.dev_mode){
+	document.getElementById("output_warning").style.display = "inline";
+	document.getElementById("warning_message").innerHTML = "Output disabled (LED RED)";
+	}
+	var a= input.control_trigger[0].main_option;
+	document.getElementById("ctrl_trigger").value = a;
+	load_ctrl_action();
+	var b= input.control_trigger[0].main_info;
+	var c = input.control_trigger[0].sec_option;
+	var d= input.control_trigger[0].sec_info;
+		
+	if(a >= 1 && a <= 4){
+	b = JSON.parse(b);
+	var pon = b.pri_on;
+	var poff = b.pri_off;
+	if(pon !=""){document.getElementById("pri_switched_on").checked = true;document.getElementById("action_A_cmpr_on").value = pon.substring(0, pon.indexOf(","));document.getElementById("action_A_value_on").value = pon.substring(pon.indexOf(",")+1);}
+	if(poff!=""){document.getElementById("pri_switched_off").checked = true;document.getElementById("action_A_cmpr_off").value = poff.substring(0, poff.indexOf(","));document.getElementById("action_A_value_off").value = poff.substring(poff.indexOf(",")+1);}
+	if(c != -1){
+	toggle_cond(document.getElementById("add_cond_on"), "on");
+	document.getElementById("sec_trigger_on").value = c;
+	var xx = {value: c};
+	load_sec_off_trigger(xx);
+	if(c >= 1 && c <= 4){
+	d = JSON.parse(d);
+	var son = d.sec_on; var soff = d.sec_off;
+	if(son != ""){
+		document.getElementById("sec_switched_on").checked =true;
+		var i = son.indexOf(",");
+		document.getElementById("sec_operator_on").value = son.substring(0, i);
+		var j = son.indexOf(",",i+1);
+		document.getElementById("sec_comp_on").value = son.substring(i+1, j);
+		document.getElementById("sec_value_on").value = son.substring(j+1);
+	}
+	if(soff != ""){
+		document.getElementById("sec_switched_off").checked =true;
+		var i = soff.indexOf(",");
+		document.getElementById("sec_operator_off").value = soff.substring(0, i);
+		var j = soff.indexOf(",",i+1);
+		document.getElementById("sec_value_off").value = soff.substring(j+1);
+		document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
+	}
+	}else if(c == 5){
+		document.getElementById("sec_switched_on").checked = true;
+		document.getElementById("sec_operator_on").value = d.substring(0, d.indexOf(","));
+		d = JSON.parse(d.substring(d.indexOf(",")+1));
+		apply_duty_cycle_conf("sec_dc", d.tick, d.sec);
+	}else if(c >= 6 && c <= 9){
+		d = JSON.parse(d);
+		var son = d.sec_on; var soff = d.sec_off;
+		if(son != ""){
+		document.getElementById("sec_switched_on").checked = true;
+		document.getElementById("sec_operator_on").value = son[0];
+		document.getElementById("action_E_sec_value_on").value = son[2];
+		}
+		if(soff != ""){
+		document.getElementById("sec_switched_off").checked = true;
+		document.getElementById("sec_operator_off").value = soff[0];
+		document.getElementById("action_E_sec_value_off").value = soff[2];
+		}
+		load_os_sens_on(son[2]);
+	}
+	}		
+	}else if(a == 6){
+	b = JSON.parse(b);
+	apply_duty_cycle_conf("action_C", b.tick, b.sec);
+	}else if(a == 7){
+	document.getElementById("action_B_en").checked = Number(b) == 1 ? true: false;
+	}else if(a == 8){
+	document.getElementById("input_remote").value = b;
+	document.getElementById("action_D_selector").checked = (c == 1) ? true : false;
+	load_action_D_sec(document.getElementById("action_D_selector"));
+	if(c == 1){
+		document.getElementById("action_D_init").checked = (d == 1) ? true : false;
+	}else{ 
+	d = JSON.parse(d);
+	apply_duty_cycle_conf("action_D", d.tick, d.sec);
+	}
+	}else if (a == 9){
+	b = JSON.parse(b);
+	var pon = b.pri_on;
+	var poff = b.pri_off;
+	if(pon != ""){ document.getElementById("pri_switched_on").checked = true; document.getElementById("action_E_pri_on").value = pon[0]; document.getElementById("action_E_pri_opt_on").value = pon[2];}
+	if(poff != ""){ document.getElementById("pri_switched_off").checked = true;document.getElementById("action_E_pri_on").value = poff[0]; document.getElementById("action_E_pri_opt_off").value = poff[2];}
+	if(pon != "" || poff != ""){load_action_E_pri(document.getElementById("action_E_pri_on"));}
+	
+	if(c != -1){
+	toggle_cond(document.getElementById("add_cond_on"), "on");
+	document.getElementById("sec_trigger_on").value = c;
+	var xx = {value: c};
+	load_sec_off_trigger(xx);
+	d = JSON.parse(d);
+	var son = d.sec_on; var soff = d.sec_off;
+	if(son != ""){
+		document.getElementById("sec_switched_on").checked =true;
+		var i = son.indexOf(",");
+		document.getElementById("sec_operator_on").value = son.substring(0, i);
+		var j = son.indexOf(",",i+1);
+		document.getElementById("sec_comp_on").value = son.substring(i+1, j);
+		document.getElementById("sec_value_on").value = son.substring(j+1);
+	}
+	if(soff != ""){
+		document.getElementById("sec_switched_off").checked =true;
+		var i = soff.indexOf(",");
+		document.getElementById("sec_operator_off").value = soff.substring(0, i);
+		var j = soff.indexOf(",",i+1);
+		document.getElementById("sec_value_off").value = soff.substring(j+1);
+		document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
+	}
+	}
+	}
+}
+function on_overlay() {
+	document.getElementById("overlay_save").style.display = "block";
+	document.getElementById("main_div").style.filter = "blur(2px)";
+	document.getElementById("overlay_save").style.filter = "none";
+	document.getElementById("success_button").style.display="none";
+	document.getElementById("failed_button").style.display="none";
+	document.getElementById("relogin_button").style.display="none";
+}
+
+function off_overlay() {
+  document.getElementById("overlay_save").style.display = "none";
+  document.getElementById("main_div").style.filter = "none";
+}
+function blabla(){
+off_overlay();
+if(program2load=="new"){
+window.open('program_editor.html?x=program'+idprogram +'&y=' +idprogram +'&'+Math.random() * Math.random(), '_self');
+}
+}
+</script>
+<style>
+
+.switch2 { position: relative; display: inline-block; width: 42px; height: 25px;}
+.switch2 input { opacity: 0; width: 0; height: 0;}
+.slider2 { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; -webkit-transition: .4s; transition: .4s;}
+.slider2:before { position: absolute; content: ""; height: 19px; width: 19px; left: 4px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s;}
+input:checked + .slider2:before { -webkit-transform: translateX(15px); -ms-transform: translateX(15px); transform: translateX(15px);}
+/* Rounded sliders */
+.slider2.round { border-radius: 34px;}
+.slider2.round:before { border-radius: 50%;}
+
+
+
+.greyed_label{color:grey;}
+
+#day_on_en:checked ~ #day_on_label{color:black;}
+#day_off_en:checked ~ #day_off_label{color:black;}
+#day_on_label, #day_off_label{ color:grey;}
+
+#output_warning:hover + #warning_message {
+  display: inline;
+  color: red;
+}
+#warning_message{
+  display: none;
+}
+</style>
+</html>
