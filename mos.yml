@@ -30,7 +30,7 @@ cdefs:
   
 config_schema:
   - ["http.hidden_files", "*.json"]
-  - ["http.index_files", "s", "index.html.gz", {title: "Comma-separated list of index files"}]
+  - ["http.index_files", "s", "index.html", {title: "Comma-separated list of index files"}]
   - ["debug.level", 0]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]
@@ -47,7 +47,7 @@ config_schema:
   - ["eth.mdio_gpio", "i", 18, {title: "GPIO to use for RMII MDIO signal"}]
   - ["eth.phy_pwr_gpio", "i", 5, {title: "GPIO to use for PHY PWR control signal"}]
   - ["eth.phy_addr", "i", 0, {title: "PHY address"}]
-  - ["eth.enable", "b", false, {title: "enable eth"}]
+  - ["eth.enable", "b", true, {title: "enable eth"}]
   - ["i2c", "o", {title: "I2C settings"}]
   - ["i2c.unit_no", "i", 0, {title: "Which hardware unit to use, 0 or 1"}]
   - ["i2c.enable", "b", true, {title: "Enable I2C"}]
