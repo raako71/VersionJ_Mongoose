@@ -65,6 +65,7 @@ input[type="text"][disabled] {
    background-color: #cfcfcf;
    cursor: default;
 }
+
 .overlay {
   position: fixed;
   display: none;
@@ -90,7 +91,8 @@ font-size:16px;
 transform: translate(-50%,-50%);
 -ms-transform: translate(-50%,-50%);
 min-height:200px; 
-width:45%; 
+min-width:50%;
+width:fit-content; 
 text-align:center;
 border-style:solid;
 padding-top: 15px;
@@ -120,7 +122,7 @@ overflow: visible;
 }
 .widget_holder{
 	min-height:300px;height:fit-content; min-width:300px;width:fit-content; margin:5px;
-	display:inline-block; border-radius:20px;
+	display:inline-block; border-radius:20px; 
 }
 .widget_cluster{
 justify-content: center;display:flex;flex-wrap: wrap;

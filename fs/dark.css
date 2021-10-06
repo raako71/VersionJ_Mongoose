@@ -29,6 +29,12 @@ input[type=text]{
     background: #0e0e0e;
     color: #FFA700;
 }
+input[type=number]{
+	border:1px solid #FFA700;
+	border-radius: 5px;
+    background: #0e0e0e;
+    color: #FFA700;
+}
 .main_container{
     background-color: #090c05;
 	box-shadow: 0px 0px 10px -1px #8a7a05;
