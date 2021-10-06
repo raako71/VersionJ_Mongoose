@@ -30,12 +30,12 @@ cdefs:
   
 config_schema:
   - ["http.hidden_files", "*.json"]
-  - ["http.index_files", "s", "index.html", {title: "Comma-separated list of index files"}]
+  - ["http.index_files", "s", "index.html.gz", {title: "Comma-separated list of index files"}]
   - ["debug.level", 0]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]
   - ["fstab.fs0.opts", '{"bs": 4096}']
-  - ["fstab.fs0.path", "/mnt"]
+  - ["fstab.fs0.path", "/"]
   - ["fstab.fs0.create", true]
   - ["sntp.retry_min", "i", 10, {title: "Minimum retry interval"}]
   - ["sntp.retry_max", "i", 30, {title: "Maximum retry interval"}]
