@@ -1,8 +1,6 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.10.3b-c: test io fix<br>
-0.10.3a: add widget, add graph page, try to fix IO, and other marked in shared document
 0.10.2d-f.H: Harry CSS Changes
 0.10.2b-c: Change push button IO pins, disable relays on boot, disable WiFi LED due to solder short.
 0.10.2a: inline padding<br>

@@ -239,7 +239,6 @@ void get_wifi_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_
 void check_access_login(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void change_password(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void validate_cookie(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
-void request_widget_data(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	//dns_advert = true;
 	mg_rpc_send_responsef(ri, "OK");
@@ -330,10 +329,10 @@ static void logging_cb(void *arg){
     column[11] = (float)(rand() % 3001) * 0.01;
     column[12] = (float)(rand() % 3001) * 0.01;
     column[13] = (float)(rand() % 3001) * 0.01;
-    sensor_value[0] = column[6]; //temp
-    sensor_value[1] = column[7]; //hum
-    sensor_value[2] = column[9]; //light
-    sensor_value[3] = column[4]; //power
+    sensor_value[0] = column[6];
+    sensor_value[1] = column[7];
+    sensor_value[2] = column[9];
+    sensor_value[3] = column[4];
     contain_logging(logColumn);
     //LOG(LL_WARN, ("%s", use_contain.c_str()));
     static unsigned int psc = 0;
@@ -374,25 +373,14 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_gpio_setup_output(EN_I2C, 1);
   	mgos_gpio_setup_output(R1, 0);
   	mgos_gpio_setup_output(R2, 0);
-	mgos_gpio_setup_output(LED_RED,0);
+  	mgos_gpio_setup_output(LED_RED,0);
   	//mgos_gpio_setup_output(WIFI_LED, 0);
   	mgos_gpio_setup_output(RL_LED_EN, 0);
-  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN ); 
-	mgos_gpio_setup_input(R_PB, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_setup_input(PB1, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_setup_input(PB2, MGOS_GPIO_PULL_DOWN );
+  	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN); 
+	mgos_gpio_setup_input(R_PB, MGOS_GPIO_PULL_DOWN);
+	mgos_gpio_setup_input(PB1, MGOS_GPIO_PULL_DOWN);
+	mgos_gpio_setup_input(PB2, MGOS_GPIO_PULL_DOWN);
 
-	mgos_gpio_set_mode(PB1, MGOS_GPIO_MODE_INPUT);
-	mgos_gpio_set_mode(PB2, MGOS_GPIO_MODE_INPUT);
-	mgos_gpio_set_mode(R1, MGOS_GPIO_MODE_OUTPUT);
-  	mgos_gpio_set_mode(R2, MGOS_GPIO_MODE_OUTPUT);
-  	mgos_gpio_set_mode(R_PB, MGOS_GPIO_MODE_INPUT);
-	mgos_gpio_set_mode(RL_LED_EN, MGOS_GPIO_MODE_OUTPUT);
-	mgos_gpio_set_mode(LED_RED, MGOS_GPIO_MODE_OUTPUT);
-	
-	mgos_gpio_set_pull(PB1, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_set_pull(PB2, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_set_pull(R_PB, MGOS_GPIO_PULL_DOWN );
 	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
@@ -442,7 +430,6 @@ enum mgos_app_init_result mgos_app_init(void) {
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "dnsAdvertise", "", dns_advertise, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reqIOinfo", "", request_IO_info, NULL);
-  	mg_rpc_add_handler(mgos_rpc_get_global(), "req_widget", "", request_widget_data, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "reset_timer", "{file:%Q}", reset_timer, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "wifi.status", "", get_wifi_status, NULL);
 	mg_rpc_add_handler(mgos_rpc_get_global(), "login", "{pass:%Q}", check_access_login, NULL);
@@ -469,11 +456,6 @@ void request_IO_info(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_
 	mg_rpc_send_responsef(ri, "{prog_name: %Q, prog_state: %Q, pin_state: %Q}",prog_name_b, prog_state_b, pin_state_b);
 	free(prog_name_b); free(prog_state_b); free(pin_state_b);
 	#endif
-	(void) cb_arg;
-	(void) fi;	
-}
-void request_widget_data(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
-	mg_rpc_send_responsef(ri, "{temp:%.1f, hump:%.1f, light:%.1f, power:%.1f, A:%d, B:%d, LED:%d, IO14:%d}",sensor_value[0], sensor_value[1], sensor_value[2], sensor_value[3],prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3]);
 	(void) cb_arg;
 	(void) fi;	
 }
@@ -1872,8 +1854,6 @@ else if(main_opt == 8){ ///remote push button
 		}
 		
 	}else if(sec_opt == 0){ ///with duty cycle
-	ext_PB_state[rpb_pin-1] = 0;
-			//LOG(LL_WARN,("rpb with duty cycle"));
 		char* sec_b = NULL; char* value_b = NULL;
 		json_scanf(sec_info_b, strlen(sec_info_b), "{sec: %Q, value: %Q}", &sec_b, &value_b);
 		std::string sec = sec_b; std::string value = value_b; free(sec_b); free(value_b);
@@ -1882,46 +1862,41 @@ else if(main_opt == 8){ ///remote push button
 		int loop = sec[1] == '1'; // 0 -> is loop, 1 -> fired once
 		long on_timer = stol(value.substr(0, value.find(",")));
 		long off_timer = stol(value.substr(value.find(",")+1));
-		static int pin_state_local[3] = {0,0,0}; //timer state actually
+		static int pin_state_local = 0; //timer state actually
 		int sec_info = sec_info_b[0] - '0';
 		//determine initial
 		if(prog_timer_state[ctrl_pin-1] == 0){
-			prog_timer_state[ctrl_pin-1] = -1;//this variable is used to indicate first time //timer is idle
-			//pin_state_local[rpb_pin-1] = init;
+			prog_timer_state[ctrl_pin-1] = -2;//this variable is used to indicate first time //timer is idle
+			pin_state_local = init;
 			ext_PB_state[rpb_pin-1] = 0;
-			LOG(LL_WARN,("first time, timed cycle rpb"));
+			//LOG(LL_WARN,("first time, timed cycle rpb"));
 		}else{
 			if(ext_PB_state[rpb_pin-1] == 1){ //short push event
 				ext_PB_state[rpb_pin-1] = 0;
-			    if(rpb_pin != 3 || (rpb_pin == 3 && rpb_as_sens)){
-					if(loop == 1 && prog_timer_state[ctrl_pin-1] == 1){ //if no loop and on is working will shutdown timer
-						//pin_state_local[rpb_pin-1] = 0;
-						//reset timer
-						prog_timer_state[ctrl_pin-1] = -1;
-						mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-						LOG(LL_WARN,("timer stop no loop"));
-						pin_state = 0;
-					}else if(loop == 1 && prog_timer_state[ctrl_pin-1]== -1){ //if no loop and on is finished will reengage timer
-						///pin_state_local[rpb_pin-1] = 0;
+				if(rpb_pin == 3 && rpb_as_sens){
+					if(loop == 1){
+						pin_state_local = !init;
 						//reset timer
 						prog_timer_state[ctrl_pin-1] = -2;
-						LOG(LL_WARN,("reengage timer no loop"));
-						//pin_state = 1;
-					}else if (loop == 0){
-						if(prog_timer_state[ctrl_pin-1] != -1){//if loop and timer is working, will end timer
-							prog_timer_state[ctrl_pin-1] = -1;
-							mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-							LOG(LL_WARN,("timer stop with loop"));
-							pin_state = 0;
-						}else if(prog_timer_state[ctrl_pin-1] == -1){//if loop and timer is stopped will reengage timer
-							prog_timer_state[ctrl_pin-1] = -2;
-							LOG(LL_WARN,("reengage timer with loop"));
-						}
+						LOG(LL_WARN,("reengage timer"));
+					}else{
+						pin_state_local = !pin_state_local;
+					}
+				}else if(rpb_pin != 3){
+					if(loop == 1){
+						pin_state_local = !init;
+						//reset timer
+						prog_timer_state[ctrl_pin-1] = -2;
+						LOG(LL_WARN,("reengage timer"));
+					}else{
+						pin_state_local = !pin_state_local;
 					}
 				}
-			}//end of short push event
+			}
 		}
 		
+		if(pin_state_local != init){ //activate timer
+		//timer will be active if event push, and deactivate in the next push
 		if(prog_timer_state[ctrl_pin-1] == -2){ // is idle
 			if(on_timer != -1 && init == 1){
 				//start on timer
@@ -1936,26 +1911,38 @@ else if(main_opt == 8){ ///remote push button
 				pin_state = 0;
 			}
 		}else if(prog_timer_state[ctrl_pin-1] == 3){ // on is finished
-			if(loop == 1 || off_timer == -1){ //no loop, does not have off timer
-				//will end timer
-				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-				prog_timer_state[ctrl_pin-1] = -1;
-				pin_state = 0;				
-			}else if(loop == 0 ){ //looping and have off timer
-				prog_timer_state[ctrl_pin-1] = 2;
-				setup_timer_program(ctrl_pin, off_timer);
+			if(off_timer != -1){
+				if(init == 0 && loop == 1){ //start from low no loop -> timer stop
+					mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+					prog_timer_state[ctrl_pin-1] = -1;
+					pin_state = 0;
+				}else{
+					prog_timer_state[ctrl_pin-1] = 2;
+					setup_timer_program(ctrl_pin, off_timer);
+					pin_state = 0;	
+				}
+			}else{
 				pin_state = 0;
 			}
 		}else if(prog_timer_state[ctrl_pin-1] == 4){ //off is finished
-			if(on_timer != -1){ // has on timer, restarting on
-				prog_timer_state[ctrl_pin-1] = 1;
-				setup_timer_program(ctrl_pin, on_timer);
-				pin_state = 1;	
-			}else{ //no on timer, timer stop
-				prog_timer_state[ctrl_pin-1] = -1;
-				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-				pin_state = 0;
+			if(on_timer != -1){
+				if(init == 1 && loop == 1){ //start from on no loop -> timer stop
+					prog_timer_state[ctrl_pin-1] = -1;
+					mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+					pin_state = 0;
+				}else{
+					prog_timer_state[ctrl_pin-1] = 1;
+					setup_timer_program(ctrl_pin, on_timer);
+					pin_state = 1;	
+				}
 			}
+		}
+		
+		}//end of deactivate timer
+		else{
+			//prog_timer_state[ctrl_pin-1]= 0;
+			mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+			pin_state = 0;
 		}
 	} //end of rpb with timed cycle
 }
