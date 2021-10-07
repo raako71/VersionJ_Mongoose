@@ -1,6 +1,6 @@
 author: alifnl
-description: CSS Changes
-version: 0.10.2f.H
+description: add gauge widget and chart
+version: 0.10.3f
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -30,6 +30,7 @@ cdefs:
   
 config_schema:
   - ["http.hidden_files", "*.json"]
+  - ["http.index_files", "s", "index.html.gz", {title: "Comma-separated list of index files"}]
   - ["debug.level", 0]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]

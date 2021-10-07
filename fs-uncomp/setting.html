@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title>Socket Controller Settings</title>
-	<link id="theme" rel="stylesheet" type="text/css" href="dark.css"/>
-	<link rel="stylesheet" type="text/css" href="general.css" />
-	<script src="./login.js.gz" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css?v0.10.3f"/>
+	<link rel="stylesheet" type="text/css" href="general.css?v0.10.3f"/>
+	<script src="./login.js.gz?v0.10.3f" defer></script>
 </head>
 <body>
 <div id="overlay_save" class="overlay" style="display:none;z-index:3;">
@@ -22,11 +22,13 @@
   </div>
   <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div class="invsi_button" id="failed_button"> 
-  <input type="button" style=;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <input type="button" style="font-size:16px" value="retry" onClick="save_conf()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div class="invsi_button" id="success_button">
   <input type="button" style="font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
   <div class="invsi_button" id="relogin_button">
   <input type="button" style="font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
+  <div class="invsi_button" id="refresh_button">
+  <input type="button" style="font-size:16px;" value="refresh" onClick="off_overlay();window.location.reload(true);"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
   </div>
 </div>
 <div id="overlay_wifi" class="overlay" style="display:none;font-size:16px">
@@ -75,9 +77,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
-    <a href="#" onClick ="open_link('index.html')">Home</a>
-    <a href="#" onClick ="open_link('control_page.html')">Control Logic</a>
-    <a href="#" onClick ="open_link('setting.html')" >Settings</a>
+    <a href="/index.html?v0.10.3f">Home</a>
+	<a href="/graph.html?v0.10.3f">Graph</a>
+    <a href="/control_page.html?v0.10.3f">Control Logic</a>
+    <a href="/setting.html?v0.10.3f">Settings</a>
  </div>
  </span>
 </span>
@@ -207,9 +210,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		<br>
 		<form id="uploadform" enctype="multipart/form-data" method="POST" action="#">
 			<input type="file" name="file" id="file" style="margin-top:10px" accept=".zip" required ><br>
-			<input type= "submit" value="UPDATE" style="width:120px;margin-top:10px" id="update_file">
+			<input type= "submit" style="display:none" id="update_file" >
 		</form>
-
+		<input type= "button" value="UPDATE" style="width:120px;margin-top:10px" onClick="upload_fw()">
 
 		<div id="progress_holder" style="border-radius:10px;"></div>
 	</div>
@@ -377,8 +380,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json.static_IP_conf[0].IP = IP;
 			old_json.static_IP_conf[0].GW = GW;
 			old_json.static_IP_conf[0].SN = SN;
-			old_json.dev_mode = document.getElementById("dev_mode_en").checked;
-			if(!old_json.dev_mode){old_json.ctrl_page.LED = 0;old_json.ctrl_page.LED_prog = 0;old_json.ctrl_page.IO14 = false;}
+			var dev_mode = document.getElementById("dev_mode_en").checked;
+			if(old_json.dev_mode && !dev_mode && old_json.ctrl_page.LED == 1){old_json.ctrl_page.LED = 0;}
+			if(!old_json.dev_mode){old_json.ctrl_page.IO14 = false;}
+			old_json.dev_mode = dev_mode;
 			old_json.timezone = time_zone;
 			old_json.temp_scale = temp_mode;
 			old_json.theme = theme_mode;
@@ -442,6 +447,7 @@ function on_overlay() {
 	document.getElementById("failed_button").style.display="none";
 	document.getElementById("success_button").style.display="none";
 	document.getElementById("relogin_button").style.display="none";
+	document.getElementById("refresh_button").style.display="none";
 }
 
 function off_overlay() {
@@ -450,6 +456,7 @@ function off_overlay() {
   document.getElementById("relogin_button").style.display="none";
   document.getElementById("success_button").style.display="none";
   document.getElementById("failed_button").style.display="none";
+  document.getElementById("refresh_button").style.display="none";
   
 }
 function on_overlay_wifi(){
@@ -623,7 +630,7 @@ return quality+"%";
 //ota
 const form = document.querySelector("#uploadform");
 form.addEventListener("submit", e => {
-	
+
 	document.getElementById("progress_holder").innerHTML = '<div id="myProgress"><div id="myBar"></div>	</div><div id="status">0%</div>';
 	e.preventDefault();
 	var files = document.querySelector("[id=file]").files[0];
@@ -641,6 +648,10 @@ form.addEventListener("submit", e => {
 	};
 	xhr.onloadend = function (e) {
 		document.getElementById("status").innerHTML = "file uploaded";
+		on_overlay();
+		document.getElementById("circularG").style.display="none";
+		document.getElementById("spinner_info").innerHTML = "file uploaded!";
+		document.getElementById("refresh_button").style.display="block";
 		console.log("end");
 	}
 	xhr.addEventListener("error", function(e){
@@ -648,7 +659,24 @@ form.addEventListener("submit", e => {
 	});
 	xhr.open("POST", "/update");
 	xhr.send(data);
+	
 });
+
+function upload_fw(){
+if(!check_password()){
+	save_command_update = true;
+	on_overlay_login(2);
+	return;
+}
+validate_cookie(function(i){
+	if(i.code == 200 && i.data.status == "illegal"){save_command_update = true;on_overlay();document.getElementById("circularG").style.display = 'none';
+		document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";document.getElementById("relogin_button").style.display="block";
+		return;
+	}else if(i.code != 200){save_command_update = true;x.innerHTML = i.status;return;}
+	document.getElementById("update_file").click();
+});//validate_cookie
+save_command_update = false;
+}
 </script>
 
 <style>

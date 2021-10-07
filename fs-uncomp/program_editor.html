@@ -1,13 +1,14 @@
 <!DOCTYPE HTML>
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<head>
-	<link id="theme" rel="stylesheet" type="text/css" href="dark.css" />
-    <link rel="stylesheet" type="text/css" href="./general.css" />
-	<link rel="stylesheet" href="./dtsel.css.gz" type="text/css"/>
-	<script src="./dtsel.js.gz"></script>
+<head>	
 	<title>SC Program Editor</title>
-	<script src="./login.js.gz" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css?v0.10.3f"/>
+    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3f" />
+	<script src="./login.js?v0.10.3f" defer></script>
+	<link rel="stylesheet" href="./picker.css.gz" type="text/css"/>
+	<script src="./picker.js.gz"></script>
+	
 </head>
 <body>
 <div id="overlay_save" class="overlay" style="display:none;">
@@ -24,11 +25,11 @@
   </div>
   <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div class="invsi_button" id="failed_button"> 
-  <input type="button" style="width:75px;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <input type="button" style="font-size:16px" value="retry" onClick="save_conf()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div class="invsi_button" id="success_button">
-  <input type="button" style="width:75px;font-size:16px" value="OK" onClick="blabla()"></div>
+  <input type="button" style="font-size:16px" value="OK" onClick="blabla()"></div>
   <div class="invsi_button" id="relogin_button">
-  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
+  <input type="button" style="font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
   </div>
 </div>
 <!--overlay login-->
@@ -60,9 +61,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
-    <a href="#" onClick ="open_link('index.html')">Home</a>
-    <a href="#" onClick ="open_link('control_page.html')">Control Logic</a>
-    <a href="#" onClick ="open_link('setting.html')" >Settings</a>
+    <a href="/index.html?v0.10.3f">Home</a>
+	<a href="/graph.html?v0.10.3f">Graph</a>
+    <a href="/control_page.html?v0.10.3f">Control Logic</a>
+    <a href="/setting.html?v0.10.3f">Settings</a>
  </div>
  </span>
 </span>
@@ -175,6 +177,7 @@ Start Date
   <option value=2>B</option>
   <option value=3>LED RED</option>
   <option value=4>IO14</option>
+  <option value=5>null</option>
 </select> &nbsp;<span id="output_warning" style="color:red;cursor:pointer; display:none" > (!)</span> <span id="warning_message"> Output Disabled</span>
 </div>
 
@@ -202,11 +205,11 @@ Start Date
 
 </div>
 <input type="button" style="margin: 15px auto;" value="SAVE" onClick="save_setting()"> 
-<input type="button" onClick="location.href = '/control_page.html';" value="BACK">
+<input type="button" onClick="location.href = '/control_page.html?v0.10.3f';" value="BACK">
 </body>
 <script>
 var LED_opt_global;
-var IO14_opt_global;
+var IO14_opt_global; var rpb_as_sense;
 load_ctrl_action();
 var program2load = getUrlParam('x','Empty');
 var idprogram = getUrlParam('y','Empty');
@@ -265,8 +268,14 @@ function toggle(input){
 		if(input == "on_time" || input == "off_time"){
 		document.getElementById(input + "_container").innerHTML = '<input type="time" id="'+input+'_val">';
 		}else{
-		document.getElementById(input+"_container").innerHTML = '<input type="text" name="dateTimePicker" style="height:16px;display:inline" id='+input+'></span>';
-		instance = new dtsel.DTS('input[id='+input+']',  {direction: 'BOTTOM',dateFormat: "yyyy-mm-dd", showTime: true,showDate: true});}
+		document.getElementById(input+"_container").innerHTML = '<input type="text" name="dateTimePicker" style="height:16px;display:inline" id='+input+' readOnly></span>';
+		var b = input.split("_");
+		new Picker(document.querySelector('#' + input), {
+			format: 'YYYY-MM-DD, HH:mm:ss',
+			headers: true,
+			text:{title: b[0]+ ' ' +b[1]}
+		});
+		}
 	}else{
 		document.getElementById(input+"_container").innerHTML = '';
 	}
@@ -306,7 +315,7 @@ function toggle_cond(input, name){
 	}
 	div_add_condition += ' </select> &nbsp;<select id="sec_comp_'+name+'"><option value=1> ></option><option value=2> < </option></select>';
 	div_add_condition += '&nbsp;<input type="text" id="sec_value_'+name+'" style="width:100px"> <span id="output_status_sec_on_holder" style="display:none; margin-left:-5px">is&nbsp; ';
-	div_add_condition += '<select id="action_E_sec_value_on"><option value=1>Switched On</option><option value=2>Switched Off</option></select></span></div>';
+	div_add_condition += '<select id="action_E_sec_value_on" onChange="load_os_sens_on(this.value)"><option value=1>Switched On</option><option value=2>Switched Off</option></select></span></div>';
 	div_add_condition += '<span style="display:block" id="sec_dc"></span>';
 	var a = input.value;
 	var holder = document.getElementById("sec_cond_"+name+"_holder");
@@ -331,14 +340,12 @@ function toggle_cond(input, name){
 		holder_off.innerHTML = "";
 	}	
 }
-function load_output_status_sec(input){
-input = input == 1 ? 2 : 1;
-document.getElementById("action_E_pri_opt_off").value = input;
-}
-function load_output_status_pri(input){
-input = input == 1 ? 2 : 1;
-document.getElementById("action_E_pri_opt_on").value = input;
-}
+function load_output_status_sec(input){input = input == 1 ? 2 : 1;document.getElementById("action_E_pri_opt_off").value = input;}
+function load_output_status_pri(input){input = input == 1 ? 2 : 1;document.getElementById("action_E_pri_opt_on").value = input;}
+function load_os_sens_on(input){input = input == 1 ? 2 : 1;document.getElementById("action_E_sec_value_off").value = input;}
+function load_os_sens_off(input){input = input == 1 ? 2 : 1;document.getElementById("action_E_sec_value_on").value = input;}
+
+
 function load_sec_off_trigger(input){//for action A secondary
 var holder_off = document.getElementById("sec_cond_off_holder");
 var a = document.getElementById("sec_value_on");
@@ -377,9 +384,10 @@ holder_off.innerHTML = div_add_condition_off;
 setInputFilter(document.getElementById("sec_value_off"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 setInputFilter(document.getElementById("sec_value_on"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 }else{
-div_add_condition_off += '&nbsp; <span id="sec_trigger_off" style="font-size:15px"></span>&nbsp; is <span id="sec_trigger_off" style="font-size:15px"></span><select id="action_E_sec_value_off"><option value=1>Switched On</option><option value=2>';
+div_add_condition_off += '&nbsp; <span id="sec_trigger_off" style="font-size:15px"></span>&nbsp; is <span id="sec_trigger_off" style="font-size:15px"></span><select id="action_E_sec_value_off" onChange="load_os_sens_off(this.value)"><option value=1>Switched On</option><option value=2>';
 div_add_condition_off += 'Switched Off</option></select></div>';
 holder_off.innerHTML = div_add_condition_off;
+load_os_sens_on(document.getElementById("action_E_sec_value_on").value);
 }
 var a = array[input.value - 1]; document.getElementById("sec_trigger_off").innerHTML = a;
 
@@ -474,6 +482,7 @@ function load_ctrl_action(){
 		el.innerHTML = action_B;
 	}else if (selection == 8){
 		el.innerHTML = action_D;
+		if(rpb_as_sense==false){ document.getElementById("input_remote").remove(2);}
 		load_action_D_sec(document.getElementById("action_D_selector"));
 	}else if(selection == 9){
 		el.innerHTML = action_E;
@@ -787,18 +796,25 @@ if(k >= 1 && k <= 4){
 old_json.control_trigger[0].main_info = m;
 old_json.control_trigger[0].sec_option = n;
 old_json.control_trigger[0].sec_info = y;
-console.log(JSON.stringify(old_json.control_trigger));
 return old_json;
 }
 
 function save_conf(){
 save_command = true;if(!check_password()){on_overlay_login(2);return;}
 var old_json = {"id": idprogram, "name":"", "en":false, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "", "off_time_global":""
-,"control_opt": "","control_trigger":[{"main_option": 1, "main_info": "", "sec_option": -1, "sec_info":""}]};
+,"control_opt": "","control_trigger":[{"main_option": 1, "main_info": "", "sec_option": -1, "sec_info":""}], "setting":""};
 old_json = build_save_json(old_json);
 on_overlay();
 document.getElementById("circularG").style.display = 'block';
 document.getElementById("spinner_info").innerHTML = "Saving..";
+var z1 = old_json.control_trigger[0].main_option;
+var z2 = old_json.control_trigger[0].sec_option;
+if((z1 >= 1 && z1 <= 4) || (z1 == 9 && z2 != -1)){
+old_json.setting = {type:1, gauge1:{max:1000, min: 0, esz: false, evl: false ,upval:-1, loval:-1, ucolor:"-1", lcolor:"-1"}, 
+gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ucolor:"-1", lcolor:"-1"}};
+}else{
+old_json.setting = "";
+}
 validate_cookie(function(i){
 	if(i.code == 200 && i.data.status == "illegal"){
 		save_command = true;
@@ -876,6 +892,8 @@ var data = JSON.parse(this.responseText);
 var old_json = JSON.parse(window.atob(data.data));
 var a = old_json.ctrl_page.LED;
 var b = old_json.ctrl_page.IO14;
+var c = old_json.ctrl_page.sensor_input;
+rpb_as_sense = c;
 LED_opt_global = a;
 IO14_opt_global = b;
 var c = document.getElementById("ctrl_out_opt");
@@ -1049,6 +1067,7 @@ function parse_config(input){
 		document.getElementById("sec_operator_off").value = soff[0];
 		document.getElementById("action_E_sec_value_off").value = soff[2];
 		}
+		load_os_sens_on(son[2]);
 	}
 	}		
 	}else if(a == 6){

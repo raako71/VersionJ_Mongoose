@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title>Socket Controller Control Logic</title>
-	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css"/>
-    <link rel="stylesheet" type="text/css" href="./general.css" />
-	<script src="./login.js.gz" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.3f"/>
+    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3f" />
+	<script src="./login.js.gz?v0.10.3f" defer></script>
 </head>
 <body>
 <div id="overlay_save" class="overlay" style="display:none;">
@@ -22,11 +22,11 @@
   </div>
   <div style="margin-top:30px;font-size:20px" id="spinner_info"> Saving.. </div>
   <div class="invsi_button" id="failed_button"> 
-  <input type="button" style="width:75px;font-size:16px" value="retry" onClick="save_conf()"> <input style="width:75px;font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
+  <input type="button" style="font-size:16px" value="retry" onClick="save_conf()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>
   <div class="invsi_button" id="success_button">
-  <input type="button" style="width:75px;font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
+  <input type="button" style="font-size:16px" value="OK" onClick="off_overlay();load_conf();"></div>
   <div class="invsi_button" id="relogin_button">
-  <input type="button" style="width:75px;font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
+  <input type="button" style="font-size:16px;" value="OK" onClick="off_overlay();on_overlay_login(2);"></div>
   </div>
 </div>
 <!--overlay login-->
@@ -58,9 +58,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
-    <a href="#" onClick ="open_link('index.html')">Home</a>
-    <a href="#" onClick ="open_link('control_page.html')">Control Logic</a>
-    <a href="#" onClick ="open_link('setting.html')" >Settings</a>
+    <a href="/index.html?v0.10.3f">Home</a>
+	<a href="/graph.html?v0.10.3f">Graph</a>
+    <a href="/control_page.html?v0.10.3f">Control Logic</a>
+    <a href="/setting.html?v0.10.3f">Settings</a>
  </div>
  </span>
 </span>
@@ -459,11 +460,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	
 	function fetch_IO_status(){
 		var xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "/rpc/reqIOinfo", true);
+		xhttp.open("POST", "/rpc/req_widget", true);
 		xhttp.setRequestHeader('Content-Type', 'application/json');
 		xhttp.send();
 		xhttp.onload = function(){
 			var json_data = JSON.parse(xhttp.responseText);
+			json_data = json_data.IO_info;
 			var a_el = document.getElementById("relay1_sta");
 			var b_el = document.getElementById("relay2_sta");
 			var c_el = document.getElementById("IO14_sta");
@@ -474,6 +476,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			var d1_el = document.getElementById("led_prog");
 			var pin_state = json_data.pin_state
 			var prog_name = json_data.prog_name;
+			prog_name = prog_name.split(",");
 			var prog_state = json_data.prog_state;
 			var prog_state1;
 			var prog_state2;
@@ -481,41 +484,36 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			var prog_state4;
 			if(prog_state[0] == '1'){
 			a1_el.className = "on_label";
-			prog_state1 = "Active: ";
+			prog_state1 = program_list[prog_name[0]-1].name + " ";
 			}else{
 			var a = (prog_state[0] == '2') ? "Scheduled" : "Inactive";
 			a1_el.className = "off_label_prog";
-			prog_state1 = a+": ";
+			prog_state1 = a+" ";
 			}
 			if(prog_state[1] == '1'){
 			b1_el.className = "on_label";
-			prog_state2 = "Active: ";
+			prog_state2 = program_list[prog_name[1]-1].name + " ";
 			}else{
 			var a = (prog_state[1] == '2') ? "Scheduled" : "Inactive";
 			b1_el.className = "off_label_prog";
-			prog_state2 =  a+": ";
+			prog_state2 =  a+" ";
 			}
 			if(prog_state[2] == '1'){
 			d1_el.className = "on_label";
-			prog_state3 = "Active: ";
+			prog_state3 = program_list[prog_name[2]-1].name + " ";
 			}else{
 			var a = (prog_state[2] == '2') ? "Scheduled" : "Inactive";
 			d1_el.className = "off_label_prog";
-			prog_state3 =  a+": ";
+			prog_state3 =  a+" ";
 			}
 			if(prog_state[3] == '1'){
-			prog_state4 = "Active: ";
+			prog_state4 = program_list[prog_name[3]-1].name + " ";
 			c1_el.className = "on_label";
 			}else{
 			var a = (prog_state[3] == '2') ? "Scheduled" : "Inactive";
 			c1_el.className = "off_label_prog";
-			prog_state4 = a+": ";
+			prog_state4 = a+" ";
 			}
-			var a = prog_name.split(",");
-			if(a[0] != -1){ prog_state1 += program_list[a[0]-1].name;}
-			if(a[1] != -1){ prog_state2 += program_list[a[1]-1].name;}
-			if(a[2] != -1){ prog_state3 += program_list[a[2]-1].name;}
-			if(a[3] != -1){ prog_state4 += program_list[a[3]-1].name;}
 			
 			a1_el.innerHTML = prog_state1;
 			b1_el.innerHTML = prog_state2;
@@ -524,34 +522,34 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			
 			if(pin_state[0] == '1'){
 				a_el.className = "on_label";
-				a_el.innerHTML = "Output Switched: ON";
+				a_el.innerHTML = "Output: ON";
 			}else{
 				a_el.className = "off_label";
-				a_el.innerHTML = "Output Switched: OFF";
+				a_el.innerHTML = "Output: OFF";
 			}
 			if(pin_state[1] == '1'){
 				b_el.className = "on_label";
-				b_el.innerHTML = "Output Switched: ON";
+				b_el.innerHTML = "Output: ON";
 			}else{
 				b_el.className = "off_label";
-				b_el.innerHTML = "Output Switched: OFF";
+				b_el.innerHTML = "Output: OFF";
 			}
 			if(pin_state[3] == 1){
 				c_el.className = "on_label";
-				c_el.innerHTML = "Output Switched: ON";
+				c_el.innerHTML = "Output: ON";
 			}else{
 				c_el.className = "off_label";
-				c_el.innerHTML = "Output Switched: OFF";
+				c_el.innerHTML = "Output: OFF";
 			}
 			if(pin_state[2] == 1){
 				d_el.className = "on_label";
-				d_el.innerHTML = "Output Switched: ON";
+				d_el.innerHTML = "Output: ON";
 			}else if(pin_state[2] == 2){
 				d_el.className = "off_label";
-				d_el.innerHTML = "Scheduled: Glowing";
+				d_el.innerHTML = "Scheduled";
 			}else if(pin_state[2] == 0){
 				d_el.className = "off_label";
-				d_el.innerHTML = "Output Switched: OFF ";
+				d_el.innerHTML = "Output: OFF ";
 			}
 		}
 	}
