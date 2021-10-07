@@ -81,7 +81,12 @@ libs:
 
 
 build_vars:
-  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K
+  ESP_IDF_SDKCONFIG_OPTS: >
+    ${build_vars.ESP_IDF_SDKCONFIG_OPTS} 
+      CONFIG_ESPTOOLPY_FLASHSIZE_4MB=
+      CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+      CONFIG_ESPTOOLPY_FLASHSIZE=16MB
+  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,12288K
 
 # Used by the mos tool to catch mos binaries incompatible with this file format
 manifest_version: 2017-09-29
