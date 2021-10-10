@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title>Socket Controller</title>
-	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.3f"/>
-    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3f" />
-	<script src="./login.js.gz?v0.10.3f" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.3g"/>
+    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3g" />
+	<script src="./login.js.gz?v0.10.3g" defer></script>
 	<script src="./gauge.min.js.gz"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 	<script type="text/javascript" src="https://d3js.org/d3-dsv.v1.min.js"></script>
@@ -44,10 +44,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
-    <a href="/index.html?v0.10.3f">Home</a>
-	<a href="/graph.html?v0.10.3f">Graph</a>
-    <a href="/control_page.html?v0.10.3f">Control Logic</a>
-    <a href="/setting.html?v0.10.3f">Settings</a>
+    <a href="/index.html?v0.10.3g">Home</a>
+	<a href="/graph.html?v0.10.3g">Graph</a>
+    <a href="/control_page.html?v0.10.3g">Control Logic</a>
+    <a href="/setting.html?v0.10.3g">Settings</a>
  </div>
  </span>
 </span>
@@ -92,8 +92,8 @@ var program_list = [{"id": "","name": "", "output":"", "var1":"", "var2":"", "in
 					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}];
 
 var opts = {
-   angle: -0.25,
-      lineWidth: 0.2,
+   angle: 0.18,
+      lineWidth: 0.27,
       radiusScale:0.9,
       pointer: {
         length: 0.6,
@@ -176,7 +176,7 @@ function fetch_program_list(){
 				text += "<canvas id=\"gaugecanvas_"+i +"_" + v + "\" height=\"150\" width=\"300\"> </canvas>";
 				sens += "<div class=\"widget_place\">" + text + "</div>";
 				init_gauge1 = true;
-			}
+			}	
 		    text = "";
 			if(w >= 1 && w <= 4){
 				if(program_list[i-1].setting.type == 1){
@@ -212,7 +212,7 @@ function fetch_program_list(){
 				var set = {number:0, name1:"", name2:""};
 				if(init_gauge1){set.name1 = sens_list[v-1]; set.number = set.number+1;}
 				if(init_gauge2){set.name2 = sens_list[w-1]; set.number = set.number+1;}
-				initiate_graph(i,1,set);
+				initiate_graph(i,v,set);
 			}
 		}else if(v == 6){
 			var v1 = parse_timer(JSON.parse(x), "off");var DC='<div class="widget_place">';if(v1 != ""){DC += '<br>Off for ' + v1;}v1 = parse_timer(JSON.parse(x), "on");
@@ -250,7 +250,7 @@ function fetch_program_list(){
 			if(w != -1 && program_list[i-1].setting.type == 1){initiate_gauge(i, w, program_list[i-1].setting.gauge2);}
 			if(w != -1 && program_list[i-1].setting.type == 2){
 				var set = {number:1, name1:"", name2:sens_list[w-1]};
-				initiate_graph(i,1,set);
+				initiate_graph(i,w,set);
 			}
 		}
 	}// not null
@@ -281,13 +281,13 @@ if(setting.evl){
 	var labels_local;
 	if(setting.esz){ labels_local = [Number(setting.min), Number(setting.loval), Number(setting.upval), Number(setting.max)];}
 	else{labels_local = [Number(setting.min), Number(setting.max)];}
-	var staticLabels = {font: "10px sans-serif", labels: labels_local, fractionDigits: 0, color: ((theme_global == 2) ? "#FFA700" : "black")}
+	var staticLabels = {font: "11px sans-serif", labels: labels_local, fractionDigits: 0, color: ((theme_global == 2) ? "#FFA700" : "black")}
 	x.staticLabels = staticLabels;
 }
 if(setting.esz){
-x.staticZones = [{strokeStyle: setting.lcolor, min: Number(setting.min), max: Number(setting.loval)}, {strokeStyle: "yellow", min: Number(setting.loval), max: Number(setting.upval)}, {strokeStyle: setting.ucolor, min: Number(setting.upval), max: Number(setting.max)}];
+x.staticZones = [{strokeStyle: setting.ocolor, min: Number(setting.min), max: Number(setting.loval)}, {strokeStyle: setting.icolor, min: Number(setting.loval), max: Number(setting.upval)}, {strokeStyle: setting.ocolor, min: Number(setting.upval), max: Number(setting.max)}];
 }else{
-x.staticZones = [{strokeStyle: "yellow", min: setting.min, max: setting.max}];
+x.staticZones = [{strokeStyle: setting.icolor, min: setting.min, max: setting.max}];
 }
 eval('gauge_' + progid + "_" + ctrl + "=new Gauge(document.getElementById(\"gaugecanvas_"+progid+"_"+ctrl+"\")).setOptions(x)");
 //eval('gauge_' + progid + "_" + ctrl + ".setTextField(document.getElementById(\"gaugetxt_"+progid+"_"+ctrl+"\"))");
@@ -449,12 +449,12 @@ var g = document.getElementById("label_enable_1");
 var h = document.getElementById("label_enable_2");
 var i1 = document.getElementById("gauge1_loval");
 var j1 = document.getElementById("gauge1_upval");
-var k1 = document.getElementById("gauge1_lcolor");
-var l1 = document.getElementById("gauge1_ucolor");
+var k1 = document.getElementById("gauge1_icolor");
+var l1 = document.getElementById("gauge1_ocolor");
 var i2 = document.getElementById("gauge2_loval");
 var j2 = document.getElementById("gauge2_upval");
-var k2 = document.getElementById("gauge2_lcolor");
-var l2 = document.getElementById("gauge2_ucolor");
+var k2 = document.getElementById("gauge2_icolor");
+var l2 = document.getElementById("gauge2_ocolor");
 //load based on main_opt and sec_opt
 if( program_list[input-1].var1 >= 1 && program_list[input-1].var1 <= 4){
 setInputFilter(document.getElementById("min_val1"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
@@ -463,7 +463,7 @@ setInputFilter(document.getElementById("gauge1_loval"), function(value) {  retur
 setInputFilter(document.getElementById("gauge1_upval"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 a.value = set.gauge1.max;b.value = set.gauge1.min;
 e.checked = set.gauge1.esz;g.checked = set.gauge1.evl;
-i1.value = set.gauge1.loval; j1.value = set.gauge1.upval; k1.value = set.gauge1.lcolor; l1.value = set.gauge1.ucolor;
+i1.value = set.gauge1.loval; j1.value = set.gauge1.upval; k1.value = set.gauge1.icolor; l1.value = set.gauge1.ocolor;
 static_zone_loader(e.checked, 1);
 }
 if((program_list[input-1].var1 == 9 && program_list[input-1].var2 != -1) || (program_list[input-1].var2 >= 1 && program_list[input-1].var2 <= 4)){
@@ -472,7 +472,7 @@ setInputFilter(document.getElementById("max_val2"), function(value) {  return /^
 setInputFilter(document.getElementById("gauge2_loval"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 setInputFilter(document.getElementById("gauge2_upval"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 c.value = set.gauge2.max;d.value = set.gauge2.min;
-i2.value = set.gauge2.loval; j2.value = set.gauge2.upval; k2.value = set.gauge2.lcolor; l2.value = set.gauge2.ucolor;
+i2.value = set.gauge2.loval; j2.value = set.gauge2.upval; k2.value = set.gauge2.icolor; l2.value = set.gauge2.ocolor;
 f.checked = set.gauge2.esz;h.checked = set.gauge2.evl;
 static_zone_loader(f.checked, 2);
 }
@@ -492,13 +492,13 @@ if(v != 9){
 ret += '<div style="display:inline-block;width:45%;font-size:13px;margin:10px"><b>'+trigger[v-1]+ '</b><br>';
 ret += 'min value: <input type="text" id = "min_val1" style="width:60px"><br>';
 ret += 'max value: <input type="text" id = "max_val1" style="width:60px"><br>';
+ret += 'inside bounds color: <input type="text" id="gauge1_icolor" style="width:50px"><br>';
 ret += '<table style="margin-top:5px"><td><label class="mini_switch"><input onchange="static_zone_loader(this.checked, 1)" type="checkbox" id="static_enable_1"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Enable static zones:</td></table>';
 ret += '<div style="display:none; margin-top:10px;margin-bottom:10px" id="static_setting_1">';
 ret += 'lower range: <input type="text" id="gauge1_loval" style="width:60px"><br>';
 ret += 'upper range: <input type="text" id="gauge1_upval" style="width:60px"><br>';
-ret += 'inside bounds color: <input type="text" id="gauge1_lcolor" style="width:50px"><br>';
-ret += 'outside bounds color: <input type="text" id="gauge1_ucolor" style="width:50px"><br>';
+ret += 'outside bounds color: <input type="text" id="gauge1_ocolor" style="width:50px"><br>';
 ret += '</div>'; // enable static zone
 ret += '<table><td><label class="mini_switch"><input type="checkbox" id="label_enable_1"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Value Labels:</td></table>';
@@ -516,13 +516,13 @@ if( w>= 1 && w <= 4){
 ret += '<div style="display:inline-block;width:45%;font-size:13px;margin:10px"><b>'+trigger[w-1]+'</b><br>';
 ret += 'min value: <input type="text" id="min_val2" style="width:60px"><br>';
 ret += 'max value: <input type="text" id="max_val2" style="width:60px"><br>';
+ret += 'inside bounds color: <input type="text" id="gauge2_icolor" style="width:50px"><br>';
 ret += '<table style="margin-top:5px"><td><label class="mini_switch"><input onchange="static_zone_loader(this.checked, 2)" type="checkbox" id="static_enable_2"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Enable static zones:</td></table>';
 ret += '<div style="display:none; margin-top:10px;margin-bottom:10px" id="static_setting_2">';	
 ret += 'lower range: <input type="text" id="gauge2_loval" style="width:60px"><br>';
 ret += 'upper range: <input type="text" id="gauge2_upval" style="width:60px"><br>';
-ret += 'inside bounds color: <input type="text" id="gauge2_lcolor" style="width:50px"><br>';
-ret += 'outside bounds color: <input type="text" id="gauge2_ucolor"  style="width:50px"><br>';
+ret += 'outside bounds color: <input type="text" id="gauge2_ocolor"  style="width:50px"><br>';
 ret += '</div>'; // enable static zone
 ret += '<table><td><label class="mini_switch"><input type="checkbox" id="label_enable_2"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Value Labels:</td></table>';
@@ -569,12 +569,12 @@ function save_widget_setting(id){
 	var h = document.getElementById("label_enable_2");
 	var i1 = document.getElementById("gauge1_loval");
 	var j1 = document.getElementById("gauge1_upval");
-	var k1 = document.getElementById("gauge1_lcolor");
-	var l1 = document.getElementById("gauge1_ucolor");
+	var k1 = document.getElementById("gauge1_icolor");
+	var l1 = document.getElementById("gauge1_ocolor");
 	var i2 = document.getElementById("gauge2_loval");
 	var j2 = document.getElementById("gauge2_upval");
-	var k2 = document.getElementById("gauge2_lcolor");
-	var l2 = document.getElementById("gauge2_ucolor");
+	var k2 = document.getElementById("gauge2_icolor");
+	var l2 = document.getElementById("gauge2_ocolor");
 	
 	var old_json;
 	//verification before everything
@@ -583,15 +583,17 @@ function save_widget_setting(id){
 	if( a != null){ 
 	if( a.value == ""){info.innerHTML = "gauge 1 max value cannot be empty"; return;}
 	if( c.value == ""){info.innerHTML = "gauge 1 min value cannot be empty"; return;}
+	if(k1.value == ""){info.innerHTML = "gauge 1 inside color cannot be empty"; return;}
 	if(e.checked){
-	if(i1.value == "" ||j1.value == "" || k1.value == "" || l1.value == ""){info.innerHTML = "gauge 1 static zone setting is not complete"; return;}
+	if(i1.value == "" ||j1.value == "" || l1.value == ""){info.innerHTML = "gauge 1 static zone setting is not complete"; return;}
 	}
 	}
 	if( b != null){
 	if( b.value == ""){info.innerHTML = "gauge 2 max value cannot be empty"; return;}
 	if( d.value == ""){info.innerHTML = "gauge 2 min value cannot be empty"; return;}
+	if(k2.value == ""){info.innerHTML = "gauge 2 inside color cannot be empty"; return;}
 	if(f.checked){
-	if(i2.value == "" ||j2.value == "" || k2.value == "" || l2.value == ""){info.innerHTML = "gauge 2 static zone setting is not complete"; return;}
+	if(i2.value == "" ||j2.value == "" || l2.value == ""){info.innerHTML = "gauge 2 static zone setting is not complete"; return;}
 	}
 	}//a != null
 	/*if(!check_password()){
@@ -616,8 +618,8 @@ function save_widget_setting(id){
 			return;
 		}*/
 	
-	var set = {type:1, gauge1:{max:1000, min: 0, upval:-1, loval:-1, ucolor:"-1", lcolor:"-1", max_label:"", min_label:"", llabel:"", ulabel:""}, 
-	gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ucolor:"-1", lcolor:"-1", max_label:"", min_label:"", llabel:"", ulabel:""}};
+	var set = {type:1, gauge1:{max:1000, min: 0, upval:-1, loval:-1, ocolor:"-1", icolor:"-1", max_label:"", min_label:"", llabel:"", ulabel:""}, 
+	gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ocolor:"-1", icolor:"-1", max_label:"", min_label:"", llabel:"", ulabel:""}};
 	if(a != null){set.gauge1.max = a.value;}
 	if(b != null){set.gauge2.max = b.value;}
 	if(c != null){set.gauge1.min = c.value;}
@@ -628,12 +630,12 @@ function save_widget_setting(id){
 	if(h != null){set.gauge2.evl = h.checked;}
 	if(i1 != null){set.gauge1.loval = i1.value;}
 	if(j1 != null){set.gauge1.upval = j1.value;}
-	if(k1 != null){set.gauge1.lcolor = k1.value;}
-	if(l1 != null){set.gauge1.ucolor = l1.value;}
+	if(k1 != null){set.gauge1.icolor = k1.value;}
+	if(l1 != null){set.gauge1.ocolor = l1.value;}
 	if(i2 != null){set.gauge2.loval = i2.value;}
 	if(j2 != null){set.gauge2.upval = j2.value;}
-	if(k2 != null){set.gauge2.lcolor = k2.value;}
-	if(l2 != null){set.gauge2.ucolor = l2.value;}
+	if(k2 != null){set.gauge2.icolor = k2.value;}
+	if(l2 != null){set.gauge2.ocolor = l2.value;}
 	if(z != null){set.type = z.value;}
 	info.innerHTML = spinner_load;
 	xhr_send("FS.get", JSON.stringify({filename:"program"+id+".json"}), function(i){

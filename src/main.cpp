@@ -109,7 +109,6 @@ const char* list_prog_name[10] = {"program1.json", "program2.json", "program3.js
 int prog_pin_state[4] = {0,0,0,0}; //A, B, C, D ->indicate pin output status
 int prog_timer_state[4] = {0,0,0,0}; //indicate if timer is on or off or idle; 0 -> idle, 1-> on is working, 2 -> off is working
 									 // 3 -> on is finished, 4-> off is finished
-int prog_override = -1; //-1 means no override, 0 override to shut-off, 1 override to turn on
 bool prog_override_en = 0;
 mgos_timer_id prog_timer_id[4];
 mgos_timer_id prog_led_timer;
@@ -189,7 +188,7 @@ int read_RPB_button();
 void check_override_func();
 unsigned long randomGen();
 void led_red_ctrl_asprog(void *arg);
-
+void modify_program_en(const char* file_name, bool value);
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
 	mgos_clear_timer(prog_timer_id[0]);
@@ -1475,26 +1474,21 @@ void check_override_func(){
 		}
 	}else{
 		prog_override_en = false;
-		prog_override = -1;
 	}
 	
-	if(ext_PB_state[2] == 2 && rpb_as_ovr){ //long push event// check override function
+	if(ext_PB_state[2] == 2 && rpb_as_ovr && prog_override_en){ //long push event// check override function
 		ext_PB_state[2] = 0;
-		//check what the prog_override_en is on
-		int prog_now = -1;
-		for(int i = 0; i < 4; i++){
-			if(prog_link_name[i] == rpb_ovr_prog){prog_now = i; break;}
+		//check current program en value
+		bool prog_en_local =false; int buff =0;
+		check_program_en(list_prog_name[rpb_ovr_prog-1], prog_en_local, buff);
+		if(prog_en_local == true){
+			LOG(LL_WARN,("Program overriden: %d off", rpb_ovr_prog));
+			modify_program_en(list_prog_name[rpb_ovr_prog-1], false);
+		}else{
+			LOG(LL_WARN,("Program overriden: %d on", rpb_ovr_prog));
+			modify_program_en(list_prog_name[rpb_ovr_prog-1], true);
 		}
-		if(prog_override_en && prog_now != -1){
-			//check current program state
-			if(prog_link_state[rpb_ovr_prog-1] == 1){
-				LOG(LL_WARN,("Program overriden: %d off", rpb_ovr_prog));
-				prog_override = 0;
-			}else if(prog_link_state[rpb_ovr_prog-1] == 0){
-				LOG(LL_WARN,("Program overriden: %d on", rpb_ovr_prog));
-				prog_override = 1;
-			}
-		}
+		
 	}
 }
 void check_program_name(){ //check which output linked to program (id) and check its state
@@ -1513,12 +1507,14 @@ for (int i = 0; i < 10; i++){
 			if(prog_link_name[prog_output-1] == -1 || prog_link_name[prog_output-1] > i+1){
 				prog_link_name[prog_output-1] = i+1;
 				//check program state
-				if(prog_override == -1){
+				prog_link_state[prog_output-1] = check_program_state(list_prog_name[i]);
+				
+				/*if(prog_override == -1){
 					prog_link_state[prog_output-1] = check_program_state(list_prog_name[i]);
 				}else if(rpb_ovr_prog-1 == i){
 					prog_link_state[prog_output-1] = prog_override;
-				}
-				//prog_link_state[prog_output-1] = (prog_override != -1) ? check_program_state(list_prog_name[i]) : prog_override;
+				}*/
+			
 				//check if IO14 en or not
 				if((prog_output == 4 && IO14_en == false) ){
 					prog_link_state[prog_output-1] = 0;
@@ -2221,4 +2217,19 @@ int read_RPB_button() { // read button if there is logic change
 unsigned long randomGen(){
 	srand(time(NULL));
 	return rand()*(rand()%222);
+}
+
+
+void modify_program_en(const char* file_name, bool value){
+	const char *tmp_file_name = "tmp.json";
+	char *content = (char*) malloc(1024);
+	content = json_fread(file_name);
+	FILE *fp = fopen(tmp_file_name, "w");
+	struct json_out out = JSON_OUT_FILE(fp);
+	json_setf(content, strlen(content), &out, ".en", "%B", value);
+	fclose(fp);
+	json_prettify_file(tmp_file_name);  // Optional
+	remove(file_name);
+	rename(tmp_file_name, file_name);
+	free(content);
 }
