@@ -125,10 +125,13 @@ overflow: visible;
 	display:inline-block; border-radius:20px; 
 }
 .widget_cluster{
-justify-content: center;display:flex;flex-wrap: wrap;
+justify-content: center;flex-wrap: wrap;
 }
 .widget_place{
 	display:inline-block; width:300px; min-height:150px;height:fit-content;
+}
+.widget_place_block{
+	display:block; width:300px; min-height:75px;height:fit-content;
 }
 .top_panel::after{
   content: "";
@@ -143,7 +146,14 @@ justify-content: center;display:flex;flex-wrap: wrap;
     margin: 10px;
     border-width: 1px;
 }
-
+.on_label{
+	background-color: green;
+	color:white;
+}
+.off_label{
+	background-color: red;
+	color: white;
+}
 /* Shout out http://cssload.net */
 #circularG{
 	position:relative;

@@ -1,6 +1,6 @@
 author: alifnl
 description: adjustment from shared document
-version: 0.10.3g
+version: 0.10.4
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
