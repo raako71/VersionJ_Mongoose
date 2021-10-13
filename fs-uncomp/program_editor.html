@@ -5,7 +5,7 @@
 	<title>SC Program Editor</title>
 	<link id="theme" rel="stylesheet" type="text/css" href="dark.css?v0.10.3f"/>
     <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3f" />
-	<script src="./login.js?v0.10.3f" defer></script>
+	<script src="./login.js.gz?v0.10.3f" defer></script>
 	<link rel="stylesheet" href="./picker.css.gz" type="text/css"/>
 	<script src="./picker.js.gz"></script>
 	
@@ -60,11 +60,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
+    <a href="/index.html?v0.10.4">Home</a>
+	<a href="/graph.html?v0.10.4">Graph</a>
+    <a href="/control_page.html?v0.10.4">Control Logic</a>
+    <a href="/setting.html?v0.10.4">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
-    <a href="/index.html?v0.10.3f">Home</a>
-	<a href="/graph.html?v0.10.3f">Graph</a>
-    <a href="/control_page.html?v0.10.3f">Control Logic</a>
-    <a href="/setting.html?v0.10.3f">Settings</a>
  </div>
  </span>
 </span>
@@ -191,7 +191,7 @@ Start Date
   <option value=5>MQTT Client</option>
   <option value=6>Timed Cycle</option>
   <option value=7>Manual Operation</option>
-  <option value=8>Remote Push Button</option>
+  <option value=8>Push Button</option>
   <option value=9>Output Status</option>
 </select>
 &nbsp;<!--input type="text" id="ctrl_value_1" style="width:75px"--> &nbsp;
@@ -205,7 +205,7 @@ Start Date
 
 </div>
 <input type="button" style="margin: 15px auto;" value="SAVE" onClick="save_setting()"> 
-<input type="button" onClick="location.href = '/control_page.html?v0.10.3f';" value="BACK">
+<input type="button" onClick="location.href = '/control_page.html?v0.10.4';" value="BACK">
 </body>
 <script>
 var LED_opt_global;
@@ -460,7 +460,7 @@ function load_ctrl_action(){
 	}action_E += '</select> &nbsp; is &nbsp; <select id="action_E_pri_opt_on" onchange="load_output_status_sec(this.value)"><option value=1>Switched On</option><option value=2>Switched Off</option></select>';
 	action_E += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition">';
 	action_E += '<span id="sec_cond_on_holder"></span></div>';
-	action_E += '<div class="main_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
+	action_E += '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
 	action_E += '<input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched Off:&nbsp;&nbsp;';
 	action_E += 'if &nbsp; <span id="action_E_pri_off"></span>';//<select id="action_E_pri_off">';
 	//for (i = 0 ; i < 4 ; i++){
@@ -810,8 +810,8 @@ document.getElementById("spinner_info").innerHTML = "Saving..";
 var z1 = old_json.control_trigger[0].main_option;
 var z2 = old_json.control_trigger[0].sec_option;
 if((z1 >= 1 && z1 <= 4) || (z1 == 9 && z2 != -1)){
-old_json.setting = {type:1, gauge1:{max:1000, min: 0, esz: false, evl: false ,upval:-1, loval:-1, ucolor:"-1", lcolor:"-1"}, 
-gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ucolor:"-1", lcolor:"-1"}};
+old_json.setting = {type:1, gauge1:{max:1000, min: 0, esz: false, evl: false ,upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}, 
+gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}};
 }else{
 old_json.setting = "";
 }
