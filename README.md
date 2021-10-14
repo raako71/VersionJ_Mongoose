@@ -1,7 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.10.4b: flex for widget container<br>
+0.10.4b-c: flex for widget container + css<br>
 0.10.4: fix bug from chat note, add decimation for chart widget<br>
 0.10.3g: adjustment from shared document<br>
 0.10.3f: add chart widget and gauge<br>
