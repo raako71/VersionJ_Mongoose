@@ -22,6 +22,7 @@ input[type=button]{
 .widget_holder{
 	border:1px solid #FFA700;
 	background-color:#0e0e0e;
+	box-shadow: 0px 0px 10px -1px #8a7a05;
 }
 input[type=text]{
 	border:1px solid #FFA700;
