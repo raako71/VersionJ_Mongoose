@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.4h: fonts<br>
 0.10.4g: textures<br>
 0.10.4b-f: flex for widget container + css<br>
 0.10.4: fix bug from chat note, add decimation for chart widget<br>

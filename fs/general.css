@@ -1,5 +1,9 @@
+/* please support Socket Controller development - socketcontroller.com */
+
+@import url('https://fonts.googleapis.com/css2?family=Miriam+Libre&display=swap');
+
 html{
-	font-family: Helvetica, 'Trebuchet MS', Tahoma, sans-serif;
+	font-family: 'Miriam Libre', Helvetica, 'Trebuchet MS', Tahoma, sans-serif;
 	display: inline-block; 
 	text-align: center;
 	-webkit-text-size-adjust:none;
@@ -312,3 +316,7 @@ display: flex;justify-content: center;flex-wrap: wrap;
 #clock_info{
 	float:left;margin-left:25px;padding:9px;
 }
+#login_menu{
+float:right;margin-right:25px;padding:7px;
+}
+/* please support Socket Controller development - socketcontroller.com */
