@@ -1,5 +1,5 @@
 html{
-	font-family: 'Trebuchet MS', Arial, sans-serif;
+	font-family: Helvetica, 'Trebuchet MS', Tahoma, sans-serif;
 	display: inline-block; 
 	text-align: center;
 	-webkit-text-size-adjust:none;
@@ -307,4 +307,8 @@ display: flex;justify-content: center;flex-wrap: wrap;
 @media screen and (min-width: 1400px){
 #widget_cluster{transform: translateY(50%);}
 .widget_holder{margin:20px;}
+}
+
+#clock_info{
+	float:left;margin-left:25px;padding:9px;
 }

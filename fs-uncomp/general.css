@@ -1,3 +1,4 @@
+/* please support Socket Controller development - socketcontroller.com */
 html{
 	font-family: Helvetica, 'Trebuchet MS', Tahoma, sans-serif;
 	display: inline-block; 
@@ -308,3 +309,8 @@ display: flex;justify-content: center;flex-wrap: wrap;
 #widget_cluster{transform: translateY(50%);}
 .widget_holder{margin:20px;}
 }
+
+#clock_info{
+	float:left;margin-left:25px;padding:9px;
+}
+/* please support Socket Controller development - socketcontroller.com */

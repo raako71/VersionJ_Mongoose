@@ -1,5 +1,13 @@
+/* please support Socket Controller development - socketcontroller.com */
 body {
-  background-color: white;
+  background-color: #b7b7b7;
+
+background-image:  linear-gradient(30deg, #91ffb4 12%, transparent 12.5%, transparent 87%, #91ffb4 87.5%, #91ffb4), linear-gradient(150deg, #91ffb4 12%, transparent 12.5%, transparent 87%, #91ffb4 87.5%, #91ffb4), linear-gradient(30deg, #91ffb4 12%, transparent 12.5%, transparent 87%, #91ffb4 87.5%, #91ffb4), linear-gradient(150deg, #91ffb4 12%, transparent 12.5%, transparent 87%, #91ffb4 87.5%, #91ffb4), linear-gradient(60deg, #91ffb477 25%, transparent 25.5%, transparent 75%, #91ffb477 75%, #91ffb477), linear-gradient(60deg, #91ffb477 25%, transparent 25.5%, transparent 75%, #91ffb477 75%, #91ffb477);
+background-size: 20px 35px;
+background-position: 0 0, 0 0, 10px 18px, 10px 18px, 0 0, 10px 18px;
+
+
+
   color: black;
 }
 a, a :visited{
@@ -9,7 +17,7 @@ a:hover{
     color: #00cc08;
 }
 input[type=button]{
-	background-color:white;
+	background-color:#ffffff8f;
 	border:1px solid;
 	border-radius: 5px;
 	cursor:pointer;
@@ -17,11 +25,13 @@ input[type=button]{
 }
 .confirmation_box {
 	border:2px solid red;
-	background-color: white;
+	background-color: #ffffff8f;
 }
 .widget_holder {
-	border:1px solid red;
-	background-color: white;
+    border: 1px solid #85fff4;
+    box-shadow: 0px 0px 10px -1px #feffb8;
+    background-color: #ffffff8f;
+    background: linear-gradient(to bottom right, #b9f8ff91, #4babff75);
 }
 input[type=text]{
 	border:1px solid;
@@ -36,12 +46,12 @@ input[type=password]{
 	border-radius: 5px;
 }
 .main_container{
-    background-color: aliceblue;
+    background-color: #f0f8ffa1;
 }
 .trigger_container{
     background-color:  aliceblue;
 } 
-.dropdown:hover .dropbtn {background-color: black; color:white;}
+.dropdown:hover .dropbtn {background-color: #000000c7; color:white;}
 .dropdown-content a:hover {background-color: white; color:black;}
 .dropdown-content{border: 1px solid black;}
 
@@ -64,6 +74,5 @@ input:checked + .slider { background-color: #22ad1f;}
     background: #1ad820;
 }
 
-@media screen and (max-width: 1500px){
-	.top_panel { background-color: white; }
-}
+.top_panel { background-color: #ffffff80; }
+/* please support Socket Controller development - socketcontroller.com */
