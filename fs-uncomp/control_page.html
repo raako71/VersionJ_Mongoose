@@ -57,10 +57,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html?v0.10.4">Home</a>
-	<a href="/graph.html?v0.10.4">Graph</a>
-    <a href="/control_page.html?v0.10.4">Control Logic</a>
-    <a href="/setting.html?v0.10.4">Settings</a>
+    <a href="/index.html.gz?v0.10.3f">Home</a>
+	<a href="/graph.html.gz?v0.10.3f">Graph</a>
+    <a href="/control_page.html.gz?v0.10.3f">Control Logic</a>
+    <a href="/setting.html.gz?v0.10.3f">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -194,7 +194,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			}
 			
 		}
-		location.href="program_editor.html?x=new&y=" + id + "&" + Math.random() * Math.random();
+		location.href="program_editor.html.gz?x=new&y=" + id + "&" + Math.random() * Math.random();
 	}
 	function fetch_uptime(){
 		var xhttp = new XMLHttpRequest();	
@@ -215,7 +215,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		var i = 0;
 		while(i < 10){
 			if( program_list[i].name != ""){
-			link += '<table><td><li></li> </td><td style="width:100px"><a href="program_editor.html?x=program' + (i+1) +'&y='+program_list[i].id+'&'+ Math.random() * Math.random()+'">' + program_list[i].name + '</a></td>';
+			link += '<table><td><li></li> </td><td style="width:100px"><a href="program_editor.html.gz?x=program' + (i+1) +'&y='+program_list[i].id+'&'+ Math.random() * Math.random()+'">' + program_list[i].name + '</a></td>';
 			link+= '<td style="width:15px">';
 			if(program_list[i].control_opt == 3 && !LED){
 			link+= '<abbr class="title_attr" style="color:red" title="Config error (LED RED)">(!)</abbr></td>';
