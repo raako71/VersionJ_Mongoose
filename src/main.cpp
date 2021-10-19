@@ -1498,16 +1498,18 @@ for (int i = 0; i < 10; i++){
 		bool prog_en;
 		int prog_output;
 		check_program_en(list_prog_name[i], prog_en, prog_output);
-		if(prog_en){ //program is enabled
-			//somehow user change the output option ->reset link
+		int x = check_program_state(list_prog_name[i]);
+		bool run_prog = prog_en && x == 1;
+		if(run_prog){ //program is enabled
+			//somehow user change the output option ->reset link with same output
 			for(int j = 0; j < 4 ; j++){
-				if(prog_link_name[j] == i+1){prog_link_name[j]=-1;}
+				if(prog_link_name[j] == i+1){prog_link_name[j]=-1;} 
 			}
 			//normal operation
-			if(prog_link_name[prog_output-1] == -1 || prog_link_name[prog_output-1] > i+1){
+			if(prog_link_name[prog_output-1] == -1 || prog_link_name[prog_output-1] > i+1){ //priority check 
 				prog_link_name[prog_output-1] = i+1;
 				//check program state
-				prog_link_state[prog_output-1] = check_program_state(list_prog_name[i]);
+				prog_link_state[prog_output-1] = 1;
 				
 				/*if(prog_override == -1){
 					prog_link_state[prog_output-1] = check_program_state(list_prog_name[i]);
@@ -1522,10 +1524,8 @@ for (int i = 0; i < 10; i++){
 				}else if(prog_output == 3 && LED_opt != 1){
 					prog_link_state[prog_output-1] = 0;
 					prog_pin_state[prog_output-1] = 0;
-				}else if(prog_output == 3 && LED_opt != 1){
-					prog_link_state[prog_output-1] = 0;
-					prog_pin_state[prog_output-1] = 0;
 				}
+				
 				if(prog_link_state[prog_output-1] == 1){ //if program is active
 					int pin_res = check_program_output(list_prog_name[i]); //check output
 					if(pin_res != -1){ //if not -1 change pin output
@@ -1535,11 +1535,11 @@ for (int i = 0; i < 10; i++){
 					prog_pin_state[prog_output-1] = 0;
 				}
 			}//end of normal operation	
-		}//if prog is enabled
-		if(!prog_en && prog_link_name[prog_output-1] == i+1){ ///somehow program is disabled by user
+		}//end if prog is enabled
+		if(!run_prog && prog_link_name[prog_output-1] == i+1){ ///somehow program is disabled by user
 			prog_link_name[prog_output-1] = -1;
 		}
-	}else{// program is somehow deleted, related output will be -1 (prog_link_name)
+	}else{// program is somehow deleted, related output will be -1 (prog_link_name) (does not exist)
 		for(int j = 0; j < 4 ; j++){
 			if(prog_link_name[j] == i+1){prog_link_name[j]=-1;}
 		}
@@ -1619,6 +1619,7 @@ int check_program_state(const char* file_read){
 		time_state = (time_day_epoch >= on_conv) ? 1 : 0;
 	}else if (off_conv != -1){
 		time_state = (time_day_epoch >= off_conv) ? 0 : 1;
+		
 	}else{
 		time_state = 1;
 	}
@@ -1681,68 +1682,64 @@ if(main_opt >= 1 && main_opt <= 4){ //tested well done
 		int init = init_n_loop[0] == '1'; // 1-> initial is high, 0-> initial is low
 		int loop = init_n_loop[1] == '1'; // -> 0 -> loop, 1 -> run once
 		free(init_n_loop);
-		
-		if(pri_cond_on == 1 && pri_op == 1){
+	
+		if(pri_cond_on == 1){
 			timer_mode = 1;
-		}else if(pri_cond_off == 1 && pri_op == 1){
+		}else if(pri_cond_off == 1){
 			timer_mode = 0;
-		}else if(pri_op == 2){
-			timer_mode = 1;
 		}
-		
+		//LOG(LL_WARN,("timer mode trigger 1 to 4: %d, timer state: %d", timer_mode,prog_timer_state[ctrl_pin-1]));
+	
 		if(timer_mode == 1){ //timer mode
 		if(prog_timer_state[ctrl_pin-1] == 0){ // is idle
-		if(on_timer != -1 && init == 1){
-			//start on timer
-			prog_timer_state[ctrl_pin-1] = 1; //on is working
-			setup_timer_program(ctrl_pin, on_timer); //begin timer
-		}else if(off_timer != -1 && init == 0){
-			prog_timer_state[ctrl_pin-1] = 2; // off is working
-			setup_timer_program(ctrl_pin, off_timer); //begin timer to count down off time
-		}
+			if(on_timer != -1 && init == 1){
+				//start on timer
+				//LOG(LL_WARN,("begin on timer %ld", on_timer));
+				prog_timer_state[ctrl_pin-1] = 1; //on is working
+				setup_timer_program(ctrl_pin, on_timer); //begin timer
+			}else if(off_timer != -1 && init == 0){
+				//LOG(LL_WARN, ("begin off timer %ld", off_timer));
+				prog_timer_state[ctrl_pin-1] = 2; // off is working
+				setup_timer_program(ctrl_pin, off_timer); //begin timer to count down off time
+			}
 		}else if(prog_timer_state[ctrl_pin-1] == 3){ // on is finished
-		if(off_timer != -1){
-			if(init == 0 && loop == 1){ //start from low no loop -> timer stop
-				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-				prog_timer_state[ctrl_pin-1] = -1;
-			}else{
+			if(off_timer != -1 && loop == 0){ //if looping and off timer exists
 				prog_timer_state[ctrl_pin-1] = 2;
 				setup_timer_program(ctrl_pin, off_timer);	
-			}
-		}else{
-			prog_timer_state[ctrl_pin-1] = -1;
-		}
-		}else if(prog_timer_state[ctrl_pin-1] == 4){ //off is finished
-		if(on_timer != -1){
-			if(init == 1 && loop == 1){ //start from on no loop -> timer stop
-				prog_timer_state[ctrl_pin-1] = -1;
+				//LOG(LL_WARN,("restarting off timer"));
+			}else if(loop == 1){ //no loop stop timer
 				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-			}else{
-				prog_timer_state[ctrl_pin-1] = 1;
-				setup_timer_program(ctrl_pin, on_timer);	
+				prog_timer_state[ctrl_pin-1] = -1;
+				//LOG(LL_WARN,("stop after on timer")); 
 			}
-		}else{
-			prog_timer_state[ctrl_pin-1] = -1;
-		}
-		}
-		///////////////////timer mode on -> end logic result
-		if(prog_timer_state[ctrl_pin-1] == 1){
-			sec_cond_on = 1; sec_cond_off = 1;
-		}else if(prog_timer_state[ctrl_pin-1] == 2){
-			sec_cond_on = 0; sec_cond_off = 1;
-		}else if(prog_timer_state[ctrl_pin-1] == 0 || prog_timer_state[ctrl_pin-1] == -1){
-			sec_cond_on  = 0; sec_cond_off =0;
+		}else if(prog_timer_state[ctrl_pin-1] == 4){ //off is finished
+			if(on_timer != -1 && loop == 0){ //if looping and on timer exists
+				prog_timer_state[ctrl_pin-1] = 1;
+				//LOG(LL_WARN,("restarting on timer"));
+				setup_timer_program(ctrl_pin, on_timer);	 //start on timer
+			}else if(loop == 1){ //no loop stop timer
+				mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
+				prog_timer_state[ctrl_pin-1] = -1; 
+				//LOG(LL_WARN,("stop after off timer"));
+			}
 		}
 		//////////////////////end of timer mode on
 		
 		}else if (timer_mode == 0){
 			prog_timer_state[ctrl_pin-1]= 0;
 			mgos_clear_timer(prog_timer_id[ctrl_pin-1]);
-			sec_cond_on = 0;
-			sec_cond_off = 1;
 		}
 		////timer mode
 		
+		/////////////////// end logic result
+		if(prog_timer_state[ctrl_pin-1] == 1){
+			sec_cond_on = 1; sec_cond_off = 0;
+		}else if(prog_timer_state[ctrl_pin-1] == 2){
+			sec_cond_on = 0; sec_cond_off = 1;
+		}else if(prog_timer_state[ctrl_pin-1] == 0 || prog_timer_state[ctrl_pin-1] == -1){
+			sec_cond_on  = 0; sec_cond_off =1;
+		}
+		//LOG(LL_WARN,("on %d off %d", sec_cond_on, sec_cond_off));
 	}//end of sec_opt == 5
 	else if(sec_opt >= 6 && sec_opt <= 9){
 		char* sec_on_b = NULL; char* sec_off_b = NULL;
@@ -1769,7 +1766,6 @@ if(main_opt >= 1 && main_opt <= 4){ //tested well done
 	}//end of sec_opt as output status
 	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on);
 	int cond_off = pri_op_sec(sec_op, pri_cond_off, sec_cond_off);
-	
 	//check triggering
 	if(cond_on){
 		//trigger on
@@ -2162,7 +2158,7 @@ int read_R1_button() { // read button if there is logic change
   int result = 0;
   if(button_z == 0 && button == 1){
   	result = 1;
-  	LOG(LL_WARN,("short push PB1"));
+  //	LOG(LL_WARN,("short push PB1"));
   }
   button_z = button;
   return result;
@@ -2174,7 +2170,7 @@ int read_R2_button() { // read button if there is logic change
   int result = 0;
   if(button_z == 0 && button == 1){
   	result = 1;
-  	LOG(LL_WARN,("short push PB2"));
+  //	LOG(LL_WARN,("short push PB2"));
   }
   button_z = button;
   return result;
@@ -2193,7 +2189,7 @@ int read_RPB_button() { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	LOG(LL_WARN,("short push RPB"));
+      	//LOG(LL_WARN,("short push RPB"));
         result = 1;
       }
     }

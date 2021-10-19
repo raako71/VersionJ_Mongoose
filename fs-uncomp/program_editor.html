@@ -303,7 +303,7 @@ function toggle_day(){
 function toggle_cond(input, name){
 	//detect trigger option
 	var prim_opt = document.getElementById("ctrl_trigger").value;
-	var div_add_condition = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_on" ><span class="slider round"></span></label>';
+	var div_add_condition = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_on" checked><span class="slider round"></span></label>';
 	div_add_condition += '&nbsp;&nbsp;<select id="sec_operator_'+name+'"><option value=1>AND</option> <option value=2>OR</option></select>&nbsp;&nbsp;';
 	div_add_condition += '<select id="sec_trigger_'+name+'" onChange="load_sec_off_trigger(this)">';
 	var array = ["if Temperature", "if Humidity", "if Light", "if Power", "Timed Cycle", "If Out A", "If Out B", "If LED RED", "If IO14"];
@@ -322,7 +322,7 @@ function toggle_cond(input, name){
 	var holder = document.getElementById("sec_cond_"+name+"_holder");
 	var holder_off = document.getElementById("sec_cond_off_holder");
 	
-	var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" ><span class="slider round"></span></label>';
+	var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" checked><span class="slider round"></span></label>';
 	div_add_condition_off += '&nbsp;&nbsp;<select id="sec_operator_off"> <option value=1>AND</option> <option value=2>OR</option></select>';
 	div_add_condition_off += '&nbsp;&nbsp;<span id="sec_trigger_off" style="font-size:15px"></span> &nbsp; <select id="sec_comp_off"><option value=1> ></option><option value=2> < </option></select>';
 	div_add_condition_off += '&nbsp; <input type="text" id="sec_value_off" style="width:100px"></div>';
@@ -376,7 +376,7 @@ a.style.display = "inline";
 b.style.display = "inline";
 c.innerHTML = "";
 }
-var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" ><span class="slider round"></span></label>';
+var div_add_condition_off = '<div style="margin-top:10px"> <label class="switch" style="position:relative; top:-4px"><input type="checkbox" id="sec_switched_off" checked><span class="slider round"></span></label>';
 div_add_condition_off += '&nbsp;&nbsp;<select id="sec_operator_off"> <option value=1>AND</option> <option value=2>OR</option></select>';
 if(input.value >= 1 && input.value <= 4){
 div_add_condition_off += '&nbsp;&nbsp;<span id="sec_trigger_off" style="font-size:15px"></span> &nbsp; <select id="sec_comp_off"><option value=1> ></option><option value=2> < </option></select>';
@@ -425,7 +425,7 @@ setInputFilter(document.getElementById(name+"_day_off"), function(value) { retur
 
 function load_ctrl_action(){
 	var action_A = '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px">';
-	action_A += ' <label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_on" ><span class="slider round"></span>';
+	action_A += ' <label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_on" checked><span class="slider round"></span>';
 	action_A += '</label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
 	action_A += 'if Value &nbsp; <select id="action_A_cmpr_on">';
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
@@ -433,7 +433,7 @@ function load_ctrl_action(){
 	action_A += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition" ><br>';
 	action_A += '<span id="sec_cond_on_holder"></span></div>';
 	action_A += '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px">	';
-	action_A += '<label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;';
+	action_A += '<label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_off" checked><span class="slider round"></span></label>&nbsp;&nbsp;';
 	action_A += 'Switched Off: &nbsp;if Value <select id="action_A_cmpr_off">';
 	action_A += '<option value=1> > </option><option value=2> < </option></select>&nbsp;';
 	action_A += '<input type="text" id="action_A_value_off" style="width:100px">';
@@ -450,7 +450,7 @@ function load_ctrl_action(){
 	action_D += '<span id="action_D_holder"> </span></div></div>'
 	var array = ["Output A", "Output B", "Output LED Red", "Output IO14"];
 	var action_E = '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
-	action_E += '<input type="checkbox" id="pri_switched_on" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
+	action_E += '<input type="checkbox" id="pri_switched_on" checked><span class="slider round"></span></label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
 	action_E += 'if &nbsp; <select id="action_E_pri_on" onChange="load_action_E_pri(this)">';
 	for (i = 0 ; i < 4 ; i++){
 	if(document.getElementById("ctrl_out_opt").value != i+1){
@@ -462,7 +462,7 @@ function load_ctrl_action(){
 	action_E += '<input id="add_cond_on" onClick="toggle_cond(this,'+"'on'"+')" type="button" style="float:right" value="Add Condition">';
 	action_E += '<span id="sec_cond_on_holder"></span></div>';
 	action_E += '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px"><label class="switch" style="position:relative; top:-5px">';
-	action_E += '<input type="checkbox" id="pri_switched_off" ><span class="slider round"></span></label>&nbsp;&nbsp;Switched Off:&nbsp;&nbsp;';
+	action_E += '<input type="checkbox" id="pri_switched_off" checked><span class="slider round"></span></label>&nbsp;&nbsp;Switched Off:&nbsp;&nbsp;';
 	action_E += 'if &nbsp; <span id="action_E_pri_off"></span>';//<select id="action_E_pri_off">';
 	//for (i = 0 ; i < 4 ; i++){
 	//if (document.getElementById("ctrl_out_opt").value != i+1)action_E += '<option value='+(i+1)+'>'+array[i]+'</option>';
@@ -540,9 +540,11 @@ if( zzz >= 1 && zzz <= 4){
 if( a1 != null){
 var a3 = document.getElementById("action_A_value_on"); 
 if(a1.checked && a3.value == ""){ alert("required a value to be saved (primary on value)"); return;}
+if(a3.value != "" && !a1.checked){ a1.checked = true;}
 if(a4 != null){
 	if(a4.checked && document.getElementById("sec_value_on").value == "" && document.getElementById("sec_trigger_on").value < 5){alert("required a value to be saved (secondary on value)");return;}
-	if(a4.checked && document.getElementById("sec_trigger_on").value == 5){
+	if(!a4.checked && document.getElementById("sec_value_on").value != "" && document.getElementById("sec_trigger_on").value < 5){a4.checked = true;}
+	if(a4.checked && document.getElementById("sec_trigger_on").value == 5){//timed cycle check
 		var c1 = check_timed_cycle("sec_dc","on");
 		var c0 = document.getElementById("sec_dc_loop").checked;
 		if(c1 == -2){ alert("Invalid on time value!"); return;}
@@ -571,15 +573,26 @@ if(a4 != null){
 			return;
 			}
 		}
+		
+	}
+	if(!a4.checked && document.getElementById("sec_trigger_on").value == 5){
+		var c1 = check_timed_cycle("sec_dc","on");
+		c1 = (c1 == -1) ? 0 : c1;
+		var c2 = check_timed_cycle("sec_dc","off") ;
+		c2 = (c2 == -1) ? 0 : c2;
+		if((c1+c2) != 0){ a4.checked = true;}
 	}
 }
 }
 if(a2 != null){
 var a5 = document.getElementById("action_A_value_off");
 if(a2.checked && a5.value == ""){ alert("required a value to be saved (primary off value)"); return;}
+if(a5.value != "" && !a2.checked){ a2.checked = true;}
 if(a6 != null){
 if(document.getElementById("sec_trigger_on") < 5){
- if(a6.checked && document.getElementById("sec_value_off").value == ""){alert("required a value to be saved (secondary off value)");return;}}
+ if(a6.checked && document.getElementById("sec_value_off").value == ""){alert("required a value to be saved (secondary off value)");return;}
+ if(!a6.checked && document.getElementById("sec_value_off").value != ""){a6.checked = true;}
+}// sec trigger < 5
 }
 }
 }
@@ -587,9 +600,11 @@ if(document.getElementById("sec_trigger_on") < 5){
 if(zzz == 9){
 if(a4 != null){
 	if(a4.checked && document.getElementById("sec_value_on").value == "" ){alert ("required a value to be saved (secondary on value)");return;}
+	if(!a4.checked && document.getElementById("sec_value_on").value != ""){a4.checked = true;}
 }
 if(a6 != null){
 	if(a6.checked && document.getElementById("sec_value_off").value == ""){alert ("required a value to be saved (secondary off value)");return;}
+	if(!a6.checked && document.getElementById("sec_value_off").value != ""){a6.checked = true;}
 }
 }
 
@@ -1025,7 +1040,11 @@ function parse_config(input){
 	var pon = b.pri_on;
 	var poff = b.pri_off;
 	if(pon !=""){document.getElementById("pri_switched_on").checked = true;document.getElementById("action_A_cmpr_on").value = pon.substring(0, pon.indexOf(","));document.getElementById("action_A_value_on").value = pon.substring(pon.indexOf(",")+1);}
+	else{document.getElementById("pri_switched_on").checked = false;}
+	
 	if(poff!=""){document.getElementById("pri_switched_off").checked = true;document.getElementById("action_A_cmpr_off").value = poff.substring(0, poff.indexOf(","));document.getElementById("action_A_value_off").value = poff.substring(poff.indexOf(",")+1);}
+	else{document.getElementById("pri_switched_off").checked = false;}
+	
 	if(c != -1){
 	toggle_cond(document.getElementById("add_cond_on"), "on");
 	document.getElementById("sec_trigger_on").value = c;
@@ -1041,7 +1060,8 @@ function parse_config(input){
 		var j = son.indexOf(",",i+1);
 		document.getElementById("sec_comp_on").value = son.substring(i+1, j);
 		document.getElementById("sec_value_on").value = son.substring(j+1);
-	}
+	}else{document.getElementById("sec_switched_on").checked = false;}
+	
 	if(soff != ""){
 		document.getElementById("sec_switched_off").checked =true;
 		var i = soff.indexOf(",");
@@ -1049,7 +1069,8 @@ function parse_config(input){
 		var j = soff.indexOf(",",i+1);
 		document.getElementById("sec_value_off").value = soff.substring(j+1);
 		document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
-	}
+	}else{document.getElementById("sec_switched_off").checked = false;}
+	
 	}else if(c == 5){
 		document.getElementById("sec_switched_on").checked = true;
 		document.getElementById("sec_operator_on").value = d.substring(0, d.indexOf(","));
@@ -1091,7 +1112,11 @@ function parse_config(input){
 	var pon = b.pri_on;
 	var poff = b.pri_off;
 	if(pon != ""){ document.getElementById("pri_switched_on").checked = true; document.getElementById("action_E_pri_on").value = pon[0]; document.getElementById("action_E_pri_opt_on").value = pon[2];}
+	else{document.getElementById("pri_switched_on").checked = false;}
+	
 	if(poff != ""){ document.getElementById("pri_switched_off").checked = true;document.getElementById("action_E_pri_on").value = poff[0]; document.getElementById("action_E_pri_opt_off").value = poff[2];}
+	else{document.getElementById("pri_switched_off").checked = false;}
+	
 	if(pon != "" || poff != ""){load_action_E_pri(document.getElementById("action_E_pri_on"));}
 	
 	if(c != -1){
@@ -1108,7 +1133,7 @@ function parse_config(input){
 		var j = son.indexOf(",",i+1);
 		document.getElementById("sec_comp_on").value = son.substring(i+1, j);
 		document.getElementById("sec_value_on").value = son.substring(j+1);
-	}
+	}else{document.getElementById("sec_switched_on").checked = false;}
 	if(soff != ""){
 		document.getElementById("sec_switched_off").checked =true;
 		var i = soff.indexOf(",");
@@ -1116,7 +1141,7 @@ function parse_config(input){
 		var j = soff.indexOf(",",i+1);
 		document.getElementById("sec_value_off").value = soff.substring(j+1);
 		document.getElementById("sec_comp_off").value = soff.substring(i+1, j);
-	}
+	}else{document.getElementById("sec_switched_off").checked = false;}
 	}
 	}
 }
