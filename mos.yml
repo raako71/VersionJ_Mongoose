@@ -1,6 +1,6 @@
 author: alifnl
-description: adjustment from shared document
-version: 0.10.4f
+description: fixing bug marked in shared doc
+version: 0.10.4g
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -87,6 +87,5 @@ build_vars:
       CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
       CONFIG_ESPTOOLPY_FLASHSIZE=16MB
   ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,12288K
-
 # Used by the mos tool to catch mos binaries incompatible with this file format
 manifest_version: 2017-09-29

@@ -45,10 +45,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.4">Home</a>
-	<a href="/graph.html.gz?v0.10.4">Graph</a>
-    <a href="/control_page.html.gz?v0.10.4">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.4">Settings</a>
+    <a href="/index.html?v0.10.4">Home</a>
+	<a href="/graph.html?v0.10.4">Graph</a>
+    <a href="/control_page.html?v0.10.4">Control Logic</a>
+    <a href="/setting.html?v0.10.4">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -368,7 +368,8 @@ function update_graph(){
 		return filter_epoch(e.epoch);
 	});
 	var temp = thishour_file.map(function(e){
-		return Number(e.column6 == '' ? null : e.column6);
+		var a =  Number(e.column6 == '' ? null : e.column6);
+		return ((temp_unit_login == 2) ? C2F(a) : a);
 	});
 	var hum = thishour_file.map(function(e){
 		return Number(e.column7 == '' ? null : e.column7);
@@ -439,18 +440,28 @@ if(document.getElementById("widget_holder_"+(i+1)) != null){
 			}
 		}
 		if(j == 3){
-			if(program_list[i].output == 5){document.getElementById("widget_holder_"+(i+1)).style.display = "inline-block";}
+			if(program_list[i].output == 5){document.getElementById("widget_holder_"+(i+1)).style.display = "inline-block";} //null output
 			else{document.getElementById("widget_holder_"+(i+1)).style.display = "none";}
 		}
 	}
+
+if(program_list[i].output == 5){
+	document.getElementById("widget"+(i+1)+"_pin").style.display = "none";
+	document.getElementById("widget"+(i+1)+"_output").style.display = "none";
+}else{
+	document.getElementById("widget"+(i+1)+"_pin").style.display = "block";
+	document.getElementById("widget"+(i+1)+"_output").style.display = "block";
 }
+}
+
+
 //update_gauge
 if(document.getElementById("widget"+(i+1)+"_pin") != null){
-document.getElementById("widget"+(i+1)+"_pin").innerHTML = "Switched: <span class=" + ((OS[program_list[i].output-1] == 0) ? "\"off_label\"> OFF" : "\"off_label\">ON") + "</span>"; //update output status
+document.getElementById("widget"+(i+1)+"_pin").innerHTML = "Switched: <span " + ((OS[program_list[i].output-1] == 0) ? ">&nbsp; OFF &nbsp;" : "class=\"on_label\">&nbsp; ON &nbsp;") + "</span>"; //update output status
 var v1 = program_list[i].var1;var v2 = program_list[i].var2; var type = program_list[i].setting.type;
 for (k = 1 ; k <= 4 ; k++){
 	var os_pt = document.getElementById("gaugetxt_"+(i+1)+"_"+k);
-	if(type == 1 && os_pt != null){os_pt.innerHTML = sens[k-1] + " " + unit[k-1] + (k==1 ? (temp_unit_login==1 ? "C" : "F") : "");eval('gauge_' + (i+1) + "_" + k + ".set("+sens[k-1]+")");}
+	if(type == 1 && os_pt != null){os_pt.innerHTML = ((k == 1 && temp_unit_login == 2) ? C2F(sens[k-1]) : sens[k-1]) + " " + unit[k-1] + (k==1 ? (temp_unit_login==1 ? "C" : "F") : "");eval('gauge_' + (i+1) + "_" + k + ".set("+ ((k == 1 && temp_unit_login == 2) ? C2F(sens[k-1]) : sens[k-1]) +")");}
 }//loop 1 to 4
 }//if not null (update gauge)
 
@@ -472,7 +483,7 @@ document.getElementById("overlay_widget_setting").style.filter = "none";
 var set = program_list[input-1].setting;
 var x = setting_page_builder(input);
 x += '<div id="setting_info" style="margin-top:10px;font-size:13px"></div>';
-x += '<div style="margin-top:10px;margin-bottom:10px"><input type="button" value="SAVE" onclick="save_widget_setting('+input+')">';
+x += '<div style="margin:20px auto"><input type="button" value="SAVE" onclick="save_widget_setting('+input+')">';
 x += '<input type="button" value="CLOSE" onClick="off_overlay_setting()"></div>';
 document.getElementById("widget_setting_box").innerHTML = x;
 
@@ -525,18 +536,18 @@ var w = program_list[id-1].var2;
 var ret = "<b>" + program_list[id-1].name + " Widget</b><br><br>";
 if((v >= 1 && v <= 4) || (v == 9 && w != -1)){
 ret += '<label for="setting_type">Indicator type: </label><select onchange="indicator_loader(this.value)" name="setting_type" id="setting_type"><option value="1">Gauge</option><option value="2">Graph</option></select>';
-ret += '<div id="gauge_setting_holder" style="text-align:left;display:flex;flex-wrap: wrap;"><br>';
+ret += '<div id="gauge_setting_holder" ><br>';
 if(v != 9){
 ret += '<div style="display:inline-block;width:45%;font-size:13px;margin:10px"><b>'+trigger[v-1]+ '</b><br>';
 ret += 'min value: <input type="text" id = "min_val1" style="width:60px"><br>';
 ret += 'max value: <input type="text" id = "max_val1" style="width:60px"><br>';
-ret += 'inside bounds color: <input type="text" id="gauge1_icolor" style="width:50px"><br>';
+ret += 'inside bounds color: <input type="text" id="gauge1_icolor" style="width:60px"><br>';
 ret += '<table style="margin-top:5px"><td><label class="mini_switch"><input onchange="static_zone_loader(this.checked, 1)" type="checkbox" id="static_enable_1"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Enable static zones:</td></table>';
 ret += '<div style="display:none; margin-top:10px;margin-bottom:10px" id="static_setting_1">';
 ret += 'lower range: <input type="text" id="gauge1_loval" style="width:60px"><br>';
 ret += 'upper range: <input type="text" id="gauge1_upval" style="width:60px"><br>';
-ret += 'outside bounds color: <input type="text" id="gauge1_ocolor" style="width:50px"><br>';
+ret += 'outside bounds color: <input type="text" id="gauge1_ocolor" style="width:60px"><br>';
 ret += '</div>'; // enable static zone
 ret += '<table><td><label class="mini_switch"><input type="checkbox" id="label_enable_1"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Value Labels:</td></table>';
@@ -554,13 +565,13 @@ if( w>= 1 && w <= 4){
 ret += '<div style="display:inline-block;width:45%;font-size:13px;margin:10px"><b>'+trigger[w-1]+'</b><br>';
 ret += 'min value: <input type="text" id="min_val2" style="width:60px"><br>';
 ret += 'max value: <input type="text" id="max_val2" style="width:60px"><br>';
-ret += 'inside bounds color: <input type="text" id="gauge2_icolor" style="width:50px"><br>';
+ret += 'inside bounds color: <input type="text" id="gauge2_icolor" style="width:60px"><br>';
 ret += '<table style="margin-top:5px"><td><label class="mini_switch"><input onchange="static_zone_loader(this.checked, 2)" type="checkbox" id="static_enable_2"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Enable static zones:</td></table>';
 ret += '<div style="display:none; margin-top:10px;margin-bottom:10px" id="static_setting_2">';	
 ret += 'lower range: <input type="text" id="gauge2_loval" style="width:60px"><br>';
 ret += 'upper range: <input type="text" id="gauge2_upval" style="width:60px"><br>';
-ret += 'outside bounds color: <input type="text" id="gauge2_ocolor"  style="width:50px"><br>';
+ret += 'outside bounds color: <input type="text" id="gauge2_ocolor"  style="width:60px"><br>';
 ret += '</div>'; // enable static zone
 ret += '<table><td><label class="mini_switch"><input type="checkbox" id="label_enable_2"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Value Labels:</td></table>';
@@ -634,27 +645,28 @@ function save_widget_setting(id){
 	if(i2.value == "" ||j2.value == "" || l2.value == ""){info.innerHTML = "gauge 2 static zone setting is not complete"; return;}
 	}
 	}//a != null
-	/*if(!check_password()){
-		save_command_widget = true;
+	if(!check_password()){
+		save_command_widget = id;
 		on_overlay_login(2);
 		return;
 	}
+	on_overlay_login(0); //just on overlay login
+	document.getElementById("multipurpose").innerHTML = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+spinner_load+'</div><br>Saving...';
 	validate_cookie(function(i){
 	//cookie validation
 		if(i.code == 200 && i.data.status == "illegal"){
-			save_command_widget = true;
-			on_overlay_login(0); //just on overlay login
-			var x = "div id = 
-			document.getElementById("multipurpose").style.display = 'none';
-			document.getElementById("m").innerHTML = "Session end, please re-login!";
-			document.getElementById("relogin_button").style.display="block";
+			save_command_widget = id;
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info"> Session end, please re-login! </div>';
+			x+= '<br>  <input type="button" style="font-size:16px;" value="OK" onClick="on_overlay_login(2);"></div>';
+			document.getElementById("multipurpose").innerHTML = x;
 			return;
 		}else if(i.code != 200){
-			save_command_widget = true;
-			x.innerHTML = i.status;
-			document.getElementById("save_wifi").disabled = false;
+			save_command_widget = id;
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
+			x+= '<input type="button" style="font-size:16px" value="retry" onClick="save_widget_setting('+id+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+			document.getElementById("multipurpose").innerHTML = x;
 			return;
-		}*/
+		}
 	
 	var set = {type:1, gauge1:{max:1000, min: 0, upval:-1, loval:-1, ocolor:"-1", icolor:"-1", max_label:"", min_label:"", llabel:"", ulabel:""}, 
 	gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ocolor:"-1", icolor:"-1", max_label:"", min_label:"", llabel:"", ulabel:""}};
@@ -675,7 +687,7 @@ function save_widget_setting(id){
 	if(k2 != null){set.gauge2.icolor = k2.value;}
 	if(l2 != null){set.gauge2.ocolor = l2.value;}
 	if(z != null){set.type = z.value;}
-	info.innerHTML = spinner_load;
+	//info.innerHTML = spinner_load;
 	xhr_send("FS.get", JSON.stringify({filename:"program"+id+".json"}), function(i){
 		if(i.code != 200){
 		info.innerHTML = i.status;
@@ -688,13 +700,19 @@ function save_widget_setting(id){
 		info.innerHTML = u.status;
 		return;
 		}
+		off_overlay_login();
 		info.innerHTML = "Configuration saved";
 	});//end of fs put
 	});//end of fs get
-	//});//end of validate cookie
+	});//end of validate cookie
 }
 
 function setInputFilter(textbox, inputFilter) {["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {textbox.addEventListener(event, function() {if (inputFilter(this.value)) {this.oldValue = this.value;this.oldSelectionStart = this.selectionStart;this.oldSelectionEnd = this.selectionEnd;} else if (this.hasOwnProperty("oldValue")) {this.value = this.oldValue;this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);} else {this.value = "";}});});}
+
+function C2F(temp){
+var ret = (temp * 9/5)+32;
+return ret;
+}
 </script>
 <style>
 .gear-btn{
@@ -743,5 +761,11 @@ input:checked + .mini_slider {background-color: #2196F3;}input:checked + .mini_s
 .mini_slider.round {border-radius: 15px;}
 
 .mini_slider.round:before { border-radius: 50%;}
+
+#gauge_setting_holder{
+text-align:left; 
+display:flex;
+flex-wrap: wrap;
+}
 </style>
 </html>

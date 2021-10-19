@@ -20,7 +20,7 @@
 "timezone":0, "dec_place": 2, "dev_mode": false,
 "temp_scale" : 1,
 "brightness": [{"panel": 255, "remote": 255}],
-"theme":1,
+"theme":2,
 "ctrl_page": {"sensor_input":true, "prog_ctrl":false, "override":0, "ovr_val":"" , "LED" :0, "LED_prog": 0, "IO14":false, "active_prog": 0},
 "webserver": {"timeout":10000}
 }
