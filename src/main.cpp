@@ -1507,6 +1507,9 @@ for (int i = 0; i < 10; i++){
 			}
 			//normal operation
 			if(prog_link_name[prog_output-1] == -1 || prog_link_name[prog_output-1] > i+1){ //priority check 
+				if(prog_link_name[prog_output-1] > i+1 ){ //caused by activation of higher priority program
+					prog_timer_state[prog_output-1] = 0; //reset timer
+				}
 				prog_link_name[prog_output-1] = i+1;
 				//check program state
 				prog_link_state[prog_output-1] = 1;
@@ -1537,6 +1540,7 @@ for (int i = 0; i < 10; i++){
 			}//end of normal operation	
 		}//end if prog is enabled
 		if(!run_prog && prog_link_name[prog_output-1] == i+1){ ///somehow program is disabled by user
+			//LOG(LL_WARN,("disable program %d", (i+1)));
 			prog_link_name[prog_output-1] = -1;
 		}
 	}else{// program is somehow deleted, related output will be -1 (prog_link_name) (does not exist)
@@ -1546,7 +1550,7 @@ for (int i = 0; i < 10; i++){
 	}
 	
 }
-for(int x =0 ; x < 4 ; x++){
+for(int x =0 ; x < 4 ; x++){ //reset program
 	if(prog_link_name[x] == -1){ 
 		prog_pin_state[x] = 0;
 		prog_link_state[x] =0;
@@ -1586,13 +1590,18 @@ int check_program_state(const char* file_read){
 	}else if(online_epoch >= start_date && online_epoch <= end_date){ //tested (both filled)
 		date_state = 1;
 	}
+	if(online_epoch < 946684800){
+		date_state = 0;	
+	}
 	
-	int day_state;
+	int day_state = 0;
 
 	if(days != "" && day_now != -1){ //all tested
 		day_state = (days[day_now] == '1') ? 1 : 0;
-	}else{
+	}else if(days == ""){ //day control is deactivated
 		day_state = 1;
+	}else if(day_now == -1){//offline 
+		day_state = 0;
 	}
 	
 	long on_conv = stol(on_time.substr(on_time.find("|")+1));
@@ -1625,7 +1634,7 @@ int check_program_state(const char* file_read){
 	}
 	
 	}else{ //if device is offline
-		time_state = 1;
+		time_state = 0;
 	}
 	
 	int state = (date_state == 1 && day_state == 1 && time_state == 1) ? 1 : 0;
@@ -1841,6 +1850,7 @@ else if(main_opt == 8){ ///remote push button
 			prog_timer_state[ctrl_pin-1] = 1;//this variable is used to indicate first time
 			pin_state = sec_info;
 			ext_PB_state[rpb_pin-1] = 0;
+			LOG(LL_WARN,("first time push button %d", pin_state));
 		}else{
 			if(ext_PB_state[rpb_pin-1] == 1){ //short push event
 				ext_PB_state[rpb_pin-1] = 0;

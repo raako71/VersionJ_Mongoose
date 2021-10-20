@@ -1,6 +1,6 @@
 author: alifnl
 description: fixing bug marked in shared doc
-version: 0.10.4g
+version: 0.10.5
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -17,7 +17,8 @@ sources:
 
 # List of dirs. Files from these dirs will be copied to the device filesystem
 filesystem:
-  - fs
+  - fs # this is static fs dir
+  - fs-comp #choose between compressed or uncompressed
  ## 
  
  
@@ -30,7 +31,7 @@ cdefs:
   
 config_schema:
   - ["http.hidden_files", "*.json"]
-  - ["http.index_files", "s", "index.html.gz", {title: "Comma-separated list of index files"}]
+  - ["http.index_files", "s", "index.html.gz", {title: "Comma-separated list of index files"}] #remove .gz if want to use uncompressed one
   - ["debug.level", 0]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]
@@ -82,10 +83,11 @@ libs:
 
 build_vars:
   ESP_IDF_SDKCONFIG_OPTS: >
-    ${build_vars.ESP_IDF_SDKCONFIG_OPTS} 
-      CONFIG_ESPTOOLPY_FLASHSIZE_4MB=
-      CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
-      CONFIG_ESPTOOLPY_FLASHSIZE=16MB
+     ${build_vars.ESP_IDF_SDKCONFIG_OPTS} 
+       CONFIG_ESPTOOLPY_FLASHSIZE_4MB=
+       CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+       CONFIG_ESPTOOLPY_FLASHSIZE=16MB
   ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,12288K
+#  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K
 # Used by the mos tool to catch mos binaries incompatible with this file format
 manifest_version: 2017-09-29
