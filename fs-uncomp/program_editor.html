@@ -208,6 +208,7 @@ Start Date
 <input type="button" onClick="location.href = '/control_page.html?v0.10.3f';" value="BACK">
 </body>
 <script>
+var widget_setting = "";
 var LED_opt_global;
 var IO14_opt_global; var rpb_as_sense;
 load_ctrl_action();
@@ -539,10 +540,10 @@ if( zzz >= 1 && zzz <= 4){
 if( a1 != null){
 var a3 = document.getElementById("action_A_value_on"); 
 if(a1.checked && a3.value == ""){ alert("required a value to be saved (primary on value)"); return;}
-if(a3.value != "" && !a1.checked){ a1.checked = true;}
+//if(a3.value != "" && !a1.checked){ a1.checked = true;}
 if(a4 != null){
 	if(a4.checked && document.getElementById("sec_value_on").value == "" && document.getElementById("sec_trigger_on").value < 5){alert("required a value to be saved (secondary on value)");return;}
-	if(!a4.checked && document.getElementById("sec_value_on").value != "" && document.getElementById("sec_trigger_on").value < 5){a4.checked = true;}
+	//if(!a4.checked && document.getElementById("sec_value_on").value != "" && document.getElementById("sec_trigger_on").value < 5){a4.checked = true;}
 	if(a4.checked && document.getElementById("sec_trigger_on").value == 5){//timed cycle check
 		var c1 = check_timed_cycle("sec_dc","on");
 		var c0 = document.getElementById("sec_dc_loop").checked;
@@ -574,23 +575,23 @@ if(a4 != null){
 		}
 		
 	}
-	if(!a4.checked && document.getElementById("sec_trigger_on").value == 5){
+	/*if(!a4.checked && document.getElementById("sec_trigger_on").value == 5){
 		var c1 = check_timed_cycle("sec_dc","on");
 		c1 = (c1 == -1) ? 0 : c1;
 		var c2 = check_timed_cycle("sec_dc","off") ;
 		c2 = (c2 == -1) ? 0 : c2;
 		if((c1+c2) != 0){ a4.checked = true;}
-	}
+	}*/
 }
 }
 if(a2 != null){
 var a5 = document.getElementById("action_A_value_off");
 if(a2.checked && a5.value == ""){ alert("required a value to be saved (primary off value)"); return;}
-if(a5.value != "" && !a2.checked){ a2.checked = true;}
+//if(a5.value != "" && !a2.checked){ a2.checked = true;}
 if(a6 != null){
 if(document.getElementById("sec_trigger_on") < 5){
  if(a6.checked && document.getElementById("sec_value_off").value == ""){alert("required a value to be saved (secondary off value)");return;}
- if(!a6.checked && document.getElementById("sec_value_off").value != ""){a6.checked = true;}
+ //if(!a6.checked && document.getElementById("sec_value_off").value != ""){a6.checked = true;}
 }// sec trigger < 5
 }
 }
@@ -599,11 +600,11 @@ if(document.getElementById("sec_trigger_on") < 5){
 if(zzz == 9){
 if(a4 != null){
 	if(a4.checked && document.getElementById("sec_value_on").value == "" ){alert ("required a value to be saved (secondary on value)");return;}
-	if(!a4.checked && document.getElementById("sec_value_on").value != ""){a4.checked = true;}
+	//if(!a4.checked && document.getElementById("sec_value_on").value != ""){a4.checked = true;}
 }
 if(a6 != null){
 	if(a6.checked && document.getElementById("sec_value_off").value == ""){alert ("required a value to be saved (secondary off value)");return;}
-	if(!a6.checked && document.getElementById("sec_value_off").value != ""){a6.checked = true;}
+	//if(!a6.checked && document.getElementById("sec_value_off").value != ""){a6.checked = true;}
 }
 }
 
@@ -825,8 +826,10 @@ document.getElementById("spinner_info").innerHTML = "Saving..";
 var z1 = old_json.control_trigger[0].main_option;
 var z2 = old_json.control_trigger[0].sec_option;
 if((z1 >= 1 && z1 <= 4) || (z1 == 9 && z2 != -1)){
-old_json.setting = {type:1, gauge1:{max:1000, min: 0, esz: false, evl: false ,upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}, 
-gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}};
+	if(widget_setting == ""){
+		old_json.setting = {type:1, gauge1:{max:1000, min: 0, esz: false, evl: false ,upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}, 
+		gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}, graph1:{cubic_en:false}, graph2:{cubic_en:false}};
+	}else{old_json.setting = widget_setting;}
 }else{
 old_json.setting = "";
 }
@@ -1001,6 +1004,7 @@ document.getElementById('selectedFile').addEventListener('change', function() {
 function parse_config(input){
 	document.getElementById("program_name").value = input.name;
 	document.getElementById("program_en").checked = input.en;
+	widget_setting = input.setting;
 	if(input.start_date != ""){document.getElementById("start_date_en").checked = true; toggle("start_date"); document.getElementById("start_date").value = from_epoch(input.start_date);}
 	if(input.end_date != ""){document.getElementById("end_date_en").checked = true; toggle("end_date"); document.getElementById("end_date").value = from_epoch(input.end_date);}
 	if(input.days_active != ""){document.getElementById("day_list_en").checked = true; toggle_day();
