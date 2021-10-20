@@ -1,6 +1,8 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.4j - main: transparancy
+0.10.4i - main: merge into main
 0.10.4h: fonts<br>
 0.10.4g-main: textures<br>
 0.10.4g-dev:  fixing bug marked in shared doc<br>

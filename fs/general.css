@@ -303,7 +303,7 @@ display: flex;justify-content: center;flex-wrap: wrap;
     0%{-moz-transform:scale(1); }
     100%{-moz-transform:scale(.3);}
 }
-@media screen and (max-width: 481px){
+@media screen and (max-width: 930px){
 	.main_container{width:85%;}
     .section{width: 90%;margin: 10px;}
     .confirmation_box{width:90%;}
