@@ -1,5 +1,9 @@
+/* please support Socket Controller development - socketcontroller.com */
+
+@import url('https://fonts.googleapis.com/css2?family=Miriam+Libre&display=swap');
+
 html{
-	font-family: Helvetica, 'Trebuchet MS', Tahoma, sans-serif;
+	font-family: 'Miriam Libre', Helvetica, 'Trebuchet MS', Tahoma, sans-serif;
 	display: inline-block; 
 	text-align: center;
 	-webkit-text-size-adjust:none;
@@ -49,8 +53,9 @@ html{
 
 }
 input[type=button]{
+	padding: 0 30px;
 	height: 22px;
-	min-width:100px;
+	margin: 2px;
 }
 input[type="button"][disabled] {
    color: grey;
@@ -122,10 +127,6 @@ overflow: visible;
 .widget_holder{
 	min-height:300px;height:fit-content; min-width:300px;width:fit-content; margin:5px;
 	display:inline-block; border-radius:20px; 
-	-webkit-animation-duration: 1.2s;
-	animation-duration: 1.2s;
-	-webkit-animation-fill-mode: both;
-	animation-fill-mode: both;
 }
 #widget_cluster{
 display: flex;justify-content: center;flex-wrap: wrap;
@@ -302,7 +303,7 @@ display: flex;justify-content: center;flex-wrap: wrap;
     0%{-moz-transform:scale(1); }
     100%{-moz-transform:scale(.3);}
 }
-@media screen and (max-width: 481px){
+@media screen and (max-width: 930px){
 	.main_container{width:85%;}
     .section{width: 90%;margin: 10px;}
     .confirmation_box{width:90%;}
@@ -311,3 +312,11 @@ display: flex;justify-content: center;flex-wrap: wrap;
 #widget_cluster{transform: translateY(50%);}
 .widget_holder{margin:20px;}
 }
+
+#clock_info{
+	float:left;margin-left:25px;padding:9px;
+}
+#login_menu{
+float:right;margin-right:25px;padding:7px;
+}
+/* please support Socket Controller development - socketcontroller.com */
