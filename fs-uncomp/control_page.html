@@ -1,12 +1,11 @@
 <!DOCTYPE HTML>
-<!-- please support Socket Controller development - socketcontroller.com -->
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title>Socket Controller Control Logic</title>
-	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.3f"/>
-    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3f" />
-	<script src="./login.js.gz?v0.10.3f" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.5"/>
+    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.5" />
+	<script src="./login.js.gz?v0.10.5" defer></script>
 </head>
 <body>
 <div id="overlay_save" class="overlay" style="display:none;">
@@ -52,16 +51,16 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <!--eof overlay login-->
 <div id="main_div">
 <div class="top_panel">
-<span id="clock_info">
+<span style="float:left;margin-left:25px;padding:5px" id="clock_info">
 </span>
-<span id="login_menu">
+<span style="float:right;margin-right:25px;padding:5px">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.3f">Home</a>
-	<a href="/graph.html.gz?v0.10.3f">Graph</a>
-    <a href="/control_page.html.gz?v0.10.3f">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.3f">Settings</a>
+    <a href="/index.html?v0.10.5">Home</a>
+	<a href="/graph.html?v0.10.5">Graph</a>
+    <a href="/control_page.html?v0.10.5">Control Logic</a>
+    <a href="/setting.html?v0.10.5">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -119,16 +118,16 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 <script>
 	var dev_offset;
-	var program_list = [{"id": "","name": "", "control_opt":""}, 
-						{"id": "","name": "", "control_opt":""}, 
-						{"id": "","name": "", "control_opt":""}, 
-						{"id": "","name": "", "control_opt":""}, 
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""},
-						{"id": "","name": "", "control_opt":""}];
+	var program_list = [{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}, 
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}, 
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}, 
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}, 
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
+						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}];
 	var prog_number =0;
 	var LED; var IO14;
 	window.addEventListener('load', onLoad);
@@ -146,10 +145,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_until">';
 	dropdown_menu += '<input type=time id="until_time" style="color:grey;" readOnly></div></div>';
 	function onLoad(){
+		update_time();
 		console.log("DOM loaded");
 		fetch_uptime();
 		fetch_program_list();
-		update_time();
 		setInterval(update_time, 1000);	
 	}
 	function fetch_program_list(){
@@ -172,6 +171,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			program_list[id-1].name = prog_json.name;
 			program_list[id-1].id = prog_json.id;
 			program_list[id-1].control_opt = prog_json.control_opt;
+			program_list[id-1].end_date = prog_json.end_date;
+			program_list[id-1].start_date = prog_json.start_date;
+			program_list[id-1].days_active = prog_json.days_active;
+			program_list[id-1].on_time_global = prog_json.on_time_global;
+			program_list[id-1].off_time_global = prog_json.off_time_global;
 			prog_number++;
 		}
 		j++;
@@ -179,7 +183,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			fetch_IO_status();
 			load_conf();	
 		}
-	
+		
 		}
 		}//for
 	}
@@ -195,7 +199,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			}
 			
 		}
-		location.href="program_editor.html.gz?x=new&y=" + id + "&" + Math.random() * Math.random();
+		location.href="program_editor.html?x=new&y=" + id + "&" + Math.random() * Math.random();
 	}
 	function fetch_uptime(){
 		var xhttp = new XMLHttpRequest();	
@@ -216,12 +220,14 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		var i = 0;
 		while(i < 10){
 			if( program_list[i].name != ""){
-			link += '<table><td><li></li> </td><td style="width:100px"><a href="program_editor.html.gz?x=program' + (i+1) +'&y='+program_list[i].id+'&'+ Math.random() * Math.random()+'">' + program_list[i].name + '</a></td>';
+			link += '<table><td><li></li> </td><td style="width:100px"><a href="program_editor.html?x=program' + (i+1) +'&y='+program_list[i].id+'&'+ Math.random() * Math.random()+'">' + program_list[i].name + '</a></td>';
 			link+= '<td style="width:15px">';
 			if(program_list[i].control_opt == 3 && !LED){
 			link+= '<abbr class="title_attr" style="color:red" title="Config error (LED RED)">(!)</abbr></td>';
 			}else if(program_list[i].control_opt == 4 && !IO14){
 			link+= '<abbr class= "title_attr" style="color:red" title="Config error (IO14)">(!)</abbr></td>';
+			}else if((program_list[i].end_date != "" || program_list[i].start_date != "" || program_list[i].days_active != "" || program_list[i].on_time_global != "|-1" || program_list[i].off_time_global != "|-1") && !time_set){
+			link+= '<abbr class= "title_attr" style="color:red" title="time not set">(!)</abbr></td>';
 			}else{
 			link+= '</td>';
 			}
@@ -610,4 +616,3 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	}
 </style>
 </html>
-<!-- please support Socket Controller development - socketcontroller.com -->
