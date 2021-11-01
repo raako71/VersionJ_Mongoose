@@ -60,10 +60,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.3f">Home</a>
-	<a href="/graph.html.gz?v0.10.3f">Graph</a>
-    <a href="/control_page.html.gz?v0.10.3f">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.3f">Settings</a>
+    <a href="/index..html?v0.10.3f">Home</a>
+	<a href="/graph..html?v0.10.3f">Graph</a>
+    <a href="/control_page..html?v0.10.3f">Control Logic</a>
+    <a href="/setting..html?v0.10.3f">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -205,7 +205,7 @@ Start Date
 
 </div>
 <input type="button" style="margin: 15px auto;" value="SAVE" onClick="save_setting()"> 
-<input type="button" onClick="location.href = '/control_page.html.gz?v0.10.3f';" value="BACK">
+<input type="button" onClick="location.href = '/control_page..html?v0.10.3f';" value="BACK">
 </body>
 <script>
 var widget_setting = "";
@@ -1006,7 +1006,10 @@ function parse_config(input){
 	document.getElementById("program_en").checked = input.en;
 	widget_setting = input.setting;
 	if(input.start_date != ""){document.getElementById("start_date_en").checked = true; toggle("start_date"); document.getElementById("start_date").value = from_epoch(input.start_date);}
+	else{document.getElementById("start_date_en").checked = false;}
 	if(input.end_date != ""){document.getElementById("end_date_en").checked = true; toggle("end_date"); document.getElementById("end_date").value = from_epoch(input.end_date);}
+	else{document.getElementById("end_date_en").checked = false;}
+	
 	if(input.days_active != ""){document.getElementById("day_list_en").checked = true; toggle_day();
 	var day_list_str = input.days_active;
 	document.getElementById("sunday").checked = (day_list_str[0] == 1  ? true: false);
@@ -1016,12 +1019,17 @@ function parse_config(input){
 	document.getElementById("thursday").checked = (day_list_str[4] == 1  ? true: false);
 	document.getElementById("friday").checked = (day_list_str[5] == 1  ? true: false);
 	document.getElementById("saturday").checked = (day_list_str[6] == 1  ? true: false);}
+	else{document.getElementById("day_list_en").checked = false;}
+	
 	var on_time = input.on_time_global;
 	on_time = on_time.substring(0, on_time.indexOf("|"));
 	var off_time = input.off_time_global;
 	off_time = off_time.substring(0, off_time.indexOf("|"));
 	if(input.on_time_global != "|-1"){document.getElementById("on_time_en").checked = true; toggle("on_time"); document.getElementById("on_time_val").value = on_time;}
+	else{document.getElementById("on_time_en").checked = false;toggle("on_time");}
 	if(input.off_time_global != "|-1"){document.getElementById("off_time_en").checked = true; toggle("off_time"); document.getElementById("off_time_val").value = off_time;}
+	else{document.getElementById("off_time_en").checked = false;toggle("off_time");}
+	
 	document.getElementById("ctrl_out_opt").value = input.control_opt;
 	if((input.control_opt == 4 && IO14 == false) || input.dev_mode){
 	document.getElementById("output_warning").style.display = "inline";
@@ -1164,7 +1172,10 @@ function off_overlay() {
 function blabla(){
 off_overlay();
 if(program2load=="new"){
-window.open('program_editor.html.gz?x=program'+idprogram +'&y=' +idprogram +'&'+Math.random() * Math.random(), '_self');
+window.open('program_editor..html?x=program'+idprogram +'&y=' +idprogram +'&'+Math.random() * Math.random(), '_self');
+}else{
+console.log("halo");
+load_setting();
 }
 }
 </script>

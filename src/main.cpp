@@ -100,6 +100,8 @@ bool rpb_as_ovr = false;
 int rpb_ovr_opt = 0; // 1-> always, 2 -> duration, 3 -> until
 long rpb_ovr_val = 0;
 int rpb_ovr_prog = 0; // based on prog id
+int rpb_ovr_action = 0; // determine override action after triggered
+int override_output_global = -1;
 
 ///program backend variable
 int prog_link_name[4] = {-1,-1,-1,-1}; //A, B, C, D -> detect lowest ID and enabled; and put program ID here
@@ -1363,7 +1365,7 @@ void checkJSONsetting(){
 	char* buff_b = (char*) malloc(512);
 	json_scanf(buff, strlen(buff), "{ctrl_page: %Q}", &buff_b);
 	json_scanf(buff_b, strlen(buff_b), "{LED: %d, LED_prog: %d, IO14: %B, sensor_input: %B, prog_ctrl: %B}", &LED_opt, &LED_prog, &IO14_en, &rpb_as_sens, &rpb_as_ovr);
-	json_scanf(buff_b, strlen(buff_b), "{override: %d, ovr_val: %ld, active_prog: %d}", &rpb_ovr_opt, &rpb_ovr_val, &rpb_ovr_prog);
+	json_scanf(buff_b, strlen(buff_b), "{override: %d, ovr_val: %ld, active_prog: %d, override_action: %d}", &rpb_ovr_opt, &rpb_ovr_val, &rpb_ovr_prog, &rpb_ovr_action);
 	json_scanf(buff, strlen(buff), "{dec_place: %d, dev_mode: %B}",  &dec_place_global, &dev_mode_global);
 	if(LED_opt == 2){
 		mgos_clear_timer(prog_led_timer);
@@ -1379,6 +1381,7 @@ void checkJSONsetting(){
 	json_scanf(t.ptr, t.len, "{panel: %d, remote: %d}", &panel_brightness, &remote_brightness);
 	panel_brightness = panel_brightness << 8;
 	remote_brightness = remote_brightness << 8;
+	override_output_global = -1; //reset override output function
 	free(buff); free(buff_b);
 }
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
@@ -1473,7 +1476,7 @@ void check_override_func(){
 			}
 		}
 	}else{
-		prog_override_en = false;
+		prog_override_en = false;	
 	}
 	
 	if(ext_PB_state[2] == 2 && rpb_as_ovr && prog_override_en){ //long push event// check override function
@@ -1481,15 +1484,35 @@ void check_override_func(){
 		//check current program en value
 		bool prog_en_local =false; int buff =0;
 		check_program_en(list_prog_name[rpb_ovr_prog-1], prog_en_local, buff);
-		if(prog_en_local == true){
-			LOG(LL_WARN,("Program overriden: %d off", rpb_ovr_prog));
-			modify_program_en(list_prog_name[rpb_ovr_prog-1], false);
-		}else{
-			LOG(LL_WARN,("Program overriden: %d on", rpb_ovr_prog));
-			modify_program_en(list_prog_name[rpb_ovr_prog-1], true);
+		//check which pin the program controlled and check if the program is controlling the pin right now
+		int pin_control = -1;
+		for (int i = 0; i < 4 ; i++){
+			if(prog_link_name[i] == rpb_ovr_prog){pin_control = prog_pin_state[i]; break;} 
+		}
+		
+		if(rpb_ovr_action == 1){//enable disable program
+			if(prog_en_local == true){
+				LOG(LL_WARN,("Program overriden: %d off", rpb_ovr_prog));
+				modify_program_en(list_prog_name[rpb_ovr_prog-1], false);
+			}else{
+				LOG(LL_WARN,("Program overriden: %d on", rpb_ovr_prog));
+				modify_program_en(list_prog_name[rpb_ovr_prog-1], true);
+			}
+			override_output_global = -1;
+		}else if(rpb_ovr_action == 2 && pin_control != -1){ //toggle output status
+			if(override_output_global == -1){
+				override_output_global = pin_control == 1 ? 0: 1;
+			}else{
+				override_output_global = (override_output_global == 1) ? 0 : 1;
+			}
+		}else if(rpb_ovr_action == 3 && pin_control != -1){ //turn on output
+			override_output_global  = 1;
+		}else if(rpb_ovr_action == 4 && pin_control != -1){ // turn off output
+			override_output_global = 0;
 		}
 		
 	}
+	if(prog_override_en == false){override_output_global = -1;}
 }
 void check_program_name(){ //check which output linked to program (id) and check its state
 for (int i = 0; i < 10; i++){
@@ -1536,6 +1559,10 @@ for (int i = 0; i < 10; i++){
 					}
 				}else{ //program is inactive
 					prog_pin_state[prog_output-1] = 0;
+				}
+				if(override_output_global != -1 && prog_link_name[prog_output-1] == rpb_ovr_prog){
+					prog_pin_state[prog_output-1] = override_output_global;
+					LOG(LL_WARN,("overriding output prog %d -> %d", rpb_ovr_prog, override_output_global));
 				}
 			}//end of normal operation	
 		}//end if prog is enabled

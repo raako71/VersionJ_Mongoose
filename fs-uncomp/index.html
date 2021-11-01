@@ -45,10 +45,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.5">Home</a>
-	<a href="/graph.html.gz?v0.10.5">Graph</a>
-    <a href="/control_page.html.gz?v0.10.5">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.5">Settings</a>
+    <a href="/index.html?v0.10.5">Home</a>
+	<a href="/graph.html?v0.10.5">Graph</a>
+    <a href="/control_page.html?v0.10.5">Control Logic</a>
+    <a href="/setting.html?v0.10.5">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -317,7 +317,8 @@ var chart_config = {
 	fill: false,
     data: [],
     label: (setting.name1 != "" ? setting.name1 : setting.name2),
-    radius: 1,
+    radius: 1
+	
   }]
   },
   options: {
@@ -330,11 +331,23 @@ var chart_config = {
 		samples:60,
 		threshold: 60
 	  },
+	  legend: {
+		labels: {
+		// This more specific font property overrides the global property
+		color: ((theme_global == 2) ? "#9e6700" : "grey")
+		}
+	  }
     },
 	scales:{
 		x:{
 			type:'time', 
-			time:{unit:'second',stepSize: 900,displayFormats: {second:'HH:mm'}}
+			time:{unit:'second',stepSize: 900,displayFormats: {second:'HH:mm'}},
+			ticks:{color: ((theme_global == 2) ? "#FFA700" : "black")},
+			grid:{color: ((theme_global == 2) ? "#9e6700" : "grey")}
+		},
+		y:{
+			ticks:{color: ((theme_global == 2) ? "#FFA700" : "black")},
+			grid:{color: ((theme_global == 2) ? "#9e6700" : "grey")}
 		}
 	}
   }
@@ -451,7 +464,7 @@ if(document.getElementById("widget_holder_"+(i+1)) != null){
 
 if(program_list[i].output == 5){
 	document.getElementById("widget"+(i+1)+"_pin").style.display = "none";
-	document.getElementById("widget"+(i+1)+"_output").style.display = "none";
+	document.getElementById("widget"+(i+1)+"_output").innerHTML = (program_list[i].setting.type == 1) ? "<br>" : "<br><br>";
 }else{
 	document.getElementById("widget"+(i+1)+"_pin").style.display = "block";
 	document.getElementById("widget"+(i+1)+"_output").style.display = "block";
