@@ -8,6 +8,10 @@
 	<script src="./login.js.gz?v0.10.5" defer></script>
 </head>
 <body>
+<div id="overlay_time_setting" class="overlay" style="display:none;font-size:16px">
+<div class="confirmation_box" id="time_setting_box">
+</div>
+</div>
 <div id="overlay_save" class="overlay" style="display:none;z-index:3;">
   <div class="confirmation_box" >
   <div id="circularG" >
@@ -42,7 +46,7 @@
 	Key :&nbsp;&nbsp;<input type="password" style="width:80%;margin-left:1px;" id="wifi_pass">
 	</div>
 	<span style="margin-top:10px;display:block;" id="wifi_warning"></span>
-	<div style="margin-top:5px">
+	<div style="margin:15px">
 	<input type="button" onClick="this.value=='save' ? connect_wifi() : off_overlay_wifi()" id="save_wifi" value="save"><input id="cancel_wifi" type="button" value="cancel" onClick="off_overlay_wifi()">
 	</div>
   </div>
@@ -76,10 +80,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html?v0.10.5">Home</a>
-	<a href="/graph.html?v0.10.5">Graph</a>
-    <a href="/control_page.html?v0.10.5">Control Logic</a>
-    <a href="/setting.html?v0.10.5">Settings</a>
+    <a href="/index.html.gz?v0.10.5">Home</a>
+	<a href="/graph.html.gz?v0.10.5">Graph</a>
+    <a href="/control_page.html.gz?v0.10.5">Control Logic</a>
+    <a href="/setting.html.gz?v0.10.5">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -338,6 +342,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		if(hour == "" || minute==""){alert("time zone must not empty"); off_overlay(); return;}
 		if(!(hour >= 0 && hour <= 12)){alert("invalid hour value ( 0 to 12)"); off_overlay(); return;}
 		if(!(minute >= 0 && minute <= 59)){alert("invalid minute value (0 to 59)"); off_overlay();return;}
+		if(document.getElementById("LAN_conf").checked){		
+			if(!ValidateIPaddress(document.getElementById("IP").value)){return;}
+			if(!ValidateIPaddress(document.getElementById("GW").value)){return;}
+			if(!ValidateIPaddress(document.getElementById("SN").value)){return;}
+		}
 		on_overlay();
 		document.getElementById("circularG").style.display = 'block';
 		document.getElementById("spinner_info").innerHTML = "Saving..";
@@ -368,7 +377,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			var pwr_sensor_en = document.getElementById("pwr_sensor_check").checked;
 			var net_conf_en = document.getElementById("LAN_conf").checked;
 			var IP ="";var GW ="";var SN ="" ;
-			if(net_conf_en){IP = document.getElementById("IP").value;GW = document.getElementById("GW").value;SN = document.getElementById("SN").value;if(!ValidateIPaddress(IP)){return;}if(!ValidateIPaddress(GW)){return;}if(!ValidateIPaddress(SN)){return;}}
+			if(net_conf_en){IP = document.getElementById("IP").value;GW = document.getElementById("GW").value;SN = document.getElementById("SN").value;}
 			var time_zone = ((hour * 3600) + (minute * 60)) * mark_tz;
 			var temp_mode = (document.getElementById("temp_C").checked ? 1 : 2);
 			var theme_mode = (document.getElementById("light_theme").checked? 1 : 2);

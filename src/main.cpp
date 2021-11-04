@@ -102,6 +102,8 @@ long rpb_ovr_val = 0;
 int rpb_ovr_prog = 0; // based on prog id
 int rpb_ovr_action = 0; // determine override action after triggered
 int override_output_global = -1;
+bool override_en_status = false;
+std::string override_out_status = "-1,-1";
 
 ///program backend variable
 int prog_link_name[4] = {-1,-1,-1,-1}; //A, B, C, D -> detect lowest ID and enabled; and put program ID here
@@ -462,7 +464,7 @@ void request_widget_data(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_
 	sprintf(prog_name_b, "%d,%d,%d,%d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]);
 	sprintf(prog_state_b, "%d%d%d%d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]);
 	sprintf(pin_state_b, "%d%d%d%d", prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3]);
-	mg_rpc_send_responsef(ri, "{IO_info: {prog_name: %Q, prog_state: %Q, pin_state: %Q}, temp:%.1f, hump:%.1f, light:%.1f, power:%.1f, A:%d, B:%d, LED:%d, IO14:%d}",prog_name_b, prog_state_b, pin_state_b,sensor_value[0], sensor_value[1], sensor_value[2], sensor_value[3],prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3]);
+	mg_rpc_send_responsef(ri, "{IO_info: {prog_name: %Q, prog_state: %Q, pin_state: %Q}, temp:%.1f, hump:%.1f, light:%.1f, power:%.1f, A:%d, B:%d, LED:%d, IO14:%d, ovr_out:%Q, ovr_en:%B}",prog_name_b, prog_state_b, pin_state_b,sensor_value[0], sensor_value[1], sensor_value[2], sensor_value[3],prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3], override_out_status.c_str(), override_en_status);
 	free(prog_name_b); free(prog_state_b); free(pin_state_b);
 	(void) cb_arg;
 	(void) fi;	
@@ -1511,8 +1513,13 @@ void check_override_func(){
 			override_output_global = 0;
 		}
 		
+		//sprintf(override_out_status, "%d,%d", override_output_global, pin_control);
 	}
-	if(prog_override_en == false){override_output_global = -1;}
+	if(prog_override_en == true){override_en_status = true;}
+	if(prog_override_en == false){override_output_global = -1; override_en_status = false;}
+	override_out_status = std::to_string(override_output_global);
+	override_out_status += ",";
+	override_out_status += std::to_string(rpb_ovr_prog);
 }
 void check_program_name(){ //check which output linked to program (id) and check its state
 for (int i = 0; i < 10; i++){

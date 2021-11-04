@@ -14,6 +14,10 @@
 	<script type="text/javascript" src="https://d3js.org/d3-fetch.v1.min.js"></script>
 </head>
 <body>
+<div id="overlay_time_setting" class="overlay" style="display:none;font-size:16px">
+<div class="confirmation_box" id="time_setting_box">
+</div>
+</div>
 <div id="overlay_widget_setting" class="overlay" style="display:none;font-size:16px">
 <div class="confirmation_box" id="widget_setting_box">
 </div>
@@ -45,10 +49,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html?v0.10.5">Home</a>
-	<a href="/graph.html?v0.10.5">Graph</a>
-    <a href="/control_page.html?v0.10.5">Control Logic</a>
-    <a href="/setting.html?v0.10.5">Settings</a>
+    <a href="/index.html.gz?v0.10.5">Home</a>
+	<a href="/graph.html.gz?v0.10.5">Graph</a>
+    <a href="/control_page.html.gz?v0.10.5">Control Logic</a>
+    <a href="/setting.html.gz?v0.10.5">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -442,6 +446,7 @@ var sens = [res.temp, res.hump, res.light, res.power];
 var OS = [res.A , res.B, res.LED, res.IO14];
 var io_info = res.IO_info;
 var a = io_info.prog_name.split(",");
+var ovr_info = res.ovr_out.split(",");
 var unit = ["&deg;", "%", "lux", "W"];
 for (i = 0 ; i < 10 ; i++){
 //show or hide widget
@@ -472,15 +477,18 @@ if(program_list[i].output == 5){
 }
 
 
-//update_gauge
+
 if(document.getElementById("widget"+(i+1)+"_pin") != null){
-document.getElementById("widget"+(i+1)+"_pin").innerHTML = "Switched: <span " + ((OS[program_list[i].output-1] == 0) ? ">&nbsp; OFF &nbsp;" : "class=\"on_label\">&nbsp; ON &nbsp;") + "</span>"; //update output status
+var pin_element = "Switched: <span " + ((OS[program_list[i].output-1] == 0) ? ">&nbsp; OFF &nbsp;" : "class=\"on_label\">&nbsp; ON &nbsp;") + "</span><span style='color:red'>&nbsp;&nbsp;" 
+pin_element += (ovr_info[0] != '-1' && ovr_info[1] == (i+1)) ? "(OVERRIDE)</span>" : "</span>"; //update output status
+document.getElementById("widget"+(i+1)+"_pin").innerHTML = pin_element;
 var v1 = program_list[i].var1;var v2 = program_list[i].var2; var type = program_list[i].setting.type;
+//update_gauge
 for (k = 1 ; k <= 4 ; k++){
 	var os_pt = document.getElementById("gaugetxt_"+(i+1)+"_"+k);
 	if(type == 1 && os_pt != null){os_pt.innerHTML = ((k == 1 && temp_unit_login == 2) ? C2F(sens[k-1]) : sens[k-1]) + " " + unit[k-1] + (k==1 ? (temp_unit_login==1 ? "C" : "F") : "");eval('gauge_' + (i+1) + "_" + k + ".set("+ ((k == 1 && temp_unit_login == 2) ? C2F(sens[k-1]) : sens[k-1]) +")");}
 }//loop 1 to 4
-}//if not null (update gauge)
+}//if not null (update gauge and pin)
 
 }//loop 0 to 9
 });//end of xhr_send
@@ -732,6 +740,7 @@ function save_widget_setting(id){
 	});//end of fs put
 	});//end of fs get
 	});//end of validate cookie
+	save_command_widget = 0;
 }
 
 function setInputFilter(textbox, inputFilter) {["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {textbox.addEventListener(event, function() {if (inputFilter(this.value)) {this.oldValue = this.value;this.oldSelectionStart = this.selectionStart;this.oldSelectionEnd = this.selectionEnd;} else if (this.hasOwnProperty("oldValue")) {this.value = this.oldValue;this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);} else {this.value = "";}});});}

@@ -1,6 +1,6 @@
 author: alifnl
-description: adding override options, fix css
-version: 0.10.5c
+description: login for change time, fix eth ip, adding override
+version: 0.10.6
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
