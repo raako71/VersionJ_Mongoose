@@ -1,5 +1,10 @@
+/* please support Socket Controller development - socketcontroller.com */
 body {
-  background-color: black;
+background-color: #000000;
+opacity: 1;
+background-image:  linear-gradient(30deg, #210905 12%, transparent 12.5%, transparent 87%, #210905 87.5%, #210905), linear-gradient(150deg, #210905 12%, transparent 12.5%, transparent 87%, #210905 87.5%, #210905), linear-gradient(30deg, #210905 12%, transparent 12.5%, transparent 87%, #210905 87.5%, #210905), linear-gradient(150deg, #210905 12%, transparent 12.5%, transparent 87%, #210905 87.5%, #210905), linear-gradient(60deg, #21090577 25%, transparent 25.5%, transparent 75%, #21090577 75%, #21090577), linear-gradient(60deg, #21090577 25%, transparent 25.5%, transparent 75%, #21090577 75%, #21090577);
+background-size: 20px 35px;
+background-position: 0 0, 0 0, 10px 18px, 10px 18px, 0 0, 10px 18px;
   color: #FFA700;
 }
 a, a :visited{
@@ -9,7 +14,7 @@ a:hover{
     color: #ff6200;
 }
 input[type=button]{
-	background: #0e0e0e;
+	background: #0e0e0e00;
 	border:1px solid #FFA700;
 	cursor:pointer;
 	border-radius:5px;
@@ -22,6 +27,7 @@ input[type=button]{
 .widget_holder{
 	border:1px solid #FFA700;
 	background-color:#0e0e0e;
+	background: linear-gradient(to bottom left, #19171499, #0e0e0e99);
 	box-shadow: 0px 0px 10px -1px #8a7a05;
 }
 input[type=text]{
@@ -37,7 +43,7 @@ input[type=number]{
     color: #FFA700;
 }
 .main_container{
-    background-color: #090c05;
+    background-color: #090c05b8;
 	box-shadow: 0px 0px 10px -1px #8a7a05;
 }
 .trigger_container{
@@ -90,3 +96,4 @@ input:checked + .slider { background-color: #0d8e0a;}
 @media screen and (max-width: 1500px){
     .top_panel{ background-color:#000; }
 }
+/* please support Socket Controller development - socketcontroller.com */
