@@ -1,7 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.10.6: login for change time, fix eth ip, adding override<br>
+0.10.6a-c: login for change time, fix eth ip, adding override - override adjustment<br>
 0.10.5a-d: fixing css, widget, and old issue, adding override options<br>
 0.10.4g:  fixing bug marked in shared 2nd doc<br>
 0.10.4g:  fixing bug marked in shared doc<br>

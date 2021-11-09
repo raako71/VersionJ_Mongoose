@@ -102,6 +102,7 @@ long rpb_ovr_val = 0;
 int rpb_ovr_prog = 0; // based on prog id
 int rpb_ovr_action = 0; // determine override action after triggered
 int override_output_global = -1;
+int override_pin = -1;
 bool override_en_status = false;
 std::string override_out_status = "-1,-1";
 
@@ -1384,6 +1385,7 @@ void checkJSONsetting(){
 	panel_brightness = panel_brightness << 8;
 	remote_brightness = remote_brightness << 8;
 	override_output_global = -1; //reset override output function
+	override_pin = -1;
 	free(buff); free(buff_b);
 }
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
@@ -1485,12 +1487,11 @@ void check_override_func(){
 		ext_PB_state[2] = 0;
 		//check current program en value
 		bool prog_en_local =false; int buff =0;
-		check_program_en(list_prog_name[rpb_ovr_prog-1], prog_en_local, buff);
-		//check which pin the program controlled and check if the program is controlling the pin right now
+		int ovr_pin;
+		check_program_en(list_prog_name[rpb_ovr_prog-1], prog_en_local, ovr_pin);
+		//check which pin the program controlled, don't care about other program 
 		int pin_control = -1;
-		for (int i = 0; i < 4 ; i++){
-			if(prog_link_name[i] == rpb_ovr_prog){pin_control = prog_pin_state[i]; break;} 
-		}
+		if(ovr_pin != 5){pin_control = prog_pin_state[ovr_pin-1]; override_pin = ovr_pin-1;}
 		
 		if(rpb_ovr_action == 1){//enable disable program
 			if(prog_en_local == true){
@@ -1501,6 +1502,7 @@ void check_override_func(){
 				modify_program_en(list_prog_name[rpb_ovr_prog-1], true);
 			}
 			override_output_global = -1;
+			override_pin = -1;
 		}else if(rpb_ovr_action == 2 && pin_control != -1){ //toggle output status
 			if(override_output_global == -1){
 				override_output_global = pin_control == 1 ? 0: 1;
@@ -1519,7 +1521,7 @@ void check_override_func(){
 	if(prog_override_en == false){override_output_global = -1; override_en_status = false;}
 	override_out_status = std::to_string(override_output_global);
 	override_out_status += ",";
-	override_out_status += std::to_string(rpb_ovr_prog);
+	override_out_status += std::to_string(override_pin);
 }
 void check_program_name(){ //check which output linked to program (id) and check its state
 for (int i = 0; i < 10; i++){
@@ -1530,7 +1532,7 @@ for (int i = 0; i < 10; i++){
 		check_program_en(list_prog_name[i], prog_en, prog_output);
 		int x = check_program_state(list_prog_name[i]);
 		bool run_prog = prog_en && x == 1;
-		if(run_prog){ //program is enabled
+		if(run_prog && prog_output != 5){ //program is enabled
 			//somehow user change the output option ->reset link with same output
 			for(int j = 0; j < 4 ; j++){
 				if(prog_link_name[j] == i+1){prog_link_name[j]=-1;} 
@@ -1567,15 +1569,13 @@ for (int i = 0; i < 10; i++){
 				}else{ //program is inactive
 					prog_pin_state[prog_output-1] = 0;
 				}
-				if(override_output_global != -1 && prog_link_name[prog_output-1] == rpb_ovr_prog){
-					prog_pin_state[prog_output-1] = override_output_global;
-					LOG(LL_WARN,("overriding output prog %d -> %d", rpb_ovr_prog, override_output_global));
-				}
 			}//end of normal operation	
 		}//end if prog is enabled
-		if(!run_prog && prog_link_name[prog_output-1] == i+1){ ///somehow program is disabled by user
-			//LOG(LL_WARN,("disable program %d", (i+1)));
-			prog_link_name[prog_output-1] = -1;
+		if(prog_output != -5){
+			if(!run_prog && prog_link_name[prog_output-1] == i+1){ ///somehow program is disabled by user
+				//LOG(LL_WARN,("disable program %d", (i+1)));
+				prog_link_name[prog_output-1] = -1;
+			}
 		}
 	}else{// program is somehow deleted, related output will be -1 (prog_link_name) (does not exist)
 		for(int j = 0; j < 4 ; j++){
@@ -1591,6 +1591,11 @@ for(int x =0 ; x < 4 ; x++){ //reset program
 		prog_timer_state[x] = 0;
 		mgos_clear_timer(prog_timer_id[x]);
 	}
+}
+//OVERRIDING PROGRAM OUTPUT
+if(override_output_global != -1){
+	prog_pin_state[override_pin] = override_output_global;
+	LOG(LL_WARN,("overriding output pin %d -> %d", (override_pin), override_output_global));
 }
 }
 
