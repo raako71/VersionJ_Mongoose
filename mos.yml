@@ -5,7 +5,7 @@ version: 0.10.6d
 libs_version: ${mos.version}
 modules_version: ${mos.version}
 mongoose_os_version: ${mos.version}
-
+platform: esp32
 # Optional. List of tags for online search.
 tags:
   - cpp
