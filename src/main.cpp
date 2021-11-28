@@ -43,15 +43,16 @@
 #define WIFI_LED 4
 #define WIFI_BTN 35
 #define PB1 34
+#define PB2 35
 #define EN_I2C 13
 #define R1 14
 #define R2 12
 #define LED_RED 16
-#define RL_LED_EN 2
+#define RL_LED_EN 2	
 #endif
 
 #ifdef V2
-#define WIFI_LED 16
+#define WIFI_LED 16 //commented out in code due to short in hardware 
 #define WIFI_BTN 36
 #define INPUT_A 35
 #define INPUT_B 39

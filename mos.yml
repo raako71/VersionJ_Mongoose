@@ -1,6 +1,6 @@
 author: alifnl
-description: fix 12 nov issue, adding login before reboot
-version: 0.10.6d
+description: add PB2
+version: 0.10.6d.1
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
