@@ -40,13 +40,16 @@
 #define V2  //V2
 
 #ifdef V1
-#define WIFI_LED 4
+#define WIFI_LED 16
 #define WIFI_BTN 35
 #define PB1 34
+#define PB2 35
+#define R_PB 36
+#define GPIO14 15 //interrupt on RTC
 #define EN_I2C 13
 #define R1 14
 #define R2 12
-#define LED_RED 16
+#define LED_RED 4 //IO4 is RED LED
 #define RL_LED_EN 2
 #endif
 
@@ -418,7 +421,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	LOG(LL_WARN,("average setting error code: %d", err));
 	
 	//BME280
-	bme = mgos_bme280_i2c_create(0x77);
+	bme = mgos_bme280_i2c_create(0x76);
 	bool status = mgos_bme280_is_bme280(bme);
 	LOG(LL_WARN, ("BME280 is: %s", (status ? "connected": "disconnected")));
 	
