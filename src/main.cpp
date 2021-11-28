@@ -53,17 +53,32 @@
 #ifdef V2
 #define WIFI_LED 16
 #define WIFI_BTN 36
-#define PB1 35
-#define PB2 39
-#define R_PB 34
-#define GPIO14 14
+#define INPUT_A 35
+#define INPUT_B 39
+#define INPUT_C 34
+
 #define EN_I2C 13
-#define R1 4
-#define R2 12
-#define LED_RED 2
+#define OUTPUT_A 4
+#define OUTPUT_B 12
+#define OUTPUT_C 2
+#define OUTPUT_D 14
 #define RL_LED_EN 15
 #endif
 
+#ifdef V3
+#define WIFI_BTN 13
+#define WIFI_LED 14
+#define INPUT_A 35
+#define INPUT_B 39
+#define INPUT_C 34
+#define INPUT_D 36
+#define OUTPUT_A 4
+#define OUTPUT_B 12
+#define OUTPUT_C 2
+#define OUTPUT_D 16
+#define EN_I2C 13
+#define RL_LED_EN 15
+#endif
 bool colen[13];
 float column[20];
 bool rc_1970day = 0, rc_thisday = 0;
@@ -108,6 +123,7 @@ std::string override_out_status = "-1,-1";
 
 ///program backend variable
 int prog_link_name[4] = {-1,-1,-1,-1}; //A, B, C, D -> detect lowest ID and enabled; and put program ID here
+int prog_link_name_z[4] = {-1,-1,-1,-1}; //delayed
 int prog_link_state[4] = {0,0,0,0}; //indicate program state -> based on date etc
 const char* list_prog_name[10] = {"program1.json", "program2.json", "program3.json", "program4.json", "program5.json", "program6.json",
 							  "program7.json", "program8.json", "program9.json", "program10.json"};
@@ -304,8 +320,8 @@ static void timer_cb(void *arg) {
 
 static void logging_cb(void *arg){
 	//logging code
-	column[1] = mgos_gpio_read_out(R1);
-	column[2] = mgos_gpio_read_out(R2);
+	column[1] = mgos_gpio_read_out(INPUT_A);
+	column[2] = mgos_gpio_read_out(INPUT_B);
     
     //logging current, voltage, and power
     int Vrms_measured  = mySensor.getVrms();
@@ -375,27 +391,27 @@ enum mgos_app_init_result mgos_app_init(void) {
 	Wire.begin();
 	//GPIO init
 	mgos_gpio_setup_output(EN_I2C, 1);
-  	mgos_gpio_setup_output(R1, 0);
-  	mgos_gpio_setup_output(R2, 0);
-	mgos_gpio_setup_output(LED_RED,0);
+  	mgos_gpio_setup_output(OUTPUT_A, 0);
+  	mgos_gpio_setup_output(OUTPUT_B, 0);
+	mgos_gpio_setup_output(OUTPUT_C,0);
   	//mgos_gpio_setup_output(WIFI_LED, 0);
   	mgos_gpio_setup_output(RL_LED_EN, 0);
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN ); 
-	mgos_gpio_setup_input(R_PB, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_setup_input(PB1, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_setup_input(PB2, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_setup_input(INPUT_C, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_setup_input(INPUT_A, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_setup_input(INPUT_B, MGOS_GPIO_PULL_DOWN );
 
-	mgos_gpio_set_mode(PB1, MGOS_GPIO_MODE_INPUT);
-	mgos_gpio_set_mode(PB2, MGOS_GPIO_MODE_INPUT);
-	mgos_gpio_set_mode(R1, MGOS_GPIO_MODE_OUTPUT);
-  	mgos_gpio_set_mode(R2, MGOS_GPIO_MODE_OUTPUT);
-  	mgos_gpio_set_mode(R_PB, MGOS_GPIO_MODE_INPUT);
+	mgos_gpio_set_mode(INPUT_A, MGOS_GPIO_MODE_INPUT);
+	mgos_gpio_set_mode(INPUT_B, MGOS_GPIO_MODE_INPUT);
+	mgos_gpio_set_mode(OUTPUT_A, MGOS_GPIO_MODE_OUTPUT);
+  	mgos_gpio_set_mode(OUTPUT_B, MGOS_GPIO_MODE_OUTPUT);
+  	mgos_gpio_set_mode(INPUT_C, MGOS_GPIO_MODE_INPUT);
 	mgos_gpio_set_mode(RL_LED_EN, MGOS_GPIO_MODE_OUTPUT);
-	mgos_gpio_set_mode(LED_RED, MGOS_GPIO_MODE_OUTPUT);
+	mgos_gpio_set_mode(OUTPUT_C, MGOS_GPIO_MODE_OUTPUT);
 	
-	mgos_gpio_set_pull(PB1, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_set_pull(PB2, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_set_pull(R_PB, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_set_pull(INPUT_A, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_set_pull(INPUT_B, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_set_pull(INPUT_C, MGOS_GPIO_PULL_DOWN );
 	//ACS71020
   	int err = 0;
 	err = mySensor.begin(0x61);     //change according ic address
@@ -649,7 +665,7 @@ void load_wifi_setting(){
 void fade_blink_remote_led(){
 	static unsigned int PWM_val = 0;
     static char index = 0;
-    mgos_pwm_set(LED_RED, 1000, (float)PWM_val/65535);
+    mgos_pwm_set(OUTPUT_C, 1000, (float)PWM_val/65535);
     if(index == 0){
       long buff = (long)PWM_val + (655);
       if(buff >= 65535){
@@ -1543,6 +1559,14 @@ for (int i = 0; i < 10; i++){
 					prog_timer_state[prog_output-1] = 0; //reset timer
 				}
 				prog_link_name[prog_output-1] = i+1;
+				if(prog_link_name[prog_output-1] != prog_link_name_z[prog_output-1]){ //different program controlling same pin // reset pin setting
+					prog_pin_state[prog_output-1] = 0;
+					prog_link_state[prog_output-1] =0;
+					prog_timer_state[prog_output-1] = 0;
+					mgos_clear_timer(prog_timer_id[prog_output-1]);
+					LOG(LL_WARN,("reset"));
+				}
+				prog_link_name_z[prog_output-1] = prog_link_name[prog_output-1];
 				//check program state
 				prog_link_state[prog_output-1] = 1;
 				
@@ -2050,9 +2074,9 @@ return pin_state; //-1 no change, 0 -> off, 1 -> on
 }//end of function check program input
 
 void adjust_prog_pin(){
-	mgos_gpio_write(R1, prog_pin_state[0]);
-	mgos_gpio_write(R2, prog_pin_state[1]);
-	mgos_gpio_write(GPIO14, prog_pin_state[3]);
+	mgos_gpio_write(OUTPUT_A, prog_pin_state[0]);
+	mgos_gpio_write(OUTPUT_B, prog_pin_state[1]);
+	mgos_gpio_write(OUTPUT_D, prog_pin_state[3]);
 	led_red_ctrl(prog_pin_state[2]);
 	
 }
@@ -2128,17 +2152,17 @@ void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fram
 void led_red_ctrl(unsigned int value){ //as output
 	if(LED_opt == 1){
 		if(value == 1){
-			mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+			mgos_pwm_set(OUTPUT_C, 1000, (float)(65535-remote_brightness)/65535);
 			//mgos_gpio_write(LED_RED, 0);
 			led_red_status = 1;
 		}else{
-			mgos_pwm_set(LED_RED, 1000, 1);
+			mgos_pwm_set(OUTPUT_C, 1000, 1);
 			//mgos_gpio_write(LED_RED, 1);
 			led_red_status = 0;
 		}
 	}else if(LED_opt == 0){
 		led_red_status = 0;
-		mgos_pwm_set(LED_RED, 1000, 1);
+		mgos_pwm_set(OUTPUT_C, 1000, 1);
 	}
 }
 
@@ -2147,11 +2171,11 @@ void led_red_ctrl_asprog(void *arg){
 		for (int i = 0; i < 4;i++){ //blinking
 			if(prog_link_name[i] == LED_prog){
 				if(prog_pin_state[i] == 1){
-					mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+					mgos_pwm_set(OUTPUT_C, 1000, (float)(65535-remote_brightness)/65535);
 					//mgos_gpio_write(LED_RED, 0);
 					led_red_status = 1;
 				}else{
-					mgos_pwm_set(LED_RED, 1000, 1);
+					mgos_pwm_set(OUTPUT_C, 1000, 1);
 					//mgos_gpio_write(LED_RED, 1);
 					led_red_status = 0;
 				}
@@ -2162,7 +2186,7 @@ void led_red_ctrl_asprog(void *arg){
 		for (int i = 0; i < 4;i++){ //fading
 			if(prog_link_name[i] == LED_prog){
 				if(prog_link_state[i] == 1 && prog_pin_state[i] == 1){
-					mgos_pwm_set(LED_RED, 1000, (float)(65535-remote_brightness)/65535);
+					mgos_pwm_set(OUTPUT_C, 1000, (float)(65535-remote_brightness)/65535);
 					led_red_status = 1;
 					break;
 				}else if(prog_link_state[i] == 1 && prog_pin_state[i] == 0){ //scheduled is glowing
@@ -2172,7 +2196,7 @@ void led_red_ctrl_asprog(void *arg){
 				}
 			}else if (i == 3){
 				led_red_status = 0;
-				mgos_pwm_set(LED_RED, 1000, 1);
+				mgos_pwm_set(OUTPUT_C, 1000, 1);
 			}
 		}
 	}
@@ -2202,7 +2226,7 @@ void setup_timer_program(int ctrl_pin, long value){
 }
 
 int read_R1_button() { // read button if there is logic change
-  int button = mgos_gpio_read(PB1);
+  int button = mgos_gpio_read(INPUT_A);
   static int button_z = 0;
   int result = 0;
   if(button_z == 0 && button == 1){
@@ -2214,7 +2238,7 @@ int read_R1_button() { // read button if there is logic change
 }
 
 int read_R2_button() { // read button if there is logic change
-  int button = mgos_gpio_read(PB2);
+  int button = mgos_gpio_read(INPUT_B);
   static int button_z = 0;
   int result = 0;
   if(button_z == 0 && button == 1){
@@ -2226,7 +2250,7 @@ int read_R2_button() { // read button if there is logic change
 }
 
 int read_RPB_button() { // read button if there is logic change
-  int button = mgos_gpio_read(R_PB);
+  int button = mgos_gpio_read(INPUT_C);
   static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
   static int button_z = 0;
   static int timer = 0;

@@ -84,7 +84,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<a href="/graph.html.gz?v0.10.5">Graph</a>
     <a href="/control_page.html.gz?v0.10.5">Control Logic</a>
     <a href="/setting.html.gz?v0.10.5">Settings</a>
-	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
+	<a href="javascript:void(0)" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
 </span>
@@ -141,14 +141,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		<span class="slider round"></span>
 	</label><br>
 	</div>
-	
-	<div class="section">
+	<!--div class="section">
 		<input type="checkbox" id="pwr_sensor_check" name="pwr_sensor_check">	
 		<label for="pwr_sensor_check"><b>Power Sensor Setting</b></label><br>
 		&nbsp;&nbsp;&nbsp; in Development...
 		<br>
-	</div>
-	
+	</div-->
 	<div class="section">
 		<b>Set Time Zone</b>
 		<br>
@@ -279,7 +277,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			document.getElementById("dev_mode_en").checked = old_json.dev_mode;
 			document.getElementById("mode").value = old_json.wifi.mode;
 			build_wifi_saved_list(old_json.wifi.cfg);
-			document.getElementById("pwr_sensor_check").checked = old_json.pwr_sensor[0].enable;
+			//document.getElementById("pwr_sensor_check").checked = old_json.pwr_sensor[0].enable;
 			var static_conf = old_json.static_IP_conf[0].enable;
 			if(static_conf){
 				document.getElementById("LAN_conf").checked = true;
@@ -422,33 +420,55 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		});//validate cookie		
 		save_command = false;
 	}//save conf function
-	function save_eth_conf(en, ip, gw, netmask, i2c_en){
-		var xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "/rpc/Config.Set", true);
-		xhttp.setRequestHeader('Content-Type', 'application/json');
-		var contain = {"config": {"i2c":{"enable":i2c_en}, "eth": {"enable": en, "ip": ip, "gw": gw, "netmask":netmask}}};
-		xhttp.send(JSON.stringify(contain));
+function save_eth_conf(en, ip, gw, netmask, i2c_en){
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", "/rpc/Config.Set", true);
+	xhttp.setRequestHeader('Content-Type', 'application/json');
+	var contain = {"config": {"i2c":{"enable":i2c_en}, "eth": {"enable": en, "ip": ip, "gw": gw, "netmask":netmask}}};
+	xhttp.send(JSON.stringify(contain));
+}
+
+function reboot(){
+if(!check_password()){
+	reboot_command = true;
+	on_overlay_login(2);
+	return;
+}
+on_overlay();document.getElementById("circularG").style.display = 'block';
+document.getElementById("spinner_info").innerHTML = "";
+validate_cookie(function(i){
+	if(i.code == 200 && i.data.status == "illegal"){reboot_command = true;on_overlay();document.getElementById("circularG").style.display = 'none';
+		document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";document.getElementById("relogin_button").style.display="block";
+		return;
+	}else if(i.code != 200){
+	var ext_btn = '<div><input type="button" style="font-size:16px" value="retry" onClick="reboot()">';
+	ext_btn += '<input style="font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>';
+	document.getElementById("spinner_info").innerHTML = (i.status + '<br><br>' + ext_btn); document.getElementById("circularG").style.display = 'none';
+	return;}
+	off_overlay();
+	setTimeout(function(){
+	var con = confirm("Proceed to reboot?");
+	if(con){
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", "/rpc/Sys.Reboot", true);
+		xhr.send();
+	}	
+	},100);
+});//end of validate_cookie
+reboot_command = false;
+}
+function fetch_version(){
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", "/rpc/Sys.GetInfo", true);
+	xhttp.send();
+	xhttp.onload = function(){
+		sys_info = JSON.parse(this.responseText);
+		document.getElementById("fw_version").innerHTML = "<p>Build Version: " + sys_info.fw_version + "</p>";
 	}
-	function reboot(){
-		var con = confirm("Proceed to reboot?");
-		if(con){
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "/rpc/Sys.Reboot", true);
-			xhr.send();
-		}
-	}
-	function fetch_version(){
-		var xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "/rpc/Sys.GetInfo", true);
-		xhttp.send();
-		xhttp.onload = function(){
-			sys_info = JSON.parse(this.responseText);
-			document.getElementById("fw_version").innerHTML = "<p>Build Version: " + sys_info.fw_version + "</p>";
-		}
-	}
-	function getconfig(){
-	document.getElementById("IP").value = sys_info.eth.ip;
-	}
+}
+function getconfig(){
+document.getElementById("IP").value = sys_info.eth.ip;
+}
 function on_overlay() {
 	document.getElementById("overlay_save").style.display = "block";
 	document.getElementById("main_div").style.filter = "blur(2px)";
@@ -458,7 +478,10 @@ function on_overlay() {
 	document.getElementById("relogin_button").style.display="none";
 	document.getElementById("refresh_button").style.display="none";
 }
-
+function off_overlay_cb(cb){
+off_overlay();
+cb();
+}
 function off_overlay() {
   document.getElementById("overlay_save").style.display = "none";
   document.getElementById("main_div").style.filter = "none";
@@ -671,17 +694,24 @@ form.addEventListener("submit", e => {
 	
 });
 
-function upload_fw(){
+function upload_fw(){ //done
 if(!check_password()){
 	save_command_update = true;
 	on_overlay_login(2);
 	return;
 }
+on_overlay();document.getElementById("circularG").style.display = 'block';
+document.getElementById("spinner_info").innerHTML = "";
 validate_cookie(function(i){
 	if(i.code == 200 && i.data.status == "illegal"){save_command_update = true;on_overlay();document.getElementById("circularG").style.display = 'none';
 		document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";document.getElementById("relogin_button").style.display="block";
 		return;
-	}else if(i.code != 200){save_command_update = true;x.innerHTML = i.status;return;}
+	}else if(i.code != 200){ 
+	var ext_btn = '<div><input type="button" style="font-size:16px" value="retry" onClick="upload_fw()">';
+	ext_btn += '<input style="font-size:16px" type="button" value="cancel" onClick="off_overlay()"></div>';
+	document.getElementById("spinner_info").innerHTML = (i.status + '<br><br>' + ext_btn); document.getElementById("circularG").style.display = 'none';
+	return;}
+	off_overlay();
 	document.getElementById("update_file").click();
 });//validate_cookie
 save_command_update = false;
