@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>	
 	<title>SC Program Editor</title>
-	<link id="theme" rel="stylesheet" type="text/css" href="dark.css?v0.10.3f"/>
-    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3f" />
-	<script src="./login.js.gz?v0.10.3f" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css?v0.10.7"/>
+    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.7" />
+	<script src="./login.js.gz?v0.10.7" defer></script>
 	<link rel="stylesheet" href="./picker.css.gz" type="text/css"/>
 	<script src="./picker.js.gz"></script>
 	
@@ -64,10 +64,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.3f">Home</a>
-	<a href="/graph.html.gz?v0.10.3f">Graph</a>
-    <a href="/control_page.html.gz?v0.10.3f">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.3f">Settings</a>
+    <a href="/index.html.gz?v0.10.7">Home</a>
+	<a href="/graph.html.gz?v0.10.7">Graph</a>
+    <a href="/control_page.html.gz?v0.10.7">Control Logic</a>
+    <a href="/setting.html.gz?v0.10.7">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -209,12 +209,14 @@ Start Date
 
 </div>
 <input type="button" style="margin: 15px auto;" value="SAVE" onClick="save_setting()"> 
-<input type="button" onClick="location.href = '/control_page.html.gz?v0.10.3f';" value="BACK">
+<input type="button" onClick="location.href = '/control_page.html.gz?v0.10.7';" value="BACK">
 </body>
 <script>
 var widget_setting = "";
 var LED_opt_global;
-var IO14_opt_global; var rpb_as_sense;
+var IO14_opt_global; var input_C_sense;
+var input_A_sense; var input_B_sense;
+var input_D_sense;
 load_ctrl_action();
 var program2load = getUrlParam('x','Empty');
 var idprogram = getUrlParam('y','Empty');
@@ -446,8 +448,9 @@ function load_ctrl_action(){
 	var action_B = '<div class="trigger_container" style="border:1px solid;border-radius:10px; padding:10px"><table><tr><td>Switch Device: </td><td>&nbsp;<label class="switch">';
 	action_B += '<input type="checkbox" id="action_B_en"><span class="slider round"></span></label></td></tr></table></div></div>';
 	var action_D = '<div class="trigger_container" style="border:1px solid;border-radius:10px; padding:10px">Input Button: ';
-	action_D += '<select id="input_remote"><option value=1> Relay A </option><option value= 2> Relay B</option><option value = 3> ';
-	action_D += 'Remote PB </option></select>';
+	action_D += '<select id="input_remote" onChange="document.getElementById(\'input_warning\').style.display = \'none\';"><option value=1> Input A </option><option value= 2> Input B</option><option value = 3> ';
+	action_D += 'Input C </option><option value = 4>Input D</option></select>';
+	action_D += '&nbsp;<span id="input_warning" style="color:red;cursor:pointer; display:none"> (!)</span> <span id="input_warning_message"> Output Disabled</span>'
 	action_D += '<div  style="margin-top:15px">';
 	action_D += 'Timed Cycle Trigger &nbsp;<label style="position:relative; top:-4px"class="switch2"><input type="checkbox" id="action_D_selector"';
 	action_D += 'onChange="load_action_D_sec(this)" checked><span class="slider2 round"></label>&nbsp; Toggle Switch</div>';
@@ -487,7 +490,11 @@ function load_ctrl_action(){
 		el.innerHTML = action_B;
 	}else if (selection == 8){
 		el.innerHTML = action_D;
-		if(rpb_as_sense==false){ document.getElementById("input_remote").remove(2);}
+		if(input_C_sense==false){ document.getElementById("input_remote").remove(2);}
+		if(input_A_sense == false){document.getElementById("input_remote").remove(0);}
+		if(input_B_sense == false){document.getElementById("input_remote").remove(1);}
+		if(input_D_sense == false){document.getElementById("input_remote").remove(3);}
+		
 		load_action_D_sec(document.getElementById("action_D_selector"));
 	}else if(selection == 9){
 		el.innerHTML = action_E;
@@ -741,6 +748,11 @@ var b4 = Number(document.getElementById("sec_value_off").value);
 }
 
 if(document.getElementById("ctrl_out_opt").value == ''){alert("invalid control output option!"); return;}
+if(document.getElementById("input_remote") != null){
+	if(document.getElementById("input_remote").value == ''){
+		alert("invalid push button input option!"); return;
+	}
+}
 //if(program2load == "new"){ save_new(); } else {save_old();}
 save_conf();
 }
@@ -915,8 +927,10 @@ var data = JSON.parse(this.responseText);
 var old_json = JSON.parse(window.atob(data.data));
 var a = old_json.ctrl_page.LED;
 var b = old_json.ctrl_page.IO14;
-var c = old_json.ctrl_page.sensor_input;
-rpb_as_sense = c;
+input_C_sense = old_json.override[2].sensor;
+input_A_sense = old_json.override[0].sensor;
+input_B_sense = old_json.override[1].sensor;
+input_D_sense = old_json.override[3].sensor;
 LED_opt_global = a;
 IO14_opt_global = b;
 var c = document.getElementById("ctrl_out_opt");
@@ -1007,6 +1021,7 @@ document.getElementById('selectedFile').addEventListener('change', function() {
 })
 
 function parse_config(input){
+	//load_ctrl_action first and then parse_config
 	document.getElementById("program_name").value = input.name;
 	document.getElementById("program_en").checked = input.en;
 	widget_setting = input.setting;
@@ -1115,6 +1130,11 @@ function parse_config(input){
 	document.getElementById("action_B_en").checked = Number(b) == 1 ? true: false;
 	}else if(a == 8){
 	document.getElementById("input_remote").value = b;
+	if(b == 1 && !input_A_sense){document.getElementById("input_warning_message").innerHTML = "Input A disabled!"; document.getElementById("input_warning").style.display = "inline";}
+	if(b == 2 && !input_B_sense){document.getElementById("input_warning_message").innerHTML = "Input B disabled!"; document.getElementById("input_warning").style.display = "inline";}
+	if(b == 3 && !input_C_sense){document.getElementById("input_warning_message").innerHTML = "Input C disabled!"; document.getElementById("input_warning").style.display = "inline";}
+	if(b == 4 && !input_D_sense){document.getElementById("input_warning_message").innerHTML = "Input D disabled!"; document.getElementById("input_warning").style.display = "inline";}
+	
 	document.getElementById("action_D_selector").checked = (c == 1) ? true : false;
 	load_action_D_sec(document.getElementById("action_D_selector"));
 	if(c == 1){
@@ -1208,6 +1228,14 @@ input:checked + .slider2:before { -webkit-transform: translateX(15px); -ms-trans
   color: red;
 }
 #warning_message{
+  display: none;
+}
+
+#input_warning:hover + #input_warning_message {
+  display: inline;
+  color: red;
+}
+#input_warning_message{
   display: none;
 }
 </style>

@@ -1,6 +1,6 @@
 author: alifnl
-description: add PB2
-version: 0.10.6d.1
+description: adding overriding features (shared doc exclude toggle mode) V3 
+version: 0.10.7
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

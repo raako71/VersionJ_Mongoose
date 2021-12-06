@@ -21,6 +21,10 @@
 "temp_scale" : 1,
 "brightness": [{"panel": 255, "remote": 255}],
 "theme":2,
-"ctrl_page": {"sensor_input":true, "prog_ctrl":false, "override":0, "ovr_val":"" , "LED" :0, "LED_prog": 0, "IO14":false, "active_prog": 0, "override_action": 1},
+"ctrl_page": {"LED" :0, "LED_prog": 0, "IO14":false},
+"override":[{"sensor":true, "output_ovr":false, "ovr_limit": 0, "ovr_val":0, "ovr_act":1},
+            {"sensor":true, "output_ovr":false, "ovr_limit": 0, "ovr_val":0, "ovr_act":1},
+			{"sensor":true, "output_ovr":false, "ovr_limit": 0, "ovr_val":0, "ovr_act":1, "output_opt":0},
+			{"sensor":false, "output_ovr":false, "ovr_limit": 0, "ovr_val":0, "ovr_act":1, "output_opt":0}],
 "webserver": {"timeout":10000}
 }

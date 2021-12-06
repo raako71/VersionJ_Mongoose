@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title>Socket Controller Control Logic</title>
-	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.3f"/>
-    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.3f" />
-	<script src="./login.js.gz?v0.10.3f" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.7"/>
+    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.7" />
+	<script src="./login.js.gz?v0.10.7" defer></script>
 </head>
 <body>
 <div id="overlay_time_setting" class="overlay" style="display:none;font-size:16px">
@@ -61,10 +61,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.3f">Home</a>
-	<a href="/graph.html.gz?v0.10.3f">Graph</a>
-    <a href="/control_page.html.gz?v0.10.3f">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.3f">Settings</a>
+    <a href="/index.html.gz?v0.10.7">Home</a>
+	<a href="/graph.html.gz?v0.10.7">Graph</a>
+    <a href="/control_page.html.gz?v0.10.7">Control Logic</a>
+    <a href="/setting.html.gz?v0.10.7">Settings</a>
 	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -80,11 +80,29 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<input type="button" value="Create New Program" onClick="new_program()">
 	</div>
 	</div>
-	<div class="section">
-	<b> Remote Push Button</b><br>
-	<input type="checkbox" id = "sens_in" ><label for="sens_in"> As Sensor Input </label><br>
-	<input type="checkbox" id = "cont_prog"><label for="cont_prog"> As Program Control Switch (switch program on/off)(Hold 3 seconds)</label><br>
-	<div id="prog_holder" style="padding-left:20px;">
+	<div class="section"> <!-- input mode section -->
+	<b> Input Mode</b><br>
+	<div style="margin-top:15px">Input Control A</div>
+	<input type="checkbox" id = "sens_in_A" ><label for="sens_in_A"> As Sensor Input </label><br>
+	<input type="checkbox" onClick="toggle_output_override('A',0)" id = "cont_prog_A"><label for="cont_prog_A"> Output Override (Hold 3 seconds)</label><br>
+	<div id="ovr_holder_A" style="padding-left:20px;">
+	</div>
+	<div style="margin-top:15px">Input Control B</div>
+	<input type="checkbox" id = "sens_in_B" ><label for="sens_in_B"> As Sensor Input </label><br>
+	<input type="checkbox" onClick="toggle_output_override('B',1)" id = "cont_prog_B"><label for="cont_prog_B"> Output Override (Hold 3 seconds)</label><br>
+	<div id="ovr_holder_B" style="padding-left:20px;">
+	</div>
+	<div style="margin-top:15px">Input Control C</div>
+	<input type="checkbox" id = "sens_in_C" ><label for="sens_in_C"> As Sensor Input </label><br>
+	<input type="checkbox" onClick="toggle_output_override('C',2)" id = "cont_prog_C"><label for="cont_prog_C"> Output Override (Hold 3 seconds)</label><br>
+	<div id="ovr_holder_C" style="padding-left:20px;">
+	</div>
+	<div id="input_control_D_holder" style="margin-top:15px;display:none">
+		<div>Input Control D</div>
+		<input type="checkbox" id = "sens_in_D" ><label for="sens_in_D"> As Sensor Input </label><br>
+		<input type="checkbox" onClick="toggle_output_override('D',3)" id = "cont_prog_D"><label for="cont_prog_D"> Output Override (Hold 3 seconds)</label><br>
+		<div id="ovr_holder_D" style="padding-left:20px;">
+		</div>
 	</div>
 	</div>
 	<div class="section">
@@ -103,16 +121,20 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<b>Outputs</b>
 	<br>
 	<div style="margin-bottom:5px; margin-top:5px">
-	A: <span id="relay1_prog" > </span>&nbsp;&nbsp;<span id="relay1_sta" > </span>
+	A: <span id="relay1_prog" > </span>&nbsp;&nbsp;<span id="relay1_sta" > </span>&nbsp;&nbsp;
+	<span id="ovr_out_A" style="color:red;display:none">OVERRIDE</span>
 	</div>
 	<div style="margin-bottom:5px; margin-top:5px">
-	B: <span id="relay2_prog"></span>&nbsp;&nbsp;<span id="relay2_sta"></span>
+	B: <span id="relay2_prog"></span>&nbsp;&nbsp;<span id="relay2_sta"></span>&nbsp;&nbsp;
+	<span id="ovr_out_B" style="color:red;display:none">OVERRIDE</span>
 	</div>
 	<div style="margin-bottom:5px; margin-top:5px">
-	LED: <span id="led_prog"></span>&nbsp;&nbsp;<span id="led_sta"></span>
+	C: <span id="led_prog"></span>&nbsp;&nbsp;<span id="led_sta"></span>&nbsp;&nbsp;
+	<span id="ovr_out_C" style="color:red;display:none">OVERRIDE</span>
 	</div>
 	<div style="margin-bottom:5px; margin-top:5px; display:none" id="IO14_holder" >
-	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> IO14: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
+	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> D: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
+	&nbsp;&nbsp; <span id="ovr_out_D" style="color:red;display:none">OVERRIDE</span>
 	</div>
 	</div>
 	</div>
@@ -122,35 +144,23 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 <script>
 	var dev_offset;
-	var program_list = [{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}, 
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}, 
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}, 
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}, 
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"},
-						{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1"}];
+	var input_mode_list=["A","B","C","D"];
+	var program_list =
+	[{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
+	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}];
 	var prog_number =0;
 	var LED; var IO14;
+	var input_C_sense;var input_A_sense; var input_B_sense;	var input_D_sense;
 	window.addEventListener('load', onLoad);
-	var dropdown_menu = '<select id="prog_list" style="padding-left:10px; margin-top:10px; margin-bottom:10px"></select>';
-	dropdown_menu +=  '<div id="override" style="margin-bottom:10px; display:block;">';
-	dropdown_menu += 'Apply over ride<br>';
-	dropdown_menu += '<input type="radio" name="override" id="always" onChange="toogle_override()" checked><label for="always" >Always</label><br>';
-	dropdown_menu += '<input type="radio" name="override" id="for" onChange="toogle_override()"><label for="for" >For</label><br>';
-	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px; color:grey" id="ovr_for_holder">';
-	dropdown_menu += '<input type="text" class="greycolor" id="ovr_sec" maxlength="2" readOnly>Seconds &nbsp';
-	dropdown_menu += '<input type="text" class="greycolor" id="ovr_min" maxlength="2" readOnly>Minutes &nbsp';
-    dropdown_menu += '<input type="text" class="greycolor" id="ovr_hour" maxlength="2" readOnly>Hours &nbsp';
-	dropdown_menu += '<input type="text" class="greycolor" id="ovr_day" maxlength="2">Days</div>';
-	dropdown_menu += '<input type="radio" name="override" id="until" onChange="toogle_override()" ><label for="until">Until</label>';
-	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px" id="ovr_until">';
-	dropdown_menu += '<input type=time id="until_time" style="color:grey;" readOnly></div><br>';
-	dropdown_menu += '<label for="override_action" >Override Actions: </label> <select name="override_action" id="override_action"> <option value="1">Enable/Disable Program</option>';
-	dropdown_menu += '<option value="2">Invert output status</option><option value="3">Turn on Output</option><option value="4">Turn off Output</option></select>';
-	dropdown_menu += '<div id="override_en_status" style="color:red;display:none">OVERRIDE ACTIVE</div></div>';
+	
 	function onLoad(){
 		update_time();
 		console.log("DOM loaded");
@@ -183,6 +193,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			program_list[id-1].days_active = prog_json.days_active;
 			program_list[id-1].on_time_global = prog_json.on_time_global;
 			program_list[id-1].off_time_global = prog_json.off_time_global;
+			program_list[id-1].main_option = prog_json.control_trigger[0].main_option;
+			program_list[id-1].main_info = prog_json.control_trigger[0].main_info;
 			prog_number++;
 		}
 		j++;
@@ -235,6 +247,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			link+= '<abbr class= "title_attr" style="color:red" title="Config error (IO14)">(!)</abbr></td>';
 			}else if((program_list[i].end_date != "" || program_list[i].start_date != "" || program_list[i].days_active != "" || program_list[i].on_time_global != "|-1" || program_list[i].off_time_global != "|-1") && !time_set){
 			link+= '<abbr class= "title_attr" style="color:red" title="time not set">(!)</abbr></td>';
+			}else if(program_list[i].main_option == 8){
+				if(program_list[i].main_info == 1 && !input_A_sense){link+= '<abbr class="title_attr" style="color:red" title="Config error (Input A)">(!)</abbr></td>';}
+				if(program_list[i].main_info == 2 && !input_B_sense){link+= '<abbr class="title_attr" style="color:red" title="Config error (Input B)">(!)</abbr></td>';}
+				if(program_list[i].main_info == 3 && !input_C_sense){link+= '<abbr class="title_attr" style="color:red" title="Config error (Input C)">(!)</abbr></td>';}
+				if(program_list[i].main_info == 4 && !input_D_sense){link+= '<abbr class="title_attr" style="color:red" title="Config error (Input D)">(!)</abbr></td>';}
 			}else{
 			link+= '</td>';
 			}
@@ -269,15 +286,35 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		}
 	}
 	
-	document.getElementById("cont_prog").onclick = function() {
-		var holder = document.getElementById("prog_holder");
-		if(this.checked){
-			holder.innerHTML = dropdown_menu;
-			create_dropdown();
-		}else{
-			holder.innerHTML = "";
-		}
+	
+function toggle_output_override(input, num){
+	input = String(input);
+	var dropdown_menu =  '<div style="margin-bottom:10px; display:block;">';
+	dropdown_menu += 'Apply over ride  <input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr('+(num+1)+')"> <br>';
+	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_always_'+input+'" onChange="toggle_override(\''+input+'\')" checked><label for="apply_always_'+input+'" >Always</label><br>';
+	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_for_'+input+'" onChange="toggle_override(\''+input+'\')"><label for="apply_for_'+input+'" >For</label><br>';
+	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px; color:grey" id="ovr_for_holder_'+input+'">';
+	dropdown_menu += '<input type="text" class="greycolor" id="ovr_sec_'+input+'" maxlength="2" readOnly>Seconds &nbsp';
+	dropdown_menu += '<input type="text" class="greycolor" id="ovr_min_'+input+'" maxlength="2" readOnly>Minutes &nbsp';
+    dropdown_menu += '<input type="text" class="greycolor" id="ovr_hour_'+input+'" maxlength="2" readOnly>Hours &nbsp';
+	dropdown_menu += '<input type="text" class="greycolor" id="ovr_day_'+input+'" maxlength="2">Days</div>';
+	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_until_'+input+'" onChange="toggle_override(\''+input+'\')" ><label for="apply_until_'+input+'">Until</label>';
+	dropdown_menu += '<div style="padding-left:20px; margin-bottom:10px; margin-top:5px" id="ovr_until_holder_C">';
+	dropdown_menu += '<input type=time id="until_time_'+input+'" readOnly></div>';
+	dropdown_menu += '<label for="override_action_'+input+'" >Override Actions: </label> <select name="override_action_'+input+'" id="override_action_'+input+'">';
+	dropdown_menu += '<option value="2">Invert output status</option><option value="3">Turn on Output</option><option value="4">Turn off Output</option></select>';
+	if(input == 'C' || input == 'D'){
+		dropdown_menu += '<br><label for="override_output_'+input+'"> Apply Override to Output: </label> <select name="override_output_'+input+'" id="override_output_'+input+'"> <option value="1">A</option>';
+		dropdown_menu += '<option value="2">B</option><option value="3">C</option><option value="4">D</option></select>';
 	}
+	dropdown_menu += '<div id="override_en_status_'+input+'" style="color:red;display:none">OVERRIDE ACTIVE</div></div>';
+	if(document.getElementById("cont_prog_"+input).checked){
+		document.getElementById("ovr_holder_"+input).innerHTML = dropdown_menu;
+	}else{
+		document.getElementById("ovr_holder_"+input).innerHTML = "";
+	}
+}
+	
 	function IO14_en_func(halo){
 		if(halo.checked){
 			var conf = confirm("Are you sure want to enable this output?");
@@ -303,31 +340,31 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		}
 		}
 	}
-	function toogle_override() {
-		if(document.getElementById("for").checked){
-			document.getElementById("ovr_day").readOnly = false;
-			document.getElementById("ovr_hour").readOnly = false;
-			document.getElementById("ovr_sec").readOnly = false;
-			document.getElementById("ovr_min").readOnly = false;
-			document.getElementById("ovr_for_holder").style.color= "";
+	function toggle_override(input) {
+		
+		if(document.getElementById("apply_for_"+input).checked){
+			document.getElementById("ovr_day_"+input).readOnly = false;
+			document.getElementById("ovr_hour_"+input).readOnly = false;
+			document.getElementById("ovr_sec_"+input).readOnly = false;
+			document.getElementById("ovr_min_"+input).readOnly = false;
+			document.getElementById("ovr_for_holder_"+input).style.color= "";
 		}else{
-			document.getElementById("ovr_day").readOnly = true;
-			document.getElementById("ovr_hour").readOnly = true;
-			document.getElementById("ovr_sec").readOnly = true;
-			document.getElementById("ovr_min").readOnly = true;
-			document.getElementById("ovr_for_holder").style.color= "grey";
+			document.getElementById("ovr_day_"+input).readOnly = true;
+			document.getElementById("ovr_hour_"+input).readOnly = true;
+			document.getElementById("ovr_sec_"+input).readOnly = true;
+			document.getElementById("ovr_min_"+input).readOnly = true;
+			document.getElementById("ovr_for_holder_"+input).style.color= "grey";
 		}
 		
-		if(document.getElementById("until").checked){
-			document.getElementById("until_time").readOnly = false;
+		if(document.getElementById("apply_until_"+input).checked){
+			document.getElementById("until_time_"+input).readOnly = false;
 		}else{
-			document.getElementById("until_time").readOnly = true;
+			document.getElementById("until_time_"+input).readOnly = true;
 		}
 	}
 
 	function load_conf(){
 //	create_dropdown();
-	console.log("loading setting");
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", "/rpc/FS.Get", true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
@@ -337,33 +374,43 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	var data = JSON.parse(this.responseText);
 	var old_json = JSON.parse(window.atob(data.data));
 	//load theme first
-	document.getElementById("sens_in").checked = old_json.ctrl_page.sensor_input;
-	document.getElementById("cont_prog").checked = old_json.ctrl_page.prog_ctrl;
 	dev_offset = old_json.timezone;
-	if(old_json.ctrl_page.prog_ctrl){
-		document.getElementById("prog_holder").innerHTML = dropdown_menu;
-		create_dropdown();
-		document.getElementById("prog_list").value = old_json.ctrl_page.active_prog;
-		document.getElementById("override_action").value = old_json.ctrl_page.override_action;		
-		var a = old_json.ctrl_page.override;
-		var b = (old_json.ctrl_page.ovr_val);
+	
+	var c = old_json.ctrl_page.LED;
+	var cx= old_json.dev_mode;
+	input_C_sense = old_json.override[2].sensor;
+	input_A_sense = old_json.override[0].sensor;
+	input_B_sense = old_json.override[1].sensor;
+	input_D_sense = old_json.override[3].sensor;
+	for(i = 0; i < 4; i++){
+		if(document.getElementById("sens_in_"+input_mode_list[i]) != null){
+		document.getElementById("sens_in_"+input_mode_list[i]).checked = old_json.override[i].sensor;
+		document.getElementById("cont_prog_"+input_mode_list[i]).checked = old_json.override[i].output_ovr;
+		toggle_output_override(input_mode_list[i], i);
+		if(old_json.override[i].output_ovr){ //if set as override output
+			document.getElementById("override_action_"+input_mode_list[i]).value = old_json.override[i].ovr_act;
+			var a = old_json.override[i].ovr_limit;
+			var b = old_json.override[i].ovr_val;
+		//apply override limit
 		if(a == 1){
-			document.getElementById("always").checked = true;
+			document.getElementById("apply_always_"+input_mode_list[i]).checked = true;
+			toggle_override(input_mode_list[i]);
 		}else if(a == 2){
-			document.getElementById("for").checked = true;
-			toogle_override();
+			document.getElementById("apply_for_"+input_mode_list[i]).checked = true;
+			toggle_override(input_mode_list[i]);
 			b = Number(b);
 			var d = Math.floor(b/86400);
 			var h = Math.floor((b - d*86400)/3600) ; 
 			var s = b%60; 
 			var m = Math.floor((b-(d*86400 + h*3600))/60);
-			document.getElementById("ovr_sec").value = s;
-			document.getElementById("ovr_min").value = m;
-			document.getElementById("ovr_hour").value = h;
-			document.getElementById("ovr_day").value = d;
+			document.getElementById("ovr_sec_"+input_mode_list[i]).value = s;
+			document.getElementById("ovr_min_"+input_mode_list[i]).value = m;
+			document.getElementById("ovr_hour_"+input_mode_list[i]).value = h;
+			document.getElementById("ovr_day_"+input_mode_list[i]).value = d;
 		}else{
-			document.getElementById("until").checked = true;
-			toogle_override();
+			
+			document.getElementById("apply_until_"+input_mode_list[i]).checked = true;
+			toggle_override(input_mode_list[i]);
 			var date_local = new Date();
 			var offset_local = date_local.getTimezoneOffset()*60;
 			b = b- offset_local;
@@ -373,13 +420,17 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			var mm = (b%3600)/60;
 			mm = (mm < 10) ? ("0"+mm) : mm;
 			var all = hh + ":" + mm;
-			console.log(all);
-			document.getElementById("until_time").value = all;
-		}		
-	}
 	
-	var c = old_json.ctrl_page.LED;
-	var cx= old_json.dev_mode;
+			document.getElementById("until_time_"+input_mode_list[i]).value = all;
+		}		
+		if(i >= 2){
+			document.getElementById("override_output_"+input_mode_list[i]).value = old_json.override[i].output_opt;
+		}
+		}//end of if input set as override output
+		}//if element is not null
+	}	
+	
+	
 	LED = false;
 	if(c == 0){
 		document.getElementById("led_disable").checked = true;
@@ -398,6 +449,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	if(cx){
 		document.getElementById("as_output_holder").style.display="block";
 		document.getElementById("IO14_holder").style.display="block";
+		document.getElementById("input_control_D_holder").style.display="block";
+		document.getElementById("sens_in_D").checked = true;
 	}else{
 		document.getElementById("led_prog").style.display = "none";
 	}
@@ -410,18 +463,23 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	}
 	function save_conf(){
 	var old_json;
-	if(!check_password()){save_command = true;on_overlay_login(2); return;}
-		var a = document.getElementById("sens_in").checked;
-		var b = document.getElementById("cont_prog").checked;
-		var b1 =0;
-		var c; var d; var d1; var override_action = 0;
-		if(b){b1 = document.getElementById("prog_list").value;c = document.getElementById("always").checked;d = document.getElementById("for").checked;	d1 = document.getElementById("until").checked; override_action = document.getElementById("override_action").value;}
-		var e =0;var f ="";
-		if(c){e = 1;}else if(d){
-			e = 2;f=Number(document.getElementById("ovr_sec").value);f+=Number(document.getElementById("ovr_min").value) * 60;f+=Number(document.getElementById("ovr_hour").value) * 3600;f+=Number(document.getElementById("ovr_day").value) *3600 * 24;
-		}else if(d1){
-			e = 3;f = document.getElementById("until_time").value;f = f.split(":");var date_local = new Date();var offset_local = date_local.getTimezoneOffset() * 60;f = f[0] * 3600 + f[1] * 60 + offset_local;if(f < 0){f = 86400 + f;}
-		}
+	var ovr_output_1 = document.getElementById("cont_prog_A").checked;
+	var ovr_output_2 = document.getElementById("cont_prog_B").checked;
+	var ovr_output_3 = document.getElementById("cont_prog_C").checked;
+	var ovr_output_4 = false;
+	if(document.getElementById("cont_prog_D") != null){
+		ovr_output_4 = document.getElementById("cont_prog_D").checked;
+	}
+	
+	if(ovr_output_1 && ovr_output_3){if(document.getElementById("override_output_C").value == 1){alert("Input C overrides same output as Input A!");return;}}
+	if(ovr_output_2 && ovr_output_3){if(document.getElementById("override_output_C").value == 2){alert("Input C overrides same output as Input B!");return;}}
+	if(ovr_output_1 && ovr_output_4){if(document.getElementById("override_output_D").value == 1){alert("Input D overrides same output as Input A!");return;}}
+	if(ovr_output_2 && ovr_output_4){if(document.getElementById("override_output_D").value == 2){alert("Input D overrides same output as Input B!");return;}}
+	if(ovr_output_3 && ovr_output_4){
+		if(document.getElementById("override_output_D").value == document.getElementById("override_output_C").value){alert("input C overrides same output as Input D!"); return;}
+	}
+	if(!check_password()){save_command = true;on_overlay_login(2); return}
+		
 		var g;if(document.getElementById("led_disable").checked){g=0;}else if(document.getElementById("as_output").checked){g=1;}else if(document.getElementById("output_stat").checked){g=2;}else{g=3;}
 		var g1 = (g == 2 || g == 3) ? document.getElementById("prog_led_list").value : 0;
 		var h = document.getElementById("IO14_en").checked;
@@ -452,9 +510,33 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			return;
 			}
 			var data = i.data;old_json = JSON.parse(window.atob(data.data));
-			old_json.ctrl_page.sensor_input = a;old_json.ctrl_page.prog_ctrl = b;old_json.ctrl_page.override=e;	old_json.ctrl_page.ovr_val = f;
-			old_json.ctrl_page.LED = g;old_json.ctrl_page.IO14 = h;old_json.ctrl_page.active_prog = b1;old_json.ctrl_page.LED_prog = g1;
-			old_json.ctrl_page.override_action = override_action;
+			
+			old_json.ctrl_page.LED = g;old_json.ctrl_page.IO14 = h;old_json.ctrl_page.LED_prog = g1;
+		
+			//save setting set as override output
+			for(i=0; i < 4 ; i++){
+				var a = document.getElementById("sens_in_"+input_mode_list[i]).checked;
+				var b= document.getElementById("cont_prog_"+input_mode_list[i]).checked;	
+				var b1 =0;
+				var e =0;var f ="";
+				var c; var d; var d1; var override_action = 0;
+				if(b){c = document.getElementById("apply_always_"+input_mode_list[i]).checked;d = document.getElementById("apply_for_"+input_mode_list[i]).checked;	d1 = document.getElementById("apply_until_"+input_mode_list[i]).checked; override_action = document.getElementById("override_action_"+input_mode_list[i]).value;				
+				if(c){e = 1;}else if(d){
+					e = 2;f=Number(document.getElementById("ovr_sec_"+input_mode_list[i]).value);f+=Number(document.getElementById("ovr_min_"+input_mode_list[i]).value) * 60;f+=Number(document.getElementById("ovr_hour_"+input_mode_list[i]).value) * 3600;f+=Number(document.getElementById("ovr_day_"+input_mode_list[i]).value) *3600 * 24;
+				}else if(d1){
+					e = 3;f = document.getElementById("until_time_"+input_mode_list[i]).value;f = f.split(":");var date_local = new Date();var offset_local = date_local.getTimezoneOffset() * 60;f = f[0] * 3600 + f[1] * 60 + offset_local;if(f < 0){f = 86400 + f;}
+				}
+				if(i >= 2 ){
+					old_json.override[i].output_opt = document.getElementById("override_output_"+input_mode_list[i]).value;
+				}
+				}
+				old_json.override[i].sensor = a;
+				old_json.override[i].output_ovr = b;
+				old_json.override[i].ovr_val = f;
+				old_json.override[i].ovr_limit = e;
+				old_json.override[i].ovr_act = override_action;
+			
+			}
 		xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
 			if(u.status != "success"){
 				document.getElementById("circularG").style.display = 'none';
@@ -482,6 +564,26 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		xhttp.onload = function(){
 			var json_data = JSON.parse(xhttp.responseText);
 			var ovr_en = json_data.ovr_en;
+			var ovr_out_global = json_data.ovr_out;
+			ovr_out_global = ovr_out_global.split("|");
+			document.getElementById("ovr_out_A").style.display = 'none';
+			document.getElementById("ovr_out_B").style.display = 'none';
+			document.getElementById("ovr_out_C").style.display = 'none';
+			document.getElementById("ovr_out_D").style.display = 'none';
+			for (i = 0; i < 4; i++){
+				var x = ovr_out_global[i].split(",");	
+				
+				if(x[1] != -1){
+					if(document.getElementById("ovr_out_"+input_mode_list[x[1]]) != null){
+					if(x[0] != -1){
+						document.getElementById("ovr_out_"+input_mode_list[x[1]]).style.display = "inline-block";
+					}
+					}
+				}
+				if(document.getElementById("override_en_status_"+input_mode_list[i]) != null){
+					document.getElementById("override_en_status_"+input_mode_list[i]).style.display = (ovr_en[i]=='1') ? 'block' : 'none';
+				}
+			}
 			json_data = json_data.IO_info;
 			var a_el = document.getElementById("relay1_sta");
 			var b_el = document.getElementById("relay2_sta");
@@ -499,9 +601,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			var prog_state2;
 			var prog_state3;
 			var prog_state4;
-			if(document.getElementById("override_en_status") != null){
-				document.getElementById("override_en_status").style.display = (ovr_en==true) ? 'block' : 'none';
-			}
+			
+			
 			if(prog_state[0] == '1'){
 			a1_el.className = "on_label";
 			prog_state1 = program_list[prog_name[0]-1].name + " ";
@@ -605,6 +706,44 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	  document.getElementById("overlay_save").style.display = "none";
 	  document.getElementById("main_div").style.filter = "none";
 	}
+	
+function send_trigger_ovr(input){
+if(!check_password()){
+	trigger_ovr_command = input;
+	on_overlay_login(2);
+	return;
+}
+on_overlay_login(0); //just on overlay login
+document.getElementById("multipurpose").innerHTML = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+spinner_load+'</div><br>Sending...';
+validate_cookie(function(i){
+	if(i.code == 200 && i.data.status == "illegal"){
+		trigger_ovr_command = input;
+		var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info"> Session end, please re-login! </div>';
+		x+= '<br>  <input type="button" style="font-size:16px;" value="OK" onClick="on_overlay_login(2);"></div>';
+		document.getElementById("multipurpose").innerHTML = x;
+		return;
+	}else if(i.code != 200){
+		var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
+		x+= '<input type="button" style="font-size:16px" value="retry" onClick="send_trigger('+input+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+		document.getElementById("multipurpose").innerHTML = x;
+		return;
+	}
+	xhr_send_nojson("VT.GPIO", JSON.stringify({pin:input, val: 2}), function(i){
+		if(i.code != 200){
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
+			x+= '<input type="button" style="font-size:16px" value="retry" onClick="send_trigger('+input+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+			document.getElementById("multipurpose").innerHTML = x;
+			return;
+		}
+		var x = '<div style="margin-top:30px;margin-bottom:10px;font-size:20px" id="spinner_info">Trigger sent!</div>';
+		x+= '<input style="font-size:16px" type="button" value="OK" onClick="off_overlay_login()">';
+		document.getElementById("multipurpose").innerHTML = x;
+	}); //end of xhr send
+
+});//end of validate cookie
+trigger_ovr_command = 0;
+}
+
 </script>
 
 <style>

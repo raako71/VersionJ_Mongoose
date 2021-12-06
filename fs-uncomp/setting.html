@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title>Socket Controller Settings</title>
-	<link id="theme" rel="stylesheet" type="text/css" href="dark.css?v0.10.5"/>
-	<link rel="stylesheet" type="text/css" href="general.css?v0.10.5"/>
-	<script src="./login.js.gz?v0.10.5" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css?v0.10.7"/>
+	<link rel="stylesheet" type="text/css" href="general.css?v0.10.7"/>
+	<script src="./login.js.gz?v0.10.7" defer></script>
 </head>
 <body>
 <div id="overlay_time_setting" class="overlay" style="display:none;font-size:16px">
@@ -80,10 +80,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.5">Home</a>
-	<a href="/graph.html.gz?v0.10.5">Graph</a>
-    <a href="/control_page.html.gz?v0.10.5">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.5">Settings</a>
+    <a href="/index.html.gz?v0.10.7">Home</a>
+	<a href="/graph.html.gz?v0.10.7">Graph</a>
+    <a href="/control_page.html.gz?v0.10.7">Control Logic</a>
+    <a href="/setting.html.gz?v0.10.7">Settings</a>
 	<a href="javascript:void(0)" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
@@ -327,12 +327,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		document.getElementById("minute").value = minute;
 	}
 	function save_conf(){
-		var old_json;
-		if(!check_password()){
-			save_command = true;
-			on_overlay_login(2);
-			return;
-		}
+		
 		//validate cookie
 		var mark_tz = (document.getElementById("pos_tz").checked ? 1 : -1);
 		var hour = document.getElementById("hour").value;
@@ -344,6 +339,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			if(!ValidateIPaddress(document.getElementById("IP").value)){return;}
 			if(!ValidateIPaddress(document.getElementById("GW").value)){return;}
 			if(!ValidateIPaddress(document.getElementById("SN").value)){return;}
+		}
+		var old_json;
+		if(!check_password()){
+			save_command = true;
+			on_overlay_login(2);
+			return;
 		}
 		on_overlay();
 		document.getElementById("circularG").style.display = 'block';
@@ -372,7 +373,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json = JSON.parse(window.atob(i.data.data));
 			var mode = document.getElementById("mode").value;
 			var network_conf = document.getElementById("mode").value;
-			var pwr_sensor_en = document.getElementById("pwr_sensor_check").checked;
+			//var pwr_sensor_en = document.getElementById("pwr_sensor_check").checked;
 			var net_conf_en = document.getElementById("LAN_conf").checked;
 			var IP ="";var GW ="";var SN ="" ;
 			if(net_conf_en){IP = document.getElementById("IP").value;GW = document.getElementById("GW").value;SN = document.getElementById("SN").value;}
@@ -382,13 +383,20 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json.eth_en = document.getElementById("eth_en").checked;
 			old_json.i2c_en = document.getElementById("i2c_en").checked;
 			old_json.wifi.mode = mode;
-			old_json.pwr_sensor[0].enable = pwr_sensor_en;
+			//old_json.pwr_sensor[0].enable = pwr_sensor_en;
 			old_json.static_IP_conf[0].enable = net_conf_en;
 			old_json.static_IP_conf[0].IP = IP;
 			old_json.static_IP_conf[0].GW = GW;
 			old_json.static_IP_conf[0].SN = SN;
 			var dev_mode = document.getElementById("dev_mode_en").checked;
 			if(old_json.dev_mode && !dev_mode && old_json.ctrl_page.LED == 1){old_json.ctrl_page.LED = 0;}
+			if(old_json.dev_mode && !dev_mode){ //reset input D
+				old_json.override[3].sensor = false;
+				old_json.override[3].output_ovr = false;
+				old_json.override[3].ovr_limit = 0;
+				old_json.override[3].ovr_act = 0;
+				old_json.override[3].output_opt = 0;
+			}
 			if(!old_json.dev_mode){old_json.ctrl_page.IO14 = false;}
 			old_json.dev_mode = dev_mode;
 			old_json.timezone = time_zone;
