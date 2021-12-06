@@ -1,5 +1,6 @@
-build
+build/fw
+build/gen
+build/objs
 core*
-*.zip
 deps/*
 .vscode/*
