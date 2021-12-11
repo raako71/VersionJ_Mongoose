@@ -42,7 +42,7 @@ config_schema:
   - ["sntp.retry_max", "i", 30, {title: "Maximum retry interval"}]
   - ["sntp.update_interval", "i", 3600, {title: "Update interval. If 0, performs a one-off sync"}]
   - ["dns_sd.enable", true]
-  - ["dns_sd.host_name", "control"]
+  - ["dns_sd.host_name", "v3"]
   - ["eth.clk_mode", "i", 3, {title: "50 MHz clock source: 0 in <- GPIO0, 1 out -> GPIO0, 2 out -> GPIO16, 3 out -> GPIO17 (inverted)"}]
   - ["eth.mdc_gpio", "i", 23, {title: "GPIO to use for RMII MDC signal"}]
   - ["eth.mdio_gpio", "i", 18, {title: "GPIO to use for RMII MDIO signal"}]
@@ -83,12 +83,12 @@ libs:
 
 
 build_vars:
-  ESP_IDF_SDKCONFIG_OPTS: >
-     ${build_vars.ESP_IDF_SDKCONFIG_OPTS} 
-       CONFIG_ESPTOOLPY_FLASHSIZE_4MB=
-       CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
-       CONFIG_ESPTOOLPY_FLASHSIZE=16MB
-  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,12288K
-#  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K
+#  ESP_IDF_SDKCONFIG_OPTS: >
+#     ${build_vars.ESP_IDF_SDKCONFIG_OPTS} 
+#       CONFIG_ESPTOOLPY_FLASHSIZE_4MB=
+#       CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+#       CONFIG_ESPTOOLPY_FLASHSIZE=16MB
+#  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,12288K
+  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K
 # Used by the mos tool to catch mos binaries incompatible with this file format
 manifest_version: 2017-09-29

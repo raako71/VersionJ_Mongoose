@@ -1,0 +1,52 @@
+sudo mos debug-core-dump
+Using core-VersionJ_Mongoose-esp32-20211209-131929.936079743
+Core dump by VersionJ_Mongoose/esp32 0.10.7 20211209-020403/g141917a-develop-dirty
+Using ELF file at: /home/harry/MOS/VersionJ_Mongoose/build/objs/VersionJ_Mongoose.elf
+Using Docker image: docker.io/mgos/esp32-build:4.2-r1
+Running docker run --rm -i --tty=true -v /home/harry/MOS/VersionJ_Mongoose/build/objs/VersionJ_Mongoose.elf:/fw.elf -v /home/harry/MOS/VersionJ_Mongoose/core-VersionJ_Mongoose-esp32-20211209-131929.936079743:/core -v /home/harry/MOS/VersionJ_Mongoose:/home/harry/MOS/VersionJ_Mongoose docker.io/mgos/esp32-build:4.2-r1 bash -c /usr/local/bin/serve_core.py --rom=/opt/Espressif/rom/rom.bin --rom_addr=0x40000000 --xtensa_addr_fixup=true /fw.elf /core & $MGOS_TARGET_GDB /fw.elf -ex 'target remote 127.0.0.1:1234' -ex 'set confirm off' -ex bt
+GNU gdb (crosstool-NG esp-2020r3) 8.1.0.20180627-git
+Copyright (C) 2018 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "--host=x86_64-build_pc-linux-gnu --target=xtensa-esp32-elf".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from /fw.elf...Waiting for gdb on 1234
+done.
+Found core at 23 - 461674
+Remote debugging using 127.0.0.1:1234
+Mapping DRAM: 335872 @ 0x3ffae000
+Mapping /opt/Espressif/rom/rom.bin at 0x40000000
+Mapping /fw.elf .iram0.vectors: 1024 @ 0x40080000
+Mapping /fw.elf .iram0.text: 90464 @ 0x40080400
+Mapping /fw.elf .dram0.data: 15852 @ 0x3ffb0000
+Mapping /fw.elf .dram0.bss: 29104 @ 0x3ffb3df0
+Mapping /fw.elf .flash.rodata: 179676 @ 0x3f400020
+Mapping /fw.elf .flash.text: 759847 @ 0x400d0020
+Dump contains FreeRTOS task info
+Loaded core dump from last snippet in  /core
+0x40186bb9 in TwoWire::read (this=0x3ffb6d98 <Wire>)
+    at /home/harry/MOS/VersionJ_Mongoose/deps/arduino-wire/src/mgos_arduino_wire.cpp:133
+133       return (pbyte_to_recv < recv_buf + n_bytes_avail) ? *pbyte_to_recv++ : -1;
+#0  0x40186bb9 in TwoWire::read (this=0x3ffb6d98 <Wire>)
+    at /home/harry/MOS/VersionJ_Mongoose/deps/arduino-wire/src/mgos_arduino_wire---Type <return> to continue, or q <return> to quit---
+.cpp:133
+#1  0x400d72db in ACS71020::getRaw (this=0x3ffb4b14 <mySensor>, 
+    reg_address=48 '0')
+    at /home/harry/MOS/VersionJ_Mongoose/src/ACS71020.cpp:115
+#2  0x400d7496 in ACS71020::custom_en (this=0x3ffb4b14 <mySensor>)
+    at /home/harry/MOS/VersionJ_Mongoose/src/ACS71020.cpp:425
+#3  0x400d9131 in mgos_app_init ()
+    at /home/harry/MOS/VersionJ_Mongoose/src/main.cpp:476
+#4  0x400d3466 in mgos_init () at /mongoose-os/src/mgos_init.c:29
+#5  0x400db5ba in mgos_init2 ()
+    at /home/harry/MOS/VersionJ_Mongoose/deps/freertos/src/mgos_freertos.c:169
+#6  0x4008279b in mgos_task (arg=0x0)
+    at /home/harry/MOS/VersionJ_Mongoose/deps/freertos/src/mgos_freertos.c:180
