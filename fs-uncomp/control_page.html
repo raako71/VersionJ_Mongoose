@@ -83,24 +83,32 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div class="section"> <!-- input mode section -->
 	<b> Input Mode</b><br>
 	<div style="margin-top:15px">Input Control A</div>
-	<input type="checkbox" id = "sens_in_A" ><label for="sens_in_A"> As Sensor Input </label><br>
-	<input type="checkbox" onClick="toggle_output_override('A',0)" id = "cont_prog_A"><label for="cont_prog_A"> Output Override (Hold 3 seconds)</label><br>
+	<div id="sens_in_A_holder"><input type="checkbox" id = "sens_in_A" ><label for="sens_in_A"> As Sensor Input </label></div>
+	<input type="checkbox" onClick="toggle_output_override('A',0)" id = "cont_prog_A"><label for="cont_prog_A"> Output Override (Hold 3 seconds)</label>
+	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 0)" id="input_A_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
+	<br>
 	<div id="ovr_holder_A" style="padding-left:20px;">
 	</div>
 	<div style="margin-top:15px">Input Control B</div>
-	<input type="checkbox" id = "sens_in_B" ><label for="sens_in_B"> As Sensor Input </label><br>
-	<input type="checkbox" onClick="toggle_output_override('B',1)" id = "cont_prog_B"><label for="cont_prog_B"> Output Override (Hold 3 seconds)</label><br>
+	<div id="sens_in_B_holder"><input type="checkbox" id = "sens_in_B" ><label for="sens_in_B"> As Sensor Input </label></div>
+	<input type="checkbox" onClick="toggle_output_override('B',1)" id = "cont_prog_B"><label for="cont_prog_B"> Output Override (Hold 3 seconds)</label>
+	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 1)" id="input_B_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
+	<br>
 	<div id="ovr_holder_B" style="padding-left:20px;">
 	</div>
 	<div style="margin-top:15px">Input Control C</div>
-	<input type="checkbox" id = "sens_in_C" ><label for="sens_in_C"> As Sensor Input </label><br>
-	<input type="checkbox" onClick="toggle_output_override('C',2)" id = "cont_prog_C"><label for="cont_prog_C"> Output Override (Hold 3 seconds)</label><br>
+	<div id="sens_in_C_holder"><input type="checkbox" id = "sens_in_C" ><label for="sens_in_C"> As Sensor Input </label></div>
+	<input type="checkbox" onClick="toggle_output_override('C',2)" id = "cont_prog_C"><label for="cont_prog_C"> Output Override (Hold 3 seconds)</label>
+	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 2)" id="input_C_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
+	<br>
 	<div id="ovr_holder_C" style="padding-left:20px;">
 	</div>
 	<div id="input_control_D_holder" style="margin-top:15px;display:none">
 		<div>Input Control D</div>
-		<input type="checkbox" id = "sens_in_D" ><label for="sens_in_D"> As Sensor Input </label><br>
-		<input type="checkbox" onClick="toggle_output_override('D',3)" id = "cont_prog_D"><label for="cont_prog_D"> Output Override (Hold 3 seconds)</label><br>
+		<div id="sens_in_D_holder"><input type="checkbox" id = "sens_in_D" ><label for="sens_in_D"> As Sensor Input </label></div>
+		<input type="checkbox" onClick="toggle_output_override('D',3)" id = "cont_prog_D"><label for="cont_prog_D"> Output Override (Hold 3 seconds)</label>
+		<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, )" id="input_D_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
+		<br>
 		<div id="ovr_holder_D" style="padding-left:20px;">
 		</div>
 	</div>
@@ -289,7 +297,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	
 function toggle_output_override(input, num){
 	input = String(input);
-	var dropdown_menu =  '<div style="margin-bottom:10px; display:block;">';
+	var dropdown_menu =  '<div style="margin-bottom:10px;margin-top:10px; display:block;">';
 	dropdown_menu += 'Apply over ride  <input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr('+(num+1)+')"> <br>';
 	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_always_'+input+'" onChange="toggle_override(\''+input+'\')" checked><label for="apply_always_'+input+'" >Always</label><br>';
 	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_for_'+input+'" onChange="toggle_override(\''+input+'\')"><label for="apply_for_'+input+'" >For</label><br>';
@@ -308,7 +316,7 @@ function toggle_output_override(input, num){
 		dropdown_menu += '<option value="2">B</option><option value="3">C</option><option value="4">D</option></select>';
 	}
 	dropdown_menu += '<div id="override_en_status_'+input+'" style="color:red;display:none">OVERRIDE ACTIVE</div></div>';
-	if(document.getElementById("cont_prog_"+input).checked){
+	if(document.getElementById("cont_prog_"+input).checked && document.getElementById("input_"+input+"_mode").value == 1){
 		document.getElementById("ovr_holder_"+input).innerHTML = dropdown_menu;
 	}else{
 		document.getElementById("ovr_holder_"+input).innerHTML = "";
@@ -384,10 +392,21 @@ function toggle_output_override(input, num){
 	input_D_sense = old_json.override[3].sensor;
 	for(i = 0; i < 4; i++){
 		if(document.getElementById("sens_in_"+input_mode_list[i]) != null){
+		document.getElementById("input_"+input_mode_list[i]+"_mode").value = old_json.override[i].mode;
 		document.getElementById("sens_in_"+input_mode_list[i]).checked = old_json.override[i].sensor;
 		document.getElementById("cont_prog_"+input_mode_list[i]).checked = old_json.override[i].output_ovr;
-		toggle_output_override(input_mode_list[i], i);
-		if(old_json.override[i].output_ovr){ //if set as override output
+		toggle_mode_grey(old_json.override[i].mode, i);
+		//toggle_output_override(input_mode_list[i], i);
+		//toggle_mode_grey(old_json.override[i].mode, i);
+		
+		//toggle and push button dropdown
+		if(cx){
+			document.getElementById("input_"+input_mode_list[i]+"_mode").style.display = 'inline-block';
+		}else{
+			document.getElementById("input_"+input_mode_list[i]+"_mode").style.display = 'none';
+		}
+		
+		if(old_json.override[i].output_ovr && old_json.override[i].mode == 1){ //if set as override output
 			document.getElementById("override_action_"+input_mode_list[i]).value = old_json.override[i].ovr_act;
 			var a = old_json.override[i].ovr_limit;
 			var b = old_json.override[i].ovr_val;
@@ -518,9 +537,10 @@ function toggle_output_override(input, num){
 				var a = document.getElementById("sens_in_"+input_mode_list[i]).checked;
 				var b= document.getElementById("cont_prog_"+input_mode_list[i]).checked;	
 				var b1 =0;
+				old_json.override[i].mode = document.getElementById("input_"+input_mode_list[i]+"_mode").value;
 				var e =0;var f ="";
 				var c; var d; var d1; var override_action = 0;
-				if(b){c = document.getElementById("apply_always_"+input_mode_list[i]).checked;d = document.getElementById("apply_for_"+input_mode_list[i]).checked;	d1 = document.getElementById("apply_until_"+input_mode_list[i]).checked; override_action = document.getElementById("override_action_"+input_mode_list[i]).value;				
+				if(b && old_json.override[i].mode == 1){c = document.getElementById("apply_always_"+input_mode_list[i]).checked;d = document.getElementById("apply_for_"+input_mode_list[i]).checked;	d1 = document.getElementById("apply_until_"+input_mode_list[i]).checked; override_action = document.getElementById("override_action_"+input_mode_list[i]).value;				
 				if(c){e = 1;}else if(d){
 					e = 2;f=Number(document.getElementById("ovr_sec_"+input_mode_list[i]).value);f+=Number(document.getElementById("ovr_min_"+input_mode_list[i]).value) * 60;f+=Number(document.getElementById("ovr_hour_"+input_mode_list[i]).value) * 3600;f+=Number(document.getElementById("ovr_day_"+input_mode_list[i]).value) *3600 * 24;
 				}else if(d1){
@@ -530,6 +550,7 @@ function toggle_output_override(input, num){
 					old_json.override[i].output_opt = document.getElementById("override_output_"+input_mode_list[i]).value;
 				}
 				}
+				
 				old_json.override[i].sensor = a;
 				old_json.override[i].output_ovr = b;
 				old_json.override[i].ovr_val = f;
@@ -744,6 +765,17 @@ validate_cookie(function(i){
 trigger_ovr_command = 0;
 }
 
+function toggle_mode_grey(input, num){
+	if(input == 1){
+		document.getElementById("sens_in_"+input_mode_list[num]+"_holder").classList.add("unclickable_grey");
+		document.getElementById("sens_in_"+input_mode_list[num]).checked = true;
+	}else{
+		document.getElementById("sens_in_"+input_mode_list[num]+"_holder").classList.remove("unclickable_grey");
+		document.getElementById("sens_in_"+input_mode_list[num]).checked = false;
+	}
+	toggle_output_override(input_mode_list[num], num);
+}
+
 </script>
 
 <style>
@@ -765,6 +797,10 @@ trigger_ovr_command = 0;
 		-moz-user-select: none;
 		-ms-user-select: none;
 		user-select: none;
+	}
+	.unclickable_grey{
+		color: grey;
+		pointer-events: none;
 	}
 </style>
 </html>

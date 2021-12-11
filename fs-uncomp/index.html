@@ -58,7 +58,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
  </span>
 </span>
 </div><!-- top panel-->
-<h1> Socket Controller Dashboard</h1>
+<h1 id="home_text_disp" style="cursor:pointer" onClick="change_home_text(this.innerHTML)"> Socket Controller Dashboard</h1>
 <div id="widget_cluster">
 
 </div><!-- main div-->
@@ -120,7 +120,7 @@ function initiate_widget_content(){
 	var on_off = ["on", "off"];
 	var output_list = ["A", "B", "C", "D", "null"];
 	var sens_list = ['Temperature', 'Humidity', 'Light', 'Power'];
-	var input_list = ["Input A Button", "Input B Button", "Input C Button"];
+	var input_list = ["Input A Button", "Input B Button", "Input C Button", "Input D Button"];
 	if(document.getElementById("widget"+i+"_output") != null){
 		document.getElementById("widget"+i+"_name").innerHTML = "Program: " + program_list[i-1].name; 
 		document.getElementById("widget"+i+"_output").innerHTML = "Output: " + output_list[program_list[i-1].output-1]; 
@@ -824,6 +824,71 @@ validate_cookie(function(i){
 
 });//end of validate cookie
 trigger_command = 0;
+}
+
+function change_home_text(input){
+	on_overlay_login(0); //just on overlay login
+	var title = '<b>Home Title</b><br><div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px"><input type="text" style="width:100%; margin-bottom:5px" id="home_text" maxlength="40" onkeydown="return alphanumeric_only(event)"><br>';
+	title += '</div><span style="margin-top:10px;display:block;" id="login_warning"></span><div style="margin-top:10px">';
+	title += '<input type="button" style="margin:10px;width:115px" onClick="transfer_title_text(); save_home_text()" id="enter_password" value="OK"><input style="margin:10px;width:115px" type="button" value="CANCEL" onClick="off_overlay_login();clear_flag()"></div>';
+	document.getElementById("multipurpose").innerHTML = title;
+	document.getElementById("home_text").value = input;
+	document.getElementById("home_text").select();
+}
+
+function alphanumeric_only(event){
+	var key = event.keyCode;
+	return ((key >= 65 && key <= 90) || key == 189|| key == 32|| key == 8);
+}
+
+function transfer_title_text(){
+	document.getElementById("home_text_disp").innerHTML = document.getElementById("home_text").value;
+}
+function save_home_text(){
+var old_json;
+if(!check_password()){
+	save_home_command = true;
+	on_overlay_login(2);
+return;
+}
+on_overlay_login(0); //just on overlay login
+document.getElementById("multipurpose").innerHTML = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+spinner_load+'</div><br>Saving...';
+validate_cookie(function(i){
+	if(i.code == 200 && i.data.status == "illegal"){
+		save_home_command = true; //session end
+		var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info"> Session end, please re-login! </div>';
+		x+= '<br>  <input type="button" style="font-size:16px;" value="OK" onClick="on_overlay_login(2);"></div>';
+		document.getElementById("multipurpose").innerHTML = x;
+		return;
+	}else if(i.code != 200){
+		var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
+		x+= '<input type="button" style="font-size:16px" value="retry" onClick="save_home_text()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+		document.getElementById("multipurpose").innerHTML = x;
+		return;
+	}
+	xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(v){
+		if(v.code != 200){
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+v.status+'</div>';
+			x+= '<input type="button" style="font-size:16px" value="retry" onClick="save_home_text()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+			document.getElementById("multipurpose").innerHTML = x;
+			return;
+		}
+		old_json = JSON.parse(window.atob(v.data.data));
+		old_json.home_text = document.getElementById("home_text_disp").innerHTML;
+	xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
+		if(u.code != 200){
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+u.status+'</div>';
+			x+= '<input type="button" style="font-size:16px" value="retry" onClick="save_home_text()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+			document.getElementById("multipurpose").innerHTML = x;
+			return;
+		}
+		var x = '<div style="margin-top:30px;margin-bottom:10px;font-size:20px" id="spinner_info">Saved!</div>';
+		x+= '<input style="font-size:16px" type="button" value="OK" onClick="off_overlay_login()">';
+		document.getElementById("multipurpose").innerHTML = x;
+	});//end of fs put
+	});//end of fs get
+});//end of validate cookie
+save_home_command = false;
 }
 
 </script>

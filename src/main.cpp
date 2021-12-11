@@ -26,7 +26,7 @@
 #include "ACS71020.h"
 #include "mgos_bme280.h"
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
-
+#include "mgos_adc.h"
 //longtermdata trimmer variable
 #define UPPER_LIMIT_SIZE 12000
 #define LOWER_LIMIT_SIZE 10000
@@ -111,12 +111,14 @@ bool IO14_en = false;
 int LED_opt = 0;
 int LED_prog = 0;
 
+int input1_mode = 1;
 bool input1_as_sens = false;
 bool input1_as_ovr = false;
 int input1_ovr_limit = 0; // 1-> always, 2 -> duration, 3 -> until
 long input1_ovr_val = 0;
 int input1_ovr_action = 0; // determine override action after triggered
 
+int input2_mode = 1;
 bool input2_as_sens = false;
 bool input2_as_ovr = false;
 int input2_ovr_limit = 0; // 1-> always, 2 -> duration, 3 -> until
@@ -133,6 +135,7 @@ bool override_en_status_B = false;
 bool override_en_status_C = false;
 bool override_en_status_D = false;
 
+int input3_mode = 1;
 bool input3_as_sens = false;
 bool input3_as_ovr = false;
 int input3_ovr_limit = 0; // 1-> always, 2 -> duration, 3 -> until
@@ -140,6 +143,7 @@ long input3_ovr_val = 0;
 int input3_ovr_out = 0; // based on output id (1 to 4)
 int input3_ovr_action = 0; // determine override action after triggered
 
+int input4_mode = 1;
 bool input4_as_sens = false;
 bool input4_as_ovr = false;
 int input4_ovr_limit = 0; // 1-> always, 2 -> duration, 3 -> until
@@ -170,6 +174,7 @@ int prog_timer_state[4] = {0,0,0,0}; //indicate if timer is on or off or idle; 0
 
 mgos_timer_id prog_timer_id[4];
 mgos_timer_id prog_led_timer;
+int ext_toggle_state[4] = {0,0,0,0};
 int ext_PB_state[4] = {0,0,0,0};
 int vt_PB_state[4] = {0,0,0,0};
 
@@ -242,15 +247,105 @@ int check_program_output(const char* file_read);
 int pri_op_sec(int op, int pri_cond, int sec_cond); //tested
 void setup_timer_program(int ctrl_pin, long value); //tested
 void led_red_ctrl(unsigned int input);
-int read_R1_button();
-int read_R2_button();
-int read_RPB_button();
-int read_R4_button();
-
+int read_R1_button(int button);
+int read_R2_button(int button);
+int read_RPB_button(int button);
+int read_R4_button(int button);
+int read_R1_toggle(int input);
+int read_R2_toggle(int input);
+int read_R3_toggle(int input);
+int read_R4_toggle(int input);
 void check_override_func();
 unsigned long randomGen();
 void led_red_ctrl_asprog(void *arg);
 void modify_program_en(const char* file_name, bool value);
+void persistent_to_setting(){
+	//read persistent
+	char* buff = (char*)malloc(1024);
+	long time_offset = 0;
+	buff = json_fread("persistent_info.json");
+	
+	char* buff_b = (char*)malloc(512);
+	json_scanf(buff, strlen(buff), "{wifi: %Q, timezone:%ld}", &buff_b, &time_offset);
+	LOG(LL_WARN,("%ld", time_offset));
+	struct json_token t;
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",0, &t);
+	int mode;
+	char* ssid; char* pass;
+	char* ssid1; char* pass1;
+	char* ssid2; char* pass2; 
+	
+	json_scanf(buff_b, strlen(buff_b), "{mode: %d}", &mode);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
+	
+	//sta 1
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",1, &t);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid1);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass1);
+	
+	//sta2
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",2, &t);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid2);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass2);
+	
+	//modify setting
+	const char *tmp_file_name = "tmp.json";
+	char *content = (char*) malloc(1024);
+	content = json_fread("setting.json");
+	FILE *fp = fopen(tmp_file_name, "w");
+	struct json_out out = JSON_OUT_FILE(fp);
+	json_setf(content, strlen(content), &out, ".wifi", "{mode: %d,  cfg:[{ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}]}", mode,
+	ssid, pass, ssid1, pass1, ssid2, pass2);
+	//json_setf(content, strlen(content), &out, ".timezone", "%ld", time_offset);
+	fclose(fp);
+	remove("setting.json");
+	rename(tmp_file_name, "setting.json");
+	
+	content = json_fread("setting.json");
+	fp = fopen(tmp_file_name, "w");
+	out = JSON_OUT_FILE(fp);
+	json_setf(content, strlen(content), &out, ".timezone", "%ld", time_offset);
+	fclose(fp);
+	json_prettify_file(tmp_file_name);  // Optional
+	remove("setting.json");
+	rename(tmp_file_name, "setting.json");
+	free(content);	free(buff); free(buff_b);
+}
+void setting_to_persistent(){
+	//read setting
+	char* buff = (char*)malloc(1024);
+	long time_offset = 0;
+	buff = json_fread("setting.json");
+	
+	char* buff_b = (char*)malloc(512);
+	json_scanf(buff, strlen(buff), "{wifi: %Q, timezone:%ld}", &buff_b, &time_offset);
+	
+	struct json_token t;
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",0, &t);
+	int mode;
+	char* ssid; char* pass;
+	char* ssid1; char* pass1;
+	char* ssid2; char* pass2; 
+	json_scanf(buff_b, strlen(buff_b), "{mode: %d}", &mode);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
+	
+	//sta 1
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",1, &t);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid1);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass1);
+	
+	//sta2
+	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",2, &t);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid2);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass2);
+	//copy to persistent
+	json_fprintf("persistent_info.json", "{wifi: {mode: %d,  cfg:[{ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}]}, timezone: %ld}", 
+	mode, ssid, pass, ssid1, pass1, ssid2, pass2, time_offset);
+	json_prettify_file("persistent_info.json");
+	free(buff); free(buff_b);
+}
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
 	mgos_clear_timer(prog_timer_id[0]);
@@ -312,10 +407,25 @@ void check_ap_mode(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 void virtual_pb_check(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 //function prototype
 static void button_check_cb(void *arg){
-	int a = read_R1_button();
-	int b = read_R2_button();
-	int c = read_RPB_button();
-	int d = read_R4_button();
+	int input1 = mgos_adc_read(INPUT_A);
+	int input2 = mgos_adc_read(INPUT_B);
+	int input3 = 0;
+	#ifdef INPUT_C
+	input3 = mgos_adc_read(INPUT_C);
+	#endif
+	int input4 = 0;
+	#ifdef INPUT_D
+	input4 = mgos_adc_read(INPUT_D);
+	#endif
+	
+	int a = read_R1_button(input1);
+	int b = read_R2_button(input2);
+	int c = read_RPB_button(input3);
+	int d = read_R4_button(input4);
+	ext_toggle_state[0] = read_R1_toggle(input1);
+	ext_toggle_state[1] = read_R2_toggle(input2);
+	ext_toggle_state[2] = read_R3_toggle(input3);
+	ext_toggle_state[3] = read_R4_toggle(input4);
 	if(ext_PB_state[0] == 0){ext_PB_state[0] = a;}
 	if(ext_PB_state[1] == 0){ext_PB_state[1] = b;}
 	if(ext_PB_state[2] == 0){ext_PB_state[2] = c;}
@@ -401,8 +511,7 @@ static void logging_cb(void *arg){
 	}else{
 		psc++;
 	}
-	//LOG(LL_WARN, ("%d", panel_brightness));
-    if(NTPflag){
+	if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
 		}
@@ -422,6 +531,12 @@ enum mgos_app_init_result mgos_app_init(void) {
 	header_column_logging(logColumn);
   	oldcheck_onboot();
   	
+  	if(!exists("persistent_info.json")){ //copy from setting to persistent
+	  setting_to_persistent();
+	}else{
+		persistent_to_setting();
+	}
+	
 	if(exists("setting.json")){
 		LOG(LL_WARN, ("json checking"));
 		checkJSONsetting();
@@ -446,26 +561,31 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_gpio_setup_input(INPUT_C, MGOS_GPIO_PULL_DOWN );
 	mgos_gpio_set_mode(INPUT_C, MGOS_GPIO_MODE_INPUT);
 	mgos_gpio_set_pull(INPUT_C, MGOS_GPIO_PULL_DOWN );
+	mgos_adc_enable(INPUT_C);
 	#endif
 	#ifdef INPUT_D
 	mgos_gpio_setup_input(INPUT_D, MGOS_GPIO_PULL_DOWN );
 	mgos_gpio_set_mode(INPUT_D, MGOS_GPIO_MODE_INPUT);
 	mgos_gpio_set_pull(INPUT_D, MGOS_GPIO_PULL_DOWN );
+	mgos_adc_enable(INPUT_D);
 	#endif
 	
 	mgos_gpio_setup_input(INPUT_A, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_setup_input(INPUT_B, MGOS_GPIO_PULL_DOWN );
-
 	mgos_gpio_set_mode(INPUT_A, MGOS_GPIO_MODE_INPUT);
+	mgos_gpio_set_pull(INPUT_A, MGOS_GPIO_PULL_DOWN );
+	
+	mgos_gpio_setup_input(INPUT_B, MGOS_GPIO_PULL_DOWN );	
 	mgos_gpio_set_mode(INPUT_B, MGOS_GPIO_MODE_INPUT);
+	mgos_gpio_set_pull(INPUT_B, MGOS_GPIO_PULL_DOWN );
+	
+	
 	mgos_gpio_set_mode(OUTPUT_A, MGOS_GPIO_MODE_OUTPUT);
   	mgos_gpio_set_mode(OUTPUT_B, MGOS_GPIO_MODE_OUTPUT);
-  
-	mgos_gpio_set_mode(RL_LED_EN, MGOS_GPIO_MODE_OUTPUT);
+	mgos_gpio_set_mode(RL_LED_EN, MGOS_GPIO_MODE_OUTPUT);	
 	
-	
-	mgos_gpio_set_pull(INPUT_A, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_set_pull(INPUT_B, MGOS_GPIO_PULL_DOWN );
+	//enabling adc
+	mgos_adc_enable(INPUT_A);
+	mgos_adc_enable(INPUT_B);
 	
 	//ACS71020
   	int err = 0;
@@ -535,7 +655,7 @@ void request_widget_data(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_
 	char* prog_state_b = (char*)malloc(9);
 	char* pin_state_b = (char*)malloc(9);
 	char* override_active_status = (char*)malloc(5);
-	sprintf(override_active_status, "%d%d%d%d",override_en_status_A, override_en_status_B, override_en_status_C, override_en_status_D );
+	sprintf(override_active_status, "%d%d%d%d",0,0,0,0 );
 	sprintf(prog_name_b, "%d,%d,%d,%d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]);
 	sprintf(prog_state_b, "%d%d%d%d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]);
 	sprintf(pin_state_b, "%d%d%d%d", prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3]);
@@ -1448,22 +1568,57 @@ void checkJSONsetting(){
 	json_scanf(buff_b, strlen(buff_b), "{LED: %d, LED_prog: %d, IO14: %B}", &LED_opt, &LED_prog, &IO14_en);
 	
 	struct json_token t;
+	static bool first = true;
+	
+	if(!first){
+	//setting to persistent
+	long time_offset = 0;
+	char* buff_x = (char*)malloc(512);
+	json_scanf(buff, strlen(buff), "{wifi: %Q, timezone:%ld}", &buff_x, &time_offset);
+	json_scanf_array_elem(buff_x, strlen(buff_x), ".cfg",0, &t);
+	LOG(LL_WARN,("%s %ld", buff_x, time_offset));
+	int mode;
+	char* ssid; char* pass;
+	char* ssid1; char* pass1;
+	char* ssid2; char* pass2; 
+	json_scanf(buff_x, strlen(buff_x), "{mode: %d}", &mode);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
+	
+	//sta 1
+	json_scanf_array_elem(buff_x, strlen(buff_x), ".cfg",1, &t);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid1);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass1);
+	
+	//sta2
+	json_scanf_array_elem(buff_x, strlen(buff_x), ".cfg",2, &t);
+	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid2);
+	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass2);
+	//copy to persistent
+	json_fprintf("persistent_info.json", "{wifi: {mode: %d,  cfg:[{ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}]}, timezone: %ld}", 
+	mode, ssid, pass, ssid1, pass1, ssid2, pass2, time_offset);
+	json_prettify_file("persistent_info.json");
+	free(buff_x);
+	}else{
+		first = false;
+	}
+
 	//input 1 (PB1)
 	json_scanf_array_elem(buff, strlen(buff), ".override",0, &t);
-	json_scanf(t.ptr, t.len, "{sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, ovr_act: %d}",
-	           &input1_as_sens, &input1_as_ovr, &input1_ovr_limit, &input1_ovr_val, &input1_ovr_action);
+	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, ovr_act: %d}",
+	           &input1_mode, &input1_as_sens, &input1_as_ovr, &input1_ovr_limit, &input1_ovr_val, &input1_ovr_action);
 	//input 2 (PB2)
 	json_scanf_array_elem(buff, strlen(buff), ".override",1, &t);
-	json_scanf(t.ptr, t.len, "{sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, ovr_act: %d}",
-	           &input2_as_sens, &input2_as_ovr, &input2_ovr_limit, &input2_ovr_val, &input2_ovr_action);
+	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, ovr_act: %d}",
+	           &input2_mode, &input2_as_sens, &input2_as_ovr, &input2_ovr_limit, &input2_ovr_val, &input2_ovr_action);
 	//input 3 (RPB)
 	json_scanf_array_elem(buff, strlen(buff), ".override",2, &t);
-	json_scanf(t.ptr, t.len, "{sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
-	           &input3_as_sens, &input3_as_ovr, &input3_ovr_limit, &input3_ovr_val, &input3_ovr_out, &input3_ovr_action);
+	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
+	           &input3_mode, &input3_as_sens, &input3_as_ovr, &input3_ovr_limit, &input3_ovr_val, &input3_ovr_out, &input3_ovr_action);
 	//input 4 (RPB)
 	json_scanf_array_elem(buff, strlen(buff), ".override",3, &t);
-	json_scanf(t.ptr, t.len, "{sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
-	           &input4_as_sens, &input4_as_ovr, &input4_ovr_limit, &input4_ovr_val, &input4_ovr_out, &input4_ovr_action);
+	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
+	           &input4_mode, &input4_as_sens, &input4_as_ovr, &input4_ovr_limit, &input4_ovr_val, &input4_ovr_out, &input4_ovr_action);
 	           
 	json_scanf(buff, strlen(buff), "{dec_place: %d, dev_mode: %B}",  &dec_place_global, &dev_mode_global);
 	if(LED_opt == 2){
@@ -1489,6 +1644,9 @@ void checkJSONsetting(){
 	en_ovr_output_D = -1; //reset override output function
 	override_pin_D = -1;
 	free(buff); free(buff_b);
+	mgos_gpio_setup_input(INPUT_A, MGOS_GPIO_PULL_DOWN );
+	mgos_gpio_set_mode(INPUT_A, MGOS_GPIO_MODE_INPUT);
+	mgos_gpio_set_pull(INPUT_A, MGOS_GPIO_PULL_DOWN );
 }
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	char *command = (char*)malloc(11);
@@ -1661,8 +1819,31 @@ void check_override_func(){
 	}else{
 		ovr_limit_D_en = false;	
 	}
-	
-	if((ext_PB_state[0] == 2 || vt_PB_state[0] == 2) && input1_as_ovr && ovr_limit_A_en){ //long push event// check override function (input1 / PB1)
+	if(ext_toggle_state[0] != 1 && input1_mode == 2 && input1_as_ovr){
+		override_pin_A = 0;
+		en_ovr_output_A = (ext_toggle_state[0] == 2) ? 0 : 1;
+	}else if(ext_toggle_state[0] == 1 && input1_mode == 2 && input1_as_ovr){
+		en_ovr_output_A = -1;
+	}
+	if(ext_toggle_state[1] != 1 && input2_mode == 2 && input2_as_ovr){
+		override_pin_B = 1;
+		en_ovr_output_B = (ext_toggle_state[1] == 2) ? 0 : 1;
+	}else if(ext_toggle_state[1] == 1 && input2_mode == 2 && input2_as_ovr){
+		en_ovr_output_B = -1;
+	}
+	if(ext_toggle_state[2] != 1 && input3_mode == 2 && input3_as_ovr){
+		override_pin_C = input3_ovr_out-1;
+		en_ovr_output_C = (ext_toggle_state[2] == 2) ? 0 : 1;
+	}else if(ext_toggle_state[2] == 1 && input3_mode == 2 && input3_as_ovr){
+		en_ovr_output_C = -1;
+	}
+	if(ext_toggle_state[3] != 1 && input4_mode == 2 && input4_as_ovr){
+		override_pin_D = input4_ovr_out-1;
+		en_ovr_output_D = (ext_toggle_state[3] == 2) ? 0 : 1;
+	}else if(ext_toggle_state[3] == 1 && input4_mode == 2 && input4_as_ovr){
+		en_ovr_output_D = -1;
+	}
+	if((ext_PB_state[0] == 2 || vt_PB_state[0] == 2) && input1_as_ovr && ovr_limit_A_en && input1_mode == 1){ //long push event// check override function (input1 / PB1)
 		ext_PB_state[0] = 0;
 		if(vt_PB_state[0] == 2) {vt_PB_state[0] = 0;}
 		//check current program en value
@@ -1704,7 +1885,7 @@ void check_override_func(){
 	if(ovr_limit_A_en == true){override_en_status_A = true;}
 	if(ovr_limit_A_en == false){en_ovr_output_A = -1; override_en_status_A = false;}
 	
-	if((ext_PB_state[1] == 2 || vt_PB_state[1] == 2) && input2_as_ovr && ovr_limit_B_en){ //long push event// check override function (inputB / PB2)
+	if((ext_PB_state[1] == 2 || vt_PB_state[1] == 2) && input2_as_ovr && ovr_limit_B_en && input2_mode == 1){ //long push event// check override function (inputB / PB2)
 		ext_PB_state[1] = 0;
 		if(vt_PB_state[1] == 2) {vt_PB_state[1] = 0;}
 		//check current program en value
@@ -1746,7 +1927,7 @@ void check_override_func(){
 	if(ovr_limit_B_en == true){override_en_status_B = true;}
 	if(ovr_limit_B_en == false){en_ovr_output_B = -1; override_en_status_B = false;}
 	
-	if((ext_PB_state[2] == 2 || vt_PB_state[2] == 2) && input3_as_ovr && ovr_limit_C_en){ //long push event// check override function (input3 / RPB)
+	if((ext_PB_state[2] == 2 || vt_PB_state[2] == 2) && input3_as_ovr && ovr_limit_C_en && input3_mode == 1){ //long push event// check override function (input3 / RPB)
 		ext_PB_state[2] = 0;
 		if(vt_PB_state[2] == 2) {vt_PB_state[2] = 0;}
 		//check current program en value
@@ -1786,7 +1967,7 @@ void check_override_func(){
 	if(ovr_limit_C_en == true){override_en_status_C = true;}
 	if(ovr_limit_C_en == false){en_ovr_output_C = -1; override_en_status_C = false;}
 
-	if((ext_PB_state[3] == 2 || vt_PB_state[3] == 2) && input4_as_ovr == 1 && ovr_limit_D_en){ //long push event// check override function (input3 / RPB)
+	if((ext_PB_state[3] == 2 || vt_PB_state[3] == 2) && input4_as_ovr == 1 && ovr_limit_D_en && input4_mode == 1){ //long push event// check override function (input3 / RPB)
 		ext_PB_state[3] = 0;
 		if(vt_PB_state[3] == 2) {vt_PB_state[3] = 0;}
 		//check current program en value
@@ -2557,149 +2738,266 @@ void setup_timer_program(int ctrl_pin, long value){
 	}
 }
 
-int read_R1_button() { // read button if there is logic change
-  int button = mgos_gpio_read(INPUT_A);
+int read_R1_button(int button) { // read button if there is logic change
   static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button_z == 0 && button == 1) { //rising edge
+  if (button - button_z >= 4000) { //rising edge
     state_button = 1;
-  } else if (button_z == 1 && button == 0) { //falling edge
+  } else if (button_z - button >= 4000) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
       	LOG(LL_WARN,("short push INPUT_A"));
+      	button_z = 0;
         result = 1;
       }
     }
     state_button = 0;
     timer = 0;
   }
-  button_z = button;
-
+  
   if (timer >= 30) { //long press detection
     state_button = 2;
     timer = 0;
+    button_z = 0;
     result = 2;
     LOG(LL_WARN,("long push INPUT_A"));
   }
+  button_z = button;
+  
   if (state_button == 1) {
     timer++;
   }
   return result;
 }
 
-int read_R2_button() { // read button if there is logic change
-  int button = mgos_gpio_read(INPUT_B);
+int read_R2_button(int button) { // read button if there is logic change
   static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button_z == 0 && button == 1) { //rising edge
+  if (button - button_z >= 4000) { //rising edge
     state_button = 1;
-  } else if (button_z == 1 && button == 0) { //falling edge
+  } else if (button_z - button >= 4000) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
       	LOG(LL_WARN,("short push INPUT_B"));
+      	button_z = 0;
         result = 1;
       }
     }
     state_button = 0;
     timer = 0;
   }
-  button_z = button;
 
   if (timer >= 30) { //long press detection
     state_button = 2;
     timer = 0;
+    button_z = 0;
     result = 2;
     LOG(LL_WARN,("long push INPUT_B"));
   }
+  button_z = button;
   if (state_button == 1) {
     timer++;
   }
   return result;
 }
 
-int read_RPB_button() { // read button if there is logic change
+int read_RPB_button(int button) { // read button if there is logic change
+  static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
+  static int button_z = 0;
+  static int timer = 0;
+  int result = 0;
+  if (button - button_z >= 4000/*button_z3 < 1000 && button > 3000*/) { //rising edge
+    state_button = 1;
+  } else if (button_z - button >= 4000 /*button_z3 > 3000 && button < 1000*/) { //falling edge
+    if (state_button != 2) {
+      if (timer >= 10) { //over 1sec
+        result = 0;
+      } else {
+      	LOG(LL_WARN,("short push INPUT_C"));
+      	button_z = 0;
+        result = 1;
+      }
+    }
+    state_button = 0;
+    timer = 0;
+  }
   
-  int button = 0;
-  #ifdef INPUT_C
-  button = mgos_gpio_read(INPUT_C);
-  #endif
-  static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
-  static int button_z = 0;
-  static int timer = 0;
-  int result = 0;
-  if (button_z == 0 && button == 1) { //rising edge
-    state_button = 1;
-  } else if (button_z == 1 && button == 0) { //falling edge
-    if (state_button != 2) {
-      if (timer >= 10) { //over 1sec
-        result = 0;
-      } else {
-      	LOG(LL_WARN,("short push RPB"));
-        result = 1;
-      }
-    }
-    state_button = 0;
-    timer = 0;
-  }
-  button_z = button;
-
   if (timer >= 30) { //long press detection
     state_button = 2;
     timer = 0;
+    button_z = 0;
     result = 2;
-    LOG(LL_WARN,("long push RPB"));
+    LOG(LL_WARN,("long push INPUT_C"));
   }
+  button_z = button;
   if (state_button == 1) {
     timer++;
   }
   return result;
 }
 
-int read_R4_button() { // read button if there is logic change
-  int button = 0;
-  #ifdef INPUT_D
-  button = mgos_gpio_read(INPUT_D);
-  #endif
+int read_R4_button(int button) { // read button if there is logic change
   static int state_button = 0; //0-> idle, 1 -> timer started (falling edge), 2-> hold detected
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button_z == 0 && button == 1) { //rising edge
+  if (button - button_z >= 4000) { //rising edge
     state_button = 1;
-  } else if (button_z == 1 && button == 0) { //falling edge
+  } else if (button_z - button >= 4000) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	LOG(LL_WARN,("short push R4"));
+      	LOG(LL_WARN,("short push INPUT_D"));
+      	button_z = 0;
         result = 1;
       }
     }
     state_button = 0;
     timer = 0;
   }
-  button_z = button;
-
+  
   if (timer >= 30) { //long press detection
     state_button = 2;
     timer = 0;
+    button_z = 0;
     result = 2;
-    LOG(LL_WARN,("long push R4"));
+    LOG(LL_WARN,("long push INPUT_D"));
   }
+  button_z = button;
   if (state_button == 1) {
     timer++;
   }
   return result;
 }
 
+int read_R1_toggle(int input){
+	static int timer = 0;
+	static int area = 0; //indicate which part the adc read
+	static int ret = 0;
+	
+	if(area == 0){ //determine initial
+		if(input < 1365){
+			ret = 1;
+		}else if(input < 2731){
+			ret = 2;
+		}else{
+			ret = 3;
+		}
+	}
+	
+	if(input < 1365){ //auto (do nothing)
+		area = 1;
+		timer = (area == 1 || area == 0) ? timer+1 : 0;
+	}else if(input < 2731){ // override off
+		area = 2;
+		timer = (area == 2 || area == 0) ? timer+1 : 0;
+	}else{ //override on
+		area  =3;
+		timer = (area == 3 || area == 0) ? timer+1 : 0;
+	}
+	
+	if(timer >= 10){ret = area;}
+	return ret;
+}
+
+int read_R2_toggle(int input){
+	static int timer = 0;
+	static int area = 0; //indicate which part the adc read
+	static int ret = 0;
+	
+	if(area == 0){ //determine initial
+		if(input < 1365){
+			ret = 1;
+		}else if(input < 2731){
+			ret = 2;
+		}else{
+			ret = 3;
+		}
+	}
+	
+	if(input < 1365){ //auto (do nothing)
+		area = 1;
+		timer = (area == 1 || area == 0) ? timer+1 : 0;
+	}else if(input < 2731){ // override off
+		area = 2;
+		timer = (area == 2 || area == 0) ? timer+1 : 0;
+	}else{ //override on
+		area  =3;
+		timer = (area == 3 || area == 0) ? timer+1 : 0;
+	}
+	
+	if(timer >= 10){ret = area;}
+	return ret;
+}
+
+int read_R3_toggle(int input){	
+	static int timer = 0;
+	static int area = 0; //indicate which part the adc read
+	static int ret = 0;
+	
+	if(area == 0){ //determine initial
+		if(input < 1365){
+			ret = 1;
+		}else if(input < 2731){
+			ret = 2;
+		}else{
+			ret = 3;
+		}
+	}
+	
+	if(input < 1365){ //auto (do nothing)
+		area = 1;
+		timer = (area == 1 || area == 0) ? timer+1 : 0;
+	}else if(input < 2731){ // override off
+		area = 2;
+		timer = (area == 2 || area == 0) ? timer+1 : 0;
+	}else{ //override on
+		area  =3;
+		timer = (area == 3 || area == 0) ? timer+1 : 0;
+	}
+	
+	if(timer >= 10){ret = area;}
+	return ret;
+}
+
+int read_R4_toggle(int input){
+	static int timer = 0;
+	static int area = 0; //indicate which part the adc read
+	static int ret = 0;
+	
+	if(area == 0){ //determine initial
+		if(input < 1365){
+			ret = 1;
+		}else if(input < 2731){
+			ret = 2;
+		}else{
+			ret = 3;
+		}
+	}
+	
+	if(input < 1365){ //auto (do nothing)
+		area = 1;
+		timer = (area == 1 || area == 0) ? timer+1 : 0;
+	}else if(input < 2731){ // override off
+		area = 2;
+		timer = (area == 2 || area == 0) ? timer+1 : 0;
+	}else{ //override on
+		area  =3;
+		timer = (area == 3 || area == 0) ? timer+1 : 0;
+	}
+	
+	if(timer >= 10){ret = area;}
+	return ret;
+}
 unsigned long randomGen(){
 	srand(time(NULL));
 	return rand()*(rand()%222);

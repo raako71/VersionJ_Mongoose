@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.7a: adding and remove things marked in shared doc (11th dec)<br>
 0.10.7: adding overriding features (shared doc exclude toggle mode) V3<br>
 0.10.6d.1: add PB2<br>
 0.10.6d: fix 12 nov issue, adding login before reboot<br>

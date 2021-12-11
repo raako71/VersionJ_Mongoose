@@ -391,11 +391,14 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			var dev_mode = document.getElementById("dev_mode_en").checked;
 			if(old_json.dev_mode && !dev_mode && old_json.ctrl_page.LED == 1){old_json.ctrl_page.LED = 0;}
 			if(old_json.dev_mode && !dev_mode){ //reset input D
-				old_json.override[3].sensor = false;
-				old_json.override[3].output_ovr = false;
-				old_json.override[3].ovr_limit = 0;
-				old_json.override[3].ovr_act = 0;
-				old_json.override[3].output_opt = 0;
+				for(i=0; i<4; i++){
+				old_json.override[i].sensor = true;
+				old_json.override[i].output_ovr = false;
+				old_json.override[i].ovr_limit = 0;
+				old_json.override[i].ovr_act = 0;
+				old_json.override[i].output_opt = 0;
+				old_json.override[i].mode = 1;
+				}
 			}
 			if(!old_json.dev_mode){old_json.ctrl_page.IO14 = false;}
 			old_json.dev_mode = dev_mode;

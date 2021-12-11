@@ -1,6 +1,6 @@
 author: alifnl
-description: adding overriding features (shared doc exclude toggle mode) V3 
-version: 0.10.7
+description: adding and remove things marked in shared doc (11th dec)
+version: 0.10.7a
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -32,7 +32,7 @@ cdefs:
 config_schema:
   - ["http.hidden_files", "*.json"]
   - ["http.index_files", "s", "index.html.gz", {title: "Comma-separated list of index files"}] #remove .gz if want to use uncompressed one
-  - ["debug.level", 0]
+  - ["debug.level", 1]
   - ["fstab.fs0.dev", "data"]
   - ["fstab.fs0.type", "LFS"]
   - ["fstab.fs0.opts", '{"bs": 4096}']
@@ -78,6 +78,7 @@ libs:
   - origin: https://github.com/mongoose-os-libs/arduino-wire
   - origin: https://github.com/mongoose-os-libs/ethernet
   - origin: https://github.com/mongoose-os-libs/bme280
+  - origin: https://github.com/mongoose-os-libs/adc
 
 
 
