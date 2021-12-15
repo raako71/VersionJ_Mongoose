@@ -107,7 +107,8 @@ unsigned long ACS71020::getRaw(unsigned char reg_address){
   Wire.write(reg_address);
 
   //restart transmission
-  Wire.endTransmission();
+  unsigned char a  = Wire.endTransmission();
+  if(a != 0){ return 0;}
   Wire.requestFrom((int)_dev_addr, (int)4);
 
   unsigned char buffer[4];

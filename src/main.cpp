@@ -267,7 +267,6 @@ void persistent_to_setting(){
 	
 	char* buff_b = (char*)malloc(512);
 	json_scanf(buff, strlen(buff), "{wifi: %Q, timezone:%ld}", &buff_b, &time_offset);
-	LOG(LL_WARN,("%ld", time_offset));
 	struct json_token t;
 	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",0, &t);
 	int mode;
@@ -398,7 +397,6 @@ void request_widget_data(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_
 void dns_advertise(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	//dns_advert = true;
 	mg_rpc_send_responsef(ri, "OK");
-	LOG(LL_WARN,("halo dns advertise"));
 	mgos_dns_sd_advertise();
 }
 void check_ap_mode(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
@@ -506,7 +504,7 @@ static void logging_cb(void *arg){
     //LOG(LL_WARN, ("%s", use_contain.c_str()));
     static unsigned int psc = 0;
     if(psc >= 6){
-    	LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
+    //	LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
 		psc = 0;
 	}else{
 		psc++;
@@ -538,7 +536,6 @@ enum mgos_app_init_result mgos_app_init(void) {
 	}
 	
 	if(exists("setting.json")){
-		LOG(LL_WARN, ("json checking"));
 		checkJSONsetting();
   	}	
 	//i2c and sensor
@@ -643,7 +640,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mg_rpc_add_handler(mgos_rpc_get_global(), "validate_key", "{key:%lu}", validate_cookie, NULL);	
 	mg_rpc_add_handler(mgos_rpc_get_global(), "check_ap_mode", "", check_ap_mode, NULL);	
 	mg_rpc_add_handler(mgos_rpc_get_global(), "VT.GPIO", "{pin:%d, val: %d}", virtual_pb_check, NULL);		
-	LOG(LL_WARN, ("DNS %s", mgos_dns_sd_get_host_name()));
+	
 	mgos_msleep(1000);
 	load_wifi_setting();
 	return MGOS_APP_INIT_SUCCESS;
@@ -773,7 +770,7 @@ void load_wifi_setting(){
 	free(buff_b);
 	
 	if(a == 1){
-		LOG(LL_WARN, ("AP mode (button) %d", a));
+	
 		ap_button_mode = true;
 		wifi_mode = 2;
 		mgos_sys_config_set_wifi_ap_enable(true);
@@ -786,7 +783,7 @@ void load_wifi_setting(){
 	}
 	
 	if(mode == 1 || mode == 4){
-		LOG(LL_WARN,("STA mode..")); //+ap mode
+	
 	    wifi_mode = 1;
 	    if(mode == 4){
 	    	mgos_sys_config_set_wifi_ap_enable(true);
@@ -828,7 +825,6 @@ void load_wifi_setting(){
 		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
 		//mgos_gpio_write(WIFI_LED, false);
 	}else if(mode == 2){
-		LOG(LL_WARN, ("AP mode (setting)"));
 		mgos_sys_config_set_wifi_ap_enable(true);
 		mgos_sys_config_set_wifi_sta_enable(false);
 		mgos_sys_config_set_wifi_sta1_enable(false);
@@ -1404,7 +1400,7 @@ void online_HouseKeeping(){ //(picked from last version)
     if(thisWeek_last - thisWeek_first > 604800){ //not a new file
 		//already pass 1 week
 		//move thisWeek to thisMonth with 10mins interval
-		LOG(LL_WARN, ("migrating this week"));
+		//LOG(LL_WARN, ("migrating this week"));
 		migrate("/mnt/thisWeek.csv", "/mnt/thisMonth.csv", THISMONTH_INTERVAL, 432000, rc_thisday); //10mins interval, keep last 5 days, migrate the rest
     }
   	////////////////////////////////////////////thisWeek///////////////////////////////////////////////////////////
@@ -1416,7 +1412,7 @@ void online_HouseKeeping(){ //(picked from last version)
 	long thisDay_last = read_epoch_last_entry("/mnt/thisDay.csv");
     if(thisDay_last - thisDay_first > 86400){ //already pass 1 day
 		//move thisDay to thisWeek, with 5 mins interval
-		LOG(LL_WARN, ("migrating this day"));
+		//LOG(LL_WARN, ("migrating this day"));
 		migrate("/mnt/thisDay.csv", "/mnt/thisWeek.csv", THISWEEK_INTERVAL, 72000, rc_thisday); //5mins interval, keep last 20 hours, migrate the rest  
     }
 	////////////////////////////////////////////thisDay///////////////////////////////////////////////////////////
@@ -1436,7 +1432,7 @@ void online_HouseKeeping(){ //(picked from last version)
 		  //migrate thisHour to thisDay with 1 mins interval 
 		  // add current data
 		    appendFile("/mnt/thisHour.csv", use_contain.c_str()); 
-			LOG(LL_WARN, ("migrating this hour"));
+			//LOG(LL_WARN, ("migrating this hour"));
 		    migrate("/mnt/thisHour.csv", "/mnt/thisDay.csv", THISDAY_INTERVAL, 2700, rc_thisday); //interval 60 secs, keep last 45 mins, migrate the rest
 		}
 
@@ -1576,7 +1572,7 @@ void checkJSONsetting(){
 	char* buff_x = (char*)malloc(512);
 	json_scanf(buff, strlen(buff), "{wifi: %Q, timezone:%ld}", &buff_x, &time_offset);
 	json_scanf_array_elem(buff_x, strlen(buff_x), ".cfg",0, &t);
-	LOG(LL_WARN,("%s %ld", buff_x, time_offset));
+	//LOG(LL_WARN,("%s %ld", buff_x, time_offset));
 	int mode;
 	char* ssid; char* pass;
 	char* ssid1; char* pass1;
@@ -1652,7 +1648,7 @@ void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame
 	char *command = (char*)malloc(11);
 	if (json_scanf(args.p, args.len, ri->args_fmt, &command) == 1) {
     	mg_rpc_send_responsef(ri, "OK");
-		LOG(LL_WARN, ("%s delete file requested", command));
+		//LOG(LL_WARN, ("%s delete file requested", command));
   	} else {
     	mg_rpc_send_errorf(ri, -1, "Bad request");
     	free(command);
@@ -1703,7 +1699,7 @@ void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	if (json_scanf(args.p, args.len, ri->args_fmt, &online_epoch) == 1) {
     	mg_rpc_send_responsef(ri, "{status: %Q}", "New time is pushed!");
-		LOG(LL_WARN, ("push time requested"));
+		//LOG(LL_WARN, ("push time requested"));
   	} else {
     	mg_rpc_send_errorf(ri, -1, "Bad request");
     	return;
@@ -2113,7 +2109,7 @@ if(en_ovr_output_B != -1){
 }
 if(en_ovr_output_D != -1 && dev_mode_global == true){
 	prog_pin_state[override_pin_D] = en_ovr_output_D;
-	LOG(LL_WARN,("overriding (input D) output pin %d -> %d", (override_pin_D), en_ovr_output_D));
+	//LOG(LL_WARN,("overriding (input D) output pin %d -> %d", (override_pin_D), en_ovr_output_D));
 }
 
 }//end of check_program_name() function
@@ -2750,7 +2746,7 @@ int read_R1_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	LOG(LL_WARN,("short push INPUT_A"));
+      //	LOG(LL_WARN,("short push INPUT_A"));
       	button_z = 0;
         result = 1;
       }
@@ -2764,7 +2760,7 @@ int read_R1_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    LOG(LL_WARN,("long push INPUT_A"));
+    //LOG(LL_WARN,("long push INPUT_A"));
   }
   button_z = button;
   
@@ -2786,7 +2782,7 @@ int read_R2_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	LOG(LL_WARN,("short push INPUT_B"));
+      	//LOG(LL_WARN,("short push INPUT_B"));
       	button_z = 0;
         result = 1;
       }
@@ -2800,7 +2796,7 @@ int read_R2_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    LOG(LL_WARN,("long push INPUT_B"));
+    //LOG(LL_WARN,("long push INPUT_B"));
   }
   button_z = button;
   if (state_button == 1) {
@@ -2821,7 +2817,7 @@ int read_RPB_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	LOG(LL_WARN,("short push INPUT_C"));
+      	//LOG(LL_WARN,("short push INPUT_C"));
       	button_z = 0;
         result = 1;
       }
@@ -2835,7 +2831,7 @@ int read_RPB_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    LOG(LL_WARN,("long push INPUT_C"));
+    //LOG(LL_WARN,("long push INPUT_C"));
   }
   button_z = button;
   if (state_button == 1) {
@@ -2856,7 +2852,7 @@ int read_R4_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	LOG(LL_WARN,("short push INPUT_D"));
+      	//LOG(LL_WARN,("short push INPUT_D"));
       	button_z = 0;
         result = 1;
       }
@@ -2870,7 +2866,7 @@ int read_R4_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    LOG(LL_WARN,("long push INPUT_D"));
+    //LOG(LL_WARN,("long push INPUT_D"));
   }
   button_z = button;
   if (state_button == 1) {

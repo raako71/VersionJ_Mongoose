@@ -838,7 +838,7 @@ function change_home_text(input){
 
 function alphanumeric_only(event){
 	var key = event.keyCode;
-	return ((key >= 65 && key <= 90) || key == 189|| key == 32|| key == 8);
+	return ((key>= 37 && key <= 40)||(key >= 65 && key <= 90) || key == 189|| key == 32||  key == 46 || (key>= 48 && key<= 57)|| key == 8);
 }
 
 function transfer_title_text(){

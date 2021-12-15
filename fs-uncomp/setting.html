@@ -109,6 +109,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		<span id="wifi_saved_list"></span>
 		<input style="margin-top:10px; margin-bottom:10px" type="button" value="Add New WiFi Network" onClick="on_overlay_wifi()">
 		<br>
+		<b> MDNS Name</b><br>
+		<input style="width:50%" 	type = "text" id = "mdns_name" class="input_textbox"  maxlength="15" onkeydown="return alphanumeric_only(event)">
+		<div style="color:red;margin-top:10px;display:none" id="mdns_warning">Reboot is needed to apply mdns change!</div>
 	</div>
 			
 	<div class="section">
@@ -418,6 +421,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				document.getElementById("failed_button").style.display="block";
 				return;
 			}
+
+				document.getElementById("mdns_warning").style.display="none";
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 				document.getElementById("success_button").style.display="block";
@@ -435,7 +440,7 @@ function save_eth_conf(en, ip, gw, netmask, i2c_en){
 	var xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "/rpc/Config.Set", true);
 	xhttp.setRequestHeader('Content-Type', 'application/json');
-	var contain = {"config": {"i2c":{"enable":i2c_en}, "eth": {"enable": en, "ip": ip, "gw": gw, "netmask":netmask}}};
+	var contain = {config: {i2c:{enable:i2c_en}, eth: {enable: en, ip: ip, gw: gw, netmask:netmask}, dns_sd:{host_name:document.getElementById("mdns_name").value}}};
 	xhttp.send(JSON.stringify(contain));
 }
 
@@ -475,6 +480,13 @@ function fetch_version(){
 	xhttp.onload = function(){
 		sys_info = JSON.parse(this.responseText);
 		document.getElementById("fw_version").innerHTML = "<p>Build Version: " + sys_info.fw_version + "</p>";
+	}
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/rpc/config.get", true);
+	xhr.send();
+	xhr.onload = function(){
+		var a = JSON.parse(this.responseText);
+		document.getElementById("mdns_name").value = a.dns_sd.host_name;
 	}
 }
 function getconfig(){
@@ -726,6 +738,12 @@ validate_cookie(function(i){
 	document.getElementById("update_file").click();
 });//validate_cookie
 save_command_update = false;
+}
+
+function alphanumeric_only(event){
+	var key = event.keyCode;
+	document.getElementById("mdns_warning").style.display='block';
+	return ((key>= 37 && key <= 40) ||(key >= 65 && key <= 90) || key == 46|| key == 8);
 }
 </script>
 
