@@ -135,6 +135,11 @@ bool override_en_status_B = false;
 bool override_en_status_C = false;
 bool override_en_status_D = false;
 
+int input1_saved_state = -1;
+int input2_saved_state = -1;
+int input3_saved_state = -1;
+int input4_saved_state = -1;
+
 int input3_mode = 1;
 bool input3_as_sens = false;
 bool input3_as_ovr = false;
@@ -152,9 +157,9 @@ int input4_ovr_out = 0; // based on output id (1 to 4)
 int input4_ovr_action = 0; // determine override action after triggered
 
 int en_ovr_output_A = -1; //flag to indicate that output is overriden
-int override_pin_A = -1;
+int override_pin_A = 0;
 int en_ovr_output_B = -1; //flag to indicate that output is overriden
-int override_pin_B = -1;
+int override_pin_B = 1;
 int en_ovr_output_C = -1; //flag to indicate that output is overriden
 int override_pin_C = -1;
 int en_ovr_output_D = -1; //flag to indicate that output is overriden
@@ -1631,18 +1636,40 @@ void checkJSONsetting(){
 	json_scanf(t.ptr, t.len, "{panel: %d, remote: %d}", &panel_brightness, &remote_brightness);
 	panel_brightness = panel_brightness << 8;
 	remote_brightness = remote_brightness << 8;
-	en_ovr_output_A = -1;
-	override_pin_A = -1;
-	en_ovr_output_B = -1;
-	override_pin_B = -1;
-	en_ovr_output_C = -1; //reset override output function
-	override_pin_C = -1;
-	en_ovr_output_D = -1; //reset override output function
-	override_pin_D = -1;
+	if(!input1_as_ovr){
+		if(en_ovr_output_A != -1){ //means override is working
+			//return output A to saved state
+			prog_pin_state[override_pin_A] = input1_saved_state;
+		}
+		input1_saved_state = -1;
+		en_ovr_output_A = -1; //release override trigger
+	}
+	if(!input2_as_ovr){
+		if(en_ovr_output_B != -1){ //means override is working
+			//return output B to saved state
+			prog_pin_state[override_pin_B] = input2_saved_state;
+		}
+		input2_saved_state = -1;
+		en_ovr_output_B = -1; //release override trigger
+	}
+	if(!input3_as_ovr){
+		if(en_ovr_output_C != -1){
+			prog_pin_state[override_pin_C] = input3_saved_state; //return to saved state
+		}
+		input3_saved_state = -1;
+		override_pin_C = -1;
+		en_ovr_output_C = -1;//release override trigger
+	}
+	if(!input4_as_ovr){
+		if(en_ovr_output_D != -1){
+			prog_pin_state[override_pin_D] = input4_saved_state; //return to saved state
+		}
+		input4_saved_state = -1;
+		override_pin_D = -1;
+		en_ovr_output_D= -1;//release override trigger
+	}
+
 	free(buff); free(buff_b);
-	mgos_gpio_setup_input(INPUT_A, MGOS_GPIO_PULL_DOWN );
-	mgos_gpio_set_mode(INPUT_A, MGOS_GPIO_MODE_INPUT);
-	mgos_gpio_set_pull(INPUT_A, MGOS_GPIO_PULL_DOWN );
 }
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	char *command = (char*)malloc(11);
@@ -1715,114 +1742,17 @@ void check_program_en(const char* file_read, bool& prog_en, int& control_opt){
 }
 
 void check_override_func(){	
-	//determining limit expiration
-	if(input1_as_ovr){ //input1 / PB1
-		if(input1_ovr_limit == 1){
-			ovr_limit_A_en = true;
-		}else if(input1_ovr_limit == 2){
-			if(input1_ovr_val <= 0){
-				ovr_limit_A_en = false;
-			}else{
-				ovr_limit_A_en = true;
-				input1_ovr_val--;
-			}
-		}else if(input1_ovr_limit == 3){
-			if(time_day_epoch != -1){
-				if(time_day_epoch <= input1_ovr_val){
-					ovr_limit_A_en = true;
-				}else{
-					ovr_limit_A_en = false;
-				}
-			}else{
-				ovr_limit_A_en = false;
-			}
-		}
-	}else{
-		ovr_limit_A_en = false;	
-	}
-	
-	if(input2_as_ovr){ //input2 / PB2
-		if(input2_ovr_limit == 1){
-			ovr_limit_B_en = true;
-		}else if(input2_ovr_limit == 2){
-			if(input2_ovr_val <= 0){
-				ovr_limit_B_en = false;
-			}else{
-				ovr_limit_B_en = true;
-				input2_ovr_val--;
-			}
-		}else if(input2_ovr_limit == 3){
-			if(time_day_epoch != -1){
-				if(time_day_epoch <= input2_ovr_val){
-					ovr_limit_B_en = true;
-				}else{
-					ovr_limit_B_en = false;
-				}
-			}else{
-				ovr_limit_B_en = false;
-			}
-		}
-	}else{
-		ovr_limit_B_en = false;	
-	}
-	
-	if(input3_as_ovr){ //input3 / RPB
-		if(input3_ovr_limit == 1){
-			ovr_limit_C_en = true;
-		}else if(input3_ovr_limit == 2){
-			if(input3_ovr_val <= 0){
-				ovr_limit_C_en = false;
-			}else{
-				ovr_limit_C_en = true;
-				input3_ovr_val--;
-			}
-		}else if(input3_ovr_limit == 3){
-			if(time_day_epoch != -1){
-				if(time_day_epoch <= input3_ovr_val){
-					ovr_limit_C_en = true;
-				}else{
-					ovr_limit_C_en = false;
-				}
-			}else{
-				ovr_limit_C_en = false;
-			}
-		}
-	}else{
-		ovr_limit_C_en = false;	
-	}
-	
-	if(input4_as_ovr){ //input3 / RPB
-		if(input4_ovr_limit == 1){
-			ovr_limit_D_en = true;
-		}else if(input4_ovr_limit == 2){
-			if(input4_ovr_val <= 0){
-				ovr_limit_D_en = false;
-			}else{
-				ovr_limit_D_en = true;
-				input4_ovr_val--;
-			}
-		}else if(input4_ovr_limit == 3){
-			if(time_day_epoch != -1){
-				if(time_day_epoch <= input4_ovr_val){
-					ovr_limit_D_en = true;
-				}else{
-					ovr_limit_D_en = false;
-				}
-			}else{
-				ovr_limit_D_en = false;
-			}
-		}
-	}else{
-		ovr_limit_D_en = false;	
-	}
+	static long input1_local_val = 0;
+	static long input2_local_val = 0;
+	static long input3_local_val = 0;
+	static long input4_local_val = 0;
+	//toggle mode
 	if(ext_toggle_state[0] != 1 && input1_mode == 2 && input1_as_ovr){
-		override_pin_A = 0;
 		en_ovr_output_A = (ext_toggle_state[0] == 2) ? 0 : 1;
 	}else if(ext_toggle_state[0] == 1 && input1_mode == 2 && input1_as_ovr){
 		en_ovr_output_A = -1;
 	}
 	if(ext_toggle_state[1] != 1 && input2_mode == 2 && input2_as_ovr){
-		override_pin_B = 1;
 		en_ovr_output_B = (ext_toggle_state[1] == 2) ? 0 : 1;
 	}else if(ext_toggle_state[1] == 1 && input2_mode == 2 && input2_as_ovr){
 		en_ovr_output_B = -1;
@@ -1839,116 +1769,79 @@ void check_override_func(){
 	}else if(ext_toggle_state[3] == 1 && input4_mode == 2 && input4_as_ovr){
 		en_ovr_output_D = -1;
 	}
-	if((ext_PB_state[0] == 2 || vt_PB_state[0] == 2) && input1_as_ovr && ovr_limit_A_en && input1_mode == 1){ //long push event// check override function (input1 / PB1)
+	
+	//pb mode
+	if((ext_PB_state[0] == 2 || vt_PB_state[0] == 2) && input1_as_ovr && input1_mode == 1){ //long push event// check override function (input1 / PB1)
 		ext_PB_state[0] = 0;
 		if(vt_PB_state[0] == 2) {vt_PB_state[0] = 0;}
 		//check current program en value
 		//int prog_en_local =-1; int buff =0;
 	
 		int pin_control = prog_pin_state[0];
-		override_pin_A = 0;
-	
-		/*
-		if(prog_link_name[pin_control] != -1){
-			bool en_local = false;
-			check_program_en(list_prog_name[prog_link_name[pin_control]-1], en_local, buff);
-			prog_en_local = (en_local) ? 1 : 0;
-		}*/
-		/*	
-		if(input1_ovr_action == 1){//enable disable program
-			if(prog_en_local == 1){
-				LOG(LL_WARN,("Program overriden: %d off", input1_ovr_out));
-				modify_program_en(list_prog_name[1], false);
-			}else if(prog_en_local == 0){
-				LOG(LL_WARN,("Program overriden: %d on", input1_ovr_out));
-				modify_program_en(list_prog_name[input1_ovr_out-1], true);
+		if(en_ovr_output_A == -1){
+			input1_saved_state = pin_control;
+			input1_local_val = input1_ovr_val; //reset timer
+			LOG(LL_WARN,("trigger A (activate)"));
+			if(input1_ovr_action == 2 && pin_control != -1){ //toggle output status
+				if(en_ovr_output_A == -1){
+					en_ovr_output_A = pin_control == 1 ? 0: 1;
+				}else{
+					en_ovr_output_A = (en_ovr_output_A == 1) ? 0 : 1;
+				}
+			}else if(input1_ovr_action == 3 && pin_control != -1){ //turn on output
+				en_ovr_output_A  = 1;
+			}else if(input1_ovr_action == 4 && pin_control != -1){ // turn off output
+				en_ovr_output_A = 0;
 			}
+		}else{
 			en_ovr_output_A = -1;
-			override_pin_A = -1;
-		}else*/
-		if(input1_ovr_action == 2 && pin_control != -1){ //toggle output status
-			if(en_ovr_output_A == -1){
-				en_ovr_output_A = pin_control == 1 ? 0: 1;
-			}else{
-				en_ovr_output_A = (en_ovr_output_A == 1) ? 0 : 1;
-			}
-		}else if(input1_ovr_action == 3 && pin_control != -1){ //turn on output
-			en_ovr_output_A  = 1;
-		}else if(input1_ovr_action == 4 && pin_control != -1){ // turn off output
-			en_ovr_output_A = 0;
+			LOG(LL_WARN,("trigger A (deactivate)"));
+			prog_pin_state[override_pin_A] = input1_saved_state;
+			input1_local_val = input1_ovr_val; //reset timer
 		}
 	}
-	if(ovr_limit_A_en == true){override_en_status_A = true;}
-	if(ovr_limit_A_en == false){en_ovr_output_A = -1; override_en_status_A = false;}
 	
-	if((ext_PB_state[1] == 2 || vt_PB_state[1] == 2) && input2_as_ovr && ovr_limit_B_en && input2_mode == 1){ //long push event// check override function (inputB / PB2)
+	if((ext_PB_state[1] == 2 || vt_PB_state[1] == 2) && input2_as_ovr && input2_mode == 1){ //long push event// check override function (inputB / PB2)
 		ext_PB_state[1] = 0;
 		if(vt_PB_state[1] == 2) {vt_PB_state[1] = 0;}
 		//check current program en value
 		//int prog_en_local =-1; int buff =0;
 	
 		int pin_control = prog_pin_state[1];
-		override_pin_B = 1;
-	
-		/*
-		if(prog_link_name[pin_control] != -1){
-			bool en_local = false;
-			check_program_en(list_prog_name[prog_link_name[pin_control]-1], en_local, buff);
-			prog_en_local = (en_local) ? 1 : 0;
-		}*/
-		/*	
-		if(input1_ovr_action == 1){//enable disable program
-			if(prog_en_local == 1){
-				LOG(LL_WARN,("Program overriden: %d off", input1_ovr_out));
-				modify_program_en(list_prog_name[1], false);
-			}else if(prog_en_local == 0){
-				LOG(LL_WARN,("Program overriden: %d on", input1_ovr_out));
-				modify_program_en(list_prog_name[input1_ovr_out-1], true);
+		if(en_ovr_output_B == -1){ //override is inactive,
+			LOG(LL_WARN,("trigger B (activate)"));
+			input2_saved_state = pin_control; 
+			input2_local_val = input2_ovr_val;
+			if(input2_ovr_action == 2 && pin_control != -1){ //toggle output status
+				if(en_ovr_output_B == -1){
+					en_ovr_output_B = pin_control == 1 ? 0: 1;
+				}else{
+					en_ovr_output_B = (en_ovr_output_B == 1) ? 0 : 1;
+				}
+			}else if(input2_ovr_action == 3 && pin_control != -1){ //turn on output
+				en_ovr_output_B  = 1;
+			}else if(input2_ovr_action == 4 && pin_control != -1){ // turn off output
+				en_ovr_output_B = 0;
 			}
-			en_ovr_output_A = -1;
-			override_pin_A = -1;
-		}else*/
-		if(input2_ovr_action == 2 && pin_control != -1){ //toggle output status
-			if(en_ovr_output_B == -1){
-				en_ovr_output_B = pin_control == 1 ? 0: 1;
-			}else{
-				en_ovr_output_B = (en_ovr_output_B == 1) ? 0 : 1;
-			}
-		}else if(input2_ovr_action == 3 && pin_control != -1){ //turn on output
-			en_ovr_output_B  = 1;
-		}else if(input2_ovr_action == 4 && pin_control != -1){ // turn off output
-			en_ovr_output_B = 0;
+		}else{
+			en_ovr_output_B = -1;
+			LOG(LL_WARN,("trigger B (deactivate)"));
+			prog_pin_state[override_pin_B] = input2_saved_state;
+			input2_local_val = input2_ovr_val; //reset timer
 		}
 	}
-	if(ovr_limit_B_en == true){override_en_status_B = true;}
-	if(ovr_limit_B_en == false){en_ovr_output_B = -1; override_en_status_B = false;}
-	
-	if((ext_PB_state[2] == 2 || vt_PB_state[2] == 2) && input3_as_ovr && ovr_limit_C_en && input3_mode == 1){ //long push event// check override function (input3 / RPB)
+
+	if((ext_PB_state[2] == 2 || vt_PB_state[2] == 2) && input3_as_ovr && input3_mode == 1){ //long push event// check override function (input3 / RPB)
 		ext_PB_state[2] = 0;
 		if(vt_PB_state[2] == 2) {vt_PB_state[2] = 0;}
-		//check current program en value
-		//int prog_en_local =-1; int buff =0;
 		
 		int pin_control = prog_pin_state[input3_ovr_out-1];
 		override_pin_C = input3_ovr_out-1;
-		/*
-		if(prog_link_name[pin_control] != -1){
-			bool en_local = false;
-			check_program_en(list_prog_name[prog_link_name[pin_control]-1], en_local, buff);
-			prog_en_local = (en_local) ? 1 : 0;
-		}*/
-		/*if(input3_ovr_action == 1){//enable disable program
-			if(prog_en_local == 1){
-				LOG(LL_WARN,("Program overriden: %d off", input3_ovr_out));
-				modify_program_en(list_prog_name[input3_ovr_out-1], false);
-			}else if(prog_en_local == 0){
-				LOG(LL_WARN,("Program overriden: %d on", input3_ovr_out));
-				modify_program_en(list_prog_name[input3_ovr_out-1], true);
-			}
-			en_ovr_output_C = -1;
-			override_pin_C = -1;
-		}else */
+		if(en_ovr_output_C == -1){ //override is inactive
+		LOG(LL_WARN,("trigger C (activate)"));
 		if(input3_ovr_action == 2 && pin_control != -1){ //toggle output status
+			input3_saved_state = pin_control; //saving state
+			input3_local_val = input3_ovr_val; //and reset timer
 			if(en_ovr_output_C == -1){
 				en_ovr_output_C = pin_control == 1 ? 0: 1;
 			}else{
@@ -1959,35 +1852,24 @@ void check_override_func(){
 		}else if(input3_ovr_action == 4 && pin_control != -1){ // turn off output
 			en_ovr_output_C = 0;
 		}
+		}else{ //override is active
+			en_ovr_output_C = -1;
+			LOG(LL_WARN,("trigger C (deactivate)"));
+			prog_pin_state[override_pin_C] = input3_saved_state;
+			input3_local_val = input3_ovr_val; //reset timer
+		}
 	}
-	if(ovr_limit_C_en == true){override_en_status_C = true;}
-	if(ovr_limit_C_en == false){en_ovr_output_C = -1; override_en_status_C = false;}
 
-	if((ext_PB_state[3] == 2 || vt_PB_state[3] == 2) && input4_as_ovr == 1 && ovr_limit_D_en && input4_mode == 1){ //long push event// check override function (input3 / RPB)
+	if((ext_PB_state[3] == 2 || vt_PB_state[3] == 2) && input4_as_ovr == 1 && input4_mode == 1){ //long push event// check override function (input3 / RPB)
 		ext_PB_state[3] = 0;
 		if(vt_PB_state[3] == 2) {vt_PB_state[3] = 0;}
-		//check current program en value
-		//int prog_en_local =-1; int buff =0;
-		
+
 		int pin_control = prog_pin_state[input4_ovr_out-1];
 		override_pin_D = input4_ovr_out-1;
-		/*
-		if(prog_link_name[pin_control] != -1){
-			bool en_local = false;
-			check_program_en(list_prog_name[prog_link_name[pin_control]-1], en_local, buff);
-			prog_en_local = (en_local) ? 1 : 0;
-		}*/
-		/*if(input3_ovr_action == 1){//enable disable program
-			if(prog_en_local == 1){
-				LOG(LL_WARN,("Program overriden: %d off", input3_ovr_out));
-				modify_program_en(list_prog_name[input3_ovr_out-1], false);
-			}else if(prog_en_local == 0){
-				LOG(LL_WARN,("Program overriden: %d on", input3_ovr_out));
-				modify_program_en(list_prog_name[input3_ovr_out-1], true);
-			}
-			en_ovr_output_C = -1;
-			override_pin_C = -1;
-		}else */
+		if(en_ovr_output_D == -1){ //override is active
+		LOG(LL_WARN,("trigger D (activate)"));
+		input4_saved_state = pin_control; //saving state
+		input4_local_val = input4_ovr_val; //and reset timer
 		if(input4_ovr_action == 2 && pin_control != -1){ //toggle output status
 			if(en_ovr_output_D == -1){
 				en_ovr_output_D = pin_control == 1 ? 0: 1;
@@ -1999,9 +1881,120 @@ void check_override_func(){
 		}else if(input4_ovr_action == 4 && pin_control != -1){ // turn off output
 			en_ovr_output_D = 0;
 		}
+		}else{
+			LOG(LL_WARN,("trigger D (deactivate)"));
+			en_ovr_output_D = -1;
+			prog_pin_state[override_pin_D] = input4_saved_state;
+			input4_local_val = input4_ovr_val; //reset timer
+		}
 	}
-	if(ovr_limit_D_en == true){override_en_status_D = true;}
-	if(ovr_limit_D_en == false){en_ovr_output_D = -1; override_en_status_D = false;}
+	//end of pb mode
+
+	//check limit (pb only) //pb is triggered
+	if(en_ovr_output_A != -1 && input1_mode == 1){
+		if(input1_ovr_limit == 1){
+			ovr_limit_A_en = true;	
+		}else if(input1_ovr_limit == 2){ //for
+			if(input1_local_val <= 1){
+				ovr_limit_A_en = false;
+				vt_PB_state[0] = 2;
+			}else{
+				ovr_limit_A_en = true;
+				input1_local_val--;
+			}
+		}else if(input1_ovr_limit == 3){ //until
+			if(time_day_epoch != -1){
+				if(time_day_epoch <= input1_local_val){
+					ovr_limit_A_en = true;
+				}else{
+					ovr_limit_A_en = false;
+					vt_PB_state[0] = 2; // trigger to deactivate
+				}
+			}else{
+				ovr_limit_A_en = false;
+			}
+		}
+	}else{
+		ovr_limit_A_en = false;
+	}
+
+	if(en_ovr_output_B != -1 && input2_mode == 1){
+		if(input2_ovr_limit == 1){
+			ovr_limit_B_en = true;	
+		}else if(input2_ovr_limit == 2){ //for
+			if(input2_local_val <= 1){
+				ovr_limit_B_en = false;
+				vt_PB_state[1] = 2; // trigger to deactivate
+			}else{
+				ovr_limit_B_en = true;
+				input2_local_val--;
+			}
+		}else if(input2_ovr_limit == 3){ //until
+			if(time_day_epoch != -1){
+				if(time_day_epoch <= input2_local_val){
+					ovr_limit_B_en = true;
+				}else{
+					ovr_limit_B_en = false;
+					vt_PB_state[1] = 2; // trigger to deactivate
+				}
+			}else{
+				ovr_limit_B_en = false;
+			}
+		}
+	}else{
+	ovr_limit_B_en = false;}
+
+	if(en_ovr_output_C != -1 && input3_mode == 1){
+		if(input3_ovr_limit == 1){
+			ovr_limit_C_en = true;	
+		}else if(input3_ovr_limit == 2){ //for
+			if(input3_local_val <= 1){
+				ovr_limit_C_en = false;
+				vt_PB_state[2] = 2; // trigger to deactivate
+			}else{
+				ovr_limit_C_en = true;
+				input3_local_val--;
+			}
+		}else if(input3_ovr_limit == 3){ //until
+			if(time_day_epoch != -1){
+				if(time_day_epoch <= input3_local_val){
+					ovr_limit_C_en = true;
+				}else{
+					ovr_limit_C_en = false;
+					vt_PB_state[2] = 2; // trigger to deactivate
+				}
+			}else{
+				ovr_limit_C_en = false;
+			}
+		}
+	}else{
+	ovr_limit_C_en = false;}
+
+	if(en_ovr_output_D != -1 && input4_mode == 1){
+		if(input4_ovr_limit == 1){
+			ovr_limit_D_en = true;	
+		}else if(input4_ovr_limit == 2){ //for
+			if(input4_local_val <= 1){
+				ovr_limit_D_en = false;
+				vt_PB_state[3] = 2; // trigger to deactivate
+			}else{
+				ovr_limit_D_en = true;
+				input4_local_val--;
+			}
+		}else if(input4_ovr_limit == 3){ //until
+			if(time_day_epoch != -1){
+				if(time_day_epoch <= input4_local_val){
+					ovr_limit_D_en = true;
+				}else{
+					vt_PB_state[3] = 2; // trigger to deactivate
+					ovr_limit_D_en = false;
+				}
+			}else{
+				ovr_limit_D_en = false;
+			}
+		}
+	}else{
+	ovr_limit_D_en = false;}
 	
 	int ovr_c_status = en_ovr_output_C != -1 && ((input3_ovr_out == 3 && LED_opt == 1) || (input3_ovr_out == 4 && IO14_en) || (input3_ovr_out < 3))? en_ovr_output_C :-1;
 	int ovr_d_status = en_ovr_output_D != -1 && ((input4_ovr_out == 3 && LED_opt == 1) || (input4_ovr_out == 4 && IO14_en) || (input4_ovr_out < 3))? en_ovr_output_D :-1;
@@ -2098,16 +2091,16 @@ for(int x =0 ; x < 4 ; x++){ //reset program
 	}
 }
 //OVERRIDING PROGRAM OUTPUT
-if(en_ovr_output_C != -1){
+if(en_ovr_output_C != -1  && ((ovr_limit_C_en && input3_mode == 1) || (input3_mode == 2))){
 	prog_pin_state[override_pin_C] = en_ovr_output_C;
 }
-if(en_ovr_output_A != -1){
+if(en_ovr_output_A != -1 && ((ovr_limit_A_en && input1_mode == 1) || (input1_mode == 2)) ){
 	prog_pin_state[override_pin_A] = en_ovr_output_A;
 }
-if(en_ovr_output_B != -1){
+if(en_ovr_output_B != -1  && ((ovr_limit_B_en && input2_mode == 1) || (input2_mode == 2))){
 	prog_pin_state[override_pin_B] = en_ovr_output_B;
 }
-if(en_ovr_output_D != -1 && dev_mode_global == true){
+if(en_ovr_output_D != -1 && dev_mode_global == true  && ((ovr_limit_D_en && input4_mode == 1) || (input4_mode == 2))){
 	prog_pin_state[override_pin_D] = en_ovr_output_D;
 	//LOG(LL_WARN,("overriding (input D) output pin %d -> %d", (override_pin_D), en_ovr_output_D));
 }
@@ -2746,7 +2739,7 @@ int read_R1_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      //	LOG(LL_WARN,("short push INPUT_A"));
+      	LOG(LL_WARN,("short push INPUT_A"));
       	button_z = 0;
         result = 1;
       }
@@ -2760,7 +2753,7 @@ int read_R1_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    //LOG(LL_WARN,("long push INPUT_A"));
+    LOG(LL_WARN,("long push INPUT_A"));
   }
   button_z = button;
   

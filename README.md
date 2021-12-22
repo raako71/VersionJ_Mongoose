@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.7c: fix override function, title text as home text(21st dec)<br>
 0.10.7b: fixing alphamueric filter and acs library (15th dec)<br>
 0.10.7a: adding and remove things marked in shared doc (11th dec)<br>
 0.10.7: adding overriding features (shared doc exclude toggle mode) V3<br>
