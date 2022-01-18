@@ -16,6 +16,7 @@
  */
 
 #include <algorithm>
+#include <vector>
 #include <string>
 #include "mgos.h"
 #include "mgos_rpc.h"
@@ -25,8 +26,11 @@
 #include "mgos_pwm.h"
 #include "ACS71020.h"
 #include "mgos_bme280.h"
+#include "mgos_sht31.h"
+//#include "mgos_i2c.h"
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
 #include "mgos_adc.h"
+#include "Wire.h"
 //longtermdata trimmer variable
 #define UPPER_LIMIT_SIZE 12000
 #define LOWER_LIMIT_SIZE 10000
@@ -99,12 +103,16 @@ int enablei2c = 13;
 int Vmax = 611;   //depend on Rsense, what maximum voltage that creates 275mV between the voltage input sensor
 int Imax = 30;    //depend on IC specifications
 ACS71020 mySensor{Vmax, Imax};
-static struct mgos_bme280 *bme = NULL;
+static struct mgos_bme280 *bme76 = NULL;
+static struct mgos_bme280 *bme77 = NULL;
+static struct mgos_sht31 *SHTx44 = NULL;
+static struct mgos_sht31 *SHTx45 = NULL;
 float sensor_value[4] = {0,0,0,0};
 float gain = 0.25;
-SparkFun_Ambient_Light light(0x10);
+SparkFun_Ambient_Light light48(0x48);
+SparkFun_Ambient_Light light10(0x10);
 int time2 = 100;
-long luxVal = 0;
+
 unsigned int panel_brightness = 0;
 unsigned int remote_brightness = 0;
 bool IO14_en = false;
@@ -183,6 +191,17 @@ int ext_toggle_state[4] = {0,0,0,0};
 int ext_PB_state[4] = {0,0,0,0};
 int vt_PB_state[4] = {0,0,0,0};
 
+/// sensors and logging variable
+//char[7] sensor_addr_list = {0x10, 0x48, 0x60, 0x61, 0x67, 0x76, 0x77};
+std::vector<char> sensor_addr_list;
+std::vector<bool> sensor_ext;
+std::vector<bool> sensor_online;
+std::vector<std::string> sensor_name;
+std::vector<bool> sensor_en;
+
+std::vector<std::string> sensor_name_log; //put sensor name specification as logging column name
+std::vector<float> sensor_value_log; //keep sensor value based on sensor name
+std::vector<bool> sensor_en_log; //indicate that column is logging enabled
 int led_red_status = 0;
 int dec_place_global;
 bool dev_mode_global;
@@ -227,8 +246,9 @@ static void wifi_led_ctrl(void *arg) {
 //function prototype
 void appendFile(const char* path, const char* message); //append message to a file (tested)
 long getEpoch(const char* data_in); //get epoch value from csv row string (tested)
-std::string getHeader_file(int desiredCol); //get header string based on desired column and calculate header size including epoch column (tested)
+std::string getHeader_file(); //get header string based on desired column and calculate header size including epoch column (tested)
 long read_epoch_last_entry(const char* path); //read last entry of file and return the epoch (tested)
+std::string file_get_header(const char* path);
 int getColumnNum(const char* path); //get column number in file read path including epoch
 std::string getColumnVal(int column, std::string data_in); //get column value of selected column from a string, first column is 0 (tested)
 long read_epoch_first_entry(const char* path); //read first entry of file and then return the first epoch (tested)
@@ -236,8 +256,8 @@ bool exists(const char* path); //check if file exists or not (tested)
 void migrate(const char* original, const char* destination, int interval, long difference, bool migrate2new);//migrate to destination, keep difference range in origin (tested)
 void move_old2new(const char* origin, const char* destination, long time_difference);//copy content to destination with epoch offset (tested)
 void manageOffline_files();//function that moves old files to current files with automated time difference (tested);
-void contain_logging(int desired);//function that modify use_contain variable based on desired column (tested)
-void header_column_logging(int desired);//function that ajusting file column number and header string (picked from last version)
+void contain_logging();//function that modify use_contain variable based on desired column (tested)
+void header_column_logging();//function that ajusting file column number and header string (picked from last version)
 void trimfile(const char* path);//function that trims file when reaching upper limit size to lower limit size (tested)
 void online_HouseKeeping();//(picked from last version)
 void offline_HouseKeeping();//(picked from last version)
@@ -350,6 +370,14 @@ void setting_to_persistent(){
 	json_prettify_file("persistent_info.json");
 	free(buff); free(buff_b);
 }
+void scan_sensor_at_boot();
+bool check_sensor(char addr);
+int get_index(std::vector<char> v, char K);
+int get_index_name(std::vector<std::string> v, std::string K);
+void init_sensor_at_boot();
+void update_sensor_logging(bool update = false);
+void update_sensor_info();
+
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
 	mgos_clear_timer(prog_timer_id[0]);
@@ -390,6 +418,7 @@ static void prog_timer4_cb (void *arg){
 //function prototype
 static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg, struct mg_rpc_frame_info *fi, struct mg_str args);
 static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+static void sensor_log_change(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void checkJSONsetting();
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
@@ -408,6 +437,8 @@ void check_ap_mode(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 	mg_rpc_send_responsef(ri, "{mode:%B, uptime:%f}", ap_button_mode, mgos_uptime());	
 }
 void virtual_pb_check(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void request_sensor_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+
 //function prototype
 static void button_check_cb(void *arg){
 	int input1 = mgos_adc_read(INPUT_A);
@@ -472,15 +503,16 @@ static void timer_cb(void *arg) {
 
 static void logging_cb(void *arg){
 	//logging code
-	column[1] = mgos_gpio_read_out(INPUT_A);
-	column[2] = mgos_gpio_read_out(INPUT_B);
+//	column[1] = mgos_gpio_read_out(INPUT_A);
+//	column[2] = mgos_gpio_read_out(INPUT_B);
     
     //logging current, voltage, and power
-    int Vrms_measured  = mySensor.getVrms();
+    /*int Vrms_measured  = mySensor.getVrms();
     uint32_t Pavg_rms = mySensor.getPavg(ONE_SEC);
     int Iavg = mySensor.getIavg(ONE_SEC);
     float voltMeasurement = Vrms_measured * 0.1;
-    if (voltMeasurement > 5) {
+    */
+	/*if (voltMeasurement > 5) {
       column[3] = voltMeasurement;
       column[4] = Pavg_rms * 0.01;
       column[5] = Iavg * 0.001;
@@ -492,28 +524,75 @@ static void logging_cb(void *arg){
       colen[2] = false;
       colen[3] = false;
       colen[4] = false;
-    }
-    column[6] = mgos_bme280_read_temperature(bme);
+    }*/
+    
+    update_sensor_info();
+    for(int i = 0; i < sensor_addr_list.size(); i++){
+    	char current_addr = sensor_addr_list.at(i);
+    	sensor_online.at(i) = check_sensor(current_addr); //check sensor if online periodically
+    	bool sense_available = sensor_en.at(i) == true && sensor_online.at(i) == true;
+    	 //logging is enabled and sensor is online
+    		//read actual sensors
+    		if(current_addr == 0x61){ //power sensor
+    			int a = get_index_name(sensor_name_log, "P61-v");
+    			sensor_value_log.at(a) = (sense_available)  ? (float)mySensor.getVrms() : -1;
+    			sensor_value_log.at(a+1) = (sense_available) ? (float)mySensor.getIavg(ONE_SEC) * 0.001 : -1;
+    			sensor_value_log.at(a+2) = (sense_available) ? (float)mySensor.getPavg(ONE_SEC) * 0.01 : -1;
+    			sensor_en_log.at(a) = sensor_en.at(i);
+				sensor_en_log.at(a+1) = sensor_en.at(i);
+				sensor_en_log.at(a+2) = sensor_en.at(i);
+			}else if(current_addr == 0x76){
+				int a = get_index_name(sensor_name_log, "BMEx76-H");
+				sensor_value_log.at(a) = (sense_available) ? mgos_bme280_read_humidity(bme76) : -1;
+				sensor_value_log.at(a+1) = (sense_available) ?mgos_bme280_read_temperature(bme76) : -1;
+				sensor_value_log.at(a+2) = (sense_available) ?mgos_bme280_read_pressure(bme76) : -1;
+				sensor_en_log.at(a) = sensor_en.at(i);
+				sensor_en_log.at(a+1) = sensor_en.at(i);
+				sensor_en_log.at(a+2) = sensor_en.at(i);
+			}else if(current_addr == 0x77){
+				int a = get_index_name(sensor_name_log, "BMEx77-H");
+				sensor_value_log.at(a) = (sense_available) ?mgos_bme280_read_humidity(bme77) : -1;
+				sensor_value_log.at(a+1) = (sense_available) ?mgos_bme280_read_temperature(bme77) : -1;
+				sensor_value_log.at(a+2) = (sense_available) ?mgos_bme280_read_pressure(bme77): -1;
+				sensor_en_log.at(a) = sensor_en.at(i);
+				sensor_en_log.at(a+1) = sensor_en.at(i);
+				sensor_en_log.at(a+2) = sensor_en.at(i);
+			}else if(current_addr == 0x10){
+				int a = get_index_name(sensor_name_log, "L10");
+				sensor_value_log.at(a) = (sense_available) ? light10.readLight() : (float)-1;
+				sensor_en_log.at(a) = sensor_en.at(i);
+			}else if(current_addr == 0x48){
+				int a = get_index_name(sensor_name_log, "L48");
+				sensor_value_log.at(a) = (sense_available) ? light48.readLight() : (float)-1;
+				sensor_en_log.at(a) = sensor_en.at(i);
+			}else if(current_addr == 0x44){
+				int a = get_index_name(sensor_name_log, "SHTx44-T");
+				sensor_value_log.at(a) = (sense_available) ? mgos_sht31_getTemperature(SHTx44) : -1;
+				sensor_value_log.at(a+1) = (sense_available) ? mgos_sht31_getHumidity(SHTx44) : -1;
+				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) =sensor_en.at(i); 
+			}else if(current_addr == 0x45){
+				int a = get_index_name(sensor_name_log, "SHTx45-T");
+				sensor_value_log.at(a) = (sense_available) ? mgos_sht31_getTemperature(SHTx45) : -1;
+				sensor_value_log.at(a+1) = (sense_available) ? mgos_sht31_getHumidity(SHTx45) : -1;
+				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) = sensor_en.at(i);
+			}	
+	}
+/*    column[6] = mgos_bme280_read_temperature(bme);
     column[7] = mgos_bme280_read_humidity(bme);
     column[8] = mgos_bme280_read_pressure(bme);
     column[9] = light.readLight();
     column[10] = (float)(rand() % 3001) * 0.01;
     column[11] = (float)(rand() % 3001) * 0.01;
     column[12] = (float)(rand() % 3001) * 0.01;
-    column[13] = (float)(rand() % 3001) * 0.01;
+    column[13] = (float)(rand() % 3001) * 0.01;*/
     sensor_value[0] = column[6]; //temp
     sensor_value[1] = column[7]; //hum
     sensor_value[2] = column[9]; //light
     sensor_value[3] = column[4]; //power
-    contain_logging(logColumn);
-    //LOG(LL_WARN, ("%s", use_contain.c_str()));
-    static unsigned int psc = 0;
-    if(psc >= 6){
-    //	LOG(LL_WARN, ("free heap size %ld", (unsigned long) mgos_get_free_heap_size()));
-		psc = 0;
-	}else{
-		psc++;
-	}
+    contain_logging();
+    LOG(LL_WARN, ("free heap size %lu", (unsigned long)mgos_get_free_heap_size()));
+    
+    
 	if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -530,8 +609,10 @@ static void logging_cb(void *arg){
 
 enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
+	LOG(LL_WARN,("scan sensor_on_boot"));
+	scan_sensor_at_boot();
 	current_ver_key= randomGen();
-	header_column_logging(logColumn);
+	header_column_logging();
   	oldcheck_onboot();
   	
   	if(!exists("persistent_info.json")){ //copy from setting to persistent
@@ -588,41 +669,84 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//enabling adc
 	mgos_adc_enable(INPUT_A);
 	mgos_adc_enable(INPUT_B);
-	
+	LOG(LL_WARN,("initiating sensors"));
 	//ACS71020
-  	int err = 0;
-	err = mySensor.begin(0x61);     //change according ic address
-	if (err == 1)LOG(LL_WARN, ("\nPower Sensor is online"));
-	else LOG(LL_WARN, ("\nPower Sensor is offline"));
-	delay(500);
-	err = mySensor.custom_en(); //enable customer Mode (reset to disable)
-	if (err) {
-	LOG(LL_WARN,("customer mode is: en"));
-	} else {
-	LOG(LL_WARN,("customer mode is: dis"));
+	int sensor_exist = get_index(sensor_addr_list, 0x61);
+	if(sensor_exist != -1){
+	  	if(sensor_online.at(sensor_exist) == 1){	
+	    
+		mySensor.begin(0x61);     //change according ic address
+		//if (err == 1)LOG(LL_WARN, ("\nPower Sensor is online"));
+		//else LOG(LL_WARN, ("\nPower Sensor is offline"));
+		delay(500);
+		mySensor.custom_en(); //enable customer Mode (reset to disable)
+		mySensor.shadow_currentSet(13, 229, 2, 1);
+		//LOG(LL_WARN,("current setting error code: %d", err));
+		// 0 means no error
+		// 01 error detected and message corrected
+		// 2 uncorrectable error
+		// 3 no meaning
+		mySensor.shadow_avgSelen(62, 60);
+		}
 	}
-	err = mySensor.shadow_currentSet(13, 229, 2, 1);
-	LOG(LL_WARN,("current setting error code: %d", err));
-	// 0 means no error
-	// 01 error detected and message corrected
-	// 2 uncorrectable error
-	// 3 no meaning
-	err = mySensor.shadow_avgSelen(62, 60);
-	LOG(LL_WARN,("average setting error code: %d", err));
 	
 	//BME280
-	bme = mgos_bme280_i2c_create(0x77);
-	bool status = mgos_bme280_is_bme280(bme);
-	LOG(LL_WARN, ("BME280 is: %s", (status ? "connected": "disconnected")));
+	sensor_exist = get_index(sensor_addr_list, 0x76);
+	bool isbme = false;
+	if(sensor_exist != -1){
+		isbme = sensor_online.at(sensor_exist);
+		if(isbme){
+			bme76 = mgos_bme280_i2c_create(0x76);
+		}
+	}
+	
+	sensor_exist = get_index(sensor_addr_list, 0x77);
+	if (sensor_exist != -1){
+		sensor_online.at(sensor_exist);
+		if(isbme){
+			bme77 = mgos_bme280_i2c_create(0x77);
+		}
+	}
 	
 	//vmel6030
-	if (light.begin()){
-    	LOG(LL_WARN,("Ready to sense some light!"));
-  	}else{
-    	LOG(LL_WARN,("Could not communicate with the Light sensor!"));
+	sensor_exist = get_index(sensor_addr_list, 0x10);
+	if(sensor_exist != -1){
+		if(sensor_online.at(sensor_exist)){
+		if (light10.begin()){
+	    	//LOG(LL_WARN,("Ready to sense some light!"));
+	    	light10.setGain(gain);
+	 	 	light10.setIntegTime(time2);
+	  	}
+	  	}
+  	}
+  	sensor_exist = get_index(sensor_addr_list, 0x48);
+  	if(sensor_exist != -1){
+	  	if(sensor_online.at(sensor_exist)){
+		if (light48.begin()){
+	    	//LOG(LL_WARN,("Ready to sense some light!"));
+	    	light48.setGain(gain);
+	 	 	light48.setIntegTime(time2);
+	  	}
+	  	}
 	}
-  	light.setGain(gain);
-  	light.setIntegTime(time2);
+	
+	struct mgos_i2c *i2c;
+	i2c = mgos_i2c_get_global();
+	//SHT31
+	sensor_exist = get_index(sensor_addr_list, 0x44);
+	if(sensor_exist != -1){
+		if(sensor_online.at(sensor_exist)){
+			SHTx44=mgos_sht31_create(i2c, 0x44);
+		}
+	}
+	sensor_exist = get_index(sensor_addr_list, 0x45);
+	if(sensor_exist != -1){
+		if(sensor_online.at(sensor_exist)){
+			SHTx45 = mgos_sht31_create(i2c, 0x45);
+		}
+	}
+	
+	
 	
 	//timer function
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
@@ -631,8 +755,8 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//mgos_set_hw_timer(100000, MGOS_TIMER_REPEAT, button_check_cb, NULL);
   	
   	//RPC handler function
-
 	mg_rpc_add_handler(mgos_rpc_get_global(), "setting","", setting_modifier, NULL);
+	mg_rpc_add_handler(mgos_rpc_get_global(), "update_sensor_log","", sensor_log_change, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
@@ -645,8 +769,10 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mg_rpc_add_handler(mgos_rpc_get_global(), "validate_key", "{key:%lu}", validate_cookie, NULL);	
 	mg_rpc_add_handler(mgos_rpc_get_global(), "check_ap_mode", "", check_ap_mode, NULL);	
 	mg_rpc_add_handler(mgos_rpc_get_global(), "VT.GPIO", "{pin:%d, val: %d}", virtual_pb_check, NULL);		
+	mg_rpc_add_handler(mgos_rpc_get_global(), "req.sense_online", "", request_sensor_status, NULL);
 	
 	mgos_msleep(1000);
+	LOG(LL_WARN,("wifi initiate"));
 	load_wifi_setting();
 	return MGOS_APP_INIT_SUCCESS;
 }
@@ -934,32 +1060,32 @@ long read_epoch_last_entry(const char* path){//read last entry of file and retur
 	fclose(file);
 	return a;
 }
-std::string getHeader_file(int desiredCol){//get header string based on desired column and calculate header size including epoch column (tested)
-  int index = 0;
-  int semicol = 0;
-  while(desiredCol != 0){
-    char a = header_file[index];
-    //stop
-    if(a == '\n'){
-      break;
-    }
-    // check semicolon
-    if( a == ';'){
-      desiredCol--;
-      if(desiredCol == 0){
-        semicol = index;
-        header_size = index +2;
-        break;
-      }
-    }
-    index++;
-  }//while
-  if(desiredCol != 0){
-    header_size = index+1;
-    return header_file;;
+std::string getHeader_file(){//get header string based on desired column and calculate header size including epoch column (tested)
+  std::string ret = "epoch;relay1;relay2";
+  for(int i = 0; i < sensor_name_log.size() ; i++){
+  	//if(i == 0) ret += ";";
+  	if(sensor_en_log.at(i)){
+  		ret+=";";
+  		ret+= sensor_name_log.at(i);
+	}
+	
   }
-  std::string ret = header_file.substr(0, semicol) + "\r\n";
+  ret += "\r\n";
+  header_size = ret.size();
   return ret;
+}
+
+std::string file_get_header(const char* path){
+	FILE * file = fopen(path, "r");
+	if (file == NULL){
+		fclose(file);
+		return ""; //no file
+	}
+	char* buff_ori = (char*)malloc(256);
+	fgets(buff_ori, 256, file);
+	std::string ret = buff_ori;
+	free(buff_ori);
+	return ret;
 }
 int getColumnNum(const char* path){ //get column number in file read path including epoch (tested)
   FILE * file = fopen(path, "r");
@@ -1213,79 +1339,68 @@ void manageOffline_files(){ //function that moves old files to current files wit
       }
       /////////////////////////////////////////////////////////////////////////////////////
 }
-void contain_logging(int desired){//function that modify use_contain variable based on desired column (tested)
+void contain_logging(){//function that modify use_contain variable based on desired column (tested)
    	//char buff[255];
-	std::string buff;
+	std::string buff = "";
  	if(NTPflag){
 		buff = std::to_string(online_epoch);
-    	//sprintf(buff, "%ld", online_epoch);
   	}else{
 		buff = std::to_string(offline_epoch);
-    //	sprintf(buff, "%ld", offline_epoch);
   	}
-  	int index = 1;
-	std::string num;
-  	while (desired != 0){
-		buff.append(";");
-		//strcat(buff, ";");
-    	if(colen[index-1] == 1){
-      	//storage system
-      		//char num[20];
-			num = std::to_string(column[index]);
-			if(dec_place_global == 0){
-				num = num.substr(0, num.find("."));
-			}else{
-				num = num.substr(0, num.find(".")+dec_place_global+1);
-			}
-			buff.append(num);
-      		//sprintf(num, "%.2f", column[index]);
-      		//strcat(buff, num);
-    	}
-    index++;
-    desired--;
-  }
-  buff.append("\n");
-  //strcat(buff, "\n");
-  use_contain = buff;
-  char* load = (char*)malloc(1024);
-  load = json_fread("setting.json");
-  json_scanf(load, strlen(load), "{col3_en: %B, col4_en: %B, col5_en: %B}", &colen[2], &colen[3], &colen[4]);  
-  free(load);
+  	int r1 = mgos_gpio_read_out(OUTPUT_A);
+  	int r2 = mgos_gpio_read_out(OUTPUT_B);
+  	buff += ";" + std::to_string(r1) + ";" + std::to_string(r2);
+	for(int i = 0; i < sensor_value_log.size() ; i++){
+		if(sensor_en_log.at(i) == true){
+			buff += ";";
+		  	if(sensor_value_log.at(i) != -1){
+				std::string num = std::to_string(sensor_value_log.at(i));
+				num = (dec_place_global == 0) ? num.substr(0, num.find(",")) : num.substr(0, num.find(".") + dec_place_global + 1);
+				buff.append(num);
+			}	//else nothing to appended
+		}
+	}
+	buff.append("\n");
+	use_contain = buff;
+	char* load = (char*)malloc(1024);
+	load = json_fread("setting.json");
+	json_scanf(load, strlen(load), "{col3_en: %B, col4_en: %B, col5_en: %B}", &colen[2], &colen[3], &colen[4]);  
+	free(load);
 }
-void header_column_logging(int desired){//function that ajusting file column number and header string (picked from last version)
-	desired++;
-	use_header = getHeader_file(desired);
+void header_column_logging(){//function that ajusting file column number and header string (picked from last version)
+	use_header = getHeader_file();
 	if(exists("/mnt/thisHour.csv") ){
-		bool thishour_col = (getColumnNum("/mnt/thisHour.csv") != desired);
+		bool thishour_col = (file_get_header("/mnt/thisHour.csv") != use_header);
 		if(thishour_col){
 			//restart file
+			LOG(LL_WARN,("restart thishour"));
 			remove("/mnt/thisHour.csv");
 			appendFile("/mnt/thisHour.csv", use_header.c_str());
 		}
 	}
 	if(exists("/mnt/thisDay.csv")){
-		bool thisday_col = (getColumnNum("/mnt/thisDay.csv") != desired);
+		bool thisday_col = (file_get_header("/mnt/thisDay.csv") != use_header);
 		if(thisday_col){
 			remove("/mnt/thisDay.csv");
 			appendFile("/mnt/thisDay.csv", use_header.c_str());
 		}
 	}
 	if(exists("/mnt/thisWeek.csv") ){
-		bool thisweek_col = (getColumnNum("/mnt/thisWeek.csv") != desired);
+		bool thisweek_col = (file_get_header("/mnt/thisWeek.csv") != use_header);
 		if(thisweek_col){
 			remove("/mnt/thisWeek.csv");
 			appendFile("/mnt/thisWeek.csv", use_header.c_str());
 		}
 	}
 	if(exists("/mnt/thisMonth.csv")){
-		bool thismonth_col = (getColumnNum("/mnt/thisMonth.csv") != desired);
+		bool thismonth_col = (file_get_header("/mnt/thisMonth.csv") != use_header);
 		if(thismonth_col){
 			remove("/mnt/thisMonth.csv");
 			appendFile("/mnt/thisMonth.csv", use_header.c_str());
 		}
 	}	
 	if(exists("/mnt/longTermData.csv")){
-		bool longterm_col = (getColumnNum("/mnt/longTermData.csv") != desired);
+		bool longterm_col = (file_get_header("/mnt/longTermData.csv") != use_header);
 		if(longterm_col){
 			remove("/mnt/longTermData.csv");
 			appendFile("/mnt/longTermData.csv", use_header.c_str());
@@ -1293,7 +1408,7 @@ void header_column_logging(int desired){//function that ajusting file column num
 	}
 	////////////////////////offline//////////////////////////////////////////////
 	if(exists("/mnt/1970Hour.csv")){
-		bool oldhour_col = (getColumnNum("/mnt/1970Hour.csv") != desired);
+		bool oldhour_col = (file_get_header("/mnt/1970Hour.csv") != use_header);
 		if(oldhour_col){
 			//restart file
 			remove("/mnt/1970Hour.csv");
@@ -1301,28 +1416,28 @@ void header_column_logging(int desired){//function that ajusting file column num
 		}
 	}
 	if(exists("/mnt/1970Day.csv")){
-		bool oldday_col = (getColumnNum("/mnt/1970Day.csv") != desired);
+		bool oldday_col = (file_get_header("/mnt/1970Day.csv") != use_header);
 		if(oldday_col){
 			remove("/mnt/1970Day.csv");
 			appendFile("/mnt/1970Day.csv", use_header.c_str());
 		}
 	}
 	if(exists("/mnt/1970Week.csv")){
-		bool oldweek_col = (getColumnNum("/mnt/1970Week.csv") != desired);
+		bool oldweek_col = (file_get_header("/mnt/1970Week.csv") != use_header);
 		if(oldweek_col){
 			remove("/mnt/1970Week.csv");
 			appendFile("/mnt/1970Week.csv", use_header.c_str());
 		}
 	}
 	if(exists("/mnt/1970Month.csv")){
-		bool oldmonth_col = (getColumnNum("/mnt/1970Month.csv") != desired);
+		bool oldmonth_col = (file_get_header("/mnt/1970Month.csv") != use_header);
 		if(oldmonth_col){
 			remove("/mnt/1970Month.csv");
 			appendFile("/mnt/1970Month.csv", use_header.c_str());
 		}
 	}	
 	if(exists("/mnt/1970longTermData.csv") ){
-		bool oldlongterm_col = (getColumnNum("/mnt/1970longTermData.csv") != desired);
+		bool oldlongterm_col = (file_get_header("/mnt/1970longTermData.csv") != use_header);
 		if(oldlongterm_col){
 			remove("/mnt/1970longTermData.csv");
 			appendFile("/mnt/1970longTermData.csv", use_header.c_str());
@@ -1547,6 +1662,17 @@ void oldcheck_onboot() { //check old files adjusts offline epoch (picked from la
   }
 }
 //function RPC function
+static void sensor_log_change(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	mg_rpc_send_responsef(ri, "OK");
+	sensor_en_log.clear();
+	sensor_value_log.clear();
+	sensor_name_log.clear();
+	update_sensor_logging(true);
+	header_column_logging();
+	(void) cb_arg;
+	(void) fi;
+	
+}
 static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args) {
  	checkJSONsetting();
 	(void) cb_arg;
@@ -3018,4 +3144,153 @@ void virtual_pb_check(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc
   	if(pin != -1 && value != -1){
   		vt_PB_state[pin-1] = value;
 	}
+}
+
+bool check_sensor(char addr){
+	Wire.beginTransmission(addr);
+	if(Wire.endTransmission() != 0){
+		return false;
+	}
+	
+	return true;
+}
+void update_sensor_info(){ //update online and exist
+
+	
+	const char* tmp_name = "tmp.json";
+	for(int i = 0; i < sensor_addr_list.size() ; i++){
+		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exist
+		bool ext = check_sensor(sensor_addr_list[i]);
+		bool on = ext;
+		ext = ext == true ? true : sensor_ext.at(i);
+		if(on == true && sensor_ext.at(i) == false){
+			char* buff = (char*)malloc(1024);
+			buff = json_fread("sensors.json");
+			FILE *fp = fopen(tmp_name, "w");
+			struct json_out out = JSON_OUT_FILE(fp);
+			json_setf(buff, strlen(buff), &out, a.c_str(), "%B", ext);
+			fclose(fp);
+			rename(tmp_name, "sensors.json");
+			free(buff);	
+		}
+		sensor_ext.at(i) = ext;
+		sensor_online.at(i) = on; //check if sensor online
+	}
+	
+}
+
+void update_sensor_logging(bool update){
+	char* buff = (char*) malloc(1024);
+	buff = json_fread("sensors.json");
+	struct json_token t;
+	int log_number = 0;
+	for (int i = 0; json_scanf_array_elem(buff, strlen(buff), ".sensors", i, &t) > 0; i++) {
+		char value = 0; bool ext = false;
+		char* name; bool en = false;
+		json_scanf(t.ptr, t.len, "{addr: %d, ext: %B, name: %Q, en:%B}", &value, &ext, &name, &en); 
+		std::string name_x = name;
+		if(!update){ //this information should not change
+			sensor_ext.push_back(ext); 
+			sensor_en.push_back(en);
+			sensor_name.push_back(name_x);	
+			sensor_online.push_back(false);
+		  	sensor_addr_list.push_back(value);
+		}else{
+			//unless sensor enable
+			sensor_en.at(get_index(sensor_addr_list, value)) = en;
+		}
+		if(name_x == "P61"){
+		  	sensor_name_log.push_back("P61-v");
+		  	sensor_name_log.push_back("P61-I");
+		  	sensor_name_log.push_back("P61-P");
+		  	sensor_value_log.push_back(-1);	sensor_value_log.push_back(-1);	sensor_value_log.push_back(-1);
+		  	sensor_en_log.push_back(en); sensor_en_log.push_back(en); sensor_en_log.push_back(en);
+		  	if(en) log_number+= 3;
+		}else if(name_x == "BMEx76"){
+		  	sensor_name_log.push_back("BMEx76-H");
+		  	sensor_name_log.push_back("BMEx76-T");
+		  	sensor_name_log.push_back("BMEx76-P");
+		  	sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);
+		  	sensor_en_log.push_back(en);sensor_en_log.push_back(en);sensor_en_log.push_back(en);
+		  	if(en) log_number += 3;
+		}else if(name_x == "BMEx77"){
+		  	sensor_name_log.push_back("BMEx77-H");
+		  	sensor_name_log.push_back("BMEx77-T");
+		  	sensor_name_log.push_back("BMEx77-P");
+		  	sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);
+		  	sensor_en_log.push_back(en);sensor_en_log.push_back(en);sensor_en_log.push_back(en);
+		  	if(en) log_number += 3;
+		}else if(name_x == "SHTx44"){
+			sensor_name_log.push_back("SHTx44-T");
+		  	sensor_name_log.push_back("SHTx44-H");
+		  	sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);
+		  	sensor_en_log.push_back(en);sensor_en_log.push_back(en);
+		}else if(name_x == "SHTx45"){
+			sensor_name_log.push_back("SHTx45-T");
+		  	sensor_name_log.push_back("SHTx45-H");
+		  	sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);
+		  	sensor_en_log.push_back(en);sensor_en_log.push_back(en);
+		}else{
+		  sensor_name_log.push_back(name_x);
+		  sensor_value_log.push_back(-1);
+		  sensor_en_log.push_back(en);
+		  if(en) log_number++;
+		}
+    }
+    logColumn =  log_number + 2;
+    free(buff);
+}
+
+void scan_sensor_at_boot(){
+	update_sensor_logging();
+	update_sensor_info();
+}
+
+void init_sensor_at_boot(){ //based on online
+	
+}
+
+std::string build_online_sensor_list(){
+	std::string ret = "";
+	for(int i = 0; i < sensor_online.size() ; i++){
+		ret += sensor_name.at(i) + ","+std::to_string(sensor_online.at(i));
+		if(i != sensor_online.size() - 1){
+			ret += "|";
+		}
+	}
+	return ret;
+}
+void request_sensor_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	std::string x= build_online_sensor_list();
+	mg_rpc_send_responsef(ri, "%Q", x.c_str());
+	(void) cb_arg;
+	(void) fi;	
+}
+int get_index_name(std::vector<std::string> v, std::string K){ //for sensor checking
+    auto it = find(v.begin(), v.end(), K);
+ 	int ret;
+    // If element was found
+    if (it != v.end())
+    {
+        int index = it - v.begin();
+        ret = index;
+    }
+    else{
+       ret = -1;
+    }
+    return ret;
+}
+int get_index(std::vector<char> v, char K){ //for sensor checking
+    auto it = find(v.begin(), v.end(), K);
+ 	int ret;
+    // If element was found
+    if (it != v.end())
+    {
+        int index = it - v.begin();
+        ret = index;
+    }
+    else{
+       ret = -1;
+    }
+    return ret;
 }

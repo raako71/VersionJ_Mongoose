@@ -60,12 +60,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span style="float:right;margin-right:25px;padding:5px">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
-<div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.7">Home</a>
-	<a href="/graph.html.gz?v0.10.7">Graph</a>
-    <a href="/control_page.html.gz?v0.10.7">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.7">Settings</a>
-	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
+<div class="dropdown-content" id="dropdown_menu">
  </div>
  </span>
 </span>
@@ -152,6 +147,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 <script>
 	var dev_offset;
+	var dev_mode_global;
 	var input_mode_list=["A","B","C","D"];
 	var program_list =
 	[{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
@@ -321,6 +317,13 @@ function toggle_output_override(input, num){
 	}else{
 		document.getElementById("ovr_holder_"+input).innerHTML = "";
 	}
+	
+	if(input == 'C' || input == 'D'){
+		if(!dev_mode_global && document.getElementById("override_output_"+input) != null){
+			document.getElementById("override_output_"+input).remove(2);
+			document.getElementById("override_output_"+input).remove(2);
+		}
+	}
 }
 	
 	function IO14_en_func(halo){
@@ -385,7 +388,7 @@ function toggle_output_override(input, num){
 	dev_offset = old_json.timezone;
 	
 	var c = old_json.ctrl_page.LED;
-	var cx= old_json.dev_mode;
+	var cx= old_json.dev_mode; dev_mode_global = cx;
 	input_C_sense = old_json.override[2].sensor;
 	input_A_sense = old_json.override[0].sensor;
 	input_B_sense = old_json.override[1].sensor;

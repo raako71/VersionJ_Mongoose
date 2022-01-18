@@ -79,12 +79,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span style="float:right;margin-right:25px;padding:5px;">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
-<div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.7">Home</a>
-	<a href="/graph.html.gz?v0.10.7">Graph</a>
-    <a href="/control_page.html.gz?v0.10.7">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.7">Settings</a>
-	<a href="javascript:void(0)" id="log_button" onClick='login_confirm(this)'>Login</a>
+<div class="dropdown-content" id="dropdown_menu">
  </div>
  </span>
 </span>
@@ -113,7 +108,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		<input style="width:50%" 	type = "text" id = "mdns_name" class="input_textbox"  maxlength="15" onkeydown="return alphanumeric_only(event)">
 		<div style="color:red;margin-top:10px;display:none" id="mdns_warning">Reboot is needed to apply mdns change!</div>
 	</div>
-			
+	<div class="section">
+		<b> Local Sensors</b><br>
+		<a href="/graph.html.gz?v0.10.7">datalog</a>
+		<span id="sensor_list"></span>
+		
+	</div>
 	<div class="section">
 		<b> Enable Ethernet </b><br>
 		<label class="switch" style="margin: 15px 0">
@@ -235,12 +235,15 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <script>
 	window.addEventListener('load', onLoad);	
 	var sys_info ="";
+	var sensor_json;
 	fetch_version();
 	function onLoad(){
 		console.log("DOM loaded");
 		load_conf();	
 		update_time();
+		check_sensor_online();
 		setInterval(update_time, 1000);		
+		setInterval(check_sensor_online,10000);
 	}
 	function LAN_conf(){
 		var logic = document.getElementById("LAN_conf").checked;
@@ -264,6 +267,17 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	} 
 	function load_conf(){
 		var old_json;
+		var xhr1 = new XMLHttpRequest();
+		xhr1.open("POST", "/rpc/FS.Get", true);
+		xhr1.setRequestHeader('Content-Type', 'application/json');
+		var comm1 = {"filename": "sensors.json"};
+		xhr1.send(JSON.stringify(comm1));
+		xhr1.onload = function() {
+			var data = JSON.parse(this.responseText);
+			var dat = JSON.parse(window.atob(data.data));
+			sensor_json = dat;
+			build_sensor_list(dat.sensors);
+		};
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "/rpc/FS.Get", true);
 		xhr.setRequestHeader('Content-Type', 'application/json');
@@ -366,6 +380,17 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				document.getElementById("failed_button").style.display="block";
 				return;
 			}
+		//save sensor setting
+		var sen_set = check_sensor_setting();
+		console.log(sen_set);
+		if(sen_set){
+			document.getElementById("circularG").style.display = 'none';
+			var inn = "Sensor logging changed. This  well reset <br>and delete all logs, confirm?<br><br>";
+			inn += "<input type='button' onClick='save_sensor_setting()' value = 'OK'> <input type='button' onClick='off_overlay()' value='CANCEL'>";
+			document.getElementById("spinner_info").innerHTML = inn;
+			return;
+			
+		}
 		xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(i){
 			if(i.status != "success"){
 			document.getElementById("circularG").style.display = 'none';
@@ -432,6 +457,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				xhttp2.open("POST", "/rpc/setting", true);
 				xhttp2.send();
 		});//end of fs.put
+		
 		});//end of fs.get
 		});//validate cookie		
 		save_command = false;
@@ -681,6 +707,67 @@ if(input <= -100){
     quality = 2 * (input + 100);
 }
 return quality+"%";
+}
+
+function save_sensor_setting(){
+	document.getElementById("spinner_info").innerHTML = "Saving..";
+	document.getElementById("circularG").style.display = 'block';
+	input = sensor_json;
+	for(i = 0; input.sensors[i] != null; i++){
+		input.sensors[i].en = document.getElementById(input.sensors[i].name + "_en").checked;
+	}
+	var contain = {"filename": "sensors.json", "append":false, "data": window.btoa(JSON.stringify(input))}
+	xhr_send("fs.put", JSON.stringify(contain), function(m){
+	if(m.status != "success"){
+		document.getElementById("circularG").style.display = 'none';
+		var inn = "No response from device<br><br>";
+		inn += "<input type='button' onClick='save_sensor_setting()' value = 'RETRY'> <input type='button' onClick='off_overlay()' value='CANCEL'>";
+		document.getElementById("spinner_info").innerHTML = inn;
+		return;
+	}
+	var xhttp2 = new XMLHttpRequest();
+	xhttp2.open("POST", "/rpc/update_sensor_log", true);
+	xhttp2.send();
+	save_conf();
+	});
+}
+function check_sensor_setting(){
+	input = sensor_json.sensors;
+	var change_detected = false;
+	for (var i = 0; input[i] != null; i++){
+		if(input[i].en != document.getElementById(input[i].name + "_en").checked){
+			change_detected = true;
+			break;
+		}
+	}
+	return change_detected;
+}
+function build_sensor_list(input){
+	var b = "";
+	for (var i = 0; input[i] != null; i++){
+		if(input[i].ext){
+		b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
+		b += '<label for="'+input[i].name+'_en">'+input[i].label+'</label> <span id="'+input[i].name+'_onl_sta" style="margin-left:10px;color:red"></span></div>';
+		}
+	}
+	document.getElementById("sensor_list").innerHTML = b;
+}
+
+function check_sensor_online(){
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/rpc/req.sense_online", true);
+	xhr.send();
+	xhr.onload = function(){
+		var data = xhr.responseText;
+		data = data.split("|");
+		for (var j = 0; data[j] != null; j++){
+			var datax = data[j].split(",");
+			if(document.getElementById(datax[0] + "_onl_sta") != null){
+				document.getElementById(datax[0] + "_onl_sta").innerHTML = (Number(datax[1]) == 0) ? "OFFLINE" : "";
+			}
+		}
+		
+	}
 }
 //ota
 const form = document.querySelector("#uploadform");
