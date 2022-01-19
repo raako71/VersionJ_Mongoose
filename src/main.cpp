@@ -41,7 +41,7 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define V3
+#define V2
 
 #ifdef V1
 #define WIFI_LED 4
