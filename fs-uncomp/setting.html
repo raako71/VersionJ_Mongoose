@@ -735,9 +735,11 @@ function check_sensor_setting(){
 	input = sensor_json.sensors;
 	var change_detected = false;
 	for (var i = 0; input[i] != null; i++){
+		if(document.getElementById(input[i].name + "_en") != null){
 		if(input[i].en != document.getElementById(input[i].name + "_en").checked){
 			change_detected = true;
 			break;
+		}
 		}
 	}
 	return change_detected;

@@ -609,6 +609,7 @@ static void logging_cb(void *arg){
 
 enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
+	Wire.begin();
 	LOG(LL_WARN,("scan sensor_on_boot"));
 	scan_sensor_at_boot();
 	current_ver_key= randomGen();
@@ -625,7 +626,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 		checkJSONsetting();
   	}	
 	//i2c and sensor
-	Wire.begin();
+	
 	//GPIO init
 	mgos_gpio_setup_output(EN_I2C, 1);
   	mgos_gpio_setup_output(OUTPUT_A, 0);
