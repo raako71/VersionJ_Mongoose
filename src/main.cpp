@@ -533,9 +533,13 @@ static void logging_cb(void *arg){
     	bool sense_available = sensor_en.at(i) == true && sensor_online.at(i) == true;
     	 //logging is enabled and sensor is online
     		//read actual sensors
-    		if(current_addr == 0x61){ //power sensor
+    		if(current_addr == 0){
+    			int a = get_index_name(sensor_name_log, "relay1");
+    			sensor_value_log.at(a) = (sense_available)  ? mgos_gpio_read_out(OUTPUT_A) : -1;
+    			sensor_value_log.at(a+1) = (sense_available) ?  mgos_gpio_read_out(OUTPUT_B) : -1;
+			}else if(current_addr == 0x61){ //power sensor
     			int a = get_index_name(sensor_name_log, "P61-v");
-    			sensor_value_log.at(a) = (sense_available)  ? (float)mySensor.getVrms() : -1;
+    			sensor_value_log.at(a) = (sense_available)  ? (float)mySensor.getVrms()*0.1 : -1;
     			sensor_value_log.at(a+1) = (sense_available) ? (float)mySensor.getIavg(ONE_SEC) * 0.001 : -1;
     			sensor_value_log.at(a+2) = (sense_available) ? (float)mySensor.getPavg(ONE_SEC) * 0.01 : -1;
     			sensor_en_log.at(a) = sensor_en.at(i);
@@ -705,6 +709,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	sensor_exist = get_index(sensor_addr_list, 0x77);
 	if (sensor_exist != -1){
 		sensor_online.at(sensor_exist);
+		isbme = sensor_online.at(sensor_exist);
 		if(isbme){
 			bme77 = mgos_bme280_i2c_create(0x77);
 		}
@@ -714,7 +719,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	sensor_exist = get_index(sensor_addr_list, 0x10);
 	if(sensor_exist != -1){
 		if(sensor_online.at(sensor_exist)){
-		if (light10.begin()){
+		if (light10.begin(Wire)){
 	    	//LOG(LL_WARN,("Ready to sense some light!"));
 	    	light10.setGain(gain);
 	 	 	light10.setIntegTime(time2);
@@ -724,7 +729,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   	sensor_exist = get_index(sensor_addr_list, 0x48);
   	if(sensor_exist != -1){
 	  	if(sensor_online.at(sensor_exist)){
-		if (light48.begin()){
+		if (light48.begin(Wire)){
 	    	//LOG(LL_WARN,("Ready to sense some light!"));
 	    	light48.setGain(gain);
 	 	 	light48.setIntegTime(time2);
@@ -1063,7 +1068,7 @@ long read_epoch_last_entry(const char* path){//read last entry of file and retur
 	return a;
 }
 std::string getHeader_file(){//get header string based on desired column and calculate header size including epoch column (tested)
-  std::string ret = "epoch;relay1;relay2";
+  std::string ret = "epoch";
   for(int i = 0; i < sensor_name_log.size() ; i++){
   	//if(i == 0) ret += ";";
   	if(sensor_en_log.at(i)){
@@ -1349,9 +1354,11 @@ void contain_logging(){//function that modify use_contain variable based on desi
   	}else{
 		buff = std::to_string(offline_epoch);
   	}
-  	int r1 = mgos_gpio_read_out(OUTPUT_A);
-  	int r2 = mgos_gpio_read_out(OUTPUT_B);
-  	buff += ";" + std::to_string(r1) + ";" + std::to_string(r2);
+  	//int r1 = mgos_gpio_read_out(OUTPUT_A);
+  	//int r2 = mgos_gpio_read_out(OUTPUT_B);
+  	//buff += ";";
+  	
+	//std::to_string(r1) + ";" + std::to_string(r2);
 	for(int i = 0; i < sensor_value_log.size() ; i++){
 		if(sensor_en_log.at(i) == true){
 			buff += ";";
@@ -3163,7 +3170,7 @@ void update_sensor_info(){ //update online and exist
 		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exist
 		bool ext = check_sensor(sensor_addr_list[i]);
 		bool on = ext;
-		LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
+		//LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
 		ext = ext == true ? true : sensor_ext.at(i);
 		if(on == true && sensor_ext.at(i) == false){
 			char* buff = (char*)malloc(1024);
@@ -3177,6 +3184,9 @@ void update_sensor_info(){ //update online and exist
 		}
 		sensor_ext.at(i) = ext;
 		sensor_online.at(i) = on; //check if sensor online
+		if(sensor_addr_list[i] == 0){
+			sensor_online.at(i) = 1;
+		}
 		
 	}
 	
@@ -3202,7 +3212,13 @@ void update_sensor_logging(bool update){
 			//unless sensor enable
 			sensor_en.at(get_index(sensor_addr_list, value)) = en;
 		}
-		if(name_x == "P61"){
+		if(name_x == "relay"){
+			sensor_name_log.push_back("relay1");
+			sensor_name_log.push_back("relay2");
+			sensor_value_log.push_back(-1); sensor_value_log.push_back(-1);
+			sensor_en_log.push_back(en); sensor_en_log.push_back(en);
+			if(en) log_number += 2;
+		}else if(name_x == "P61"){
 		  	sensor_name_log.push_back("P61-v");
 		  	sensor_name_log.push_back("P61-I");
 		  	sensor_name_log.push_back("P61-P");
@@ -3240,7 +3256,7 @@ void update_sensor_logging(bool update){
 		  if(en) log_number++;
 		}
     }
-    logColumn =  log_number + 2;
+    logColumn =  log_number;
     free(buff);
 }
 

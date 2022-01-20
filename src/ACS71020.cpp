@@ -15,7 +15,8 @@ bool ACS71020::begin(unsigned char i2c_address){
 	Wire.begin();
 	
 	Wire.beginTransmission(_dev_addr);
-	if(Wire.endTransmission() != 0){
+	int a = Wire.endTransmission(true);
+	if(a != 0){
 		return false;
 	}
 	

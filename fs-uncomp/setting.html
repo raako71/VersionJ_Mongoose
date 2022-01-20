@@ -750,8 +750,15 @@ function build_sensor_list(input){
 	var b = "";
 	for (var i = 0; input[i] != null; i++){
 		if(input[i].ext){
-		b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
-		b += '<label for="'+input[i].name+'_en">'+input[i].label+'</label> <span id="'+input[i].name+'_onl_sta" style="margin-left:10px;color:red"></span></div>';
+			if(input[i].name != "relay"){
+			var a= input[i].label;
+			var point= a.search("#");
+			b += '<div style="margin-top:5px;margin-bottom:5px"><label for="'+input[i].name+'_en">'+a.substring(point)+'  </label><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
+			b += '<label for="'+input[i].name+'_en">  '+a.substring(0, point-1)+'</label> <span id="'+input[i].name+'_onl_sta" style="margin-left:10px;color:red"></span></div>';
+		}else{
+			b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
+			b += '<label for="'+input[i].name+'_en">  '+input[i].label+'</label> <span id="'+input[i].name+'_onl_sta" style="margin-left:10px;color:red"></span></div>';
+		}
 		}
 	}
 	document.getElementById("sensor_list").innerHTML = b;
