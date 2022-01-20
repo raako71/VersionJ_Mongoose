@@ -714,7 +714,9 @@ function save_sensor_setting(){
 	document.getElementById("circularG").style.display = 'block';
 	input = sensor_json;
 	for(i = 0; input.sensors[i] != null; i++){
-		input.sensors[i].en = document.getElementById(input.sensors[i].name + "_en").checked;
+		if(document.getElementById(input.sensors[i].name + "_en") != null){
+			input.sensors[i].en = document.getElementById(input.sensors[i].name + "_en").checked;
+		}
 	}
 	var contain = {"filename": "sensors.json", "append":false, "data": window.btoa(JSON.stringify(input))}
 	xhr_send("fs.put", JSON.stringify(contain), function(m){

@@ -529,7 +529,7 @@ static void logging_cb(void *arg){
     update_sensor_info();
     for(int i = 0; i < sensor_addr_list.size(); i++){
     	char current_addr = sensor_addr_list.at(i);
-    	sensor_online.at(i) = check_sensor(current_addr); //check sensor if online periodically
+    	//sensor_online.at(i) = check_sensor(current_addr); //check sensor if online periodically
     	bool sense_available = sensor_en.at(i) == true && sensor_online.at(i) == true;
     	 //logging is enabled and sensor is online
     		//read actual sensors
@@ -609,12 +609,7 @@ static void logging_cb(void *arg){
 
 enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
-	Wire.begin();
-	LOG(LL_WARN,("scan sensor_on_boot"));
-	scan_sensor_at_boot();
-	current_ver_key= randomGen();
-	header_column_logging();
-  	oldcheck_onboot();
+	
   	
   	if(!exists("persistent_info.json")){ //copy from setting to persistent
 	  setting_to_persistent();
@@ -626,7 +621,13 @@ enum mgos_app_init_result mgos_app_init(void) {
 		checkJSONsetting();
   	}	
 	//i2c and sensor
-	
+	Wire.begin();
+	LOG(LL_WARN,("scan sensor_on_boot"));
+	scan_sensor_at_boot();
+	current_ver_key= randomGen();
+	header_column_logging();
+  	oldcheck_onboot();
+  	
 	//GPIO init
 	mgos_gpio_setup_output(EN_I2C, 1);
   	mgos_gpio_setup_output(OUTPUT_A, 0);
@@ -3149,20 +3150,20 @@ void virtual_pb_check(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc
 
 bool check_sensor(char addr){
 	Wire.beginTransmission(addr);
-	if(Wire.endTransmission() != 0){
-		return false;
+	int error = Wire.endTransmission(true);
+	if(error == 0){
+		return true;
 	}
 	
-	return true;
+	return false;
 }
-void update_sensor_info(){ //update online and exist
-
-	
+void update_sensor_info(){ //update online and exist	
 	const char* tmp_name = "tmp.json";
 	for(int i = 0; i < sensor_addr_list.size() ; i++){
 		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exist
 		bool ext = check_sensor(sensor_addr_list[i]);
 		bool on = ext;
+		LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
 		ext = ext == true ? true : sensor_ext.at(i);
 		if(on == true && sensor_ext.at(i) == false){
 			char* buff = (char*)malloc(1024);
@@ -3176,6 +3177,7 @@ void update_sensor_info(){ //update online and exist
 		}
 		sensor_ext.at(i) = ext;
 		sensor_online.at(i) = on; //check if sensor online
+		
 	}
 	
 }
