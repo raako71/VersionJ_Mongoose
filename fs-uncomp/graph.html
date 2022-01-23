@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title> Graph</title>
+<title> Log Data</title>
 <link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.7"/>
 <link rel="stylesheet" type="text/css" href="./general.css?v0.10.7" />
 <script src="./login.js.gz?v0.10.7" defer></script>
@@ -75,15 +75,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
  </span>
 </span>
 </div>
-<h1 id = "header"> Power Monitor ESP32 Web Server </h1> 
+<h1 id = "header"> Socket Controller Logging Data </h1> 
 <table style="width:100%;" >	
 <tr>
 <td>
 <p>This Hour Logging</p>
 <div class="btn-group">
-<form method="get" action="/thisHour_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick ="open_new_tab('/mnt/thisHour.csv')">View Raw</button>
 <button onClick = "download(0)">Download CSV</button>
 <input type= "checkbox" id="thishour_del" >
@@ -93,9 +90,6 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <td>
 <p>1970 Hour Logging</p>
 <div class="btn-group">
-<form method="get" action="/1970Hour_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick="open_new_tab('/mnt/1970Hour.csv')">View Raw</button>            
 <button onClick = "download(5)">Download CSV</button>
 <input type= "checkbox" id="1970hour_del" >
@@ -107,9 +101,6 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <td>
 <p>This Day Logging</p>
 <div class="btn-group">
-<form method="get" action="/thisDay_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick="open_new_tab('/mnt/thisDay.csv')">View Raw</button>
 <button onClick="download(1)">Download CSV</button>
 <input type= "checkbox" id="thisday_del" >
@@ -119,9 +110,6 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <td>
 <p>1970 Day Logging</p>
 <div class="btn-group">
-<form method="get" action="/1970Day_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick="open_new_tab('/mnt/1970Day.csv')">View Raw</button>
 <button onClick= "download(6)">Download CSV</button>
 <input type= "checkbox" id="1970day_del" >
@@ -133,9 +121,6 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <td>
 <p>This Week Logging</p>
 <div class="btn-group">
-<form method="get" action="/thisWeek_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick="open_new_tab('/mnt/thisWeek.csv')">View Raw</button>
 <button onClick = "download(2)">Download CSV</button>
 <input type= "checkbox" id="thisweek_del" >
@@ -145,9 +130,6 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <td>
 <p>1970 Week Logging</p>
 <div class="btn-group">
-<form method="get" action="/1970Week_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button  onClick="open_new_tab('/mnt/1970Week.csv')">View Raw</button>
 <button onClick= "download(7)">Download CSV</button>
 <input type= "checkbox" id="1970week_del" >
@@ -155,50 +137,44 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 </div>
 </td>
 </tr>
+    
 <tr>
 <td>
 <p>This Month Logging</p>
 <div class="btn-group">
-<form method="get" action="/thisMonth_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick="open_new_tab('/mnt/thisMonth.csv')">View Raw</button>
 <button onClick = "download(3)">Download CSV</button>
 <input type= "checkbox" id="thismonth_del" >
 <label for= "thismonth_del"> thisMonth delete </label>
 </div>
 </td>
+
+    
 <td>
 <p>1970 Month Logging</p>
 <div class="btn-group">
-<form method="get" action="/1970Month_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick="open_new_tab('/mnt/1970Month.csv')">View Raw</button>
 <button onClick= "download(8)">Download CSV</button>
 <input type= "checkbox" id="1970month_del" >
 <label for= "1970month_del"> 1970Month delete </label>
+</div>
 </td>
 </tr>
+    
 <tr>
 <td>
 <p>Long Term Logging</p>
 <div class="btn-group">
-<form method="get" action="/longterm_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick="open_new_tab('/mnt/longTermData.csv')">View Raw</button>
 <button onClick = "download(4)">Download CSV</button>
 <input type= "checkbox" id="longterm_del" >
 <label for= "longterm_del"> longTermData delete </label>
 </div>
 </td>
+    
 <td>
 <p>1970 Long Term Logging</p>
 <div class="btn-group">
-<form method="get" action="/1970longterm_plot.html">
-<button type="submit">View Graph</button>
-</form>
 <button onClick="open_new_tab('/mnt/1970longTermData.csv')">View Raw</button>
 <button onClick= "download(9)">Download CSV</button>
 
