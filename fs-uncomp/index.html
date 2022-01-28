@@ -48,7 +48,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span style="float:right;margin-right:25px;padding:5px;">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
-<div class="dropdown-content" id="dropdown_menu">
+<div class="dropdown-content">
+    <a href="/index.html.gz?v0.10.7">Home</a>
+	<a href="/graph.html.gz?v0.10.7">Graph</a>
+    <a href="/control_page.html.gz?v0.10.7">Control Logic</a>
+    <a href="/setting.html.gz?v0.10.7">Settings</a>
+	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
  </div>
  </span>
 </span>
@@ -60,6 +65,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 </body>
 <script>
+var trigger_name =[];
+var trigger_unit =[];
+var trigger_value=[];
+req_log_value(); //execute immediately
 var input_mode_list=["A","B","C","D"];
 var gauge_1_1;var gauge_1_2;var gauge_1_3;var gauge_1_4;
 var gauge_2_1;var gauge_2_2;var gauge_2_3;var gauge_2_4;
@@ -103,18 +112,19 @@ var gauge_opts = {
 
 window.addEventListener('load', onLoad);
 function onLoad(){
+fetch_program_list();
 setInterval(fetch_io_status, 2500);
 setInterval(update_graph, 10000);
 update_time();
 setInterval(update_time, 1000);	
-fetch_program_list();
+
 }
 
 function initiate_widget_content(){
-	for (i = 1; i <= 10; i++){
+	for (var i = 1; i <= 10; i++){
 	var on_off = ["on", "off"];
 	var output_list = ["A", "B", "C", "D", "null"];
-	var sens_list = ['Temperature', 'Humidity', 'Light', 'Power'];
+	var sens_list = trigger_name;
 	var input_list = ["Input A Button", "Input B Button", "Input C Button", "Input D Button"];
 	if(document.getElementById("widget"+i+"_output") != null){
 		document.getElementById("widget"+i+"_name").innerHTML = "Program: " + program_list[i-1].name; 
@@ -124,7 +134,8 @@ function initiate_widget_content(){
 		var w = program_list[i-1].var2;
 		var x = program_list[i-1].info1;
 		var y = program_list[i-1].info2;
-		if(v >= 1 && v <= 4){
+		
+		if(v >= 1 && v <= 20){
 			var text= "";
 			var sens = ""; var init_gauge1 =false; init_gauge2 = false;
 			x = JSON.parse(x);
@@ -135,35 +146,40 @@ function initiate_widget_content(){
 				init_gauge1 = true;
 			}	
 		    text = "";
-			if(w >= 1 && w <= 4){
+			console.log(i + " " + w);
+			if(w >= 1 && w <= 20){
 				if(program_list[i-1].setting.type == 1){
 				text += "<span id=\"gaugetxt_"+i +"_" + w+ "\" class=\"gaugetxt\"></span>";
 				text += "<canvas id=\"gaugecanvas_"+i +"_" + w + "\" height=\"150\" width=\"300\"> </canvas>";	
 				sens += "<div class=\"widget_place\">" + text + "</div>";
 				}
 				init_gauge2 = true;
- 			}else if( w== 5){
-				y = y.substr(2);
-				var v1 = parse_timer(JSON.parse(y), "off");sens +='<div class="widget_place_block">';if(v1 != ""){sens += '<br>Off for ' + v1;}v1 = parse_timer(JSON.parse(y), "on");
-				if(v1 != ""){sens += '<br>On for ' + v1;}sens += '</div>'
-			}else if (w >= 6 && w <= 9){
+ 			}else if( w== 25){			
+				var yx = y.substr(2);
+				var v1 = parse_timer(JSON.parse(yx), "off");
+				sens +='<div class="widget_place_block">';
+				if(v1 != ""){sens += '<br>Off for ' + v1;}v1 = parse_timer(JSON.parse(yx), "on");
+				if(v1 != ""){sens += '<br>On for ' + v1;}
+				sens += '</div>'
+
+			}else if (w >= 26 && w <= 29){
 				y = JSON.parse(y);
 				if(y.sec_on != ""){	
 					var sec_on =  String(y.sec_on).split(",");
-					text += "ON: output " + output_list[w-6] + " is switched " + on_off[sec_on[1]-1];
+					text += "ON: output " + output_list[w-26] + " is switched " + on_off[sec_on[1]-1];
 					text += "<br>";
 				}
 				if(y.sec_off != ""){
 					var sec_off = String(y.sec_off).split(",");
-					text += "OFF: output " + output_list[w-6] + " is switched " + on_off[sec_off[1]-1];
+					text += "OFF: output " + output_list[w-26] + " is switched " + on_off[sec_off[1]-1];
 					text += "<br>";
 				}
 				sens += '<div class="widget_place_block"><br>'+text+'</div>';
 			}
 			widget_tanker.innerHTML = sens;
-			widget_tanker.style.display = (w > 4 ) ? 'block' : 'flex';
+			widget_tanker.style.display = (w >= 25 ) ? 'block' : 'flex';
 			//gauge
-			if(init_gauge1 && program_list[i-1].setting.type == 1){initiate_gauge(i, v, program_list[i-1].setting.gauge1);}
+			if(init_gauge1 && program_list[i-1].setting.type == 1){console.log("init gauge"); initiate_gauge(i, v, program_list[i-1].setting.gauge1);}
 			if(init_gauge2 && program_list[i-1].setting.type == 1){initiate_gauge(i, w, program_list[i-1].setting.gauge2);}
 			//chart
 			if((init_gauge1 || init_gauge2) && program_list[i-1].setting.type == 2){
@@ -175,12 +191,12 @@ function initiate_widget_content(){
 				document.getElementById("gaugecanvas_"+i+"_"+v).style.marginBottom = '15px';
 				initiate_graph(i,v,set);
 			}
-		}else if(v == 6){
+		}else if(v == 26){
 			var v1 = parse_timer(JSON.parse(x), "off");var DC='<div class="widget_place"><br><br>';if(v1 != ""){DC += '<br>Off for ' + v1;}v1 = parse_timer(JSON.parse(x), "on");
 			if(v1 != ""){DC += '<br>On for ' + v1;}DC += '</div>';widget_tanker.innerHTML = DC;
-		}else if(v == 7){
+		}else if(v == 27){
 			widget_tanker.innerHTML = "<div class='widget_place'><br><br><br><b>Manual Operation</b></div>";
-		}else if(v == 8){
+		}else if(v == 28){
 			var rpb;
 			rpb = '<div class="widget_place_block"><br><br>Trigger is '+input_list[x-1]+'</div>';
 			if( w == 0){
@@ -191,9 +207,10 @@ function initiate_widget_content(){
 			rpb += '<div class="widget_place_block"><input type="button" style="margin-top:20px" value="Trigger" onClick="send_trigger('+x+')"></div>'; 
 			widget_tanker.innerHTML = rpb;
 			widget_tanker.style.display =  'block';
-		}else if (v == 9){
+		}else if (v == 29){
 			var text = "";
 			var OS = "";
+			console.log(program_list[i-1]);
 			x = JSON.parse(x);
 			if( w != -1){
 				text += "<span id=\"gaugetxt_"+i +"_" + w + "\" class=\"gaugetxt\"></span>";
@@ -203,12 +220,12 @@ function initiate_widget_content(){
 			}
 			if(x.pri_on != ""){	
 				var pri_on =  String(x.pri_on).split(",");
-				text += "ON: output " + output_list[pri_on[0]-1] + " is switched " + on_off[pri_on[1]-1];
+				text += "ON: output " + output_list[pri_on[0]-26] + " is switched " + on_off[pri_on[1]-1];
 				text += "<br>";
 			}
 			if(x.pri_off != ""){
 				var pri_off = String(x.pri_off).split(",");
-				text += "OFF: output " + output_list[pri_off[0]-1] + " is switched " + on_off[pri_off[1]-1];
+				text += "OFF: output " + output_list[pri_off[0]-26] + " is switched " + on_off[pri_off[1]-1];
 				text += "<br>";
 			}
 			if(x.pri_on != "" || x.pri_off != ""){	
@@ -216,7 +233,8 @@ function initiate_widget_content(){
 			}
 			widget_tanker.innerHTML = OS;
 			widget_tanker.style.display = (w != -1) ? 'block' : 'flex';
-			if(w != -1 && program_list[i-1].setting.type == 1){initiate_gauge(i, w, program_list[i-1].setting.gauge2);}
+			console.log(program_list[i-1]);
+			if(w != -1 && program_list[i-1].setting.type == 1){console.log("init gauge opt is output status") ; initiate_gauge(i, w, program_list[i-1].setting.gauge2);}
 			if(w != -1 && program_list[i-1].setting.type == 2){
 				var set = {number:0, name1:"", name2:"", cubic_en1: program_list[i-1].setting.graph1.cubic_en, cubic_en2: program_list[i-1].setting.graph2.cubic_en};
 				initiate_graph(i,w,set);
@@ -286,7 +304,7 @@ a += '<div id="widget'+input+'_tanker"></div></div>';
 return a;
 }
 
-function widget_builder(input){
+function widget_builder(input){ //input is id
 var a = '<div class="widget_holder fadeIn" id="widget_holder_'+input+'"><div class="gear-btn" onClick="on_overlay_setting('+input+')">';
 a += '<svg height="30" width="30" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xmlns:v="https://vecta.io/nano"><circle cx="256" cy="256" r="66.928" fill="#25b6d2"/><path d="M512 294.4v-76.8l-78.112-7.824c-4.464-16.448-11.312-31.904-20.048-46.048l50.368-61.6-54.272-54.304-64.032 52.416c-13.392-7.056-27.776-12.48-42.944-15.888L294.528 0H256.16h-.32-38.368l-8.432 84.352c-15.152 3.424-29.552 8.848-42.944 15.888l-64.032-52.416-54.272 54.304 50.368 61.6c-8.736 14.16-15.568 29.616-20.048 46.048L0 217.6v76.8l78.224 7.824c4.496 16.4 11.248 31.872 19.968 45.984l-50.416 61.648 54.272 54.304 64.032-52.416c13.392 7.056 27.792 12.464 42.96 15.888L217.488 512h38.368.32 38.368l8.432-84.352c15.152-3.424 29.552-8.832 42.96-15.888l64.032 52.416 54.272-54.304-50.416-61.648c8.736-14.144 15.472-29.6 19.968-45.984L512 294.4zm-256.016 77.12c-63.76 0-115.456-51.728-115.456-115.52 0-63.808 51.696-115.52 115.456-115.52S371.44 192.208 371.44 256c0 63.808-51.68 115.52-115.456 115.52z" fill="#32bea6"/></svg>';
 a += '</div>';
@@ -298,6 +316,7 @@ return a;
 }
 
 function initiate_gauge(progid, ctrl, setting){
+console.log("init gauge");
 var x = JSON.parse(JSON.stringify(gauge_opts));
 
 x.pointer.color = (theme_global == 2) ? "#636363": "black";
@@ -313,7 +332,7 @@ x.staticZones = [{strokeStyle: setting.ocolor, min: Number(setting.min), max: Nu
 }else{
 x.staticZones = [{strokeStyle: setting.icolor, min: setting.min, max: setting.max}];
 }
-console.log(x);
+
 eval('gauge_' + progid + "_" + ctrl + "=new Gauge(document.getElementById(\"gaugecanvas_"+progid+"_"+ctrl+"\")).setOptions(x)");
 //eval('gauge_' + progid + "_" + ctrl + ".setTextField(document.getElementById(\"gaugetxt_"+progid+"_"+ctrl+"\"))");
 eval('gauge_' + progid + "_" + ctrl + ".animationSpeed = 5");
@@ -451,6 +470,18 @@ function filter_epoch(input){
 }
 
 function fetch_io_status(){
+xhr_send_nojson("req.log_value", null, function(u){
+if(u.code != 200){return;}
+var data = u.data.split("|");
+for (var j = 2; data[j] != null; j++){
+	var datax = data[j].split(",");
+	var num = Number(datax[1]);
+	if(trigger_name[j-2].toLowerCase().indexOf("temp") != -1){
+		num = (temp_unit_login == 2) ? C2F(num) : num; 
+	}
+	trigger_value[j-2] = num;	
+}
+
 xhr_send("req_widget", null, function(i){
 if(i.code != 200){return;}
 var res = i.data;
@@ -460,7 +491,7 @@ var io_info = res.IO_info;
 var a = io_info.prog_name.split(",");
 var b = io_info.pin_state;
 var ovr_info = res.ovr_out.split("|");
-var unit = ["&deg;", "%", "lux", "W"];
+var unit = trigger_unit;
 for (i = 0 ; i < 10 ; i++){
 //show or hide widget
 if(document.getElementById("widget_holder_"+(i+1)) != null){
@@ -503,9 +534,12 @@ pin_element += "</span>";
 document.getElementById("widget"+(i+1)+"_pin").innerHTML = pin_element;
 var v1 = program_list[i].var1;var v2 = program_list[i].var2; var type = program_list[i].setting.type;
 //update_gauge
-for (k = 1 ; k <= 4 ; k++){
+for (k = 1 ; k <= 20 ; k++){
 	var os_pt = document.getElementById("gaugetxt_"+(i+1)+"_"+k);
-	if(type == 1 && os_pt != null){os_pt.innerHTML = ((k == 1 && temp_unit_login == 2) ? C2F(sens[k-1]) : sens[k-1]) + " " + unit[k-1] + (k==1 ? (temp_unit_login==1 ? "C" : "F") : "");eval('gauge_' + (i+1) + "_" + k + ".set("+ ((k == 1 && temp_unit_login == 2) ? C2F(sens[k-1]) : sens[k-1]) +")");}
+	if(type == 1 && os_pt != null){
+		os_pt.innerHTML = trigger_value[k-1] +" "+ trigger_unit[k-1];
+		eval('gauge_' + (i+1) + "_" + k + ".set("+ trigger_value[k-1] +")");
+	}
 }//loop 1 to 4 -> updating gauge
 }//if not null (update gauge and pin)
 
@@ -526,6 +560,7 @@ document.getElementById("widget"+(input_mode_list[i])+"_pin").innerHTML = pin_el
 }//loop for output widget
 
 });//end of xhr_send
+});//end of xhr_send req.log_value
 }
 
 function off_overlay_setting(){
@@ -564,7 +599,7 @@ var j2 = document.getElementById("gauge2_upval");
 var k2 = document.getElementById("gauge2_icolor");
 var l2 = document.getElementById("gauge2_ocolor");
 //load based on main_opt and sec_opt
-if( program_list[input-1].var1 >= 1 && program_list[input-1].var1 <= 4){
+if( program_list[input-1].var1 >= 1 && program_list[input-1].var1 <= 20){
 setInputFilter(document.getElementById("min_val1"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 setInputFilter(document.getElementById("max_val1"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 setInputFilter(document.getElementById("gauge1_loval"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
@@ -575,7 +610,7 @@ i1.value = set.gauge1.loval; j1.value = set.gauge1.upval; k1.value = set.gauge1.
 static_zone_loader(e.checked, 1);
 document.getElementById("interpolation_en_1").checked = set.graph1.cubic_en;
 }
-if((program_list[input-1].var1 == 9 && program_list[input-1].var2 != -1) || (program_list[input-1].var2 >= 1 && program_list[input-1].var2 <= 4)){
+if((program_list[input-1].var1 == 29 && program_list[input-1].var2 != -1) || (program_list[input-1].var2 >= 1 && program_list[input-1].var2 <= 4)){
 setInputFilter(document.getElementById("min_val2"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 setInputFilter(document.getElementById("max_val2"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 setInputFilter(document.getElementById("gauge2_loval"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
@@ -591,21 +626,20 @@ if(set_type != null){set_type.value = set.type; indicator_loader(set.type);}
 }
 
 function setting_page_builder(id){
-var trigger = ['Temperature', 'Humidity', 'Light', 'Power'];
 var v = program_list[id-1].var1;
 var w = program_list[id-1].var2;
 var ret = "<b>" + program_list[id-1].name + " Widget</b><br><br>";
-if((v >= 1 && v <= 4) || (v == 9 && w != -1)){
+if((v >= 1 && v <= 20) || (v == 29 && w != -1)){
 ret += '<label for="setting_type">Indicator type: </label><select onchange="indicator_loader(this.value)" name="setting_type" id="setting_type"><option value="1">Gauge</option><option value="2">Graph</option></select>';
 ret += '<div id= "graph_setting_holder"><br>';
-if(v != 9){
-ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger[v-1]+ '</b><br>';
+if(v != 29){
+ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
 ret += '<table style="margin-top:5px"><td><label class="mini_switch"><input type="checkbox" id="interpolation_en_1"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Enable Cubic Interpolation</td></table>';
 ret += '</div>';
 }
 if(w >= 1 && w <= 4){
-ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger[v-1]+ '</b><br>';
+ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
 ret += '<table style="margin-top:5px"><td><label class="mini_switch"><input type="checkbox" id="interpolation_en_2"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Enable Cubic Interpolation</td></table>';
 ret += '</div>';
@@ -613,8 +647,8 @@ ret += '</div>';
 ret += '</div>';
 
 ret += '<div id="gauge_setting_holder" ><br>';
-if(v != 9){
-ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger[v-1]+ '</b><br>';
+if(v != 29){
+ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
 ret += 'min value: <input type="text" id = "min_val1" style="width:60px"><br>';
 ret += 'max value: <input type="text" id = "max_val1" style="width:60px"><br>';
 ret += 'inside bounds color: <input type="text" id="gauge1_icolor" style="width:60px"><br>';
@@ -630,7 +664,7 @@ ret += '<td>Value Labels</td></table>';
 ret += '</div>';
 }
 if( w>= 1 && w <= 4){
-ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger[v-1]+ '</b><br>';
+ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
 ret += 'min value: <input type="text" id="min_val2" style="width:60px"><br>';
 ret += 'max value: <input type="text" id="max_val2" style="width:60px"><br>';
 ret += 'inside bounds color: <input type="text" id="gauge2_icolor" style="width:60px"><br>';
@@ -823,18 +857,15 @@ trigger_command = 0;
 
 function change_home_text(input){
 	on_overlay_login(0); //just on overlay login
-	var title = '<b>Home Title</b><br><div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px"><input type="text" style="width:100%; margin-bottom:5px" id="home_text" maxlength="40" onkeydown="return alphanumeric_only(event)"><br>';
+	var title = '<b>Home Title</b><br><div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px"><input type="text" style="width:100%; margin-bottom:5px" id="home_text" maxlength="40"><br>';
 	title += '</div><span style="margin-top:10px;display:block;" id="login_warning"></span><div style="margin-top:10px">';
 	title += '<input type="button" style="margin:10px;width:115px" onClick="transfer_title_text(); save_home_text()" id="enter_password" value="OK"><input style="margin:10px;width:115px" type="button" value="CANCEL" onClick="off_overlay_login();clear_flag()"></div>';
 	document.getElementById("multipurpose").innerHTML = title;
 	document.getElementById("home_text").value = input;
 	document.getElementById("home_text").select();
+	setInputFilter(document.getElementById("home_text"), function(value) {  return /^[a-zA-Z0-9 _-]+$/.test(value); });
 }
 
-function alphanumeric_only(event){
-	var key = event.keyCode;
-	return ((key>= 37 && key <= 40)||(key >= 65 && key <= 90) || key == 189|| key == 32||  key == 46 || (key>= 48 && key<= 57)|| key == 8);
-}
 
 function transfer_title_text(){
 	document.getElementById("home_text_disp").innerHTML = document.getElementById("home_text").value;
@@ -886,6 +917,37 @@ validate_cookie(function(i){
 save_home_command = false;
 }
 
+function req_log_value(){ //requesting log label and value
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/rpc/req.log_value", true);
+	xhr.send();
+	xhr.onload = function(){
+		var data = xhr.responseText;
+		data = data.split("|");
+		for (var j = 2; data[j] != null; j++){
+			var datax = data[j].split(",");
+			trigger_name.push(datax[0]);
+			trigger_value.push(0);
+			//pushing unit to global variable
+			if(datax[0].toLowerCase().indexOf("temp")  != -1){ //temp unit
+				if(temp_unit_login == 2){ trigger_unit.push("F")} //fahrenheit
+				else{trigger_unit.push("C");} //celcius
+			}else if(datax[0].toLowerCase().indexOf("power") != -1){
+				trigger_unit.push("W");
+			}else if(datax[0].toLowerCase().indexOf("light") != -1){
+				trigger_unit.push("lux");
+			}else if (datax[0].toLowerCase().indexOf("humid") != -1){
+				trigger_unit.push("%");
+			}else if(datax[0].toLowerCase().indexOf("volt") != -1){
+				trigger_unit.push("V");
+			}else if(datax[0].toLowerCase().indexOf("current") != -1){
+				trigger_unit.push("A");
+			}else if(datax[0].toLowerCase().indexOf("press") != -1){
+				trigger_unit.push("hPA");
+			}
+		}
+	}
+}
 </script>
 <style>
 .gear-btn{

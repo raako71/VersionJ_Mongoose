@@ -105,7 +105,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		<input style="margin-top:10px; margin-bottom:10px" type="button" value="Add New WiFi Network" onClick="on_overlay_wifi()">
 		<br>
 		<b> MDNS Name</b><br>
-		<input style="width:50%" 	type = "text" id = "mdns_name" class="input_textbox"  maxlength="15" onkeydown="return alphanumeric_only(event)">
+		<input style="width:50%" 	type = "text" id = "mdns_name" class="input_textbox"  maxlength="15" onkeydown="return alphanumeric_only()">
 		<div style="color:red;margin-top:10px;display:none" id="mdns_warning">Reboot is needed to apply mdns change!</div>
 	</div>
 	<div class="section">
@@ -244,6 +244,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		check_sensor_online();
 		setInterval(update_time, 1000);		
 		setInterval(check_sensor_online,10000);
+		setInputFilter(document.getElementById("mdns_name"),  function(value) { return /^[a-zA-Z0-9-]+$/.test(value); });
 	}
 	function LAN_conf(){
 		var logic = document.getElementById("LAN_conf").checked;
@@ -257,6 +258,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			document.getElementById("SN").readOnly = false;
 		}
 	}
+	
+	function setInputFilter(textbox, inputFilter) {["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {textbox.addEventListener(event, function() {if (inputFilter(this.value)) {this.oldValue = this.value;this.oldSelectionStart = this.selectionStart;this.oldSelectionEnd = this.selectionEnd;} else if (this.hasOwnProperty("oldValue")) {this.value = this.oldValue;this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);} else {this.value = "";}});});}
 	
 	function ValidateIPaddress(ipaddress) {  
 	  if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {  
@@ -838,10 +841,8 @@ validate_cookie(function(i){
 save_command_update = false;
 }
 
-function alphanumeric_only(event){
-	var key = event.keyCode;
+function alphanumeric_only(){
 	document.getElementById("mdns_warning").style.display='block';
-	return ((key>= 37 && key <= 40) ||(key >= 65 && key <= 90) || key == 46|| key == 8);
 }
 </script>
 

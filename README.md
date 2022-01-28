@@ -1,7 +1,8 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.10.8.c: data log page update <br>
+0.10.8d: complete most of sensor and control logic function <br>
+0.10.8c: sensor logging milestone <br>
 0.10.8: sensor logging milestone <br>
 0.10.7c: fix override function, title text as home text(21st dec)<br>
 0.10.7b: fixing alphamueric filter and acs library (15th dec)<br>
