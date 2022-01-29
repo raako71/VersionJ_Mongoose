@@ -566,11 +566,11 @@ static void logging_cb(void *arg){
 				sensor_value_log.at(a+1) = (sense_available) ? mgos_sht31_getHumidity(SHTx45) : -1;
 				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) = sensor_en.at(i);
 			}else if(current_addr == 0x60){
-				int a = get_index_name(sensor_name_log, "Temp x60");
+				int a = get_index_name(sensor_name_log, "T60");
 				sensor_value_log.at(a) = (sense_available) ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
 			}else if(current_addr == 0x67){
-				int a = get_index_name(sensor_name_log, "Temp x67");
+				int a = get_index_name(sensor_name_log, "T67");
 				sensor_value_log.at(a) = (sense_available) ? MCPx67.getThermocoupleTemp() : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
 			}	
