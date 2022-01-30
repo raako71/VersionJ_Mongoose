@@ -60,12 +60,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <span style="float:right;margin-right:25px;padding:5px">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
-<div class="dropdown-content">
-    <a href="/index.html.gz?v0.10.7">Home</a>
-	<a href="/graph.html.gz?v0.10.7">Graph</a>
-    <a href="/control_page.html.gz?v0.10.7">Control Logic</a>
-    <a href="/setting.html.gz?v0.10.7">Settings</a>
-	<a href="#" id="log_button" onClick='login_confirm(this)'>Login</a>
+<div class="dropdown-content" id="dropdown_menu">
  </div>
  </span>
 </span>
@@ -117,12 +112,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<b>Programmable Indicator LED</b>
 	<br>
 	
-	<input type="radio" name="programmable_led" id="led_disable" onChange="toggle_led_prog()"><label for="led_disable">Disabled</label><br>
+	<input type="radio" name="programmable_led" id="led_disable" onChange="toggle_led_prog(0)"><label for="led_disable">Disabled</label><br>
 	<div id="as_output_holder" style="display:none">
-	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog()"><label for="as_output">As Output</label></div>
-	<input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog()"><label for ="output_stat">Show output status</label><br>
+	<input type="radio" name="programmable_led" id="as_output" checked onChange="toggle_led_prog(1)"><label for="as_output">As Output</label></div>
+	<input type="radio" name="programmable_led" id="output_stat" onChange="toggle_led_prog(2)"><label for ="output_stat">Show output status</label><br>
 	<div id="prog_stat_holder" >
-	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog()"><label for="prog_stat">Show program status (glowing for program active, On for output active, Off for program inactive)</label></div>
+	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog(3)"><label for="prog_stat">Show program status (glowing for program active, On for output active, Off for program inactive)</label></div>
 	<span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
 	</div>
 	<div class="section">
@@ -136,7 +131,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	B: <span id="relay2_prog"></span>&nbsp;&nbsp;<span id="relay2_sta"></span>&nbsp;&nbsp;
 	<span id="ovr_out_B" style="color:red;display:none">OVERRIDE</span>
 	</div>
-	<div style="margin-bottom:5px; margin-top:5px">
+	<div style="margin-bottom:5px; margin-top:5px;display:none" id="led_prog_holder">
 	C: <span id="led_prog"></span>&nbsp;&nbsp;<span id="led_sta"></span>&nbsp;&nbsp;
 	<span id="ovr_out_C" style="color:red;display:none">OVERRIDE</span>
 	</div>
@@ -336,24 +331,36 @@ function toggle_output_override(input, num){
 			var conf = confirm("Are you sure want to enable this output?");
 			if(!conf){
 				halo.checked = false;
+			}else if(document.getElementById("output_stat").checked){
+				toggle_led_prog(2);
 			}
 		}
 	}
-	function toggle_led_prog(){
+	function toggle_led_prog(input){
 		var a = "Select Program: <select id='prog_led_list'></select>";
-		if(document.getElementById("as_output").checked ||document.getElementById("led_disable").checked){
-			document.getElementById("prog_led_holder").innerHTML = "";
-		}else{
-			document.getElementById("prog_led_holder").innerHTML = a;
+		var inner = document.getElementById("prog_led_holder");
+		if(input == 0 || input == 1){
+			inner.innerHTML = "";
+		}else if(input == 3){ //as program status
+			inner.innerHTML = a;
 			for(var i = 0 ; i < 10; i++){
-			if(program_list[i].name != ""){
+			if(program_list[i].name != ""){ //will add existing program to select dropdown
 			var x = document.getElementById("prog_led_list");
 			var opt = document.createElement("option");
 			opt.text = program_list[i].name;
 			opt.value = i+1;
 			x.add(opt);
 			}
-		}
+			}
+		}else if(input == 2){ // as output status
+			var b = "Select Output : <select id='prog_led_list'>";
+			b += "<option value = '1'> output A</option>";
+			b += "<option value = '2'> output B</option>";
+			if(document.getElementById("IO14_en").checked){
+				b+= "<option value = '4'> output D </option>";
+			}
+			b+= "</select>";
+			inner.innerHTML = b;
 		}
 	}
 	function toggle_override(input) {
@@ -461,21 +468,22 @@ function toggle_output_override(input, num){
 	LED = false;
 	if(c == 0){
 		document.getElementById("led_disable").checked = true;
-	}else if(c == 1){
+	}else if(c == 1){ // c == 1 as output
 		LED = true;
 		document.getElementById("as_output").checked = true;
-	}else if(c == 2){
+	}else if(c == 2){ //c == 2 as output status
 		document.getElementById("output_stat").checked = true;
-	}else{
+	}else{ // c == 3 as program status
 		document.getElementById("prog_stat").checked = true;
 	}
-	toggle_led_prog();
+	toggle_led_prog(c);
 	if(c == 2 || c == 3){
 		document.getElementById("prog_led_list").value = old_json.ctrl_page.LED_prog;
 	}
 	if(cx){
 		document.getElementById("as_output_holder").style.display="block";
 		document.getElementById("IO14_holder").style.display="block";
+		document.getElementById("led_prog_holder").style.display = "block";
 		document.getElementById("input_control_D_holder").style.display="block";
 		document.getElementById("sens_in_D").checked = true;
 	}else{

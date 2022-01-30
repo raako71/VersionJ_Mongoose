@@ -567,10 +567,12 @@ static void logging_cb(void *arg){
 				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) = sensor_en.at(i);
 			}else if(current_addr == 0x60){
 				int a = get_index_name(sensor_name_log, "T60");
+				sense_available = sense_available && MCPx60.available();
 				sensor_value_log.at(a) = (sense_available) ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
+				sense_available = sense_available && MCPx67.available();
 				sensor_value_log.at(a) = (sense_available) ? MCPx67.getThermocoupleTemp() : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
 			}	
@@ -2702,23 +2704,18 @@ void led_red_ctrl(unsigned int value){ //as output
 
 void led_red_ctrl_asprog(void *arg){
 	if(LED_opt == 2){ //show output statuss
-		for (int i = 0; i < 4;i++){ //blinking
-			if(prog_link_name[i] == LED_prog){
-				if(prog_pin_state[i] == 1){
-					#ifdef OUTPUT_C
-					mgos_pwm_set(OUTPUT_C, 1000, (float)(65535-remote_brightness)/65535);
-					#endif
-					//mgos_gpio_write(LED_RED, 0);
-					led_red_status = 1;
-				}else{
-					#ifdef OUTPUT_C
-					mgos_pwm_set(OUTPUT_C, 1000, 1);
-					#endif
-					//mgos_gpio_write(LED_RED, 1);
-					led_red_status = 0;
-				}
-				break;
-			}
+		if(prog_pin_state[LED_prog-1] == 1){  //LED_prog here is as output indicator 1 to 4
+			#ifdef OUTPUT_C
+			mgos_pwm_set(OUTPUT_C, 1000, (float)(65535-remote_brightness)/65535);
+			#endif
+			//mgos_gpio_write(LED_RED, 0);
+			led_red_status = 1;
+		}else{
+			#ifdef OUTPUT_C
+			mgos_pwm_set(OUTPUT_C, 1000, 1);
+			#endif
+			//mgos_gpio_write(LED_RED, 1);
+			led_red_status = 0;
 		}
 	}else if(LED_opt == 3){ //show program status
 		for (int i = 0; i < 4;i++){ //fading
@@ -3089,6 +3086,9 @@ void update_sensor_info(){ //update online and exist
 		}
 		sensor_ext.at(i) = ext;
 		sensor_online.at(i) = on; //check if sensor online
+		if(!on){
+			sensor_init.at(i) = true;
+		}
 		if(sensor_addr_list[i] == 0){
 			sensor_online.at(i) = 1;
 		}

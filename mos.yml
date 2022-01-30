@@ -1,6 +1,6 @@
 author: alifnl
-description: complete most of sensor and control logic function
-version: 0.10.8.d
+description: fixing mcp9600 bug and sensor re-init
+version: 0.10.8.e
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -88,7 +88,7 @@ build_vars:
      ${build_vars.ESP_IDF_SDKCONFIG_OPTS} 
        CONFIG_ESPTOOLPY_FLASHSIZE_4MB=
        CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
-      CONFIG_ESPTOOLPY_FLASHSIZE=16MB
+       CONFIG_ESPTOOLPY_FLASHSIZE=16MB
   ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,12288K
 #  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K
 # Used by the mos tool to catch mos binaries incompatible with this file format

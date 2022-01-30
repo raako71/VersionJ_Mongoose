@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.8e: fixing mcp9600 bug and sensor re-init <br>
 0.10.8d: complete most of sensor and control logic function <br>
 0.10.8c: sensor logging milestone <br>
 0.10.8: sensor logging milestone <br>
