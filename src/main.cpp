@@ -570,10 +570,14 @@ static void logging_cb(void *arg){
 				sense_available = sense_available && MCPx60.available();
 				sensor_value_log.at(a) = (sense_available) ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
+				MCPx60.getAmbientTemp();
+				MCPx60.getTempDelta();;
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
 				sense_available = sense_available && MCPx67.available();
 				sensor_value_log.at(a) = (sense_available) ? MCPx67.getThermocoupleTemp() : -1;
+				MCPx67.getAmbientTemp();
+				MCPx67.getTempDelta();;
 				sensor_en_log.at(a) = sensor_en.at(i);
 			}	
 	}
@@ -3070,7 +3074,14 @@ void update_sensor_info(){ //update online and exist
 	const char* tmp_name = "tmp.json";
 	for(int i = 0; i < sensor_addr_list.size() ; i++){
 		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exist
-		bool ext = check_sensor(sensor_addr_list[i]);
+		bool ext = false;
+		if(sensor_addr_list.at(i) == 0x67){ //mcpx67 only
+			ext = MCPx67.isConnected();
+		}else if (sensor_addr_list.at(i) == 0x60){ /// mcpx60 only
+			ext = MCPx60.isConnected();
+		}else{
+			ext = check_sensor(sensor_addr_list.at(i));
+		}
 		bool on = ext;
 		//LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
 		ext = ext == true ? true : sensor_ext.at(i);
