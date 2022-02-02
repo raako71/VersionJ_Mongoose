@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.8g: change persistent info method, fix mcp reboot cause<br>
 0.10.8f: thermocouple online check<br>
 0.10.8e: fixing mcp9600 bug and sensor re-init <br>
 0.10.8d: complete most of sensor and control logic function <br>

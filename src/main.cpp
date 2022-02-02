@@ -291,92 +291,6 @@ void check_override_func();
 unsigned long randomGen();
 void led_red_ctrl_asprog(void *arg);
 void modify_program_en(const char* file_name, bool value);
-void persistent_to_setting(){
-	//read persistent
-	char* buff = (char*)malloc(1024);
-	long time_offset = 0;
-	buff = json_fread("persistent_info.json");
-	
-	char* buff_b = (char*)malloc(512);
-	json_scanf(buff, strlen(buff), "{wifi: %Q, timezone:%ld}", &buff_b, &time_offset);
-	struct json_token t;
-	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",0, &t);
-	int mode;
-	char* ssid; char* pass;
-	char* ssid1; char* pass1;
-	char* ssid2; char* pass2; 
-	
-	json_scanf(buff_b, strlen(buff_b), "{mode: %d}", &mode);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
-	
-	//sta 1
-	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",1, &t);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid1);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass1);
-	
-	//sta2
-	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",2, &t);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid2);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass2);
-	
-	//modify setting
-	const char *tmp_file_name = "tmp.json";
-	char *content = (char*) malloc(1024);
-	content = json_fread("setting.json");
-	FILE *fp = fopen(tmp_file_name, "w");
-	struct json_out out = JSON_OUT_FILE(fp);
-	json_setf(content, strlen(content), &out, ".wifi", "{mode: %d,  cfg:[{ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}]}", mode,
-	ssid, pass, ssid1, pass1, ssid2, pass2);
-	//json_setf(content, strlen(content), &out, ".timezone", "%ld", time_offset);
-	fclose(fp);
-	remove("setting.json");
-	rename(tmp_file_name, "setting.json");
-	
-	content = json_fread("setting.json");
-	fp = fopen(tmp_file_name, "w");
-	out = JSON_OUT_FILE(fp);
-	json_setf(content, strlen(content), &out, ".timezone", "%ld", time_offset);
-	fclose(fp);
-	json_prettify_file(tmp_file_name);  // Optional
-	remove("setting.json");
-	rename(tmp_file_name, "setting.json");
-	free(content);	free(buff); free(buff_b);
-}
-void setting_to_persistent(){
-	//read setting
-	char* buff = (char*)malloc(1024);
-	long time_offset = 0;
-	buff = json_fread("setting.json");
-	
-	char* buff_b = (char*)malloc(512);
-	json_scanf(buff, strlen(buff), "{wifi: %Q, timezone:%ld}", &buff_b, &time_offset);
-	
-	struct json_token t;
-	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",0, &t);
-	int mode;
-	char* ssid; char* pass;
-	char* ssid1; char* pass1;
-	char* ssid2; char* pass2; 
-	json_scanf(buff_b, strlen(buff_b), "{mode: %d}", &mode);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
-	
-	//sta 1
-	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",1, &t);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid1);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass1);
-	
-	//sta2
-	json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",2, &t);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid2);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass2);
-	//copy to persistent
-	json_fprintf("persistent_info.json", "{wifi: {mode: %d,  cfg:[{ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}]}, timezone: %ld}", 
-	mode, ssid, pass, ssid1, pass1, ssid2, pass2, time_offset);
-	json_prettify_file("persistent_info.json");
-	free(buff); free(buff_b);
-}
 void scan_sensor_at_boot();
 bool check_sensor(char addr);
 int get_index(std::vector<char> v, char K);
@@ -384,6 +298,8 @@ int get_index_name(std::vector<std::string> v, std::string K);
 void init_sensor();
 void update_sensor_logging(bool update = false);
 void update_sensor_info();
+void rename_setting_json();
+void copy_wifi_info();
 
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
@@ -570,14 +486,18 @@ static void logging_cb(void *arg){
 				sense_available = sense_available && MCPx60.available();
 				sensor_value_log.at(a) = (sense_available) ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
-				MCPx60.getAmbientTemp();
-				MCPx60.getTempDelta();;
+				if(sense_available){
+					float x = MCPx60.getAmbientTemp();
+					x = MCPx60.getTempDelta();
+				}
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
 				sense_available = sense_available && MCPx67.available();
 				sensor_value_log.at(a) = (sense_available) ? MCPx67.getThermocoupleTemp() : -1;
-				MCPx67.getAmbientTemp();
-				MCPx67.getTempDelta();;
+				if(sense_available){
+					float x = MCPx67.getAmbientTemp();
+					x = MCPx67.getTempDelta();
+				}
 				sensor_en_log.at(a) = sensor_en.at(i);
 			}	
 	}
@@ -600,11 +520,11 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
 	
   	
-  	if(!exists("persistent_info.json")){ //copy from setting to persistent
-	  setting_to_persistent();
-	}else{
-		persistent_to_setting();
-	}
+	//copy wifi info if sensors.json exist
+	copy_wifi_info();	
+	
+	//rename setting_new to setting if setting does not exist, and delete setting_new if setting exists
+	rename_setting_json();
 	
 	if(exists("setting.json")){
 		checkJSONsetting();
@@ -934,6 +854,89 @@ void fade_blink(int pin){
 }
 //V2////////////////////////////////////////////////////////////////////////////////////////
 
+void rename_setting_json(){
+	if(exists("setting.json") ){
+		remove("setting_new.json");
+	}else{
+		rename("setting_new.json", "setting.json");
+	}
+	
+}
+
+void copy_wifi_info(){ //copy wifi info from setting_new to setting.json 
+	//read setting
+	if(!exists("setting.json")){
+		return;
+	}
+	if(!exists("setting_new.json")){
+		return;
+	}
+	char* buff = (char*)malloc(2048);
+	buff = json_fread("setting.json");
+	char* buff_b = (char*)malloc(512);
+	json_scanf(buff, strlen(buff), "{wifi: %Q}", &buff_b);
+	struct json_token t;
+	free(buff);
+	//read setting_new -> setting_new is initial file of setting.json
+	char* buff_new = (char*)malloc(2048);
+	buff_new = json_fread("setting_new.json");
+	char* buff_b_new = (char*)malloc(512);
+	json_scanf(buff_new, strlen(buff_new), "{wifi: %Q}", &buff_b_new);
+	struct json_token t_new;
+	free(buff_new);
+	
+	std::vector<std::string> ssid;
+	std::vector<std::string> ssid_dft;
+	std::vector<std::string> pass;
+	std::vector<std::string> pass_dft;
+	
+	for(int i = 0; i < 3 ; i++){
+		json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",i, &t);
+		char* ssidx; char* passx; char* ssid_dftx; char* pass_dftx;
+		json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssidx);
+		json_scanf(t.ptr, t.len, "{pass: %Q}", &passx);
+		json_scanf_array_elem(buff_b_new, strlen(buff_b_new), ".cfg",i, &t_new);
+		json_scanf(t_new.ptr, t_new.len, "{ssid: %Q}", &ssid_dftx);
+		json_scanf(t_new.ptr, t_new.len, "{pass: %Q}", &pass_dftx);
+		ssid.push_back(ssidx); 
+		ssid_dft.push_back(ssid_dftx);
+		pass.push_back(passx);
+		pass_dft.push_back(pass_dftx);
+	}	
+	free(buff_b_new);
+	free(buff_b);
+	
+	int j = 0;
+	for(int i  = 0 ;  i < 3 ; i++){
+		if(ssid.at(i) == ""){ // if ssid == null
+			for(int k = j; k < 3; k++){
+				//LOG(LL_WARN,("ssid dft %s", ssid_dft.at(k).c_str()));
+				if(ssid_dft.at(k) != ""){ //if default is not null, 
+					ssid.at(i)=  ssid_dft.at(k); //will copy information to setting
+					pass.at(i)= pass_dft.at(k);	
+					//LOG(LL_WARN,("k -> %d, %s", k, ssid_dft.at(k).c_str()));
+					j++;
+					break;
+				}
+			}
+		}
+	}
+	
+	const char *tmp_file_name = "tmp.json";
+	char *content = (char*) malloc(1024);
+	content = json_fread("setting.json");
+	FILE *fp = fopen(tmp_file_name, "w");
+	struct json_out out = JSON_OUT_FILE(fp);
+	json_setf(content, strlen(content), &out, ".wifi.cfg", "[{ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}]",
+	ssid.at(0).c_str(), pass.at(0).c_str(), ssid.at(1).c_str(), pass.at(1).c_str(), ssid.at(2).c_str(), pass.at(2).c_str());
+	//json_setf(content, strlen(content), &out, ".timezone", "%ld", time_offset);
+	fclose(fp);
+	
+	remove("setting.json");
+	rename(tmp_file_name, "setting.json");
+	json_prettify_file("setting.json");
+	free(content);
+}
 void appendFile(const char* path, const char* message){ //append message to a file (tested)
 	FILE * file = fopen(path, "a");
 	fprintf(file, "%s", message);
@@ -1602,7 +1605,7 @@ static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_f
 	(void) fi;
 }
 void checkJSONsetting(){
-	char* buff = (char*)malloc(1024);
+	char* buff = (char*)malloc(2048);
 	buff = json_fread("setting.json");
 	json_scanf(buff, strlen(buff), "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
 	,&colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday);
@@ -1611,40 +1614,6 @@ void checkJSONsetting(){
 	json_scanf(buff_b, strlen(buff_b), "{LED: %d, LED_prog: %d, IO14: %B}", &LED_opt, &LED_prog, &IO14_en);
 	
 	struct json_token t;
-	static bool first = true;
-	
-	if(!first){
-	//setting to persistent
-	long time_offset = 0;
-	char* buff_x = (char*)malloc(512);
-	json_scanf(buff, strlen(buff), "{wifi: %Q, timezone:%ld}", &buff_x, &time_offset);
-	json_scanf_array_elem(buff_x, strlen(buff_x), ".cfg",0, &t);
-	//LOG(LL_WARN,("%s %ld", buff_x, time_offset));
-	int mode;
-	char* ssid; char* pass;
-	char* ssid1; char* pass1;
-	char* ssid2; char* pass2; 
-	json_scanf(buff_x, strlen(buff_x), "{mode: %d}", &mode);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass);
-	
-	//sta 1
-	json_scanf_array_elem(buff_x, strlen(buff_x), ".cfg",1, &t);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid1);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass1);
-	
-	//sta2
-	json_scanf_array_elem(buff_x, strlen(buff_x), ".cfg",2, &t);
-	json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssid2);
-	json_scanf(t.ptr, t.len, "{pass: %Q}", &pass2);
-	//copy to persistent
-	json_fprintf("persistent_info.json", "{wifi: {mode: %d,  cfg:[{ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}, {ssid:%Q, pass:%Q}]}, timezone: %ld}", 
-	mode, ssid, pass, ssid1, pass1, ssid2, pass2, time_offset);
-	json_prettify_file("persistent_info.json");
-	free(buff_x);
-	}else{
-		first = false;
-	}
 
 	//input 1 (PB1)
 	json_scanf_array_elem(buff, strlen(buff), ".override",0, &t);
@@ -3076,9 +3045,11 @@ void update_sensor_info(){ //update online and exist
 		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exist
 		bool ext = false;
 		if(sensor_addr_list.at(i) == 0x67){ //mcpx67 only
-			ext = MCPx67.isConnected();
+		//	ext = MCPx67.isConnected();
+			ext = true;
 		}else if (sensor_addr_list.at(i) == 0x60){ /// mcpx60 only
-			ext = MCPx60.isConnected();
+		//	ext = MCPx60.isConnected();
+			ext = true;
 		}else{
 			ext = check_sensor(sensor_addr_list.at(i));
 		}
@@ -3305,7 +3276,7 @@ void init_sensor(){ //based on online
 	if(sensor_exist != -1){
 		if(sensor_online.at(sensor_exist) && sensor_init.at(sensor_exist)){
 			MCPx60.begin(0x60,Wire);
-			if(MCPx60.checkDeviceID()){
+			if(MCPx60.checkDeviceID() && MCPx60.isConnected()){
 		    	sensor_init.at(sensor_exist) = false;
 		    }
 		}
@@ -3314,7 +3285,7 @@ void init_sensor(){ //based on online
 	if(sensor_exist != -1){
 		if(sensor_online.at(sensor_exist) && sensor_init.at(sensor_exist)){
 			MCPx67.begin(0x67,Wire);
-			if(MCPx67.checkDeviceID()){
+			if(MCPx67.checkDeviceID() && MCPx67.isConnected()){
 		    	sensor_init.at(sensor_exist) = false;
 		    }
 		}
