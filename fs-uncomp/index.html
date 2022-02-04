@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title></title>
-	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.7"/>
-    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.7" />
-	<script src="./login.js.gz?v0.10.7" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css"/>
+    <link rel="stylesheet" type="text/css" href="./general.css" />
+	<script src="./login.js.gz" defer></script>
 	<script src="./gauge.min.js.gz"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0"></script>
@@ -153,8 +153,8 @@ function initiate_widget_content(){
 				var yx = y.substr(2);
 				var v1 = parse_timer(JSON.parse(yx), "off");
 				sens +='<div class="widget_place_block">';
-				if(v1 != ""){sens += '<br>Off for ' + v1;}v1 = parse_timer(JSON.parse(yx), "on");
-				if(v1 != ""){sens += '<br>On for ' + v1;}
+				if(v1 != ""){sens += '<br>Off for' + v1;}v1 = parse_timer(JSON.parse(yx), "on");
+				if(v1 != ""){sens += '<br>On for' + v1;}
 				sens += '</div>'
 
 			}else if (w >= 26 && w <= 29){
@@ -187,16 +187,16 @@ function initiate_widget_content(){
 				initiate_graph(i,v,set);
 			}
 		}else if(v == 26){
-			var v1 = parse_timer(JSON.parse(x), "off");var DC='<div class="widget_place"><br><br>';if(v1 != ""){DC += '<br>Off for ' + v1;}v1 = parse_timer(JSON.parse(x), "on");
-			if(v1 != ""){DC += '<br>On for ' + v1;}DC += '</div>';widget_tanker.innerHTML = DC;
+			var v1 = parse_timer(JSON.parse(x), "off");var DC='<div class="widget_place"><br><br>';if(v1 != ""){DC += '<br>Off for' + v1;}v1 = parse_timer(JSON.parse(x), "on");
+			if(v1 != ""){DC += '<br>On for' + v1;}DC += '</div>';widget_tanker.innerHTML = DC;
 		}else if(v == 27){
 			widget_tanker.innerHTML = "<div class='widget_place'><br><br><br><b>Manual Operation</b></div>";
 		}else if(v == 28){
 			var rpb;
 			rpb = '<div class="widget_place_block"><br><br>Trigger is '+input_list[x-1]+'</div>';
 			if( w == 0){
-			var v1 = parse_timer(JSON.parse(y), "off");rpb +='<div class="widget_place_block">';if(v1 != ""){rpb += '<br>Off for ' + v1;}
-			v1 = parse_timer(JSON.parse(y), "on");if(v1 != ""){rpb += '<br>On for ' + v1;}rpb += '</div>';
+			var v1 = parse_timer(JSON.parse(y), "off");rpb +='<div class="widget_place_block">';if(v1 != ""){rpb += '<br>Off for' + v1;}
+			v1 = parse_timer(JSON.parse(y), "on");if(v1 != ""){rpb += '<br>On for' + v1;}rpb += '</div>';
 			}
 			
 			rpb += '<div class="widget_place_block"><input type="button" style="margin-top:20px" value="Trigger" onClick="send_trigger('+x+')"></div>'; 
@@ -394,8 +394,8 @@ eval('chart' + progid + "=new Chart(document.getElementById(\"gaugecanvas_"+prog
 
 function parse_timer(input, name){
 input = String(input.tick);var array = ["secs", "mins", "hrs", "days"];var a = input.split(",");var ret = "";
-if(name == "on"){for (i = 0 ; i < 4 ; i++){ret += (a[i*2] == '1') ? (a[(i*2)+1] + " " + array[i]) : "";}
-}else if(name == "off"){var j = 0;for (i = 4 ; i < 8 ; i++){ret += (a[i*2] == '1') ? (a[(i*2)+1] + " " + array[j]) : "";j++;}}
+if(name == "on"){for (i = 0 ; i < 4 ; i++){ret += (a[i*2] == '1') ? (" " + a[(i*2)+1] + " " + array[i]) : "";}
+}else if(name == "off"){var j = 0;for (i = 4 ; i < 8 ; i++){ret += (a[i*2] == '1') ? (" " + a[(i*2)+1] + " " + array[j]) : "";j++;}}
 return ret;
 }
 

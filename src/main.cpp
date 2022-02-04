@@ -430,8 +430,6 @@ static void logging_cb(void *arg){
     init_sensor();
     for(int i = 0; i < sensor_addr_list.size(); i++){
     	char current_addr = sensor_addr_list.at(i);
-    	
-    	//sensor_online.at(i) = check_sensor(current_addr); //check sensor if online periodically
     	bool sense_available = sensor_en.at(i) == true && sensor_online.at(i) == true;
     	 //logging is enabled and sensor is online
     		//read actual sensors
@@ -490,6 +488,7 @@ static void logging_cb(void *arg){
 					float x = MCPx60.getAmbientTemp();
 					x = MCPx60.getTempDelta();
 				}
+				sensor_online.at(i) = sense_available;
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
 				sense_available = sense_available && MCPx67.available();
@@ -498,6 +497,7 @@ static void logging_cb(void *arg){
 					float x = MCPx67.getAmbientTemp();
 					x = MCPx67.getTempDelta();
 				}
+				sensor_online.at(i) = sense_available;
 				sensor_en_log.at(a) = sensor_en.at(i);
 			}	
 	}

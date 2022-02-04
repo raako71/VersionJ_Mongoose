@@ -1,6 +1,6 @@
 author: alifnl
-description: change persistent info method, fix mcp reboot cause
-version: 0.10.8.g
+description: fixing issues marked in shared doc
+version: 0.10.8.h
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -48,7 +48,7 @@ config_schema:
   - ["eth.mdio_gpio", "i", 18, {title: "GPIO to use for RMII MDIO signal"}]
   - ["eth.phy_pwr_gpio", "i", 5, {title: "GPIO to use for PHY PWR control signal"}]
   - ["eth.phy_addr", "i", 0, {title: "PHY address"}]
-  - ["eth.enable", "b", true, {title: "enable eth"}]
+  - ["eth.enable", "b", false, {title: "enable eth"}]
   - ["i2c", "o", {title: "I2C settings"}]
   - ["i2c.unit_no", "i", 0, {title: "Which hardware unit to use, 0 or 1"}]
   - ["i2c.enable", "b", true, {title: "Enable I2C"}]
