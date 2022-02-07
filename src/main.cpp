@@ -529,6 +529,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	if(exists("setting.json")){
 		checkJSONsetting();
   	}	
+  	
 	//i2c and sensor
 	Wire.begin();
 	LOG(LL_WARN,("scan sensor_on_boot"));
@@ -1631,8 +1632,12 @@ void checkJSONsetting(){
 	json_scanf_array_elem(buff, strlen(buff), ".override",3, &t);
 	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
 	           &input4_mode, &input4_as_sens, &input4_as_ovr, &input4_ovr_limit, &input4_ovr_val, &input4_ovr_out, &input4_ovr_action);
-	           
-	json_scanf(buff, strlen(buff), "{dec_place: %d, dev_mode: %B}",  &dec_place_global, &dev_mode_global);
+	
+	char* dns_name_local = (char*)malloc(100);
+	json_scanf(buff, strlen(buff), "{dec_place: %d, dev_mode: %B, dns_name: %Q}",  &dec_place_global, &dev_mode_global, &dns_name_local);
+	std::string dns_name = dns_name_local;
+	free(dns_name_local);
+	mgos_dns_sd_set_host_name(dns_name.c_str());
 	if(LED_opt == 2){
 		mgos_clear_timer(prog_led_timer);
 		prog_led_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, led_red_ctrl_asprog, NULL);
@@ -1758,6 +1763,7 @@ void check_override_func(){
 	static long input3_local_val = 0;
 	static long input4_local_val = 0;
 	//toggle mode
+	//LOG(LL_WARN,("input A B toggle mode: -> %d %d", ext_toggle_state[0], ext_toggle_state[1]));
 	if(ext_toggle_state[0] != 1 && input1_mode == 2 && input1_as_ovr){
 		en_ovr_output_A = (ext_toggle_state[0] == 2) ? 0 : 1;
 	}else if(ext_toggle_state[0] == 1 && input1_mode == 2 && input1_as_ovr){
@@ -3044,18 +3050,17 @@ void update_sensor_info(){ //update online and exist
 	for(int i = 0; i < sensor_addr_list.size() ; i++){
 		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exist
 		bool ext = false;
+		bool on = false;
 		if(sensor_addr_list.at(i) == 0x67){ //mcpx67 only
 		//	ext = MCPx67.isConnected();
-			ext = true;
+		//	ext = MCPx67.checkDeviceID();
 		}else if (sensor_addr_list.at(i) == 0x60){ /// mcpx60 only
 		//	ext = MCPx60.isConnected();
-			ext = true;
+		//	ext = MCPx60.checkDeviceID();
 		}else{
-			ext = check_sensor(sensor_addr_list.at(i));
+			on = check_sensor(sensor_addr_list.at(i));
 		}
-		bool on = ext;
 		//LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
-		ext = ext == true ? true : sensor_ext.at(i);
 		if(on == true && sensor_ext.at(i) == false){
 			char* buff = (char*)malloc(1024);
 			buff = json_fread("sensors.json");
@@ -3066,7 +3071,7 @@ void update_sensor_info(){ //update online and exist
 			rename(tmp_name, "sensors.json");
 			free(buff);	
 		}
-		sensor_ext.at(i) = ext;
+		sensor_ext.at(i) = on == true ? true : sensor_ext.at(i);
 		sensor_online.at(i) = on; //check if sensor online
 		if(!on){
 			sensor_init.at(i) = true;
@@ -3272,21 +3277,43 @@ void init_sensor(){ //based on online
 	}
 	
 	//MCP9600
-	sensor_exist = get_index(sensor_addr_list, 0x60);
+	sensor_exist = get_index(sensor_addr_list, 0x60); //check if sensor exist in sensors.json
 	if(sensor_exist != -1){
-		if(sensor_online.at(sensor_exist) && sensor_init.at(sensor_exist)){
-			MCPx60.begin(0x60,Wire);
-			if(MCPx60.checkDeviceID() && MCPx60.isConnected()){
+		if(sensor_init.at(sensor_exist)){
+			if(MCPx60.begin(0x60,Wire)){
 		    	sensor_init.at(sensor_exist) = false;
+		    	sensor_ext.at(sensor_exist) = true;
+		    	sensor_online.at(sensor_exist) = true;
+		    	const char* tmp_name = "tmp.json";
+		    	std::string a = ".sensors[" + std::to_string(sensor_exist) + "].ext"; //exist
+		    	char* buff = (char*)malloc(2048);
+				buff = json_fread("sensors.json");
+				FILE *fp = fopen(tmp_name, "w");
+				struct json_out out = JSON_OUT_FILE(fp);
+				json_setf(buff, strlen(buff), &out, a.c_str() , "%B", true);
+				fclose(fp);
+				rename(tmp_name, "sensors.json");
+				free(buff);	
 		    }
 		}
 	}
 	sensor_exist = get_index(sensor_addr_list, 0x67);
 	if(sensor_exist != -1){
-		if(sensor_online.at(sensor_exist) && sensor_init.at(sensor_exist)){
-			MCPx67.begin(0x67,Wire);
-			if(MCPx67.checkDeviceID() && MCPx67.isConnected()){
+		if(sensor_init.at(sensor_exist)){
+			if(MCPx67.begin(0x67,Wire)){
 		    	sensor_init.at(sensor_exist) = false;
+		    	sensor_ext.at(sensor_exist) = true;
+		    	sensor_online.at(sensor_exist) = true;
+		    	const char* tmp_name = "tmp.json";
+		    	std::string a = ".sensors[" + std::to_string(sensor_exist) + "].ext"; //exist
+		    	char* buff = (char*)malloc(2048);
+				buff = json_fread("sensors.json");
+				FILE *fp = fopen(tmp_name, "w");
+				struct json_out out = JSON_OUT_FILE(fp);
+				json_setf(buff, strlen(buff), &out, a.c_str() , "%B", true);
+				fclose(fp);
+				rename(tmp_name, "sensors.json");
+				free(buff);	
 		    }
 		}
 	}

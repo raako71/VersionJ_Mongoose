@@ -786,7 +786,7 @@ function toggle_mode_grey(input, num){
 		document.getElementById("sens_in_"+input_mode_list[num]+"_holder").classList.add("unclickable_grey");
 		document.getElementById("sens_in_"+input_mode_list[num]).checked = true;
 	}else{
-		document.getElementById("sens_in_"+input_mode_list[num]+"_holder").classList.remove("unclickable_grey");
+		document.getElementById("sens_in_"+input_mode_list[num]+"_holder").classList.add("unclickable_grey");
 		document.getElementById("sens_in_"+input_mode_list[num]).checked = false;
 	}
 	toggle_output_override(input_mode_list[num], num);
