@@ -761,14 +761,14 @@ validate_cookie(function(i){
 		return;
 	}else if(i.code != 200){
 		var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
-		x+= '<input type="button" style="font-size:16px" value="retry" onClick="send_trigger('+input+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+		x+= '<input type="button" style="font-size:16px" value="retry" onClick="send_trigger_ovr('+input+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
 		document.getElementById("multipurpose").innerHTML = x;
 		return;
 	}
 	xhr_send_nojson("VT.GPIO", JSON.stringify({pin:input, val: 2}), function(i){
 		if(i.code != 200){
 			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
-			x+= '<input type="button" style="font-size:16px" value="retry" onClick="send_trigger('+input+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+			x+= '<input type="button" style="font-size:16px" value="retry" onClick="send_trigger_ovr('+input+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
 			document.getElementById("multipurpose").innerHTML = x;
 			return;
 		}

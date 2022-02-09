@@ -300,7 +300,7 @@ void update_sensor_logging(bool update = false);
 void update_sensor_info();
 void rename_setting_json();
 void copy_wifi_info();
-
+void rename_sensor_json();
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
 	mgos_clear_timer(prog_timer_id[0]);
@@ -484,6 +484,7 @@ static void logging_cb(void *arg){
 				sense_available = sense_available && MCPx60.available();
 				sensor_value_log.at(a) = (sense_available) ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
+				LOG(LL_WARN,("T60 available %d", sense_available));
 				if(sense_available){
 					float x = MCPx60.getAmbientTemp();
 					x = MCPx60.getTempDelta();
@@ -492,6 +493,7 @@ static void logging_cb(void *arg){
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
 				sense_available = sense_available && MCPx67.available();
+				LOG(LL_WARN,("T67 available %d", sense_available));
 				sensor_value_log.at(a) = (sense_available) ? MCPx67.getThermocoupleTemp() : -1;
 				if(sense_available){
 					float x = MCPx67.getAmbientTemp();
@@ -520,9 +522,9 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
 	
   	
+  	rename_sensor_json();
 	//copy wifi info if sensors.json exist
 	copy_wifi_info();	
-	
 	//rename setting_new to setting if setting does not exist, and delete setting_new if setting exists
 	rename_setting_json();
 	
@@ -854,7 +856,13 @@ void fade_blink(int pin){
     }
 }
 //V2////////////////////////////////////////////////////////////////////////////////////////
-
+void rename_sensor_json(){
+	if(exists("sensors.json")){
+		remove("sensors_new.json");
+	}else{
+		rename("sensors_new.json", "sensors.json");
+	}
+}
 void rename_setting_json(){
 	if(exists("setting.json") ){
 		remove("setting_new.json");
@@ -1273,8 +1281,9 @@ void contain_logging(){//function that modify use_contain variable based on desi
 		if(sensor_en_log.at(i) == true){
 			buff += ";";
 		  	if(sensor_value_log.at(i) != -1){
+		  		int dec_place_local = ((int)(sensor_name_log.at(i).find("relay")) != -1) ? 0 : dec_place_global;
 				std::string num = std::to_string(sensor_value_log.at(i));
-				num = (dec_place_global == 0) ? num.substr(0, num.find(",")) : num.substr(0, num.find(".") + dec_place_global + 1);
+				num = (dec_place_local == 0) ? num.substr(0, num.find(".")) : num.substr(0, num.find(".") + dec_place_local + 1);
 				buff.append(num);
 				logging_indicator++;
 			}	//else nothing to appended
@@ -1764,7 +1773,7 @@ void check_override_func(){
 	static long input4_local_val = 0;
 	//toggle mode
 	//LOG(LL_WARN,("input A B toggle mode: -> %d %d", ext_toggle_state[0], ext_toggle_state[1]));
-	if(ext_toggle_state[0] != 1 && input1_mode == 2 && input1_as_ovr){
+	if(ext_toggle_state[0] != 1 && input1_mode == 2 && input1_as_ovr){ //output A only
 		en_ovr_output_A = (ext_toggle_state[0] == 2) ? 0 : 1;
 	}else if(ext_toggle_state[0] == 1 && input1_mode == 2 && input1_as_ovr){
 		en_ovr_output_A = -1;
@@ -2109,18 +2118,51 @@ for(int x =0 ; x < 4 ; x++){ //reset program
 	}
 }
 //OVERRIDING PROGRAM OUTPUT
+static int indicator_C = 0;
+static int output_C_saved = 0;
 if(en_ovr_output_C != -1  && ((ovr_limit_C_en && input3_mode == 1) || (input3_mode == 2))){
 	prog_pin_state[override_pin_C] = en_ovr_output_C;
+	indicator_C = 1;
+}else if(indicator_C == 1){
+	indicator_C = 0;
+	prog_pin_state[override_pin_C] = output_C_saved;
+}else if(indicator_C == 0){
+	output_C_saved = prog_pin_state[override_pin_C];
 }
+
+static int indicator_A = 0;
+static int output_A_saved = 0;
 if(en_ovr_output_A != -1 && ((ovr_limit_A_en && input1_mode == 1) || (input1_mode == 2)) ){
 	prog_pin_state[override_pin_A] = en_ovr_output_A;
+	indicator_A = 1;
+}else if(indicator_A == 1){
+	indicator_A = 0;
+	prog_pin_state[override_pin_A] = output_A_saved;
+}else if(indicator_A == 0){
+	output_A_saved = prog_pin_state[override_pin_A];
 }
+
+static int indicator_B = 0;
+static int output_B_saved = 0;
 if(en_ovr_output_B != -1  && ((ovr_limit_B_en && input2_mode == 1) || (input2_mode == 2))){
 	prog_pin_state[override_pin_B] = en_ovr_output_B;
+}else if(indicator_B == 1){
+	indicator_B = 0;
+	prog_pin_state[override_pin_B] = output_B_saved;
+}else if(indicator_A == 0){
+	output_B_saved = prog_pin_state[override_pin_B];
 }
+
+static int indicator_D = 0;
+static int output_D_saved = 0;
 if(en_ovr_output_D != -1 && dev_mode_global == true  && ((ovr_limit_D_en && input4_mode == 1) || (input4_mode == 2))){
 	prog_pin_state[override_pin_D] = en_ovr_output_D;
 	//LOG(LL_WARN,("overriding (input D) output pin %d -> %d", (override_pin_D), en_ovr_output_D));
+}else if(indicator_D == 1){
+	indicator_D = 0;
+	prog_pin_state[override_pin_D] = output_D_saved;
+}else if(indicator_A == 0){
+	output_D_saved = prog_pin_state[override_pin_D];
 }
 
 }//end of check_program_name() function
@@ -3054,11 +3096,15 @@ void update_sensor_info(){ //update online and exist
 		if(sensor_addr_list.at(i) == 0x67){ //mcpx67 only
 		//	ext = MCPx67.isConnected();
 		//	ext = MCPx67.checkDeviceID();
+		sensor_online.at(i) = true; //check if sensor online
 		}else if (sensor_addr_list.at(i) == 0x60){ /// mcpx60 only
 		//	ext = MCPx60.isConnected();
 		//	ext = MCPx60.checkDeviceID();
+		sensor_online.at(i) = true; //check if sensor online
 		}else{
 			on = check_sensor(sensor_addr_list.at(i));
+			sensor_ext.at(i) = on == true ? true : sensor_ext.at(i);
+			sensor_online.at(i) = on; //check if sensor online
 		}
 		//LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
 		if(on == true && sensor_ext.at(i) == false){
@@ -3071,8 +3117,7 @@ void update_sensor_info(){ //update online and exist
 			rename(tmp_name, "sensors.json");
 			free(buff);	
 		}
-		sensor_ext.at(i) = on == true ? true : sensor_ext.at(i);
-		sensor_online.at(i) = on; //check if sensor online
+		
 		if(!on){
 			sensor_init.at(i) = true;
 		}
@@ -3281,6 +3326,8 @@ void init_sensor(){ //based on online
 	if(sensor_exist != -1){
 		if(sensor_init.at(sensor_exist)){
 			if(MCPx60.begin(0x60,Wire)){
+			
+				LOG(LL_WARN, ("sucessfully initiate mcp 0x60"));
 		    	sensor_init.at(sensor_exist) = false;
 		    	sensor_ext.at(sensor_exist) = true;
 		    	sensor_online.at(sensor_exist) = true;
@@ -3301,6 +3348,7 @@ void init_sensor(){ //based on online
 	if(sensor_exist != -1){
 		if(sensor_init.at(sensor_exist)){
 			if(MCPx67.begin(0x67,Wire)){
+				LOG(LL_WARN, ("sucessfully initiate mcp 0x67"));
 		    	sensor_init.at(sensor_exist) = false;
 		    	sensor_ext.at(sensor_exist) = true;
 		    	sensor_online.at(sensor_exist) = true;
