@@ -289,7 +289,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		xhr.onload = function() {
 			var data = JSON.parse(this.responseText);
 			old_json = JSON.parse(window.atob(data.data));
-			document.getElementById("mdns_name").value = old_json.dns_name;
+			//document.getElementById("mdns_name").value = old_json.dns_name;
 			document.getElementById("eth_en").checked = old_json.eth_en;
 			document.getElementById("i2c_en").checked = old_json.i2c_en;
 			if(old_json.eth_en){
@@ -440,7 +440,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json.dec_place = document.getElementById("dec_place").value;
 			old_json.brightness[0].panel = document.getElementById("panel_brightness").value;
 			old_json.brightness[0].remote = document.getElementById("remote_brightness").value;
-			old_json.dns_name = document.getElementById("mdns_name").value;
+			//old_json.dns_name = document.getElementById("mdns_name").value;
 			//check deleted save network_conf
 			for (var i = 0; i < 3 ; i++){if(document.getElementById("wifi_saved"+i) != null){if(document.getElementById("wifi_saved"+i).checked){old_json.wifi.cfg[i].ssid = "";old_json.wifi.cfg[i].pass = "";}}}
 			
@@ -468,7 +468,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		save_command = false;
 	}//save conf function
 function save_eth_conf(en, ip, gw, netmask, i2c_en){
-	var contain = {config: {i2c:{enable:i2c_en}, eth: {enable: en, ip: ip, gw: gw, netmask:netmask}}};
+	var contain = {config: {i2c:{enable:i2c_en}, eth: {enable: en, ip: ip, gw: gw, netmask:netmask}, dns_sd:{host_name:document.getElementById("mdns_name").value}}};
 	xhr_send("Config.Set", JSON.stringify(contain), function(i){
 		if(i.status == "success"){
 			xhr_send_nojson("Config.save", JSON.stringify({reboot:false}), null);
@@ -512,6 +512,13 @@ function fetch_version(){
 	xhttp.onload = function(){
 		sys_info = JSON.parse(this.responseText);
 		document.getElementById("fw_version").innerHTML = "<p>Build Version: " + sys_info.fw_version + "</p>";
+	}
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/rpc/config.get", true);
+	xhr.send();
+	xhr.onload = function(){
+		var a = JSON.parse(this.responseText);
+		document.getElementById("mdns_name").value = a.dns_sd.host_name;
 	}
 }
 function getconfig(){

@@ -484,21 +484,13 @@ static void logging_cb(void *arg){
 				sense_available = sense_available && MCPx60.available();
 				sensor_value_log.at(a) = (sense_available) ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
-				LOG(LL_WARN,("T60 available %d", sense_available));
-				if(sense_available){
-					float x = MCPx60.getAmbientTemp();
-					x = MCPx60.getTempDelta();
-				}
+				//LOG(LL_WARN,("T60 available %d", sense_available));
 				sensor_online.at(i) = sense_available;
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
 				sense_available = sense_available && MCPx67.available();
-				LOG(LL_WARN,("T67 available %d", sense_available));
+				//LOG(LL_WARN,("T67 available %d", sense_available));
 				sensor_value_log.at(a) = (sense_available) ? MCPx67.getThermocoupleTemp() : -1;
-				if(sense_available){
-					float x = MCPx67.getAmbientTemp();
-					x = MCPx67.getTempDelta();
-				}
 				sensor_online.at(i) = sense_available;
 				sensor_en_log.at(a) = sensor_en.at(i);
 			}	
@@ -899,7 +891,7 @@ void copy_wifi_info(){ //copy wifi info from setting_new to setting.json
 	std::vector<std::string> pass;
 	std::vector<std::string> pass_dft;
 	
-	for(int i = 0; i < 3 ; i++){
+	for(int i = 0; i < 3 ; i++){ //moved to array to easy iterations
 		json_scanf_array_elem(buff_b, strlen(buff_b), ".cfg",i, &t);
 		char* ssidx; char* passx; char* ssid_dftx; char* pass_dftx;
 		json_scanf(t.ptr, t.len, "{ssid: %Q}", &ssidx);
@@ -916,7 +908,7 @@ void copy_wifi_info(){ //copy wifi info from setting_new to setting.json
 	free(buff_b);
 	
 	int j = 0;
-	for(int i  = 0 ;  i < 3 ; i++){
+	for(int i  = 0 ;  i < 3 ; i++){///copying wifi info if old is empty
 		if(ssid.at(i) == ""){ // if ssid == null
 			for(int k = j; k < 3; k++){
 				//LOG(LL_WARN,("ssid dft %s", ssid_dft.at(k).c_str()));
@@ -1643,10 +1635,10 @@ void checkJSONsetting(){
 	           &input4_mode, &input4_as_sens, &input4_as_ovr, &input4_ovr_limit, &input4_ovr_val, &input4_ovr_out, &input4_ovr_action);
 	
 	char* dns_name_local = (char*)malloc(100);
-	json_scanf(buff, strlen(buff), "{dec_place: %d, dev_mode: %B, dns_name: %Q}",  &dec_place_global, &dev_mode_global, &dns_name_local);
-	std::string dns_name = dns_name_local;
-	free(dns_name_local);
-	mgos_dns_sd_set_host_name(dns_name.c_str());
+	json_scanf(buff, strlen(buff), "{dec_place: %d, dev_mode: %B}",  &dec_place_global, &dev_mode_global);
+	//std::string dns_name = dns_name_local;
+	//free(dns_name_local);
+	//mgos_dns_sd_set_host_name(dns_name.c_str());
 	if(LED_opt == 2){
 		mgos_clear_timer(prog_led_timer);
 		prog_led_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, led_red_ctrl_asprog, NULL);
@@ -3093,18 +3085,14 @@ void update_sensor_info(){ //update online and exist
 		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exist
 		bool ext = false;
 		bool on = false;
-		if(sensor_addr_list.at(i) == 0x67){ //mcpx67 only
-		//	ext = MCPx67.isConnected();
-		//	ext = MCPx67.checkDeviceID();
-		sensor_online.at(i) = true; //check if sensor online
-		}else if (sensor_addr_list.at(i) == 0x60){ /// mcpx60 only
-		//	ext = MCPx60.isConnected();
-		//	ext = MCPx60.checkDeviceID();
-		sensor_online.at(i) = true; //check if sensor online
-		}else{
+		if(sensor_addr_list.at(i) != 0x67 && sensor_addr_list.at(i) != 0x60){
+			//not thermocouple mcp sensors
 			on = check_sensor(sensor_addr_list.at(i));
-			sensor_ext.at(i) = on == true ? true : sensor_ext.at(i);
-			sensor_online.at(i) = on; //check if sensor online
+			ext = (on == true) ? true : sensor_ext.at(i);
+		}else{
+			//for mcp sensors no need to update variable
+			ext = sensor_ext.at(i);
+			on = sensor_online.at(i);
 		}
 		//LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
 		if(on == true && sensor_ext.at(i) == false){
@@ -3117,13 +3105,15 @@ void update_sensor_info(){ //update online and exist
 			rename(tmp_name, "sensors.json");
 			free(buff);	
 		}
+		sensor_ext.at(i) = ext;
+		sensor_online.at(i) = on; //check if sensor online
 		
 		if(!on){
 			sensor_init.at(i) = true;
 		}
-		if(sensor_addr_list[i] == 0){
-			sensor_online.at(i) = 1;
-		}
+		
+		//for relay only
+		if(sensor_addr_list[i] == 0)sensor_online.at(i) = 1;
 		
 	}
 	
@@ -3325,6 +3315,7 @@ void init_sensor(){ //based on online
 	sensor_exist = get_index(sensor_addr_list, 0x60); //check if sensor exist in sensors.json
 	if(sensor_exist != -1){
 		if(sensor_init.at(sensor_exist)){
+			//LOG(LL_WARN,("initiating mcp 0x60"));
 			if(MCPx60.begin(0x60,Wire)){
 			
 				LOG(LL_WARN, ("sucessfully initiate mcp 0x60"));
@@ -3347,6 +3338,7 @@ void init_sensor(){ //based on online
 	sensor_exist = get_index(sensor_addr_list, 0x67);
 	if(sensor_exist != -1){
 		if(sensor_init.at(sensor_exist)){
+			//LOG(LL_WARN,("initiating mcp 0x67"));
 			if(MCPx67.begin(0x67,Wire)){
 				LOG(LL_WARN, ("sucessfully initiate mcp 0x67"));
 		    	sensor_init.at(sensor_exist) = false;
