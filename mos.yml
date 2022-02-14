@@ -1,6 +1,6 @@
 author: alifnl
 description: fixing i2c issue
-version: 0.10.8.h5
+version: 0.10.8.h5.edit
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

@@ -431,6 +431,7 @@ static void logging_cb(void *arg){
     update_sensor_info();
     init_sensor();
     for(int i = 0; i < sensor_addr_list.size(); i++){
+		int messageDelay = 250;
     	char current_addr = sensor_addr_list.at(i);
     	bool sense_available = sensor_en.at(i) == true && sensor_online.at(i) == true;
     	 //logging is enabled and sensor is online
@@ -452,7 +453,7 @@ static void logging_cb(void *arg){
     			sensor_en_log.at(a) = sensor_en.at(i);
 				sensor_en_log.at(a+1) = sensor_en.at(i);
 				sensor_en_log.at(a+2) = sensor_en.at(i);
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x76){
 				int a = get_index_name(sensor_name_log, "BMEx76-H");
 				sensor_value_ephemeral.at(a)   = sensor_online.at(i) ?  mgos_bme280_read_humidity(bme76) : -1;
@@ -464,7 +465,7 @@ static void logging_cb(void *arg){
 				sensor_en_log.at(a) = sensor_en.at(i);
 				sensor_en_log.at(a+1) = sensor_en.at(i);
 				sensor_en_log.at(a+2) = sensor_en.at(i);
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x77){
 				int a = get_index_name(sensor_name_log, "BMEx77-H");
 				sensor_value_ephemeral.at(a)   = sensor_online.at(i) ?  mgos_bme280_read_humidity(bme77) : -1;
@@ -476,19 +477,19 @@ static void logging_cb(void *arg){
 				sensor_en_log.at(a) = sensor_en.at(i);
 				sensor_en_log.at(a+1) = sensor_en.at(i);
 				sensor_en_log.at(a+2) = sensor_en.at(i);
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x10){
 				int a = get_index_name(sensor_name_log, "L10");
 				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? light10.readLight() : (float)-1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i);
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x48){
 				int a = get_index_name(sensor_name_log, "L48");
 				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? light48.readLight() : (float)-1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i);
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x44){
 				int a = get_index_name(sensor_name_log, "SHTx44-T");
 				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? mgos_sht31_getTemperature(SHTx44) : -1;
@@ -496,7 +497,7 @@ static void logging_cb(void *arg){
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_value_log.at(a+1) = (sense_available) ?sensor_value_ephemeral.at(a+1):(float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) =sensor_en.at(i); 
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x45){
 				int a = get_index_name(sensor_name_log, "SHTx45-T");
 				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? mgos_sht31_getTemperature(SHTx45) : -1;
@@ -504,7 +505,7 @@ static void logging_cb(void *arg){
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_value_log.at(a+1) = (sense_available) ?sensor_value_ephemeral.at(a+1):(float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) = sensor_en.at(i);
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x60){
 				int a = get_index_name(sensor_name_log, "T60");
 				bool b = MCPx60.available();
@@ -512,7 +513,7 @@ static void logging_cb(void *arg){
 				sensor_value_ephemeral.at(a)  = b ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 				//LOG(LL_WARN,("T60 available %d", sense_available));
 				sensor_online.at(i) = b;
 			}else if(current_addr == 0x67){
@@ -524,7 +525,7 @@ static void logging_cb(void *arg){
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : -1;
 				sensor_online.at(i) = b;
 				sensor_en_log.at(a) = sensor_en.at(i);
-				mgos_msleep(10);
+				mgos_msleep(messageDelay);
 			}	
 	}
     contain_logging();
