@@ -243,7 +243,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		update_time();
 		check_sensor_online();
 		setInterval(update_time, 1000);		
-		setInterval(check_sensor_online,10000);
+		setInterval(check_sensor_online,5000);
 		setInputFilter(document.getElementById("mdns_name"),  function(value) { return /^[a-zA-Z0-9-]+$/.test(value); });
 	}
 	function LAN_conf(){
