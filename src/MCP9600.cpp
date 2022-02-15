@@ -55,7 +55,7 @@ bool MCP9600::begin(unsigned char address, TwoWire &wirePort)
 bool MCP9600::available()
 {
   unsigned char status = readSingleRegister(SENSOR_STATUS);
-  return bitRead(status, 6);
+  return (status >> 6) & 0x01;
 }
 
 bool MCP9600::isConnected()

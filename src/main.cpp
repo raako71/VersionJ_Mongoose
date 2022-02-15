@@ -508,7 +508,7 @@ static void logging_cb(void *arg){
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x60){
 				int a = get_index_name(sensor_name_log, "T60");
-				bool b = MCPx60.available();
+				bool b = MCPx60.checkDeviceID();
 				sense_available = sense_available && b;
 				sensor_value_ephemeral.at(a)  = b ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : -1;
@@ -518,7 +518,7 @@ static void logging_cb(void *arg){
 				sensor_online.at(i) = b;
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
-				bool b = MCPx67.available();
+				bool b = MCPx67.checkDeviceID();
 				sense_available = sense_available && b;
 				//LOG(LL_WARN,("T67 available %d", sense_available));
 				sensor_value_ephemeral.at(a) = b ? MCPx67.getThermocoupleTemp() : -1;
