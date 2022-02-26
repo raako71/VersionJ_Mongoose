@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
 	<title></title>
-	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css"/>
-    <link rel="stylesheet" type="text/css" href="./general.css" />
-	<script src="./login.js.gz" defer></script>
+	<link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.7"/>
+    <link rel="stylesheet" type="text/css" href="./general.css?v0.10.7" />
+	<script src="./login.js.gz?v0.10.7" defer></script>
 	<script src="./gauge.min.js.gz"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0"></script>
@@ -63,6 +63,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 var trigger_name =[];
 var trigger_unit =[];
 var trigger_value=[];
+var trigger_en=[]; //indicate which sensor is enabled logging
+
 req_log_value(); //execute immediately
 var input_mode_list=["A","B","C","D"];
 var gauge_1_1;var gauge_1_2;var gauge_1_3;var gauge_1_4;
@@ -414,7 +416,17 @@ function update_graph(){
 	var base = thishour_file.map(function(e){
 		return filter_epoch(e.epoch);
 	});
-	var temp = thishour_file.map(function(e){
+	///set each variable
+	var arr_1 = []; var arr_2 = []; var arr_3 = []; var arr_4 = []; var arr_5 = []; var arr_6 = []; var arr_7 = []; var arr_8 = []; var arr_9 = []; var arr_10 = []; arr_11 = []; var arr_12 = []; var arr_13 = []; var arr_14 = []; var arr_15 = []; var arr_16 = [];
+	//define each name label
+	var sensor_list_name_log = ['T60', 'T67', 'P61_P', 'P61_V', 'P61_I', 'BMEx76_H', 'BMEx76_T', 'BMEx76_P', 'BMEx77_H', 'BMEx77_T', 'BMEx77_P', 'L10', 'L48', 'SHTx44_H', 'SHTx45_T', 'SHTx45_H'];
+	//parsing csv into each variable
+	var val_1; var val_2; var val_3; var val_4; var val_5; var val_6; var val_7; var val_8; var val_9; var val_10; var val_11; var val_12; var val_13; var val_14; var val_15; var val_16;
+	for (i = 0; i < sensor_list_name_log.length; i++){
+		eval('val_' + (i+1) + " =thishour_file.map(function(e){  return Number(e."+sensor_list_name_log[i]+"== '' ? null : e."+sensor_list_name_log[i]+")});"); 
+	}
+	
+	/*/var temp = thishour_file.map(function(e){
 		var a =  Number(e.column6 == '' ? null : e.column6);
 		return ((temp_unit_login == 2) ? C2F(a) : a);
 	});
@@ -426,29 +438,33 @@ function update_graph(){
 	});
 	var power = thishour_file.map(function(e){
 		return Number(e.column4 == '' ? null : e.column4);
-	});
-	var temp_arr = []; var hum_arr = []; var light_arr = []; var power_arr = [];
-	for (i = 0; i < base.length ; i++){
-		temp_arr.push({x: base[i], y: temp[i]});
-		hum_arr.push({x: base[i], y: hum[i]});
-		light_arr.push({x: base[i], y: light[i]});
-		power_arr.push({x: base[i], y: power[i]});
-	}
+	});*/
+	//var temp_arr = []; var hum_arr = []; var light_arr = []; var power_arr = [];
 	
-	var sens_val = [temp_arr, hum_arr, light_arr, power_arr];
+	//pusing value into array
+	for (i = 0; i < base.length ; i++){
+		//temp_arr.push({x: base[i], y: temp[i]});
+		for (j = 0 ; j < sensor_list_name_log.length; j++){
+			eval('arr_'+(j+1) + ".push({x: base[i], y: val_"+(j+1)+"["+ i + "]});"); 
+		}
+	}
+
 	for (i = 0 ; i < 10 ; i++){
 		if(eval("chart"+(i+1)+ "!= null")){
 			//eval("chart"+(i+1)+".data.labels =base");
 			if(eval("chart"+(i+1)+".data.datasets[0] != null")){
-				if(program_list[i].var1 >= 1 && program_list[i].var1 <= 4){
-					eval("chart"+(i+1)+".data.datasets[0].data = sens_val["+(program_list[i].var1 -1)+"]");
+				if(program_list[i].var1 >= 1 && program_list[i].var1 <= 20){
+					//eval("chart"+(i+1)+".data.datasets[0].data = sens_val["+(program_list[i].var1 -1)+"]");
+					eval("chart"+(i+1)+".data.datasets[0].data = arr_"+program_list[i].var1);
 				}else if(program_list[i].var1 == 9 && program_list[i].var2 != -1){
-					eval("chart"+(i+1)+".data.datasets[0].data = sens_val["+(program_list[i].var2 -1)+"]");
+					//eval("chart"+(i+1)+".data.datasets[0].data = sens_val["+(program_list[i].var2 -1)+"]");
+					eval("chart"+(i+1)+".data.datasets[0].data = arr_"+program_list[i].var2);
 				}
 			}
 			if(eval("chart"+(i+1)+".data.datasets[1] != null")){
-				if(program_list[i].var2 >= 1 && program_list[i].var2 <= 4){
-					eval("chart"+(i+1)+".data.datasets[1].data = sens_val["+(program_list[i].var2 -1)+"]");
+				if(program_list[i].var2 >= 1 && program_list[i].var2 <= 20){
+					//eval("chart"+(i+1)+".data.datasets[1].data = sens_val["+(program_list[i].var2 -1)+"]");
+					eval("chart"+(i+1)+".data.datasets[1].data = arr_"+program_list[i].var2);
 				}
 			}
 			eval("chart"+(i+1)+".update()");
@@ -471,16 +487,17 @@ var data = u.data.split("|");
 for (var j = 2; data[j] != null; j++){
 	var datax = data[j].split(",");
 	var num = Number(datax[1]);
+	var en = Number(datax[2]);
 	if(trigger_name[j-2].toLowerCase().indexOf("temp") != -1){
 		num = (temp_unit_login == 2) ? C2F(num) : num; 
 	}
-	trigger_value[j-2] = num;	
+	trigger_value[j-2] = num;
+	trigger_en[j-2] = en;
 }
 
 xhr_send("req_widget", null, function(i){
 if(i.code != 200){return;}
 var res = i.data;
-var sens = [res.temp, res.hump, res.light, res.power];
 var OS = [res.A , res.B, res.LED, res.IO14];
 var io_info = res.IO_info;
 var a = io_info.prog_name.split(",");
@@ -532,7 +549,11 @@ var v1 = program_list[i].var1;var v2 = program_list[i].var2; var type = program_
 for (k = 1 ; k <= 20 ; k++){
 	var os_pt = document.getElementById("gaugetxt_"+(i+1)+"_"+k);
 	if(type == 1 && os_pt != null){
-		os_pt.innerHTML = trigger_value[k-1] +" "+ trigger_unit[k-1];
+		if(trigger_value[k-1] != -1){
+			os_pt.innerHTML = trigger_value[k-1] +" "+ trigger_unit[k-1];
+		}else{
+			os_pt.innerHTML = "<span style='color:red'>Error!</span>";
+		}
 		eval('gauge_' + (i+1) + "_" + k + ".set("+ trigger_value[k-1] +")");
 	}
 }//loop 1 to 4 -> updating gauge
@@ -605,7 +626,7 @@ i1.value = set.gauge1.loval; j1.value = set.gauge1.upval; k1.value = set.gauge1.
 static_zone_loader(e.checked, 1);
 document.getElementById("interpolation_en_1").checked = set.graph1.cubic_en;
 }
-if((program_list[input-1].var1 == 29 && program_list[input-1].var2 != -1) || (program_list[input-1].var2 >= 1 && program_list[input-1].var2 <= 4)){
+if((program_list[input-1].var1 == 29 && program_list[input-1].var2 != -1) || (program_list[input-1].var2 >= 1 && program_list[input-1].var2 <= 20)){
 setInputFilter(document.getElementById("min_val2"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 setInputFilter(document.getElementById("max_val2"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
 setInputFilter(document.getElementById("gauge2_loval"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
@@ -618,6 +639,23 @@ document.getElementById("interpolation_en_2").checked = set.graph2.cubic_en;
 }
 var set_type = document.getElementById("setting_type");
 if(set_type != null){set_type.value = set.type; indicator_loader(set.type);}
+
+var sens1 = program_list[input-1].var1;
+var sens2 = program_list[input-1].var2;
+var en1; var en2;
+
+if(sens1 != -1){
+	en1 = trigger_en[Number(sens1)-1];
+}
+if(sens2 != -1){
+	en2 = trigger_en[Number(sens2)-1];
+}
+if(en1 == 0 || en2 == 0){
+	set_type.value = 1;
+	indicator_loader(1);
+	document.getElementById("widget_type_holder").classList.add("unclickable_grey");
+	set_type.style.color = 'grey';
+}
 }
 
 function setting_page_builder(id){
@@ -625,7 +663,7 @@ var v = program_list[id-1].var1;
 var w = program_list[id-1].var2;
 var ret = "<b>" + program_list[id-1].name + " Widget</b><br><br>";
 if((v >= 1 && v <= 20) || (v == 29 && w != -1)){
-ret += '<label for="setting_type">Indicator type: </label><select onchange="indicator_loader(this.value)" name="setting_type" id="setting_type"><option value="1">Gauge</option><option value="2">Graph</option></select>';
+ret += '<div id="widget_type_holder"><label for="setting_type">Indicator type: </label><select onchange="indicator_loader(this.value)" name="setting_type" id="setting_type"><option value="1">Gauge</option><option value="2">Graph</option></select></div>';
 ret += '<div id= "graph_setting_holder"><br>';
 if(v != 29){
 ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
@@ -633,8 +671,8 @@ ret += '<table style="margin-top:5px"><td><label class="mini_switch"><input type
 ret += '<td>Enable Cubic Interpolation</td></table>';
 ret += '</div>';
 }
-if(w >= 1 && w <= 4){
-ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
+if(w >= 1 && w <= 20){ //secondary option
+ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[w-1]+ '</b><br>';
 ret += '<table style="margin-top:5px"><td><label class="mini_switch"><input type="checkbox" id="interpolation_en_2"><span class="mini_slider round" ></span></label></td>';
 ret += '<td>Enable Cubic Interpolation</td></table>';
 ret += '</div>';
@@ -658,8 +696,8 @@ ret += '<table><td><label class="mini_switch"><input type="checkbox" id="label_e
 ret += '<td>Value Labels</td></table>';
 ret += '</div>';
 }
-if( w>= 1 && w <= 4){
-ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
+if( w>= 1 && w <= 20){
+ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[w-1]+ '</b><br>';
 ret += 'min value: <input type="text" id="min_val2" style="width:60px"><br>';
 ret += 'max value: <input type="text" id="max_val2" style="width:60px"><br>';
 ret += 'inside bounds color: <input type="text" id="gauge2_icolor" style="width:60px"><br>';
@@ -923,6 +961,7 @@ function req_log_value(){ //requesting log label and value
 			var datax = data[j].split(",");
 			trigger_name.push(datax[0]);
 			trigger_value.push(0);
+			trigger_en.push(-1);
 			//pushing unit to global variable
 			if(datax[0].toLowerCase().indexOf("temp")  != -1){ //temp unit
 				if(temp_unit_login == 2){ trigger_unit.push("F")} //fahrenheit
@@ -1018,6 +1057,9 @@ flex-wrap: wrap;
 	-webkit-animation-name: fadeIn;
 	animation-name: fadeIn;
  }
-
+.unclickable_grey{
+	color: grey;
+	pointer-events: none;
+}
 </style>
 </html>

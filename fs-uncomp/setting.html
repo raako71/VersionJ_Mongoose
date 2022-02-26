@@ -780,7 +780,11 @@ function check_sensor_online(){
 		for (var j = 0; data[j] != null; j++){
 			var datax = data[j].split(",");
 			if(document.getElementById(datax[0] + "_onl_sta") != null){
-				document.getElementById(datax[0] + "_onl_sta").innerHTML = (Number(datax[1]) == 0) ? "OFFLINE" : "";
+			var status = Number(datax[1]);
+				if(status == 0){ status = "OFFLINE"}
+				else if(status == -1){ status = "NO PROBE";}
+				else if(status == 1){ status = ""}
+				document.getElementById(datax[0] + "_onl_sta").innerHTML = status;
 			}
 		}
 		

@@ -307,13 +307,16 @@ function toggle_output_override(input, num){
 	dropdown_menu += '<input type=time id="until_time_'+input+'" readOnly></div>';
 	dropdown_menu += '<label for="override_action_'+input+'" >Override Actions: </label> <select name="override_action_'+input+'" id="override_action_'+input+'">';
 	dropdown_menu += '<option value="2">Invert output status</option><option value="3">Turn on Output</option><option value="4">Turn off Output</option></select>';
+	var output_addition = "";
 	if(input == 'C' || input == 'D'){
-		dropdown_menu += '<br><label for="override_output_'+input+'"> Apply Override to Output: </label> <select name="override_output_'+input+'" id="override_output_'+input+'"> <option value="1">A</option>';
-		dropdown_menu += '<option value="2">B</option><option value="3">C</option><option value="4">D</option></select>';
+		output_addition += '<label for="override_output_'+input+'"> Apply Override to Output: </label> <select name="override_output_'+input+'" id="override_output_'+input+'"> <option value="1">A</option>';
+		output_addition += '<option value="2">B</option><option value="3">C</option><option value="4">D</option></select>';
 	}
-	dropdown_menu += '<div id="override_en_status_'+input+'" style="color:red;display:none">OVERRIDE ACTIVE</div></div>';
+	dropdown_menu += '<br>' + output_addition + '<div id="override_en_status_'+input+'" style="color:red;display:none">OVERRIDE ACTIVE</div></div>';
 	if(document.getElementById("cont_prog_"+input).checked && document.getElementById("input_"+input+"_mode").value == 1){
 		document.getElementById("ovr_holder_"+input).innerHTML = dropdown_menu;
+	}else if(document.getElementById("cont_prog_"+input).checked && document.getElementById("input_"+input+"_mode").value == 2){
+		document.getElementById("ovr_holder_"+input).innerHTML = output_addition;
 	}else{
 		document.getElementById("ovr_holder_"+input).innerHTML = "";
 	}
@@ -460,7 +463,12 @@ function toggle_output_override(input, num){
 		if(i >= 2){
 			document.getElementById("override_output_"+input_mode_list[i]).value = old_json.override[i].output_opt;
 		}
-		}//end of if input set as override output
+		}//end of if input set as override output and mode 1
+		else if(old_json.override[i].output_ovr && old_json.override[i].mode == 2){ //if input as override output and mode2
+			if(i >= 2){
+				document.getElementById("override_output_"+input_mode_list[i]).value = old_json.override[i].output_opt;
+			}
+		}
 		}//if element is not null
 	}	
 	
@@ -556,17 +564,21 @@ function toggle_output_override(input, num){
 				old_json.override[i].mode = document.getElementById("input_"+input_mode_list[i]+"_mode").value;
 				var e =0;var f ="";
 				var c; var d; var d1; var override_action = 0;
-				if(b && old_json.override[i].mode == 1){c = document.getElementById("apply_always_"+input_mode_list[i]).checked;d = document.getElementById("apply_for_"+input_mode_list[i]).checked;	d1 = document.getElementById("apply_until_"+input_mode_list[i]).checked; override_action = document.getElementById("override_action_"+input_mode_list[i]).value;				
-				if(c){e = 1;}else if(d){
-					e = 2;f=Number(document.getElementById("ovr_sec_"+input_mode_list[i]).value);f+=Number(document.getElementById("ovr_min_"+input_mode_list[i]).value) * 60;f+=Number(document.getElementById("ovr_hour_"+input_mode_list[i]).value) * 3600;f+=Number(document.getElementById("ovr_day_"+input_mode_list[i]).value) *3600 * 24;
-				}else if(d1){
-					e = 3;f = document.getElementById("until_time_"+input_mode_list[i]).value;f = f.split(":");var date_local = new Date();var offset_local = date_local.getTimezoneOffset() * 60;f = f[0] * 3600 + f[1] * 60 + offset_local;if(f < 0){f = 86400 + f;}
+				if(b && old_json.override[i].mode == 1){
+					c = document.getElementById("apply_always_"+input_mode_list[i]).checked;d = document.getElementById("apply_for_"+input_mode_list[i]).checked;	d1 = document.getElementById("apply_until_"+input_mode_list[i]).checked; override_action = document.getElementById("override_action_"+input_mode_list[i]).value;	
+					if(c){e = 1;}else if(d){
+						e = 2;f=Number(document.getElementById("ovr_sec_"+input_mode_list[i]).value);f+=Number(document.getElementById("ovr_min_"+input_mode_list[i]).value) * 60;f+=Number(document.getElementById("ovr_hour_"+input_mode_list[i]).value) * 3600;f+=Number(document.getElementById("ovr_day_"+input_mode_list[i]).value) *3600 * 24;
+					}else if(d1){
+						e = 3;f = document.getElementById("until_time_"+input_mode_list[i]).value;f = f.split(":");var date_local = new Date();var offset_local = date_local.getTimezoneOffset() * 60;f = f[0] * 3600 + f[1] * 60 + offset_local;if(f < 0){f = 86400 + f;}
+					}
+					if(i >= 2 ){
+						old_json.override[i].output_opt = document.getElementById("override_output_"+input_mode_list[i]).value;
+					}
+				}else if(b && old_json.override[i].mode == 2){ //toggle mode
+					if(i >= 2 ){
+						old_json.override[i].output_opt = document.getElementById("override_output_"+input_mode_list[i]).value;
+					}
 				}
-				if(i >= 2 ){
-					old_json.override[i].output_opt = document.getElementById("override_output_"+input_mode_list[i]).value;
-				}
-				}
-				
 				old_json.override[i].sensor = a;
 				old_json.override[i].output_ovr = b;
 				old_json.override[i].ovr_val = f;

@@ -1,6 +1,6 @@
 author: alifnl
-description: fixing thermocouple issue
-version: 0.10.8.h6
+description: not logging power sensor if all zero, fixing override state before triggered, display online sensors in program editor, graph option unavailable when sensor is ephemeral, fixing bugs in control page, hide widget if sensors error, no probe status added for mcp
+version: 0.10.9
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

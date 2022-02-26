@@ -185,7 +185,7 @@ int prog_link_name[4] = {-1,-1,-1,-1}; //A, B, C, D -> detect lowest ID and enab
 int prog_link_name_z[4] = {-1,-1,-1,-1}; //delayed
 int prog_link_state[4] = {0,0,0,0}; //indicate program state -> based on date etc
 const char* list_prog_name[10] = {"program1.json", "program2.json", "program3.json", "program4.json", "program5.json", "program6.json",
-							  "program7.json", "program8.json", "program9.json", "program10.json"};
+							      "program7.json", "program8.json", "program9.json", "program10.json"};
 int prog_pin_state[4] = {0,0,0,0}; //A, B, C, D ->indicate pin output status
 int prog_timer_state[4] = {0,0,0,0}; //indicate if timer is on or off or idle; 0 -> idle, 1-> on is working, 2 -> off is working
 									 // 3 -> on is finished, 4-> off is finished
@@ -200,7 +200,7 @@ int vt_PB_state[4] = {0,0,0,0};
 //char[7] sensor_addr_list = {0x10, 0x48, 0x60, 0x61, 0x67, 0x76, 0x77};
 std::vector<char> sensor_addr_list;
 std::vector<bool> sensor_ext;
-std::vector<bool> sensor_online;
+std::vector<int> sensor_online;
 std::vector<std::string> sensor_name;
 std::vector<bool> sensor_en;
 std::vector<bool> sensor_init;
@@ -277,8 +277,8 @@ int check_program_state(const char* file_read);  //tested
 void adjust_prog_pin();
 int pri_chk_cond(std::string input, float data_input); //tested
 int sec_chk_cond(std::string input, float data_input, int& op);	
-int check_program_output(const char* file_read); 
-int pri_op_sec(int op, int pri_cond, int sec_cond); //tested
+int check_program_output(const char* file_read, int& override_program_status); 
+int pri_op_sec(int op, int pri_cond, int sec_cond, int& error_status); //tested
 void setup_timer_program(int ctrl_pin, long value); //tested
 void led_red_ctrl(unsigned int input);
 int read_R1_button(int button);
@@ -390,7 +390,7 @@ static void button_check_cb(void *arg){
 	if(ext_PB_state[2] == 0){ext_PB_state[2] = c;}
 	if(ext_PB_state[3] == 0){ext_PB_state[3] = d;}
 }
-static void timer_cb(void *arg) {
+static void timer_cb(void *arg) { //every 1 sec
 	time_t now;
 	time(&now);
 	if(now > 946684800){
@@ -443,19 +443,21 @@ static void logging_cb(void *arg){
     			sensor_value_ephemeral.at(a) = sensor_value_log.at(a);
 				sensor_value_ephemeral.at(a+1) = sensor_value_log.at(a+1); 
 			}else if(current_addr == 0x61){ //power sensor
-    			int a = get_index_name(sensor_name_log, "P61-P");
+    			int a = get_index_name(sensor_name_log, "P61_P");
     			sensor_value_ephemeral.at(a)   = sensor_online.at(i) ? (float)mySensor.getPavg(ONE_SEC) * 0.01 : -1;
     			sensor_value_ephemeral.at(a+1) = sensor_online.at(i) ? (float)mySensor.getVrms()*0.1 : -1;
     			sensor_value_ephemeral.at(a+2) = sensor_online.at(i) ? (float)mySensor.getIavg(ONE_SEC) * 0.001 : -1;
-    			sensor_value_log.at(a)   = (sense_available) ? sensor_value_ephemeral.at(a)   : -1;
-				sensor_value_log.at(a+1) = (sense_available) ? sensor_value_ephemeral.at(a+1) : -1;
-    			sensor_value_log.at(a+2) = (sense_available) ? sensor_value_ephemeral.at(a+2) : -1;
+    			bool sensor_err = sensor_value_ephemeral.at(a) == 0 && sensor_value_ephemeral.at(a+1) == 0 && sensor_value_ephemeral.at(a+2) == 0;
+    			//if alll power sensor value is zero will not log those value
+    			sensor_value_log.at(a)   = (sense_available && !sensor_err) ? sensor_value_ephemeral.at(a)   : -1;
+				sensor_value_log.at(a+1) = (sense_available && !sensor_err) ? sensor_value_ephemeral.at(a+1) : -1;
+    			sensor_value_log.at(a+2) = (sense_available && !sensor_err) ? sensor_value_ephemeral.at(a+2) : -1;
     			sensor_en_log.at(a) = sensor_en.at(i);
 				sensor_en_log.at(a+1) = sensor_en.at(i);
 				sensor_en_log.at(a+2) = sensor_en.at(i);
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x76){
-				int a = get_index_name(sensor_name_log, "BMEx76-H");
+				int a = get_index_name(sensor_name_log, "BMEx76_H");
 				sensor_value_ephemeral.at(a)   = sensor_online.at(i) ?  mgos_bme280_read_humidity(bme76) : -1;
 				sensor_value_ephemeral.at(a+1) = sensor_online.at(i) ?  mgos_bme280_read_temperature(bme76) : -1;
 				sensor_value_ephemeral.at(a+2) = sensor_online.at(i) ?  mgos_bme280_read_pressure(bme76) : -1;
@@ -467,7 +469,7 @@ static void logging_cb(void *arg){
 				sensor_en_log.at(a+2) = sensor_en.at(i);
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x77){
-				int a = get_index_name(sensor_name_log, "BMEx77-H");
+				int a = get_index_name(sensor_name_log, "BMEx77_H");
 				sensor_value_ephemeral.at(a)   = sensor_online.at(i) ?  mgos_bme280_read_humidity(bme77) : -1;
 				sensor_value_ephemeral.at(a+1) = sensor_online.at(i) ?  mgos_bme280_read_temperature(bme77) : -1;
 				sensor_value_ephemeral.at(a+2) = sensor_online.at(i) ?  mgos_bme280_read_pressure(bme77) : -1;
@@ -486,12 +488,12 @@ static void logging_cb(void *arg){
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x48){
 				int a = get_index_name(sensor_name_log, "L48");
-				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? light48.readLight() : (float)-1;
+				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? /*light48.readLight()*/-1 : (float)-1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i);
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x44){
-				int a = get_index_name(sensor_name_log, "SHTx44-T");
+				int a = get_index_name(sensor_name_log, "SHTx44_T");
 				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? mgos_sht31_getTemperature(SHTx44) : -1;
 				sensor_value_ephemeral.at(a+1)=sensor_online.at(i) ? mgos_sht31_getHumidity(SHTx44) : -1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
@@ -499,7 +501,7 @@ static void logging_cb(void *arg){
 				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) =sensor_en.at(i); 
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x45){
-				int a = get_index_name(sensor_name_log, "SHTx45-T");
+				int a = get_index_name(sensor_name_log, "SHTx45_T");
 				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? mgos_sht31_getTemperature(SHTx45) : -1;
 				sensor_value_ephemeral.at(a+1)=sensor_online.at(i) ? mgos_sht31_getHumidity(SHTx45) : -1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
@@ -508,23 +510,37 @@ static void logging_cb(void *arg){
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x60){
 				int a = get_index_name(sensor_name_log, "T60");
-				bool b = MCPx60.checkDeviceID();
-				sense_available = sense_available && b;
-				sensor_value_ephemeral.at(a)  = b ? MCPx60.getThermocoupleTemp() : -1;
+				bool online = MCPx60.checkDeviceID();
+				bool no_probe = MCPx60.available();
+				sense_available = sense_available && online && no_probe;
+				sensor_value_ephemeral.at(a)  = online && no_probe ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
-				mgos_msleep(messageDelay);
 				//LOG(LL_WARN,("T60 available %d", sense_available));
-				sensor_online.at(i) = b;
+				if(!online){
+					sensor_online.at(i) = 0; //offline status
+				}else if(!no_probe){
+					sensor_online.at(i) = -1; // no probe status
+				}else if(online && no_probe){
+					sensor_online.at(i) = 1;
+				}
+				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
-				bool b = MCPx67.checkDeviceID();
-				sense_available = sense_available && b;
+				bool online = MCPx67.checkDeviceID();
+				bool no_probe = MCPx67.available();
+				sense_available = sense_available && online && no_probe;
 				//LOG(LL_WARN,("T67 available %d", sense_available));
-				sensor_value_ephemeral.at(a) = b ? MCPx67.getThermocoupleTemp() : -1;
+				sensor_value_ephemeral.at(a) = online && no_probe ? MCPx67.getThermocoupleTemp() : -1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : -1;
-				sensor_online.at(i) = b;
 				sensor_en_log.at(a) = sensor_en.at(i);
+				if(!online){
+					sensor_online.at(i) = 0; //offline status
+				}else if(!no_probe){
+					sensor_online.at(i) = -1; // no probe status
+				}else if(online && no_probe){
+					sensor_online.at(i) = 1;
+				}
 				mgos_msleep(messageDelay);
 			}	
 	}
@@ -650,7 +666,7 @@ void request_widget_data(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_
 	sprintf(prog_name_b, "%d,%d,%d,%d", prog_link_name[0], prog_link_name[1], prog_link_name[2], prog_link_name[3]);
 	sprintf(prog_state_b, "%d%d%d%d", prog_link_state[0], prog_link_state[1], prog_link_state[2], prog_link_state[3]);
 	sprintf(pin_state_b, "%d%d%d%d", prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3]);
-	mg_rpc_send_responsef(ri, "{IO_info: {prog_name: %Q, prog_state: %Q, pin_state: %Q}, temp:%.1f, hump:%.1f, light:%.1f, power:%.1f, A:%d, B:%d, LED:%d, IO14:%d, ovr_out:%Q, ovr_en:%Q}",prog_name_b, prog_state_b, pin_state_b,sensor_value[0], sensor_value[1], sensor_value[2], sensor_value[3],prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3], override_out_status.c_str(), override_active_status);
+	mg_rpc_send_responsef(ri, "{IO_info: {prog_name: %Q, prog_state: %Q, pin_state: %Q}, A:%d, B:%d, LED:%d, IO14:%d, ovr_out:%Q, ovr_en:%Q}",prog_name_b, prog_state_b, pin_state_b,prog_pin_state[0], prog_pin_state[1], led_red_status, prog_pin_state[3], override_out_status.c_str(), override_active_status);
 	free(prog_name_b); free(prog_state_b); free(pin_state_b);
 	(void) cb_arg;
 	(void) fi;	
@@ -1305,7 +1321,7 @@ void contain_logging(){//function that modify use_contain variable based on desi
 		//LOG(LL_WARN,("%s -> %.2f",sensor_label_log.at(i).c_str(), sensor_value_log.at(i)));
 		if(sensor_en_log.at(i) == true){
 			buff += ";";
-		  	if(sensor_value_log.at(i) != -1){
+		  	if(sensor_value_log.at(i) != -1){ //if not -1 will move data to data string
 		  		int dec_place_local = ((int)(sensor_name_log.at(i).find("relay")) != -1) ? 0 : dec_place_global;
 				std::string num = std::to_string(sensor_value_log.at(i));
 				num = (dec_place_local == 0) ? num.substr(0, num.find(".")) : num.substr(0, num.find(".") + dec_place_local + 1);
@@ -1800,6 +1816,7 @@ void check_override_func(){
 	//LOG(LL_WARN,("input A B toggle mode: -> %d %d", ext_toggle_state[0], ext_toggle_state[1]));
 	if(ext_toggle_state[0] != 1 && input1_mode == 2 && input1_as_ovr){ //output A only
 		en_ovr_output_A = (ext_toggle_state[0] == 2) ? 0 : 1;
+		//LOG(LL_WARN,("en_ovr_output_A %d", en_ovr_output_A));
 	}else if(ext_toggle_state[0] == 1 && input1_mode == 2 && input1_as_ovr){
 		en_ovr_output_A = -1;
 	}
@@ -1832,7 +1849,7 @@ void check_override_func(){
 		if(en_ovr_output_A == -1){
 			input1_saved_state = pin_control;
 			input1_local_val = input1_ovr_val; //reset timer
-			LOG(LL_WARN,("trigger A (activate)"));
+			//LOG(LL_WARN,("trigger A (activate)"));
 			if(input1_ovr_action == 2 && pin_control != -1){ //toggle output status
 				if(en_ovr_output_A == -1){
 					en_ovr_output_A = pin_control == 1 ? 0: 1;
@@ -1846,7 +1863,7 @@ void check_override_func(){
 			}
 		}else{
 			en_ovr_output_A = -1;
-			LOG(LL_WARN,("trigger A (deactivate)"));
+			///LOG(LL_WARN,("trigger A (deactivate)"));
 			prog_pin_state[override_pin_A] = input1_saved_state;
 			input1_local_val = input1_ovr_val; //reset timer
 		}
@@ -1860,7 +1877,7 @@ void check_override_func(){
 	
 		int pin_control = prog_pin_state[1];
 		if(en_ovr_output_B == -1){ //override is inactive,
-			LOG(LL_WARN,("trigger B (activate)"));
+			//LOG(LL_WARN,("trigger B (activate)"));
 			input2_saved_state = pin_control; 
 			input2_local_val = input2_ovr_val;
 			if(input2_ovr_action == 2 && pin_control != -1){ //toggle output status
@@ -1876,7 +1893,7 @@ void check_override_func(){
 			}
 		}else{
 			en_ovr_output_B = -1;
-			LOG(LL_WARN,("trigger B (deactivate)"));
+			//LOG(LL_WARN,("trigger B (deactivate)"));
 			prog_pin_state[override_pin_B] = input2_saved_state;
 			input2_local_val = input2_ovr_val; //reset timer
 		}
@@ -1889,7 +1906,7 @@ void check_override_func(){
 		int pin_control = prog_pin_state[input3_ovr_out-1];
 		override_pin_C = input3_ovr_out-1;
 		if(en_ovr_output_C == -1){ //override is inactive
-		LOG(LL_WARN,("trigger C (activate)"));
+		//LOG(LL_WARN,("trigger C (activate)"));
 		if(input3_ovr_action == 2 && pin_control != -1){ //toggle output status
 			input3_saved_state = pin_control; //saving state
 			input3_local_val = input3_ovr_val; //and reset timer
@@ -1905,7 +1922,7 @@ void check_override_func(){
 		}
 		}else{ //override is active
 			en_ovr_output_C = -1;
-			LOG(LL_WARN,("trigger C (deactivate)"));
+			//LOG(LL_WARN,("trigger C (deactivate)"));
 			prog_pin_state[override_pin_C] = input3_saved_state;
 			input3_local_val = input3_ovr_val; //reset timer
 		}
@@ -1918,7 +1935,7 @@ void check_override_func(){
 		int pin_control = prog_pin_state[input4_ovr_out-1];
 		override_pin_D = input4_ovr_out-1;
 		if(en_ovr_output_D == -1){ //override is active
-		LOG(LL_WARN,("trigger D (activate)"));
+		//LOG(LL_WARN,("trigger D (activate)"));
 		input4_saved_state = pin_control; //saving state
 		input4_local_val = input4_ovr_val; //and reset timer
 		if(input4_ovr_action == 2 && pin_control != -1){ //toggle output status
@@ -1933,7 +1950,7 @@ void check_override_func(){
 			en_ovr_output_D = 0;
 		}
 		}else{
-			LOG(LL_WARN,("trigger D (deactivate)"));
+			//LOG(LL_WARN,("trigger D (deactivate)"));
 			en_ovr_output_D = -1;
 			prog_pin_state[override_pin_D] = input4_saved_state;
 			input4_local_val = input4_ovr_val; //reset timer
@@ -2112,9 +2129,13 @@ for (int i = 0; i < 10; i++){
 				}
 				
 				if(prog_link_state[prog_output-1] == 1){ //if program is active
-					int pin_res = check_program_output(list_prog_name[i]); //check output
-					if(pin_res != -1){ //if not -1 change pin output
+					int ovr_prog_status = 0;
+					int pin_res = check_program_output(list_prog_name[i], ovr_prog_status); //check output
+					if(pin_res >= 0){ //if not -1 or -2 change pin output
 						prog_pin_state[prog_output-1] = pin_res;
+					}
+					if(ovr_prog_status == 1){ //if override program status active will deactivate current program due to both sensors disconnected
+						prog_link_name[prog_output-1] = -1; 
 					}
 				}else{ //program is inactive
 					prog_pin_state[prog_output-1] = 0;
@@ -2157,7 +2178,7 @@ if(en_ovr_output_C != -1  && ((ovr_limit_C_en && input3_mode == 1) || (input3_mo
 
 static int indicator_A = 0;
 static int output_A_saved = 0;
-if(en_ovr_output_A != -1 && ((ovr_limit_A_en && input1_mode == 1) || (input1_mode == 2)) ){
+if(en_ovr_output_A != -1 && ((ovr_limit_A_en && input1_mode == 1) || (input1_mode == 2)) ){ //inputx_mode is push button or togggle
 	prog_pin_state[override_pin_A] = en_ovr_output_A;
 	indicator_A = 1;
 }else if(indicator_A == 1){
@@ -2171,10 +2192,11 @@ static int indicator_B = 0;
 static int output_B_saved = 0;
 if(en_ovr_output_B != -1  && ((ovr_limit_B_en && input2_mode == 1) || (input2_mode == 2))){
 	prog_pin_state[override_pin_B] = en_ovr_output_B;
+	indicator_B = 1;
 }else if(indicator_B == 1){
 	indicator_B = 0;
 	prog_pin_state[override_pin_B] = output_B_saved;
-}else if(indicator_A == 0){
+}else if(indicator_B == 0){
 	output_B_saved = prog_pin_state[override_pin_B];
 }
 
@@ -2182,14 +2204,19 @@ static int indicator_D = 0;
 static int output_D_saved = 0;
 if(en_ovr_output_D != -1 && dev_mode_global == true  && ((ovr_limit_D_en && input4_mode == 1) || (input4_mode == 2))){
 	prog_pin_state[override_pin_D] = en_ovr_output_D;
+	indicator_D = 1;
 	//LOG(LL_WARN,("overriding (input D) output pin %d -> %d", (override_pin_D), en_ovr_output_D));
 }else if(indicator_D == 1){
 	indicator_D = 0;
 	prog_pin_state[override_pin_D] = output_D_saved;
-}else if(indicator_A == 0){
+}else if(indicator_D == 0){
 	output_D_saved = prog_pin_state[override_pin_D];
 }
 
+
+if(!IO14_en){
+	prog_pin_state[3] = 0;
+}
 }//end of check_program_name() function
 
 int check_program_state(const char* file_read){	
@@ -2274,7 +2301,7 @@ int check_program_state(const char* file_read){
 }
 
 
-int check_program_output(const char* file_read){
+int check_program_output(const char* file_read, int& override_program_status){
 //open the file
 //get control option and control trigger
 int pin_state = -1;
@@ -2297,16 +2324,17 @@ if(main_opt >= 1 && main_opt <= 20){ //tested well done
 	//check if condition meet (for primary)
 	int pri_op = 0; //operator value for on
 	int sec_op = 0; //operator value for off
-	int pri_cond_on = pri_chk_cond(pri_on, sensor_value_ephemeral.at(main_opt-1));
-	int pri_cond_off = pri_chk_cond(pri_off, sensor_value_ephemeral.at(main_opt-1));
+	int pri_cond_on = pri_chk_cond(pri_on, sensor_value_ephemeral.at(main_opt+1)); //2 offset with relays
+	int pri_cond_off = pri_chk_cond(pri_off, sensor_value_ephemeral.at(main_opt+1));
+	//LOG(LL_WARN,("eph1 %.1f eph2 %.2f pri_on %d pri_off %d", sensor_value_ephemeral.at(main_opt+), sensor_value_ephemeral.at(main_opt-1), pri_cond_on, pri_cond_off));;
 	int sec_cond_on = -1;
 	int sec_cond_off = -1;
 	if(sec_opt>= 1 && sec_opt <= 20){
 		char* sec_on_b = NULL; char* sec_off_b = NULL;
 		json_scanf(sec_info_b, strlen(sec_info_b), "{sec_on: %Q, sec_off: %Q}", &sec_on_b, &sec_off_b);
 		std::string sec_on = sec_on_b; std::string sec_off = sec_off_b; free(sec_off_b); free(sec_on_b);
-		sec_cond_on = sec_chk_cond(sec_on, sensor_value_ephemeral.at(sec_opt-1), pri_op);
-		sec_cond_off = sec_chk_cond(sec_off, sensor_value_ephemeral.at(sec_opt-1), sec_op);
+		sec_cond_on = sec_chk_cond(sec_on, sensor_value_ephemeral.at(sec_opt+1), pri_op);
+		sec_cond_off = sec_chk_cond(sec_off, sensor_value_ephemeral.at(sec_opt+1), sec_op);
 	}else if(sec_opt == 25){
 		static int timer_mode = 0; // 0 -> timer off 1-> timer on
 		pri_op = sec_info_b[0] - '0'; //and or relations
@@ -2406,17 +2434,21 @@ if(main_opt >= 1 && main_opt <= 20){ //tested well done
 		//LOG(LL_WARN,("pri_cond_on -> %d, sec_cond_on -> %d, op -> %d", pri_cond_on, sec_cond_on, pri_op));
 		//LOG(LL_WARN,("pri_cond_off -> %d, sec_cond_off -> %d, op -> %d", pri_cond_off, sec_cond_off, sec_op));
 	}//end of sec_opt as output status
-	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on);
-	int cond_off = pri_op_sec(sec_op, pri_cond_off, sec_cond_off);
+	
+	int err_status_on = 0;
+	int err_status_off = 0;
+	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on, err_status_on);
+	int cond_off = pri_op_sec(sec_op, pri_cond_off, sec_cond_off, err_status_off);
 	//check triggering
-	if(cond_on){
+	if(cond_on == 1){
 		//trigger on
 		pin_state = 1;
-	}else if(cond_off){
+	}else if(cond_off == 1){
 		//trigger off
 		pin_state = 0;
 	}
-	
+	override_program_status = err_status_on | err_status_off;
+	///if(override_program_status) pin_state = 0;
 }// trig option 1 to 4
 else if(main_opt == 26){ //timed cycle as primary
 	char* time_val_b = NULL;
@@ -2481,7 +2513,7 @@ else if(main_opt == 28){ ///remote push button
 		if(prog_timer_state[ctrl_pin-1] == 0){
 			int sec_info = sec_info_b[0] - '0';
 			prog_timer_state[ctrl_pin-1] = 1;//this variable is used to indicate first time
-			pin_state = 0;//sec_info;
+			pin_state = sec_info; //pin state will be initial state in program, only without duty cycle
 			ext_PB_state[rpb_pin-1] = 0;
 			//LOG(LL_WARN,("first time push button %d", pin_state));
 		}else{
@@ -2624,12 +2656,15 @@ else if(main_opt == 29){//output status
 		char* sec_on_b = NULL; char* sec_off_b = NULL;
 		json_scanf(sec_info_b, strlen(sec_info_b), "{sec_on: %Q, sec_off: %Q}", &sec_on_b, &sec_off_b);
 		std::string sec_on = sec_on_b; std::string sec_off = sec_off_b; free(sec_off_b); free(sec_on_b);
-		sec_cond_on = sec_chk_cond(sec_on, sensor_value_ephemeral.at(sec_opt-1), pri_op);
-		sec_cond_off = sec_chk_cond(sec_off, sensor_value_ephemeral.at(sec_opt-1), sec_op);
+		sec_cond_on = sec_chk_cond(sec_on, sensor_value_ephemeral.at(sec_opt+1), pri_op);
+		sec_cond_off = sec_chk_cond(sec_off, sensor_value_ephemeral.at(sec_opt+1), sec_op);
 	}
 	//end of check secondary
-	int cond_on = pri_op_sec(pri_op, pri_cond_on, sec_cond_on);
-	int cond_off = pri_op_sec(sec_op, pri_cond_off, sec_cond_off);
+	int err_status_on = 0;
+	int err_status_off = 0;
+	int cond_on  = pri_op_sec(pri_op, pri_cond_on, sec_cond_on,err_status_on);
+	int cond_off = pri_op_sec(sec_op, pri_cond_off, sec_cond_off, err_status_off);
+	override_program_status = err_status_on | err_status_off;
 	//check triggering
 	if(cond_on){
 		//trigger on
@@ -2638,6 +2673,7 @@ else if(main_opt == 29){//output status
 		//trigger off
 		pin_state = 0;
 	}
+	//if(override_program_status == 1) pin_state = 0;
 }//end of main_opt == 9
 
 free(main_info_b);
@@ -2659,6 +2695,9 @@ int pri_chk_cond(std::string input, float data_input){//tested
 	if(input == ""){
 		return -1;
 	}
+	if(data_input == -1){
+		return -2; //another type of error if sensor value is not available
+	}
 	int a = input.find(",");
 	int comp = stoi(input.substr(0,a));
 	float val = stof(input.substr(a+1));
@@ -2675,6 +2714,9 @@ int sec_chk_cond(std::string input, float data_input, int& op){//tested
 	if(input == ""){
 		return -1;
 	}
+	if(data_input == -1){ //another type of error if sensor vvalue is not available
+		return -2;
+	}
 	int a = input.find(",");
 	op = stoi(input.substr(0,a)); a++;
 	int b = input.find(",", a);
@@ -2689,18 +2731,38 @@ int sec_chk_cond(std::string input, float data_input, int& op){//tested
 	return logic;
 }
 
-int pri_op_sec(int op, int pri_cond, int sec_cond){ //tested
+int pri_op_sec(int op, int pri_cond, int sec_cond, int& error_status){ //tested
 	int logic=0;
-	if(pri_cond == -1 && sec_cond != -1){
+	if(pri_cond == -1 && sec_cond >= 0){ //pri trigger is empty
 		logic = sec_cond;
-	}else if(sec_cond == -1 && pri_cond != -1){
+	}else if(sec_cond == -1 && pri_cond >= 0){ //sec trigger is empty
 		logic = pri_cond;
-	}else if(sec_cond != -1 && pri_cond != -1){
-		if(op == 1){
+	}else if(sec_cond >= 0 && pri_cond >= 0){ //both triggers are avaialbe
+		if(op == 1){ //and operator
 			logic = (pri_cond && sec_cond) ? 1 : 0;
-		}else if(op == 2){
+		}else if(op == 2){ //or operator
 			logic = (pri_cond || sec_cond) ? 1 : 0;
 		}
+	}else if(sec_cond >= 0 && pri_cond == -2){ //pri trigger value sensor is disconnected
+		if(op == 2){ //or operator
+			logic = sec_cond; // logic is sec condition
+		}else{
+			logic = 0; //else will result 0
+			error_status = 1;
+		}
+	}else if(sec_cond == -2 && pri_cond >= 0){ //sec sensor disconnected
+		if(op == 2){
+			logic = pri_cond; // logic is pri condition
+		}else{
+			logic = 0; //else will result 0 
+			error_status = 1;
+		}
+	}else if((sec_cond == -1 && pri_cond == -2) || (sec_cond == -2 && pri_cond == -1)){//one sensor disconnected but no other trigger options
+		logic = 0;
+		error_status = 1;
+	}else if(sec_cond == -2 && pri_cond == -2){ //both sensor disconnected
+		logic = 0;
+		error_status = 1;
 	}else{
 		logic =0;
 	}
@@ -3120,7 +3182,7 @@ void update_sensor_info(){ //update online and exist
 		bool on = false;
 		if(sensor_addr_list.at(i) != 0x67 && sensor_addr_list.at(i) != 0x60){
 			//not thermocouple mcp sensors
-			on = check_sensor(sensor_addr_list.at(i));
+			on = (sensor_addr_list.at(i) == 0x10 || sensor_addr_list.at(i) == 0x48) ? true : check_sensor(sensor_addr_list.at(i));
 			ext = (on == true) ? true : sensor_ext.at(i);
 		}else{
 			//for mcp sensors no need to update variable
@@ -3183,9 +3245,9 @@ void update_sensor_logging(bool update){
 			sensor_en_log.push_back(en); sensor_en_log.push_back(en);
 			if(en) log_number += 2;
 		}else if(name_x == "P61"){
-		  	sensor_name_log.push_back("P61-P");
-		  	sensor_name_log.push_back("P61-V");
-		  	sensor_name_log.push_back("P61-I");
+		  	sensor_name_log.push_back("P61_P");
+		  	sensor_name_log.push_back("P61_V");
+		  	sensor_name_log.push_back("P61_I");
 		  	sensor_label_log.push_back("Power x61");
 		  	sensor_label_log.push_back("Voltage x61");
 			sensor_label_log.push_back("Current x61");
@@ -3194,9 +3256,9 @@ void update_sensor_logging(bool update){
 		  	sensor_value_ephemeral.push_back(-1); sensor_value_ephemeral.push_back(-1); sensor_value_ephemeral.push_back(-1);
 		  	if(en) log_number+= 3;
 		}else if(name_x == "BMEx76"){
-		  	sensor_name_log.push_back("BMEx76-H");
-		  	sensor_name_log.push_back("BMEx76-T");
-		  	sensor_name_log.push_back("BMEx76-P");
+		  	sensor_name_log.push_back("BMEx76_H");
+		  	sensor_name_log.push_back("BMEx76_T");
+		  	sensor_name_log.push_back("BMEx76_P");
 		  	sensor_label_log.push_back("Humidity x76");
 		  	sensor_label_log.push_back("Temp x76");
 			sensor_label_log.push_back("Pressure x76");
@@ -3205,9 +3267,9 @@ void update_sensor_logging(bool update){
 		  	sensor_value_ephemeral.push_back(-1); sensor_value_ephemeral.push_back(-1); sensor_value_ephemeral.push_back(-1);
 		  	if(en) log_number += 3;
 		}else if(name_x == "BMEx77"){
-		  	sensor_name_log.push_back("BMEx77-H");
-		  	sensor_name_log.push_back("BMEx77-T");
-		  	sensor_name_log.push_back("BMEx77-P");
+		  	sensor_name_log.push_back("BMEx77_H");
+		  	sensor_name_log.push_back("BMEx77_T");
+		  	sensor_name_log.push_back("BMEx77_P");
 		  	sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);
 		  	sensor_en_log.push_back(en);sensor_en_log.push_back(en);sensor_en_log.push_back(en);
 		  	sensor_value_ephemeral.push_back(-1); sensor_value_ephemeral.push_back(-1); sensor_value_ephemeral.push_back(-1);
@@ -3216,8 +3278,8 @@ void update_sensor_logging(bool update){
 			sensor_label_log.push_back("Pressure x77");
 		  	if(en) log_number += 3;
 		}else if(name_x == "SHTx44"){
-			sensor_name_log.push_back("SHTx44-T");
-		  	sensor_name_log.push_back("SHTx44-H");
+			sensor_name_log.push_back("SHTx44_T");
+		  	sensor_name_log.push_back("SHTx44_H");
 		  	sensor_label_log.push_back("Temp x44");
 		  	sensor_label_log.push_back("Humidity x44");
 		  	sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);
@@ -3225,8 +3287,8 @@ void update_sensor_logging(bool update){
 		  	sensor_en_log.push_back(en);sensor_en_log.push_back(en);
 		  	if(en) log_number+=2;
 		}else if(name_x == "SHTx45"){
-			sensor_name_log.push_back("SHTx45-T");
-		  	sensor_name_log.push_back("SHTx45-H");
+			sensor_name_log.push_back("SHTx45_T");
+		  	sensor_name_log.push_back("SHTx45_H");
 		  	sensor_label_log.push_back("Temp x45");
 		  	sensor_label_log.push_back("Humidity x45");
 		  	sensor_value_log.push_back(-1);sensor_value_log.push_back(-1);
@@ -3409,8 +3471,9 @@ std::string build_log_value_list(){
 	std::string ret = "";
 	for (int i = 0; i < sensor_value_log.size(); i++){
 		std::string num = std::to_string(sensor_value_ephemeral.at(i));
+		std::string en_log = std::to_string((int)sensor_en_log.at(i));
 		num = (dec_place_global == 0) ? num.substr(0, num.find(",")) : num.substr(0, num.find(".") + dec_place_global + 1);
-		ret += sensor_label_log.at(i) + "," +num;
+		ret += sensor_label_log.at(i) + "," +num + "," + en_log;
 		if(i != sensor_value_log.size() - 1){
 			ret += "|";
 		}
