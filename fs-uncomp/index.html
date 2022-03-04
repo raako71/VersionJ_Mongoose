@@ -65,7 +65,7 @@ var trigger_unit =[];
 var trigger_value=[];
 var trigger_en=[]; //indicate which sensor is enabled logging
 
-req_log_value(); //execute immediately
+
 var input_mode_list=["A","B","C","D"];
 var gauge_1_1;var gauge_1_2;var gauge_1_3;var gauge_1_4;
 var gauge_2_1;var gauge_2_2;var gauge_2_3;var gauge_2_4;
@@ -109,7 +109,8 @@ var gauge_opts = {
 
 window.addEventListener('load', onLoad);
 function onLoad(){
-fetch_program_list();
+req_log_value(); //execute immediately, fetch_program_list() is executed after this function
+//fetch_program_list();
 setInterval(fetch_io_status, 2500);
 setInterval(update_graph, 10000);
 update_time();
@@ -131,7 +132,18 @@ function initiate_widget_content(){
 		var w = program_list[i-1].var2;
 		var x = program_list[i-1].info1;
 		var y = program_list[i-1].info2;
-		
+
+		//override setting_type
+		var en1; var en2;
+		if(v != -1){
+			en1 = trigger_en[Number(v)-1];
+		}
+		if(w != -1){
+			en2 = trigger_en[Number(w)-1];
+		}
+		if(en1 == 0 || en2 == 0){
+			program_list[i-1].setting.type = 1;
+		}
 		if(v >= 1 && v <= 20){
 			var text= "";
 			var sens = ""; var init_gauge1 =false; init_gauge2 = false;
@@ -248,7 +260,7 @@ function initiate_widget_content(){
 	fetch_io_status();
 	update_graph();
 }
-function fetch_program_list(callback){
+function fetch_program_list(){
 	var widget_content = "";
 	var i ;
 	var j = 0;
@@ -959,9 +971,11 @@ function req_log_value(){ //requesting log label and value
 		data = data.split("|");
 		for (var j = 2; data[j] != null; j++){
 			var datax = data[j].split(",");
+			var en = Number(datax[2]);
+			var num = Number(datax[1]);
 			trigger_name.push(datax[0]);
-			trigger_value.push(0);
-			trigger_en.push(-1);
+			trigger_value.push(num);
+			trigger_en.push(en);
 			//pushing unit to global variable
 			if(datax[0].toLowerCase().indexOf("temp")  != -1){ //temp unit
 				if(temp_unit_login == 2){ trigger_unit.push("F")} //fahrenheit
@@ -979,7 +993,9 @@ function req_log_value(){ //requesting log label and value
 			}else if(datax[0].toLowerCase().indexOf("press") != -1){
 				trigger_unit.push("hPA");
 			}
+			
 		}
+		fetch_program_list();
 	}
 }
 </script>
