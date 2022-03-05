@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.9.1.V3: Update pinout (has issues)<br>
 0.10.9.1: override widget type when disabled logging<br>
 0.10.9: not logging power sensor if all zero, fixing override state before triggered, display online sensors in program editor, graph option unavailable when sensor is ephemeral, fixing bugs in control page, hide widget if sensors error, no probe status added for mcp<br>
 0.10.8h: fixing issues marked in shared doc<br>

@@ -80,8 +80,8 @@
 #define OUTPUT_A 4
 #define OUTPUT_B 12
 #define OUTPUT_C 2
-#define OUTPUT_D 16
-#define EN_I2C 13
+#define OUTPUT_D 14
+#define EN_I2C 16
 #define RL_LED_EN 15
 #endif
 bool colen[13];
