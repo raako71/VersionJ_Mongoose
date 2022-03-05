@@ -227,7 +227,7 @@ struct mgos_config_wifi_ap cfg_ap;
 
 
 static void wifi_led_ctrl(void *arg) {
-	/*
+
    	if(wifi_mode == 2){
    		fade_blink(WIFI_LED);
 	}else if(wifi_mode == 1){
@@ -246,7 +246,6 @@ static void wifi_led_ctrl(void *arg) {
 		}
 	}
     (void) arg;
-	*/
 }
 
 
@@ -591,7 +590,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_gpio_set_mode(OUTPUT_C, MGOS_GPIO_MODE_OUTPUT);
   	#endif
   	
-	//mgos_gpio_setup_output(WIFI_LED, 0);
+	mgos_gpio_setup_output(WIFI_LED, 0);
   	mgos_gpio_setup_output(RL_LED_EN, 0);
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN ); 
 
@@ -833,7 +832,7 @@ void load_wifi_setting(){
 		mgos_sys_config_set_wifi_sta1_enable(false);
 		mgos_sys_config_set_wifi_sta2_enable(false);
 		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
-		//mgos_gpio_write(WIFI_LED, false);
+		mgos_gpio_write(WIFI_LED, false);
 	}else if(mode == 2){
 		mgos_sys_config_set_wifi_ap_enable(true);
 		mgos_sys_config_set_wifi_sta_enable(false);

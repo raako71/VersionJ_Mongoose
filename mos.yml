@@ -1,6 +1,6 @@
 author: alifnl
 description: override widget type when disabled logging
-version: 0.10.9.1.V3
+version: 0.10.9.2
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
