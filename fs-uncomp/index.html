@@ -504,6 +504,9 @@ for (var j = 2; data[j] != null; j++){
 		num = (temp_unit_login == 2) ? C2F(num) : num; 
 	}
 	trigger_value[j-2] = num;
+	if(en == 0 && trigger_en[j-2] == 1){
+		window.location.reload(true);
+	}
 	trigger_en[j-2] = en;
 }
 

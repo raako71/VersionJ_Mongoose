@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.9.2.V3: change to V3, can disable output_D by commenting define output_D, fix bug to override change output, autorefresh when sensor be ephemeral, enabling wifi_led<br>
 0.10.9.2: attempt to re-enable WiFI LED<br>
 0.10.9.1.V3: Update pinout (has issues)<br>
 0.10.9.1: override widget type when disabled logging<br>

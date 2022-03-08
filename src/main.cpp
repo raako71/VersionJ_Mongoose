@@ -42,7 +42,7 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define V2
+#define V3
 
 #ifdef V1
 #define WIFI_LED 4
@@ -80,7 +80,7 @@
 #define OUTPUT_A 4
 #define OUTPUT_B 12
 #define OUTPUT_C 2
-#define OUTPUT_D 14
+//#define OUTPUT_D 16
 #define EN_I2C 16
 #define RL_LED_EN 15
 #endif
@@ -227,7 +227,7 @@ struct mgos_config_wifi_ap cfg_ap;
 
 
 static void wifi_led_ctrl(void *arg) {
-
+	
    	if(wifi_mode == 2){
    		fade_blink(WIFI_LED);
 	}else if(wifi_mode == 1){
@@ -236,8 +236,8 @@ static void wifi_led_ctrl(void *arg) {
 			if(a%2 == 0){
 				mgos_pwm_set(WIFI_LED, 100, (float)panel_brightness/65535);	
 			}else{
-				//mgos_pwm_set(WIFI_LED, 100, 0);
-				mgos_gpio_write(WIFI_LED, 0);
+				mgos_pwm_set(WIFI_LED, 100, 0);
+				//mgos_gpio_write(WIFI_LED, 0);
 			}
 			a++;
 		}else{
@@ -246,6 +246,7 @@ static void wifi_led_ctrl(void *arg) {
 		}
 	}
     (void) arg;
+	
 }
 
 
@@ -544,7 +545,7 @@ static void logging_cb(void *arg){
 			}	
 	}
     contain_logging();
-    
+    //LOG(LL_WARN,("free heap :%ld", (unsigned long)mgos_get_free_heap_size()));
 	if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
     		manageOffline_files();
@@ -590,7 +591,14 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_gpio_set_mode(OUTPUT_C, MGOS_GPIO_MODE_OUTPUT);
   	#endif
   	
+  	#ifdef OUTPUT_D
+  		mgos_gpio_setup_output(OUTPUT_D,0);
+		mgos_gpio_set_mode(OUTPUT_D, MGOS_GPIO_MODE_OUTPUT);
+  	#endif
+  	
 	mgos_gpio_setup_output(WIFI_LED, 0);
+	//mgos_gpio_set_mode(WIFI_LED, MGOS_GPIO_MODE_OUTPUT);
+	
   	mgos_gpio_setup_output(RL_LED_EN, 0);
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN ); 
 
@@ -781,23 +789,26 @@ void load_wifi_setting(){
 	if(a == 1){
 		LOG(LL_WARN,("ap mode override"));
 		ap_button_mode = true;
-		wifi_mode = 2;
+		wifi_mode = 2; 
 		mgos_sys_config_set_wifi_ap_enable(true);
 		mgos_sys_config_set_wifi_sta_enable(false);
 		mgos_sys_config_set_wifi_sta1_enable(false);
 		mgos_sys_config_set_wifi_sta2_enable(false);
 		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
+		mgos_clear_timer(wifi_blink_timer);
 		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		return;	
 	}
 	
 	if(mode == 1 || mode == 4){
-	
+		
 	    wifi_mode = 1;
 	    if(mode == 4){
 	    	mgos_sys_config_set_wifi_ap_enable(true);
+	    	LOG(LL_WARN,("ap+Sta mode"));
 		}else{
 			mgos_sys_config_set_wifi_ap_enable(false);
+				LOG(LL_WARN,("sta mode"));
 		}
 	    if(strcmp(ssid, "") != 0){
 		mgos_sys_config_set_wifi_sta_ssid(ssid);
@@ -821,7 +832,7 @@ void load_wifi_setting(){
 			mgos_sys_config_set_wifi_sta2_enable(false);
 		}
 		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
-		
+		mgos_clear_timer(wifi_blink_timer);
 		wifi_blink_timer = mgos_set_timer(100, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		
 		return;
@@ -839,6 +850,7 @@ void load_wifi_setting(){
 		mgos_sys_config_set_wifi_sta1_enable(false);
 		mgos_sys_config_set_wifi_sta2_enable(false);
 		mgos_wifi_setup((struct mgos_config_wifi *) mgos_sys_config_get_wifi());
+		mgos_clear_timer(wifi_blink_timer);
 		wifi_blink_timer = mgos_set_timer(10, MGOS_TIMER_REPEAT, wifi_led_ctrl, NULL);
 		wifi_mode = 2;
 		return;
@@ -1674,6 +1686,8 @@ void checkJSONsetting(){
 	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, ovr_act: %d}",
 	           &input2_mode, &input2_as_sens, &input2_as_ovr, &input2_ovr_limit, &input2_ovr_val, &input2_ovr_action);
 	//input 3 (RPB)
+	int input3_ovr_out_z = input3_ovr_out;
+	int input4_ovr_out_z = input4_ovr_out;
 	json_scanf_array_elem(buff, strlen(buff), ".override",2, &t);
 	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
 	           &input3_mode, &input3_as_sens, &input3_as_ovr, &input3_ovr_limit, &input3_ovr_val, &input3_ovr_out, &input3_ovr_action);
@@ -1682,6 +1696,13 @@ void checkJSONsetting(){
 	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
 	           &input4_mode, &input4_as_sens, &input4_as_ovr, &input4_ovr_limit, &input4_ovr_val, &input4_ovr_out, &input4_ovr_action);
 	
+	//turn off override if output pin is different
+	if(input3_ovr_out_z != input3_ovr_out){
+		en_ovr_output_C = -1;
+	}
+	if(input4_ovr_out_z != input4_ovr_out){
+		en_ovr_output_D = -1;
+	}
 	//char* dns_name_local = (char*)malloc(100);
 	json_scanf(buff, strlen(buff), "{dec_place: %d, dev_mode: %B}",  &dec_place_global, &dev_mode_global);
 	//std::string dns_name = dns_name_local;
@@ -1927,7 +1948,7 @@ void check_override_func(){
 		}
 	}
 
-	if((ext_PB_state[3] == 2 || vt_PB_state[3] == 2) && input4_as_ovr == 1 && input4_mode == 1){ //long push event// check override function (input3 / RPB)
+	if((ext_PB_state[3] == 2 || vt_PB_state[3] == 2) && input4_as_ovr == 1 && input4_mode == 1){ //long push event// check override function (input4 / input_D)
 		ext_PB_state[3] = 0;
 		if(vt_PB_state[3] == 2) {vt_PB_state[3] = 0;}
 
@@ -2065,6 +2086,18 @@ void check_override_func(){
 	
 	int ovr_c_status = en_ovr_output_C != -1 && ((input3_ovr_out == 3 && LED_opt == 1) || (input3_ovr_out == 4 && IO14_en) || (input3_ovr_out < 3))? en_ovr_output_C :-1;
 	int ovr_d_status = en_ovr_output_D != -1 && ((input4_ovr_out == 3 && LED_opt == 1) || (input4_ovr_out == 4 && IO14_en) || (input4_ovr_out < 3))? en_ovr_output_D :-1;
+	
+	//if OUTPUT_D is undefined will disable ovr_d_status and override
+	#ifndef OUTPUT_D
+		if(input4_ovr_out == 4 && IO14_en){
+			ovr_d_status = -1;
+			en_ovr_output_D = -1;
+		}
+		if(input3_ovr_out == 4 && IO14_en){
+			ovr_c_status = -1;
+			en_ovr_output_C = -1;
+		}
+	#endif
 	override_out_status = std::to_string(en_ovr_output_A);
 	override_out_status += ",";
 	override_out_status += std::to_string(override_pin_A);
@@ -2198,6 +2231,7 @@ if(en_ovr_output_B != -1  && ((ovr_limit_B_en && input2_mode == 1) || (input2_mo
 }else if(indicator_B == 0){
 	output_B_saved = prog_pin_state[override_pin_B];
 }
+
 
 static int indicator_D = 0;
 static int output_D_saved = 0;
@@ -2883,7 +2917,7 @@ int read_R1_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	LOG(LL_WARN,("short push INPUT_A"));
+      	//LOG(LL_WARN,("short push INPUT_A"));
       	button_z = 0;
         result = 1;
       }
@@ -2897,7 +2931,7 @@ int read_R1_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    LOG(LL_WARN,("long push INPUT_A"));
+    //LOG(LL_WARN,("long push INPUT_A"));
   }
   button_z = button;
   
@@ -3181,7 +3215,7 @@ void update_sensor_info(){ //update online and exist
 		bool on = false;
 		if(sensor_addr_list.at(i) != 0x67 && sensor_addr_list.at(i) != 0x60){
 			//not thermocouple mcp sensors
-			on = check_sensor(sensor_addr_list.at(i));
+			on = (sensor_addr_list.at(i) == 0x10) ? true : check_sensor(sensor_addr_list.at(i));
 			ext = (on == true) ? true : sensor_ext.at(i);
 		}else{
 			//for mcp sensors no need to update variable
