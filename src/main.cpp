@@ -2917,7 +2917,7 @@ int read_R1_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	//LOG(LL_WARN,("short push INPUT_A"));
+      	LOG(LL_WARN,("short push INPUT_A"));
       	button_z = 0;
         result = 1;
       }
@@ -2931,7 +2931,7 @@ int read_R1_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    //LOG(LL_WARN,("long push INPUT_A"));
+    LOG(LL_WARN,("long push INPUT_A"));
   }
   button_z = button;
   
@@ -2953,7 +2953,7 @@ int read_R2_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	//LOG(LL_WARN,("short push INPUT_B"));
+      	LOG(LL_WARN,("short push INPUT_B"));
       	button_z = 0;
         result = 1;
       }
@@ -2967,7 +2967,7 @@ int read_R2_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    //LOG(LL_WARN,("long push INPUT_B"));
+    LOG(LL_WARN,("long push INPUT_B"));
   }
   button_z = button;
   if (state_button == 1) {
@@ -2988,7 +2988,7 @@ int read_RPB_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	//LOG(LL_WARN,("short push INPUT_C"));
+      	LOG(LL_WARN,("short push INPUT_C"));
       	button_z = 0;
         result = 1;
       }
@@ -3002,7 +3002,7 @@ int read_RPB_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    //LOG(LL_WARN,("long push INPUT_C"));
+    LOG(LL_WARN,("long push INPUT_C"));
   }
   button_z = button;
   if (state_button == 1) {
@@ -3023,7 +3023,7 @@ int read_R4_button(int button) { // read button if there is logic change
       if (timer >= 10) { //over 1sec
         result = 0;
       } else {
-      	//LOG(LL_WARN,("short push INPUT_D"));
+      	LOG(LL_WARN,("short push INPUT_D"));
       	button_z = 0;
         result = 1;
       }
@@ -3037,7 +3037,7 @@ int read_R4_button(int button) { // read button if there is logic change
     timer = 0;
     button_z = 0;
     result = 2;
-    //LOG(LL_WARN,("long push INPUT_D"));
+    LOG(LL_WARN,("long push INPUT_D"));
   }
   button_z = button;
   if (state_button == 1) {
