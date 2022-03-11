@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.9.3: increase sensitivity for button, link en_i2c to pin from setting page, delete bme struct before initiate<br>
 0.10.9.2.V3: change to V3, can disable output_D by commenting define output_D, fix bug to override change output, autorefresh when sensor be ephemeral, enabling wifi_led<br>
 0.10.9.2: attempt to re-enable WiFI LED<br>
 0.10.9.1.V3: Update pinout (has issues)<br>

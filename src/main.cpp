@@ -42,7 +42,7 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define V2
+#define V3
 
 #ifdef V1
 #define WIFI_LED 4
@@ -568,7 +568,8 @@ enum mgos_app_init_result mgos_app_init(void) {
 	copy_wifi_info();	
 	//rename setting_new to setting if setting does not exist, and delete setting_new if setting exists
 	rename_setting_json();
-	
+	//for i2c only
+	mgos_gpio_setup_output(EN_I2C, 0);
 	if(exists("setting.json")){
 		checkJSONsetting();
   	}	
@@ -582,7 +583,7 @@ enum mgos_app_init_result mgos_app_init(void) {
   	oldcheck_onboot();
   	
 	//GPIO init
-	mgos_gpio_setup_output(EN_I2C, 1);
+	
   	mgos_gpio_setup_output(OUTPUT_A, 0);
   	mgos_gpio_setup_output(OUTPUT_B, 0);
   
@@ -1675,8 +1676,12 @@ void checkJSONsetting(){
 	json_scanf(buff, strlen(buff), "{ctrl_page: %Q}", &buff_b);
 	json_scanf(buff_b, strlen(buff_b), "{LED: %d, LED_prog: %d, IO14: %B}", &LED_opt, &LED_prog, &IO14_en);
 	
+	//en i2c
+	bool i2c_en = false;
+	json_scanf(buff, strlen(buff), "{i2c_en: %B}",&i2c_en );
+	mgos_gpio_write(EN_I2C, i2c_en);
+	
 	struct json_token t;
-
 	//input 1 (PB1)
 	json_scanf_array_elem(buff, strlen(buff), ".override",0, &t);
 	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, ovr_act: %d}",
@@ -2910,9 +2915,9 @@ int read_R1_button(int button) { // read button if there is logic change
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button - button_z >= 4000) { //rising edge
+  if (button - button_z >= 3000) { //rising edge
     state_button = 1;
-  } else if (button_z - button >= 4000) { //falling edge
+  } else if (button_z - button >= 3000) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
@@ -2946,9 +2951,9 @@ int read_R2_button(int button) { // read button if there is logic change
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button - button_z >= 4000) { //rising edge
+  if (button - button_z >= 3000) { //rising edge
     state_button = 1;
-  } else if (button_z - button >= 4000) { //falling edge
+  } else if (button_z - button >= 3000) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
@@ -2981,9 +2986,9 @@ int read_RPB_button(int button) { // read button if there is logic change
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button - button_z >= 4000/*button_z3 < 1000 && button > 3000*/) { //rising edge
+  if (button - button_z >= 3000/*button_z3 < 1000 && button > 3000*/) { //rising edge
     state_button = 1;
-  } else if (button_z - button >= 4000 /*button_z3 > 3000 && button < 1000*/) { //falling edge
+  } else if (button_z - button >= 3000 /*button_z3 > 3000 && button < 1000*/) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
@@ -3016,9 +3021,9 @@ int read_R4_button(int button) { // read button if there is logic change
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button - button_z >= 4000) { //rising edge
+  if (button - button_z >= 3000) { //rising edge
     state_button = 1;
-  } else if (button_z - button >= 4000) { //falling edge
+  } else if (button_z - button >= 3000) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
@@ -3398,6 +3403,7 @@ void init_sensor(){ //based on online
 	sensor_exist = get_index(sensor_addr_list, 0x76);
 	if(sensor_exist != -1){
 		if(sensor_online.at(sensor_exist) && sensor_init.at(sensor_exist)){
+			mgos_bme280_delete(bme76);
 			bme76 = mgos_bme280_i2c_create(0x76);
 			sensor_init.at(sensor_exist) = false;
 		}
@@ -3406,6 +3412,7 @@ void init_sensor(){ //based on online
 	sensor_exist = get_index(sensor_addr_list, 0x77);
 	if (sensor_exist != -1){
 		if(sensor_online.at(sensor_exist) && sensor_init.at(sensor_exist)){
+			mgos_bme280_delete(bme77);
 			bme77 = mgos_bme280_i2c_create(0x77);
 			sensor_init.at(sensor_exist) = false;
 		}

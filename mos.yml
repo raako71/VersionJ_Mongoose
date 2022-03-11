@@ -1,6 +1,6 @@
 author: alifnl
-description: change to V3, can disable output_D by commenting define output_D, fix bug to override change output, autorefresh when sensor be ephemeral, enabling wifi_led
-version: 0.10.9.2.2.V2.4MB
+description: increase sensitivity for button, link en_i2c to pin from setting page, delete bme struct before initiate
+version: 0.10.9.2.3
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

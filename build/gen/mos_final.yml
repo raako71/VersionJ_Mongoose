@@ -1,241 +1,238 @@
 name: harry_versionj
 type: app
-version: 0.10.9.2.2.V3
+version: 0.10.9.2.3
 platform: esp32
 platforms:
 - esp32
 author: alifnl
-description: not logging power sensor if all zero, fixing override state before triggered,
-  display online sensors in program editor, graph option unavailable when sensor is
-  ephemeral, fixing bugs in control page, hide widget if sensors error, no probe status
-  added for mcp
+description: increase sensitivity for button, link en_i2c to pin from setting page,
+  delete bme struct before initiate
 sources:
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/src/ACS71020.cpp
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/src/MCP9600.cpp
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/src/SparkFun_VEML6030_Ambient_Light_Sensor.cpp
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/src/main.cpp
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/adc/src/esp32/esp32_adc.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/freertos/src/mgos_freertos.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/freertos/src/mgos_freertos_core_dump.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls/src/mgos_mbedtls.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls/src/esp32/esp32_aes.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls/src/esp32/esp32_bignum.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/aes.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/aes_atca.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/aesni.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/arc4.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/aria.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/asn1parse.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/asn1write.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/base64.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/bignum.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/blowfish.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/camellia.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ccm.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/certs.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/chacha20.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/chachapoly.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/cipher.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/cipher_wrap.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/cmac.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ctr_drbg.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/debug.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/des.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/dhm.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecdh.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecdsa.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecjpake.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecp.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecp_atca.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecp_curves.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/entropy.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/entropy_poll.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/error.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/gcm.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/havege.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/hkdf.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/hmac_drbg.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md2.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md4.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md5.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md_wrap.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/memory_buffer_alloc.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/net_sockets.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/nist_kw.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/oid.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/padlock.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pem.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pk.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pk_wrap.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkcs11.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkcs12.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkcs5.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkparse.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkwrite.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/platform.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/platform_util.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/poly1305.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ripemd160.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/rsa.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/rsa_internal.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/sha1.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/sha256.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/sha512.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_cache.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_ciphersuites.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_cli.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_cookie.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_srv.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_ticket.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_tls.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/threading.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/timing.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/version.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/version_features.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509_create.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509_crl.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509_crt.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509_csr.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509write_crt.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509write_csr.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/xtea.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/mgos_vfs.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/mgos_vfs_dev.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/mgos_vfs_internal.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/esp32/esp32_fs.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/esp32/esp32_fs_crypt.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/esp32/esp32_vfs_dev_partition.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/src/mgos_vfs_lfs.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs/lfs.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs/lfs_util.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs1/lfs1.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs1/lfs1_util.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/mgos_vfs_fs_spiffs.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_cache.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_check.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_gc.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_hydrogen.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_nucleus.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/core/src/mgos_core.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat/src/Print.cpp
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat/src/WString.cpp
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat/src/mgos_arduino.cpp
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/i2c/src/mgos_i2c_master.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/i2c/src/esp32/esp32_i2c_master.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-wire/src/mgos_arduino_wire_c.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-wire/src/mgos_arduino_wire.cpp
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/spi/src/mgos_spi.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/spi/src/mgos_spi_mjs.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/spi/src/esp32/esp32_spi_master.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/bme280/src/mgos_bme280.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/bme280/src/mgos_bme280_c.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/bme280/src/BME280_driver/bme280.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/dns-sd/src/lwip/lwip_mdns.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/dns-sd/src/mongoose/mgos_dns_sd.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/dns-sd/src/mongoose/mgos_mdns.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/lwip/src/mgos_lwip.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ethernet/src/mgos_eth.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ethernet/src/esp32/esp32_eth.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/fstab/src/mgos_fstab.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/http-server/src/mgos_http_server.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/pwm/src/mgos_pwm.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/pwm/src/mgos_pwm_rgb_led.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/pwm/src/esp32/esp32_pwm.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/src/mg_rpc.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/src/mg_rpc_channel.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/src/mg_rpc_channel_http.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/src/mgos_rpc.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-config/src/mgos_service_config.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-fs/src/mgos_service_fs.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/src/mgos_wifi.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/src/mgos_wifi_sta.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/src/mjs_wifi.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/src/esp32/esp32_wifi.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-wifi/src/mgos_rpc_service_wifi.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-uart/src/mgos_rpc_channel_uart.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/sht31-i2c/src/mgos_sht31.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/sntp/src/mgos_sntp.c
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/gen/mgos_deps_init.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/src/ACS71020.cpp
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/src/MCP9600.cpp
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/src/SparkFun_VEML6030_Ambient_Light_Sensor.cpp
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/src/main.cpp
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/adc/src/esp32/esp32_adc.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/freertos/src/mgos_freertos.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/freertos/src/mgos_freertos_core_dump.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls/src/mgos_mbedtls.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls/src/esp32/esp32_aes.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls/src/esp32/esp32_bignum.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/aes.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/aes_atca.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/aesni.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/arc4.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/aria.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/asn1parse.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/asn1write.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/base64.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/bignum.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/blowfish.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/camellia.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ccm.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/certs.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/chacha20.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/chachapoly.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/cipher.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/cipher_wrap.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/cmac.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ctr_drbg.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/debug.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/des.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/dhm.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecdh.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecdsa.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecjpake.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecp.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecp_atca.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecp_curves.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/entropy.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/entropy_poll.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/error.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/gcm.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/havege.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/hkdf.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/hmac_drbg.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md2.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md4.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md5.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md_wrap.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/memory_buffer_alloc.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/net_sockets.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/nist_kw.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/oid.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/padlock.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pem.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pk.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pk_wrap.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkcs11.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkcs12.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkcs5.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkparse.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkwrite.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/platform.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/platform_util.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/poly1305.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ripemd160.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/rsa.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/rsa_internal.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/sha1.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/sha256.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/sha512.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_cache.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_ciphersuites.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_cli.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_cookie.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_srv.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_ticket.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_tls.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/threading.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/timing.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/version.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/version_features.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509_create.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509_crl.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509_crt.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509_csr.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509write_crt.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509write_csr.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/xtea.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/mgos_vfs.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/mgos_vfs_dev.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/mgos_vfs_internal.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/esp32/esp32_fs.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/esp32/esp32_fs_crypt.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/esp32/esp32_vfs_dev_partition.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/src/mgos_vfs_lfs.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs/lfs.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs/lfs_util.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs1/lfs1.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs1/lfs1_util.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/mgos_vfs_fs_spiffs.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_cache.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_check.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_gc.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_hydrogen.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_nucleus.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/core/src/mgos_core.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat/src/Print.cpp
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat/src/WString.cpp
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat/src/mgos_arduino.cpp
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/i2c/src/mgos_i2c_master.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/i2c/src/esp32/esp32_i2c_master.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-wire/src/mgos_arduino_wire_c.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-wire/src/mgos_arduino_wire.cpp
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/spi/src/mgos_spi.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/spi/src/mgos_spi_mjs.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/spi/src/esp32/esp32_spi_master.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/bme280/src/mgos_bme280.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/bme280/src/mgos_bme280_c.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/bme280/src/BME280_driver/bme280.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/dns-sd/src/lwip/lwip_mdns.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/dns-sd/src/mongoose/mgos_dns_sd.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/dns-sd/src/mongoose/mgos_mdns.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/lwip/src/mgos_lwip.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ethernet/src/mgos_eth.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ethernet/src/esp32/esp32_eth.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/fstab/src/mgos_fstab.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/http-server/src/mgos_http_server.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/pwm/src/mgos_pwm.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/pwm/src/mgos_pwm_rgb_led.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/pwm/src/esp32/esp32_pwm.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/src/mg_rpc.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/src/mg_rpc_channel.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/src/mg_rpc_channel_http.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/src/mgos_rpc.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-config/src/mgos_service_config.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-fs/src/mgos_service_fs.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/src/mgos_wifi.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/src/mgos_wifi_sta.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/src/mjs_wifi.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/src/esp32/esp32_wifi.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-wifi/src/mgos_rpc_service_wifi.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-uart/src/mgos_rpc_channel_uart.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/sht31-i2c/src/mgos_sht31.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/sntp/src/mgos_sntp.c
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/gen/mgos_deps_init.c
 includes:
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/adc/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/adc/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/freertos/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/freertos/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mongoose/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs1
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/include/spiffs
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/core/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/core/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat/include/sys
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/i2c/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-wire/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/spi/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/bme280/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/dns-sd/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/lwip/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ethernet/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ethernet/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/http-server/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ota-common/src
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ota-common/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ota-common/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ota-http-client/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/pwm/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-config/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/include/esp32
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-uart/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/sht31-i2c/include
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/sntp/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/adc/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/adc/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/freertos/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/freertos/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mongoose/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs1
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/include/spiffs
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/core/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/core/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat/include/sys
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/i2c/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-wire/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/spi/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/bme280/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/dns-sd/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/lwip/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ethernet/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ethernet/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/http-server/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ota-common/src
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ota-common/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ota-common/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ota-http-client/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/pwm/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-config/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/include/esp32
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-uart/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/sht31-i2c/include
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/sntp/include
 filesystem:
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ca-bundle/fs/ca.pem
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/1970Day_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/1970Hour_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/1970Month_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/1970Week_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/1970longterm_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/8f2js9ddfk.json
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/chart_init.js.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/dark.css
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/favicon.ico
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/gauge.min.js.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/general.css
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/light.css
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/login.js.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/longterm_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/picker.css.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/picker.js.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/sensors_new.json
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/setting_new.json
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/thisDay_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/thisHour_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/thisMonth_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/thisWeek_plot.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs/webstyle.css
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs-comp/control_page.html.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs-comp/graph.html.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs-comp/index.html
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs-comp/index.html.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs-comp/program_editor.html.gz
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/fs-comp/setting.html.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ca-bundle/fs/ca.pem
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/1970Day_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/1970Hour_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/1970Month_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/1970Week_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/1970longterm_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/8f2js9ddfk.json
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/chart_init.js.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/dark.css
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/favicon.ico
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/gauge.min.js.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/general.css
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/light.css
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/login.js.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/longterm_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/picker.css.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/picker.js.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/sensors_new.json
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/setting_new.json
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/thisDay_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/thisHour_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/thisMonth_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/thisWeek_plot.html
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs/webstyle.css
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs-comp/control_page.html.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs-comp/graph.html.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs-comp/index.html.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs-comp/program_editor.html.gz
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/fs-comp/setting.html.gz
 binary_libs:
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/objs/libmongoose-esp32-2.20.0.a
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/objs/libota-common-esp32-2.20.0.a
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/objs/libota-http-client-esp32-2.20.0.a
-- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/objs/libota-http-server-esp32-2.20.0.a
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/objs/libmongoose-esp32-2.20.0.a
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/objs/libota-common-esp32-2.20.0.a
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/objs/libota-http-client-esp32-2.20.0.a
+- /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/objs/libota-http-server-esp32-2.20.0.a
 modules:
 - name: mbedtls_module
   location: https://github.com/mongoose-os/mbedtls
@@ -1201,14 +1198,10 @@ build_vars:
      esp_adc_cal
      esp_eth
      esp_wifi wpa_supplicant
-  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,12288K
-  ESP_IDF_SDKCONFIG_OPTS: " CONFIG_FREERTOS_SUPPORT_STATIC_ALLOCATION=y\n CONFIG_WIFI_ENABLED=y
-    CONFIG_ESP32_WIFI_SW_COEXIST_ENABLE=n CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM=4
-    CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM=16 CONFIG_ESP32_WIFI_STATIC_TX_BUFFER=n
-    CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER=y CONFIG_ESP32_WIFI_TX_BUFFER_TYPE=1 CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM=16
-    CONFIG_ESP32_WIFI_NVS_ENABLED=y CONFIG_ESP32_WIFI_RX_BA_WIN=4 CONFIG_ESP32_PHY_CALIBRATION_AND_DATA_STORAGE=y
-    CONFIG_ESP32_PHY_INIT_DATA_IN_PARTITION=n\n \n  CONFIG_ESPTOOLPY_FLASHSIZE_4MB=\n
-    \ CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y\n  CONFIG_ESPTOOLPY_FLASHSIZE=16MB\n"
+  ESP_IDF_EXTRA_PARTITION: data,data,spiffs,,400K
+  ESP_IDF_SDKCONFIG_OPTS: |2
+     CONFIG_FREERTOS_SUPPORT_STATIC_ALLOCATION=y
+     CONFIG_WIFI_ENABLED=y CONFIG_ESP32_WIFI_SW_COEXIST_ENABLE=n CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM=4 CONFIG_ESP32_WIFI_DYNAMIC_RX_BUFFER_NUM=16 CONFIG_ESP32_WIFI_STATIC_TX_BUFFER=n CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER=y CONFIG_ESP32_WIFI_TX_BUFFER_TYPE=1 CONFIG_ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM=16 CONFIG_ESP32_WIFI_NVS_ENABLED=y CONFIG_ESP32_WIFI_RX_BA_WIN=4 CONFIG_ESP32_PHY_CALIBRATION_AND_DATA_STORAGE=y CONFIG_ESP32_PHY_INIT_DATA_IN_PARTITION=n
   MGOS: "1"
   MGOS_ENABLE_SPI_GPIO: "0"
   MGOS_ESP8266_LWIP: 1_SDK
@@ -1340,176 +1333,176 @@ libs_handled:
 - lib:
     name: adc
     location: https://github.com/mongoose-os-libs/adc
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/adc
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/adc
   init_deps:
   - core
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/adc/src/esp32/esp32_adc.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/adc/src/esp32/esp32_adc.c
   version: 2.20.0
   user_version: 1.0.0
   repo_version: 80bd7797e66c9c9568ce11cdc9b639d28c6ae831
 - lib:
     name: freertos
     location: https://github.com/mongoose-os-libs/freertos
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/freertos
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/freertos
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/freertos/src/mgos_freertos.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/freertos/src/mgos_freertos_core_dump.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/freertos/src/mgos_freertos.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/freertos/src/mgos_freertos_core_dump.c
   version: 2.20.0
   user_version: 10.2.0
   repo_version: f4b5ba5336f2f0fe3b183527790cf82e0644364e
 - lib:
     name: mbedtls
     location: https://github.com/mongoose-os-libs/mbedtls
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls/src/mgos_mbedtls.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls/src/esp32/esp32_aes.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mbedtls/src/esp32/esp32_bignum.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/aes.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/aes_atca.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/aesni.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/arc4.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/aria.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/asn1parse.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/asn1write.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/base64.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/bignum.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/blowfish.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/camellia.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ccm.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/certs.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/chacha20.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/chachapoly.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/cipher.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/cipher_wrap.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/cmac.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ctr_drbg.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/debug.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/des.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/dhm.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecdh.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecdsa.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecjpake.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecp.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecp_atca.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ecp_curves.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/entropy.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/entropy_poll.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/error.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/gcm.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/havege.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/hkdf.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/hmac_drbg.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md2.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md4.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md5.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/md_wrap.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/memory_buffer_alloc.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/net_sockets.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/nist_kw.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/oid.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/padlock.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pem.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pk.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pk_wrap.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkcs11.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkcs12.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkcs5.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkparse.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/pkwrite.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/platform.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/platform_util.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/poly1305.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ripemd160.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/rsa.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/rsa_internal.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/sha1.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/sha256.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/sha512.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_cache.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_ciphersuites.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_cli.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_cookie.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_srv.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_ticket.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/ssl_tls.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/threading.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/timing.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/version.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/version_features.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509_create.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509_crl.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509_crt.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509_csr.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509write_crt.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/x509write_csr.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/modules/mbedtls/library/xtea.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls/src/mgos_mbedtls.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls/src/esp32/esp32_aes.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mbedtls/src/esp32/esp32_bignum.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/aes.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/aes_atca.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/aesni.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/arc4.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/aria.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/asn1parse.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/asn1write.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/base64.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/bignum.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/blowfish.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/camellia.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ccm.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/certs.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/chacha20.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/chachapoly.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/cipher.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/cipher_wrap.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/cmac.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ctr_drbg.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/debug.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/des.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/dhm.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecdh.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecdsa.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecjpake.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecp.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecp_atca.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ecp_curves.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/entropy.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/entropy_poll.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/error.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/gcm.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/havege.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/hkdf.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/hmac_drbg.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md2.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md4.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md5.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/md_wrap.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/memory_buffer_alloc.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/net_sockets.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/nist_kw.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/oid.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/padlock.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pem.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pk.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pk_wrap.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkcs11.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkcs12.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkcs5.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkparse.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/pkwrite.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/platform.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/platform_util.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/poly1305.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ripemd160.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/rsa.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/rsa_internal.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/sha1.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/sha256.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/sha512.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_cache.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_ciphersuites.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_cli.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_cookie.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_srv.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_ticket.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/ssl_tls.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/threading.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/timing.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/version.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/version_features.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509_create.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509_crl.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509_crt.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509_csr.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509write_crt.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/x509write_csr.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/modules/mbedtls/library/xtea.c
   version: 2.20.0
   user_version: 2.16.11-cesanta1
   repo_version: 9971208d45aed1aec5b9e064145c3c8a7bb180f8
 - lib:
     name: vfs-common
     location: https://github.com/mongoose-os-libs/vfs-common
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/mgos_vfs.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/mgos_vfs_dev.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/mgos_vfs_internal.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/esp32/esp32_fs.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/esp32/esp32_fs_crypt.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-common/src/esp32/esp32_vfs_dev_partition.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/mgos_vfs.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/mgos_vfs_dev.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/mgos_vfs_internal.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/esp32/esp32_fs.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/esp32/esp32_fs_crypt.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-common/src/esp32/esp32_vfs_dev_partition.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 23525d042fe865dbc8088513f510e26c62ae4800
 - lib:
     name: mongoose
     location: https://github.com/mongoose-os-libs/mongoose
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/mongoose
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/mongoose
   init_deps:
   - lwip
   binary_libs:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/objs/libmongoose-esp32-2.20.0.a
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/objs/libmongoose-esp32-2.20.0.a
   version: 2.20.0
   user_version: "6.18"
   repo_version: 24f3c520fdfd5d7c33ff2734d4be42aab75107e9
 - lib:
     name: vfs-fs-lfs
     location: https://github.com/mongoose-os-libs/vfs-fs-lfs
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs
   init_deps:
   - vfs-common
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/src/mgos_vfs_lfs.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs/lfs.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs/lfs_util.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs1/lfs1.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-lfs/littlefs1/lfs1_util.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/src/mgos_vfs_lfs.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs/lfs.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs/lfs_util.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs1/lfs1.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-lfs/littlefs1/lfs1_util.c
   version: 2.20.0
   user_version: 2.4.0
   repo_version: b611462e03d431f9541f50763b3153552db81861
 - lib:
     name: vfs-fs-spiffs
     location: https://github.com/mongoose-os-libs/vfs-fs-spiffs
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs
   init_deps:
   - vfs-common
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/mgos_vfs_fs_spiffs.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_cache.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_check.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_gc.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_hydrogen.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/vfs-fs-spiffs/src/spiffs/spiffs_nucleus.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/mgos_vfs_fs_spiffs.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_cache.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_check.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_gc.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_hydrogen.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/vfs-fs-spiffs/src/spiffs/spiffs_nucleus.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 0c1d9d07a4bf900f08ca4a250e29e7f5931301c5
 - lib:
     name: core
     location: https://github.com/mongoose-os-libs/core
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/core
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/core
   init_deps:
   - freertos
   - lwip
@@ -1519,81 +1512,81 @@ libs_handled:
   - vfs-fs-lfs
   - vfs-fs-spiffs
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/core/src/mgos_core.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/core/src/mgos_core.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 9cbb8437919696a4a8779ebb4d0cd78d99890ac6
 - lib:
     name: arduino-compat
     location: https://github.com/mongoose-os-libs/arduino-compat
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat
   init_deps:
   - core
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat/src/Print.cpp
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat/src/WString.cpp
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-compat/src/mgos_arduino.cpp
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat/src/Print.cpp
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat/src/WString.cpp
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-compat/src/mgos_arduino.cpp
   version: 2.20.0
   user_version: "1.0"
   repo_version: 70b7ab229efd8518568bf9ad1ab0f319104e647a
 - lib:
     name: i2c
     location: https://github.com/mongoose-os-libs/i2c
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/i2c
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/i2c
   init_deps:
   - core
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/i2c/src/mgos_i2c_master.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/i2c/src/esp32/esp32_i2c_master.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/i2c/src/mgos_i2c_master.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/i2c/src/esp32/esp32_i2c_master.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: cd740fa1b33b4b01bacc5a86a51fbe5d27c33f9c
 - lib:
     name: arduino-wire
     location: https://github.com/mongoose-os-libs/arduino-wire
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-wire
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-wire
   init_deps:
   - arduino-compat
   - core
   - i2c
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-wire/src/mgos_arduino_wire_c.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/arduino-wire/src/mgos_arduino_wire.cpp
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-wire/src/mgos_arduino_wire_c.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/arduino-wire/src/mgos_arduino_wire.cpp
   version: 2.20.0
   user_version: "1.0"
   repo_version: d3fd6b8f541e7314c623930ca33555b5e2535d38
 - lib:
     name: spi
     location: https://github.com/mongoose-os-libs/spi
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/spi
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/spi
   init_deps:
   - core
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/spi/src/mgos_spi.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/spi/src/mgos_spi_mjs.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/spi/src/esp32/esp32_spi_master.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/spi/src/mgos_spi.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/spi/src/mgos_spi_mjs.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/spi/src/esp32/esp32_spi_master.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: ee3ff3b6e8b116f875c77dd27667478b2f80fdab
 - lib:
     name: bme280
     location: https://github.com/mongoose-os-libs/bme280
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/bme280
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/bme280
   init_deps:
   - core
   - i2c
   - spi
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/bme280/src/mgos_bme280.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/bme280/src/mgos_bme280_c.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/bme280/src/BME280_driver/bme280.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/bme280/src/mgos_bme280.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/bme280/src/mgos_bme280_c.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/bme280/src/BME280_driver/bme280.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 06236dc469f2f44b760e12ab1f19d6aa9b9fcc4b
 - lib:
     name: ca-bundle
     location: https://github.com/mongoose-os-libs/ca-bundle
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ca-bundle
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ca-bundle
   init_deps:
   - core
   version: 2.20.0
@@ -1602,44 +1595,44 @@ libs_handled:
 - lib:
     name: dns-sd
     location: https://github.com/mongoose-os-libs/dns-sd
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/dns-sd
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/dns-sd
   init_deps:
   - core
   - ethernet
   - mongoose
   - wifi
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/dns-sd/src/lwip/lwip_mdns.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/dns-sd/src/mongoose/mgos_dns_sd.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/dns-sd/src/mongoose/mgos_mdns.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/dns-sd/src/lwip/lwip_mdns.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/dns-sd/src/mongoose/mgos_dns_sd.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/dns-sd/src/mongoose/mgos_mdns.c
   version: 2.20.0
   user_version: 1.1.0
   repo_version: 4a003fefc55ea828ffaa6e47186d035a450c3160
 - lib:
     name: lwip
     location: https://github.com/mongoose-os-libs/lwip
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/lwip
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/lwip
   init_deps:
   - freertos
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/lwip/src/mgos_lwip.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/lwip/src/mgos_lwip.c
   version: 2.20.0
   user_version: 2.1.2
   repo_version: 417e07ea1b5d37f59428caee93b6730798090460
 - lib:
     name: ethernet
     location: https://github.com/mongoose-os-libs/ethernet
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ethernet
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ethernet
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ethernet/src/mgos_eth.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ethernet/src/esp32/esp32_eth.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ethernet/src/mgos_eth.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ethernet/src/esp32/esp32_eth.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: b7f158955341083d120d7f0fffce49e0838cd089
 - lib:
     name: fstab
     location: https://github.com/mongoose-os-libs/fstab
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/fstab
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/fstab
   init_deps:
   - core
   - i2c
@@ -1648,179 +1641,179 @@ libs_handled:
   - vfs-fs-lfs
   - vfs-fs-spiffs
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/fstab/src/mgos_fstab.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/fstab/src/mgos_fstab.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: da661164729510c038c247ef9b99c40996a579e9
 - lib:
     name: http-server
     location: https://github.com/mongoose-os-libs/http-server
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/http-server
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/http-server
   init_deps:
   - core
   - ethernet
   - wifi
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/http-server/src/mgos_http_server.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/http-server/src/mgos_http_server.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 5b4c77fb71e151625470b09fe52a1b0dbddadc77
 - lib:
     name: ota-common
     location: https://github.com/mongoose-os-libs/ota-common
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ota-common
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ota-common
   binary_libs:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/objs/libota-common-esp32-2.20.0.a
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/objs/libota-common-esp32-2.20.0.a
   version: 2.20.0
   user_version: 1.4.0
   repo_version: a164ef6cf5f815b8ddd51b637f68f809a4840647
 - lib:
     name: ota-http-client
     location: https://github.com/mongoose-os-libs/ota-http-client
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ota-http-client
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ota-http-client
   init_deps:
   - core
   - ota-common
   binary_libs:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/objs/libota-http-client-esp32-2.20.0.a
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/objs/libota-http-client-esp32-2.20.0.a
   version: 2.20.0
   user_version: 1.0.1
   repo_version: d6088c559c603f74a645a8b0dff135723c994f2d
 - lib:
     name: ota-http-server
     location: https://github.com/mongoose-os-libs/ota-http-server
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/ota-http-server
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/ota-http-server
   init_deps:
   - core
   - http-server
   - ota-common
   - ota-http-client
   binary_libs:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/build/objs/libota-http-server-esp32-2.20.0.a
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/build/objs/libota-http-server-esp32-2.20.0.a
   version: 2.20.0
   user_version: "1.0"
   repo_version: 6adb6f6bf66390a6adf7defb2f85c1f7d3aaea60
 - lib:
     name: pwm
     location: https://github.com/mongoose-os-libs/pwm
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/pwm
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/pwm
   init_deps:
   - core
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/pwm/src/mgos_pwm.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/pwm/src/mgos_pwm_rgb_led.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/pwm/src/esp32/esp32_pwm.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/pwm/src/mgos_pwm.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/pwm/src/mgos_pwm_rgb_led.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/pwm/src/esp32/esp32_pwm.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 1e66234640b4877fbd190f4a482f084ffacb40a6
 - lib:
     name: rpc-common
     location: https://github.com/mongoose-os-libs/rpc-common
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common
   init_deps:
   - core
   - http-server
   - mongoose
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/src/mg_rpc.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/src/mg_rpc_channel.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/src/mg_rpc_channel_http.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-common/src/mgos_rpc.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/src/mg_rpc.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/src/mg_rpc_channel.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/src/mg_rpc_channel_http.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-common/src/mgos_rpc.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 9f25f5900c1ac39eaa79e5e30c679de502eb1953
 - lib:
     name: rpc-service-config
     location: https://github.com/mongoose-os-libs/rpc-service-config
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-config
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-config
   init_deps:
   - core
   - rpc-common
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-config/src/mgos_service_config.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-config/src/mgos_service_config.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 821db3ffb8104de17bd511c67e423a4db6f59d44
 - lib:
     name: rpc-service-fs
     location: https://github.com/mongoose-os-libs/rpc-service-fs
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-fs
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-fs
   init_deps:
   - core
   - rpc-common
   - vfs-common
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-fs/src/mgos_service_fs.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-fs/src/mgos_service_fs.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 39437663b14759671a37e9670a46c65e5519c369
 - lib:
     name: wifi
     location: https://github.com/mongoose-os-libs/wifi
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi
   init_deps:
   - core
   - lwip
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/src/mgos_wifi.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/src/mgos_wifi_sta.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/src/mjs_wifi.c
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/wifi/src/esp32/esp32_wifi.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/src/mgos_wifi.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/src/mgos_wifi_sta.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/src/mjs_wifi.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/wifi/src/esp32/esp32_wifi.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 51febec3070cd40a6ce8aa18e76cc4bb20101149
 - lib:
     name: rpc-service-wifi
     location: https://github.com/mongoose-os-libs/rpc-service-wifi
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-wifi
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-wifi
   init_deps:
   - core
   - rpc-common
   - wifi
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-service-wifi/src/mgos_rpc_service_wifi.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-service-wifi/src/mgos_rpc_service_wifi.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: 2176f3f809dc7751e08be6b73ac42ee019da27a9
 - lib:
     name: rpc-uart
     location: https://github.com/mongoose-os-libs/rpc-uart
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-uart
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-uart
   init_deps:
   - core
   - rpc-common
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/rpc-uart/src/mgos_rpc_channel_uart.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/rpc-uart/src/mgos_rpc_channel_uart.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: d58fee363e9e7176d9079b37c8ecfde1d5a2a3dd
 - lib:
     name: sht31-i2c
     location: https://github.com/mongoose-os-libs/sht31-i2c
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/sht31-i2c
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/sht31-i2c
   init_deps:
   - core
   - i2c
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/sht31-i2c/src/mgos_sht31.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/sht31-i2c/src/mgos_sht31.c
   version: 2.20.0
   user_version: "1.0"
   repo_version: b1e36326caa80b303e091e60202062017a1661c7
 - lib:
     name: sntp
     location: https://github.com/mongoose-os-libs/sntp
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/sntp
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/sntp
   init_deps:
   - core
   sources:
-  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/sntp/src/mgos_sntp.c
+  - /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/sntp/src/mgos_sntp.c
   version: 2.20.0
   user_version: 1.1.0
   repo_version: 77765613c8720d5a22be23bd410d1465c4606581
 - lib:
     name: zz_boards
     location: https://github.com/mongoose-os-libs/boards
-  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_280738990/deps/boards
+  path: /data/fwbuild-volumes/2.20.0/apps/harry_versionj/esp32/build_contexts/build_ctx_474811127/deps/boards
   version: 2.20.0
   repo_version: a317361ee008969b8a96a2e7fa7eb243442dcb93
 init_deps:

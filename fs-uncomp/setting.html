@@ -440,7 +440,6 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json.dec_place = document.getElementById("dec_place").value;
 			old_json.brightness[0].panel = document.getElementById("panel_brightness").value;
 			old_json.brightness[0].remote = document.getElementById("remote_brightness").value;
-			//old_json.dns_name = document.getElementById("mdns_name").value;
 			//check deleted save network_conf
 			for (var i = 0; i < 3 ; i++){if(document.getElementById("wifi_saved"+i) != null){if(document.getElementById("wifi_saved"+i).checked){old_json.wifi.cfg[i].ssid = "";old_json.wifi.cfg[i].pass = "";}}}
 			
@@ -456,7 +455,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 				document.getElementById("success_button").style.display="block";
-				save_eth_conf(old_json.eth_en, IP, GW, SN, old_json.i2c_en);	
+				save_eth_conf(old_json.eth_en, IP, GW, SN);	
 				load_conf_login();
 				var xhttp2 = new XMLHttpRequest();
 				xhttp2.open("POST", "/rpc/setting", true);
@@ -467,8 +466,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		});//validate cookie		
 		save_command = false;
 	}//save conf function
-function save_eth_conf(en, ip, gw, netmask, i2c_en){
-	var contain = {config: {i2c:{enable:i2c_en}, eth: {enable: en, ip: ip, gw: gw, netmask:netmask}, dns_sd:{host_name:document.getElementById("mdns_name").value}}};
+function save_eth_conf(en, ip, gw, netmask){
+	var contain = {config: {eth: {enable: en, ip: ip, gw: gw, netmask:netmask}, dns_sd:{host_name:document.getElementById("mdns_name").value}}};
 	xhr_send("Config.Set", JSON.stringify(contain), function(i){
 		if(i.status == "success"){
 			xhr_send_nojson("Config.save", JSON.stringify({reboot:false}), function(j){});
