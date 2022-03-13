@@ -1,8 +1,8 @@
-build/fw
-build/gen
-build/objs
+build/fw/
+build/gen/
+build/objs/
 core*
 deps/*
 .vscode/*
 *.log
-build/gen/*
+
