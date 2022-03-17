@@ -5,39 +5,19 @@
 <link id="theme" rel="stylesheet" type="text/css"  href="dark.css?v0.10.7"/>
 <link rel="stylesheet" type="text/css" href="./general.css?v0.10.7" />
 <script src="./login.js.gz?v0.10.7" defer></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1"></script>
+<script type="text/javascript" src="https://d3js.org/d3-dsv.v1.min.js"></script>
+<script type="text/javascript" src="https://d3js.org/d3-fetch.v1.min.js"></script>
 </head>
-<style>
-html{
-text-align:left;
-}
-body{
-font-family: monospace, sans-serif;
-}
-.btn-group button {
-background-color: #4CAF50; /* Green background */
-border: 1px solid green; /* Green border */
-color: white; /* White text */
-padding: 10px 24px; /* Some padding */
-cursor: pointer; /* Pointer/hand icon */
-float: left; /* Float the buttons side by side */
-}
-.btn-group button:not(:last-child) {
-border-right: none; /* Prevent double borders */
-}
-/* Clear floats (clearfix hack) */
-.btn-group:after {
-content: "";
-clear: both;
-display: table;
-}
-/* Add a background color on hover */
-.btn-group button:hover {
-background-color: #3e8e41;
-}
-</style>
 <body>
 <div id="overlay_time_setting" class="overlay" style="display:none;font-size:16px">
 <div class="confirmation_box" id="time_setting_box">
+</div>
+</div>
+<div id="overlay_graph_setting" class="overlay" style="display:none;font-size:16px">
+<div class="confirmation_box" id="graph_setting_box">
 </div>
 </div>
 <div id="overlay_login" class="overlay" style="display:none;font-size:16px">
@@ -62,177 +42,481 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <div class="top_panel">
 <span style="float:left;margin-left:25px;padding:5px" id="clock_info">
 </span>
-<span style="float:right;margin-right:25px;padding:5px;">
+<span style="float:right;margin-righ<br>t:25px;padding:5px;">
 <span id='log_info'>Logged in</span>
 <span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
 <div class="dropdown-content" id="dropdown_menu">
  </div>
  </span>
 </span>
-</div>
-<h1 id = "header"> Socket Controller Logging Data </h1> 
-<table style="width:100%;" >	
-<tr>
-<td>
-<p>This Hour Logging</p>
-<div class="btn-group">
-<button onClick ="open_new_tab('/mnt/thisHour.csv')">View Raw</button>
-<button onClick = "download(0)">Download CSV</button>
-<input type= "checkbox" id="thishour_del" >
-<label for= "thishour_del"> thisHour delete </label>	
-</div> 
-</td>
-<td>
-<p>1970 Hour Logging</p>
-<div class="btn-group">
-<button onClick="open_new_tab('/mnt/1970Hour.csv')">View Raw</button>            
-<button onClick = "download(5)">Download CSV</button>
-<input type= "checkbox" id="1970hour_del" >
-<label for= "1970hour_del"> 1970Hour delete </label>	
-</div> 
-</td>
-</tr>
-<tr>
-<td>
-<p>This Day Logging</p>
-<div class="btn-group">
-<button onClick="open_new_tab('/mnt/thisDay.csv')">View Raw</button>
-<button onClick="download(1)">Download CSV</button>
-<input type= "checkbox" id="thisday_del" >
-<label for= "thisday_del"> thisDay delete </label>
-</div> 
-</td>
-<td>
-<p>1970 Day Logging</p>
-<div class="btn-group">
-<button onClick="open_new_tab('/mnt/1970Day.csv')">View Raw</button>
-<button onClick= "download(6)">Download CSV</button>
-<input type= "checkbox" id="1970day_del" >
-<label for= "1970day_del"> 1970Day delete </label>
-</div> 
-</td>
-</tr>
-<tr>
-<td>
-<p>This Week Logging</p>
-<div class="btn-group">
-<button onClick="open_new_tab('/mnt/thisWeek.csv')">View Raw</button>
-<button onClick = "download(2)">Download CSV</button>
-<input type= "checkbox" id="thisweek_del" >
-<label for= "thisweek_del"> thisWeek delete </label>
-</div>
-</td>
-<td>
-<p>1970 Week Logging</p>
-<div class="btn-group">
-<button  onClick="open_new_tab('/mnt/1970Week.csv')">View Raw</button>
-<button onClick= "download(7)">Download CSV</button>
-<input type= "checkbox" id="1970week_del" >
-<label for= "1970week_del"> 1970Week delete </label>
-</div>
-</td>
-</tr>
-    
-<tr>
-<td>
-<p>This Month Logging</p>
-<div class="btn-group">
-<button onClick="open_new_tab('/mnt/thisMonth.csv')">View Raw</button>
-<button onClick = "download(3)">Download CSV</button>
-<input type= "checkbox" id="thismonth_del" >
-<label for= "thismonth_del"> thisMonth delete </label>
-</div>
-</td>
+</div> <!-- end of top_panel div -->
+<h1 id="home_text_disp" style="display:inline"> Socket Controller</h1> <h1 style="display:inline-block">&nbsp;Log Data</h1>
+<br>
+	
+	<div class="main_row">
+		<div class="main_column" style="width: 10%;">
+			<input type="button" style="white-space: normal;height:32px" value = "Create Graph" onClick="on_overlay_graph_setting(0)">
+		</div>
+	
+		<div class="main_column" style="width: 90%;" id="graph_layout">
+				<div id="graph1_holder" class="graph_holder" style="display: none; ">
+				</div>
+				<div id="graph2_holder" class="graph_holder" style="display: none; ">
+				</div>
+				<div id="graph3_holder" class="graph_holder" style="display: none; ">
+				</div>
+				<div id="graph4_holder" class="graph_holder" style="display: none; ">
+				</div>
+	  </div>
+ 	</div>
 
-    
-<td>
-<p>1970 Month Logging</p>
-<div class="btn-group">
-<button onClick="open_new_tab('/mnt/1970Month.csv')">View Raw</button>
-<button onClick= "download(8)">Download CSV</button>
-<input type= "checkbox" id="1970month_del" >
-<label for= "1970month_del"> 1970Month delete </label>
-</div>
-</td>
-</tr>
-    
-<tr>
-<td>
-<p>Long Term Logging</p>
-<div class="btn-group">
-<button onClick="open_new_tab('/mnt/longTermData.csv')">View Raw</button>
-<button onClick = "download(4)">Download CSV</button>
-<input type= "checkbox" id="longterm_del" >
-<label for= "longterm_del"> longTermData delete </label>
-</div>
-</td>
-    
-<td>
-<p>1970 Long Term Logging</p>
-<div class="btn-group">
-<button onClick="open_new_tab('/mnt/1970longTermData.csv')">View Raw</button>
-<button onClick= "download(9)">Download CSV</button>
-
-<input type= "checkbox" id="1970longterm_del" >
-<label for= "1970longterm_del"> 1970 longTermData delete </label>
-</div>
-</td>
-</tr>
-</table>
-<div class = "btn-group">
-<p> delete CSV file </p>
-<button type="button" onClick="conDelete()"> Delete CSV </button>
-</div>
-</div>
+</div> <!-- end of main_div div-->
 </body>
 </html>
 <script>
-	function open_new_tab(link){
-		window.open(link+"?"+Math.random() * Math.random(), "_self");
-	}
+
+	//global variable
+	var graph_max_number = 4;
+	var trigger_en =[];
+	var trigger_name =[];
+	var trigger_value =[];
+	var label_log_name =[];
+	var time_frame_list = ["frame_hour", "frame_day", "frame_week", "frame_month", "frame_LT"];
+	var first_time = [true,true,true,true,true];
 	window.addEventListener('load', onLoad);
+	
 	function onLoad(){
-	update_time();
-	setInterval(update_time, 1000);	
+		update_time();
+		fetch_sensor_log_value(); //execute first
+		setTimeout(load_graph_conf,800);
+
+		setInterval(fetch_thishour_file, 10000);
+		setInterval(fetch_thisday_file, 900*1000);//every 1/4 hour
+		setInterval(update_time, 1000);	
+		setInterval(fetch_sensor_log_value, 5000);
 	}
-	function conDelete(){
-		//check checkboxes
-		var hour = document.getElementById("thishour_del").checked;
-		var day = document.getElementById("thisday_del").checked;
-		var week = document.getElementById("thisweek_del").checked;
-		var month = document.getElementById("thismonth_del").checked;
-		var longterm = document.getElementById("longterm_del").checked;
+	function off_overlay_graph_setting(){
+		 document.getElementById("overlay_graph_setting").style.display = "none";
+ 		document.getElementById("main_div").style.filter = "none";
+	}
+	function on_overlay_graph_setting(input){
+		document.getElementById("overlay_graph_setting").style.display = "block";
+		document.getElementById("main_div").style.filter = "blur(2px)";
+		document.getElementById("overlay_graph_setting").style.filter = "none";
+		var box_contain = "";
+		box_contain += "Graph Options<br>";
+		box_contain += "<div style='width:95%; text-align:left; margin-left:auto; margin-right:auto;'> ";
+
+		var len = trigger_name.length;
+		for(var a = 0; a <= len; a++){
+			if(trigger_en[a] == 1){
+				box_contain += '<input type="checkbox" id="'+ trigger_name[a] +  '_en" > <label for="' + trigger_name[a] + '_en">'+trigger_name[a]+'</label><br>'; 
+			}
+		}
+		box_contain += '<br>Time Frame: <label for="frame_hour_en">This Hour</label> <input type="radio" id="frame_hour_en" name="time_frame_select" value="1" checked>&nbsp;';
+		box_contain += '<label for="frame_day_en">This Day</label> <input type="radio" id="frame_day_en" name="time_frame_select" value="2">&nbsp;';
+		box_contain += '<label for="frame_week_en">This Week</label> <input type="radio" id="frame_week_en" name="time_frame_select" value="3">&nbsp;';
+		box_contain += '<label for="frame_month_en">This Month</label> <input type="radio" id="frame_month_en" name="time_frame_select" value="4">&nbsp;';
+		box_contain += '<label for="frame_LT_en">Long Term</label> <input type="radio" id="frame_LT_en" name="time_frame_select" value="5"><br>';
+		box_contain += '<br> <input type="checkbox" id="del_graph" name="del_graph"><label for="del_graph">Delete Graph</label><br>';
+		box_contain += '</div>';
+		box_contain += '<div style="margin:20px auto"><input type="button" style="width:100px" value="SAVE" onClick="save_graph_conf('+input+')">';
+		box_contain += '<input type="button" value="CLOSE" style="width:100px;padding:0px;text-align:center" onClick="off_overlay_graph_setting()">';
+		box_contain += '<div id="graph_conf_info" style="margin-top:10px;font-size:13px"></div></div>';	
+
+		document.getElementById("graph_setting_box").innerHTML = box_contain; 
+		//parse info
+		if(input != 0){
+			var graph_info = document.getElementById("graph"+(input)+"_info").innerHTML;
+			graph_info = graph_info.split("|");
+			var en_list_buff = graph_info[0].split(",");
+			var time_frame_buff = graph_info[1];
+
+			//parsing en_list_buff
+			for (var a = 0; a < en_list_buff.length; a++){
+				if(document.getElementById(en_list_buff[a] + "_en") != null){
+					document.getElementById(en_list_buff[a] + "_en").checked = true;
+				}
+			}
+
+			//parsing time_frame_buff
+			document.getElementById(time_frame_list[time_frame_buff-1] + "_en").checked = true;
 		
-		var hour_1970 = document.getElementById("1970hour_del").checked;
-		var day_1970 = document.getElementById("1970day_del").checked;
-		var week_1970 = document.getElementById("1970week_del").checked;
-		var month_1970 = document.getElementById("1970month_del").checked;
-		var longterm_1970 = document.getElementById("1970longterm_del").checked;
-		if(!hour && !day && !week && !month && !longterm && !hour_1970 & !day_1970 && !week_1970 && !month_1970 && !longterm_1970){
-			//none selected 
-			alert("none selected");
-		}else{
-		var conText = "Confirm to delete: " + (hour ? "thishour, ": "") + (day ? "thisday, " : "") + (week ? "thisweek, " : "") + (month ? "thismonth, ": "") + (longterm ? "longterm, " : "");
-		conText += (hour_1970 ? "1970hour, ": "") + (day_1970 ? "1970day, ": "") + (week_1970 ? "1970week, ": "")+ (month_1970 ? "1970month, ": "") + (longterm_1970 ? "1970longterm ": "")+  "dataset?";
-		//make confirm request
-		var con = confirm(conText);
-		
-		if (con == true){
 			
-			var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");			
-			//proceed to send request to esp
-			jsonobj = {comm:data};
-			var string = JSON.stringify(jsonobj);
-			console.log(string);
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "/rpc/delReq", true);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-			xhr.send(string);
-			document.getElementById("thishour_del").checked = false; document.getElementById("thisday_del").checked =false; document.getElementById("thisweek_del").checked= false;
-			document.getElementById("thismonth_del").checked =false; document.getElementById("longterm_del").checked =false;
-			document.getElementById("1970hour_del").checked = false; document.getElementById("1970day_del").checked =false; document.getElementById("1970week_del").checked= false;
-			document.getElementById("1970month_del").checked =false; document.getElementById("1970longterm_del").checked =false;
+		}//end of input != 0
+	}
+
+
+	function load_graph_conf(){ 
+		var execute_fetch = [false,false,false,false,false];
+		xhr_send("FS.get", JSON.stringify({filename:"graph_conf.json"}), function(i){
+			if(i.code != 200){
+				return;
+			}
+			var old_json = JSON.parse(window.atob(i.data.data));
+			var build_element = "";
+			for (var i = 0; i < old_json.graph.length; i++){
+				var reload_logic = (document.getElementById("graph"+(i+1)+"_info") == null);
+				if(reload_logic != true){
+					reload_logic = document.getElementById("graph" + (i+1) + "_info").innerHTML != old_json.graph[i].en_list + "|" + old_json.graph[i].time_frame;
+				}
+				if(old_json.graph[i].en_list != ""){
+				var frame = old_json.graph[i].time_frame;
+				var title = ["Hourly Graph", "Daily Graph", "Weekly Graph", "Monthly Graph", "Long Term Graph"];
+				build_element = '<div class="gear-btn" onClick="on_overlay_graph_setting('+(i+1)+')">';
+				build_element += '<svg height="30" width="30" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xmlns:v="https://vecta.io/nano"><circle cx="256" cy="256" r="66.928" fill="#25b6d2"/><path d="M512 294.4v-76.8l-78.112-7.824c-4.464-16.448-11.312-31.904-20.048-46.048l50.368-61.6-54.272-54.304-64.032 52.416c-13.392-7.056-27.776-12.48-42.944-15.888L294.528 0H256.16h-.32-38.368l-8.432 84.352c-15.152 3.424-29.552 8.848-42.944 15.888l-64.032-52.416-54.272 54.304 50.368 61.6c-8.736 14.16-15.568 29.616-20.048 46.048L0 217.6v76.8l78.224 7.824c4.496 16.4 11.248 31.872 19.968 45.984l-50.416 61.648 54.272 54.304 64.032-52.416c13.392 7.056 27.792 12.464 42.96 15.888L217.488 512h38.368.32 38.368l8.432-84.352c15.152-3.424 29.552-8.832 42.96-15.888l64.032 52.416 54.272-54.304-50.416-61.648c8.736-14.144 15.472-29.6 19.968-45.984L512 294.4zm-256.016 77.12c-63.76 0-115.456-51.728-115.456-115.52 0-63.808 51.696-115.52 115.456-115.52S371.44 192.208 371.44 256c0 63.808-51.68 115.52-115.456 115.52z" fill="#32bea6"/></svg>';
+				build_element += '</div>';
+				build_element += '<div style="font-size:25px; margin-top:-20px">'+title[frame-1]+'</div>'
+				build_element += '<canvas id="graph'+(i+1) +'_canvas" style="margin:20px"> </canvas>';
+				build_element += '<div id="graph'+(i+1)+'_info" style="display:none">' + old_json.graph[i].en_list + "|" + old_json.graph[i].time_frame; 
+				build_element += '</div>';
+				
+				if(reload_logic){
+					console.log("reload graph " + (i+1));
+					document.getElementById('graph'+ (i+1) + '_holder').innerHTML = build_element;
+					document.getElementById('graph'+ (i+1) + '_holder').style.display = "block";
+					initiate_graph(old_json.graph[i].time_frame, old_json.graph[i].en_list, i+1);
+					if(old_json.graph[i].time_frame == 1){ graph_thishour_update(); execute_fetch[0] = true;}
+					if(old_json.graph[i].time_frame == 2){ graph_thisday_update(); execute_fetch[1] = true;}
+				}
+				}//if en_list not empty
+				else{
+					document.getElementById('graph'+ (i+1) + '_holder').innerHTML = "";
+					document.getElementById('graph'+ (i+1) + '_holder').style.display = "none";
+				}//if empty will clear the holder
+
+			}//for
+			
+			if(first_time[0] && execute_fetch[0]){
+				fetch_thishour_file();
+				first_time[0] = false;
+			}
+			if(first_time[1] && execute_fetch[1]){
+				fetch_thisday_file();
+				first_time[1] = false;
+			}
+		});
+	}
+	function save_graph_conf(input){
+		document.getElementById("multipurpose").innerHTML = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+spinner_load+'</div><br>Saving...';
+		var info = document.getElementById("graph_conf_info");
+		//delete tick
+		var delete_tick = document.getElementById("del_graph").checked;
+
+		//save logging checkbox
+		var en_list_buff = "";
+		for(var a = 0; a < trigger_name.length; a++){
+			if(document.getElementById(trigger_name[a] + "_en") != null){ //if name exist
+				if(document.getElementById(trigger_name[a] + "_en").checked == true){
+					if(en_list_buff != "") en_list_buff += ",";
+					en_list_buff += trigger_name[a];
+				}
+			}
+		}//end of for iterating sensor checkbox
+
+		if((en_list_buff == "" && input == 0)  || (en_list_buff == "" && input != 0 && !delete_tick)){
+			info.innerHTML = "<span style='color:red'>NO LOGGING IS SELECTED!</span>";
+			return;
 		}
+
+		var time_frame_buff = 0;
+		//check which radio button is selected
+		for(var i = 1; i <= time_frame_list.length; i++){
+			if(document.getElementById(time_frame_list[i-1]+ "_en").checked){
+				time_frame_buff = i;
+			}
 		}
-	}	
+		var old_json;
+
+		//on overlay login
+		on_overlay_login(0); //just on overlay login
+		
+
+		//retrieve graph_conf.json first		
+		xhr_send("FS.get", JSON.stringify({filename:"graph_conf.json"}), function(i){
+			if(i.code != 200){
+				info.innerHTML = i.status;
+				off_overlay_login();
+				return;
+			}
+			old_json = JSON.parse(window.atob(i.data.data));
+			///put new information to old json
+			if(input == 0){
+			for (var x = 0; x < old_json.graph.length; x++){
+				if(old_json.graph[x].en_list == ""){ //break if found empty, save value to thos number
+					old_json.graph[x].en_list = en_list_buff;
+					old_json.graph[x].time_frame = time_frame_buff;
+					break;	
+				}
+				if(x == old_json.graph.length-1){
+					info.innerHTML = "<span style='color:red'>GRAPH NUMBER IS AT MAXIMUM!</span>";
+					off_overlay_login();
+					return;
+				}
+
+			}//for
+			}//input == 0, save new graph
+			else{//else will save old one
+					if(delete_tick){
+						//console.log("delete graph");
+						old_json.graph[input-1].en_list = "";
+						old_json.graph[input-1].time_frame = 1;
+
+					}else{	
+						old_json.graph[input-1].en_list = en_list_buff;
+						old_json.graph[input-1].time_frame = time_frame_buff;
+					}
+			}
+		xhr_send("FS.put", JSON.stringify({filename:"graph_conf.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
+			if(u.code != 200){
+				info.innerHTML = u.status;
+				off_overlay_login();
+				return;
+			}
+			document.getElementById("multipurpose").innerHTML = '<br><br><br>Configuration Saved<br><div style="margin:20px auto"><input type="button" style="width:100px;padding:0px;text-align:center" value="Confirm" onClick="load_graph_conf(); off_overlay_login();">';
+			off_overlay_graph_setting();
+			info.innerHTML = "Configuration saved";
+
+		});//end of fs.put
+		}); //end of fs get
+
+	}//end of save_graph_conf
+
+	function initiate_graph(time_frame, en_list, id){
+		var hour_time_frame = {unit:'second',stepSize: 300,displayFormats: {second:'HH:mm'}}; //each 5min display unit
+		var day_time_frame = {unit:'second', stepSize: 1800,displayFormats: {second:'ddd - HH:mm'}}; //each 0.5 hour display unit
+		var decimation;
+		if(time_frame == 1){
+			time_frame = hour_time_frame;
+			decimation = 180;
+		}else if(time_frame == 2){
+			time_frame = day_time_frame;
+			decimation = 720;
+		}else if(time_frame == 3){
+
+		}else if(time_frame == 4){
+
+		}else if(time_frame == 5){
+
+		}
+
+		var chart_config = {
+		  type: 'line',
+		  data: {
+		  datasets: []
+		  },
+		  options: {
+			animation:false,
+			parsing:false,
+		    plugins: {
+			  decimation: {
+				enabled: true,
+				algorithm: 'lttb',
+				samples:decimation,
+				threshold: decimation
+			  },
+			  legend: {
+				labels: {
+				// This more specific font property overrides the global property
+				color: ((theme_global == 2) ? "#9e6700" : "grey")
+				}
+			  }
+		    },
+			scales:{
+				x:{
+					type:'time', 
+					time:time_frame,
+					ticks:{color: ((theme_global == 2) ? "#FFA700" : "black")},
+					grid:{color: ((theme_global == 2) ? "#9e6700" : "grey")}
+				},
+				y:{
+					ticks:{color: ((theme_global == 2) ? "#FFA700" : "black")},
+					grid:{color: ((theme_global == 2) ? "#9e6700" : "grey")}
+				}
+			}
+		  }
+		};//end of chart_config
+		en_list = en_list.split(",");
+		for(var i = 0; i < en_list.length; i++){
+			var hue = ((i)*50) % 360; 
+			var border = 'hsl('+hue+', 100%, 50%)';
+			var backn = 'hsl('+hue+', 100%, 50%)';
+			chart_config.data.datasets[i] = {fill:false, label: en_list[i], data:[], backgroundColor: backn, borderColor: border, radius: 1, borderWidth: 1,};
+		}//for
+
+		//initiate the chart
+		eval('chart_graph' + (id) + '=new Chart(document.getElementById("graph'+(id)+'_canvas"), chart_config)');
+	}
+	/////////////////////////////////////////////////////////////////////////////////// THIS HOUR HANDLER/////////////////////////////////////////////////////////////////////////////////
+	var thishour_file;
+	function fetch_thishour_file(){
+		var fetch_flag = false;
+		for (var i = 0; i < graph_max_number; i++){
+			var graph_info_extract = document.getElementById("graph"+(i+1)+"_info");
+			if(graph_info_extract != null){
+			graph_info_extract = graph_info_extract.innerHTML.split("|");
+			if(graph_info_extract[0] != "" && graph_info_extract[1] == '1'){
+				fetch_flag = true;
+				break;
+			}
+			}
+		}
+		if(fetch_flag){
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/mnt/thisHour.csv?" + Math.random() * Math.random(), true);
+		xhr.send();
+		xhr.onload = function(){
+			var data = xhr.responseText;
+			var psv = d3.dsvFormat(";");
+			thishour_file = psv.parse(data);
+			graph_thishour_update();
+		}//onload finished
+		}//if fetch flag
+	}
+	
+	function graph_thishour_update(){
+		if(thishour_file != null){
+			//parse epoch
+			var base = thishour_file.map(function(e){
+				return filter_epoch(e.epoch);
+			});
+			//parse other sensor value
+			for(var x = 0; x < graph_max_number; x++){ //itteration for every graph
+				var graph_info_extract = document.getElementById("graph"+(x+1)+"_info");
+				if(graph_info_extract != null){
+					graph_info_extract = graph_info_extract.innerHTML.split("|");
+					if(graph_info_extract[0] != "" && graph_info_extract[1] == '1'){
+
+						eval("var chart_entity = chart_graph"+(x+1)+".data.datasets;");
+						for (var i = 0; i< chart_entity.length; i++){
+							var name = chart_entity[i].label;
+							var label_log_local = trigger_name.indexOf(name);
+							label_log_local = label_log_name[label_log_local];
+							eval("parsed_data =thishour_file.map(function(e){  return Number(e."+label_log_local+"== '' ? null : e."+label_log_local+")});"); 
+							var array_sensor = [];
+							//push value to array epoch with values
+							for (j = 0; j < base.length ; j++){
+								array_sensor.push({x: base[j], y: parsed_data[j]});
+							}
+							//set to graph config
+							chart_entity[i].data = array_sensor;
+						}//looping for each available datasets label
+						eval("chart_graph"+(x+1)+".update();");
+					}//if timeframe is thishour
+				}//if graph is not null
+			}//looping for update every existing graph
+		}//thishour file is not null
+	}
+	/////////////////////////////////////////////////////////////////////////////////// THIS DAY HANDLER/////////////////////////////////////////////////////////////////////////////////
+	var thisday_file;
+	function fetch_thisday_file(){
+		var fetch_flag = false;
+		for (var i = 0; i < graph_max_number; i++){
+			var graph_info_extract = document.getElementById("graph"+(i+1)+"_info");
+			if(graph_info_extract != null){
+			graph_info_extract = graph_info_extract.innerHTML.split("|");
+			if(graph_info_extract[0] != "" && graph_info_extract[1] == '2'){
+				fetch_flag = true;
+				break;
+			}
+			}
+		}
+		if(fetch_flag){
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/mnt/thisDay.csv?" + Math.random() * Math.random(), true);
+		xhr.send();
+		xhr.onload = function(){
+			var data = xhr.responseText;
+			var psv = d3.dsvFormat(";");
+			thisday_file = psv.parse(data);
+			graph_thisday_update();
+		}//onload finished
+		}//if fetch flag
+	}
+	
+	function graph_thisday_update(){
+		if(thisday_file != null){
+			//parse epoch
+			var base = thisday_file.map(function(e){
+				return filter_epoch(e.epoch);
+			});
+			//parse other sensor value
+			for(var x = 0; x < graph_max_number; x++){ //itteration for every graph
+				var graph_info_extract = document.getElementById("graph"+(x+1)+"_info");
+				if(graph_info_extract != null){
+					graph_info_extract = graph_info_extract.innerHTML.split("|");
+					if(graph_info_extract[0] != "" && graph_info_extract[1] == 2){
+						eval("var chart_entity = chart_graph"+(x+1)+".data.datasets;");
+						for (var i = 0; i< chart_entity.length; i++){
+							var name = chart_entity[i].label;
+							var label_log_local = trigger_name.indexOf(name);
+							label_log_local = label_log_name[label_log_local];
+							eval("parsed_data =thisday_file.map(function(e){  return Number(e."+label_log_local+"== '' ? null : e."+label_log_local+")});"); 
+							var array_sensor = [];
+							//push value to array epoch with values
+							for (j = 0; j < base.length ; j++){
+								array_sensor.push({x: base[j], y: parsed_data[j]});
+							}
+							//set to graph config
+							chart_entity[i].data = array_sensor;
+						}//looping for each available datasets label
+						eval("chart_graph"+(x+1)+".update();");
+					}//if timeframe is thisday
+				}//if graph is not null
+			}//looping for update every existing graph
+		}//thishour file is not null
+	}
+	function fetch_sensor_log_value(){
+		xhr_send_nojson("req.log_value", null, function(u){
+			if(u.code != 200){return;}
+			var data = u.data.split("|");
+			for (var j = 2; data[j] != null; j++){
+				var datax = data[j].split(",");
+				var num = Number(datax[1]);
+				var en = Number(datax[2]);
+				var log = datax[3];
+				var name = datax[0];
+				label_log_name[j-2] = log;
+				trigger_name[j-2] = name;
+				trigger_value[j-2] = num;
+				trigger_en[j-2] = en;
+			}
+		});
+	}
+
+	function filter_epoch(input){
+		var x = new Date();	var offset = x.getTimezoneOffset();
+		var ret =  input * 1000 + (offset * 60000) + dev_offset*1000; 
+		return ret;
+	}
+
+	function C2F(temp){
+		var ret = (temp * 9/5)+32;
+		return ret;
+	}
+
+
 </script>
+<style>
+
+.gear-btn{
+	height:30px;width:30px;cursor:pointer;margin-top:10px;margin-left: auto; margin-right: 10px;
+}
+
+/* Create two equal columns that floats next to each other */
+.main_column {
+  float: left;
+  padding: 10px;
+
+  box-sizing: border-box;
+
+}
+
+/* Clear floats after the columns */
+.main_row:after {
+  content: "";
+  display: table;
+  clear: both;
+  box-sizing: border-box;
+}
+</style>

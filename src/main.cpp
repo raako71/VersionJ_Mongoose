@@ -84,8 +84,6 @@
 #define EN_I2C 16
 #define RL_LED_EN 15
 #endif
-bool colen[13];
-float column[20];
 bool rc_1970day = 0, rc_thisday = 0;
 int header_size = 0;
 int logColumn = 13;
@@ -303,6 +301,8 @@ void update_sensor_info();
 void rename_setting_json();
 void copy_wifi_info();
 void rename_sensor_json();
+void rename_graph_conf_json();
+
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
 	mgos_clear_timer(prog_timer_id[0]);
@@ -563,6 +563,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	//file system initiation
 	
   	
+  	rename_graph_conf_json();
   	rename_sensor_json();
 	//copy wifi info if sensors.json exist
 	copy_wifi_info();	
@@ -909,6 +910,13 @@ void fade_blink(int pin){
     }
 }
 //V2////////////////////////////////////////////////////////////////////////////////////////
+void rename_graph_conf_json(){
+	if(exists("graph_conf.json")){
+		remove("graph_conf_new.json");
+	}else{
+		rename("graph_conf_new.json", "graph_conf.json");
+	}
+}
 void rename_sensor_json(){
 	if(exists("sensors.json")){
 		remove("sensors_new.json");
@@ -1670,8 +1678,7 @@ static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_f
 void checkJSONsetting(){
 	char* buff = (char*)malloc(2048);
 	buff = json_fread("setting.json");
-	json_scanf(buff, strlen(buff), "{col1_en: %B, col2_en: %B, col3_en: %B, col4_en: %B, col5_en: %B, col6_en: %B, col7_en: %B, col8_en: %B, col9_en: %B, col10_en: %B, col11_en: %B, col12_en: %B, col13_en: %B, rc_1970day: %B, rc_thisday: %B}"
-	,&colen[0], &colen[1], &colen[2], &colen[3], &colen[4], &colen[5], &colen[6], &colen[7], &colen[8], &colen[9], &colen[10], &colen[11], &colen[12], &rc_1970day, &rc_thisday);
+	json_scanf(buff, strlen(buff), "{rc_1970day: %B, rc_thisday: %B}", &rc_1970day, &rc_thisday);
 	char* buff_b = (char*) malloc(512);
 	json_scanf(buff, strlen(buff), "{ctrl_page: %Q}", &buff_b);
 	json_scanf(buff_b, strlen(buff_b), "{LED: %d, LED_prog: %d, IO14: %B}", &LED_opt, &LED_prog, &IO14_en);
@@ -3513,7 +3520,7 @@ std::string build_log_value_list(){
 		std::string num = std::to_string(sensor_value_ephemeral.at(i));
 		std::string en_log = std::to_string((int)sensor_en_log.at(i));
 		num = (dec_place_global == 0) ? num.substr(0, num.find(",")) : num.substr(0, num.find(".") + dec_place_global + 1);
-		ret += sensor_label_log.at(i) + "," +num + "," + en_log;
+		ret += sensor_label_log.at(i) + "," +num + "," + en_log + "," + sensor_name_log.at(i);
 		if(i != sensor_value_log.size() - 1){
 			ret += "|";
 		}

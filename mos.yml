@@ -1,6 +1,6 @@
 author: alifnl
-description: increase sensitivity for button, link en_i2c to pin from setting page, delete bme struct before initiate
-version: 0.10.9.2.3
+description: creating graph page (hourly and daily)
+version: 0.10.9.4
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
