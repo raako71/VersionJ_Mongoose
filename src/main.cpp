@@ -364,6 +364,7 @@ void check_ap_mode(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 void virtual_pb_check(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void request_sensor_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void request_log_value(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void request_hardware_version(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 //function prototype
 static void button_check_cb(void *arg){
 	int input1 = mgos_adc_read(INPUT_A);
@@ -659,12 +660,27 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mg_rpc_add_handler(mgos_rpc_get_global(), "VT.GPIO", "{pin:%d, val: %d}", virtual_pb_check, NULL);		
 	mg_rpc_add_handler(mgos_rpc_get_global(), "req.sense_online", "", request_sensor_status, NULL);
 	mg_rpc_add_handler(mgos_rpc_get_global(), "req.log_value", "", request_log_value, NULL);
+	mg_rpc_add_handler(mgos_rpc_get_global(), "req.hw_version", "", request_hardware_version, NULL);
 	mgos_msleep(1000);
 	LOG(LL_WARN,("wifi initiate"));
 	load_wifi_setting();
 	return MGOS_APP_INIT_SUCCESS;
 }
 
+void request_hardware_version(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	#ifdef V1	
+		const char* version = "V1";	
+	#endif
+	#ifdef V2	
+		const char* version = "V2";	
+	#endif
+	#ifdef V3	
+		const char* version = "V3";	
+	#endif
+	mg_rpc_send_responsef(ri, "%Q",version);
+	(void) cb_arg;
+	(void) fi;
+}
 
 void request_widget_data(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	char* prog_name_b = (char*)malloc(20);

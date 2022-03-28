@@ -221,8 +221,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 		<div id="progress_holder" style="border-radius:10px;"></div>
 	</div>
-	<div class="section" style="margin-top:20px; margin-bottom:10px" id="fw_version"> Build Version </div>
-	
+	<div class="section" style="margin-top:20px; margin-bottom:10px"> 
+		<span id="fw_version"></span><br>
+  	<span id="hw_version"></span>
+  </div>
 </div>
 <input type="button" style="margin: 15px auto;" value="SAVE" onClick="save_conf()">
 
@@ -510,7 +512,7 @@ function fetch_version(){
 	xhttp.send();
 	xhttp.onload = function(){
 		sys_info = JSON.parse(this.responseText);
-		document.getElementById("fw_version").innerHTML = "<p>Build Version: " + sys_info.fw_version + "</p>";
+		document.getElementById("fw_version").innerHTML = "Build Version: " + sys_info.fw_version ;
 	}
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", "/rpc/config.get", true);
@@ -518,6 +520,13 @@ function fetch_version(){
 	xhr.onload = function(){
 		var a = JSON.parse(this.responseText);
 		document.getElementById("mdns_name").value = a.dns_sd.host_name;
+	}
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/rpc/req.hw_version", true);
+	xhr.send();
+	xhr.onload = function(){
+		console.log(this.responseText);
+		document.getElementById("hw_version").innerHTML = "HW Version: " + this.responseText ;
 	}
 }
 function getconfig(){
