@@ -14,5 +14,5 @@
 			{"mode":1, "sensor":true, "output_ovr":false, "ovr_limit": 0, "ovr_val":0, "ovr_act":1, "output_opt":0},
 			{"mode":1, "sensor":false, "output_ovr":false, "ovr_limit": 0, "ovr_val":0, "ovr_act":1, "output_opt":0}],
 "webserver": {"timeout":10000},
-"home_text": "Socket Controller Dashboard"
+"home_text": "Socket Controller"
 }

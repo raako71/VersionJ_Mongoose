@@ -1606,6 +1606,9 @@ void offline_HouseKeeping(){ //(picked from last version)
   	if(!exists("/mnt/1970Hour.csv")){ //if thisDay doesn't exist (just deleted) make a new file
 		appendFile("/mnt/1970Hour.csv", use_header.c_str());
 	}
+	appendFile( "/mnt/1970Hour.csv", use_contain.c_str());  
+	
+	/*
 	if(read_epoch_first_entry("/mnt/1970Hour.csv") <= -1){
     	//fresh file, append immediatelly
     	appendFile("/mnt/1970Hour.csv", use_contain.c_str());  
@@ -1621,6 +1624,7 @@ void offline_HouseKeeping(){ //(picked from last version)
     }
 
   }//end of "no fresh file"
+  */
   /////////////////////////////////////////////thisHour/////////////////////////////////////////////////////////////////////////
 
 }

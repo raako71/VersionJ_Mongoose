@@ -92,6 +92,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 		setInterval(fetch_thishour_file, 10000);
 		setInterval(fetch_thisday_file, 900*1000);//every 1/4 hour
+		var week_fetching = setInterval(function(){
+			console.log("halo");
+		},10000); //10secs
 		setInterval(update_time, 1000);	
 		setInterval(fetch_sensor_log_value, 5000);
 	}
@@ -178,6 +181,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 					initiate_graph(old_json.graph[i].time_frame, old_json.graph[i].en_list, i+1);
 					if(old_json.graph[i].time_frame == 1){ graph_thishour_update(); execute_fetch[0] = true;}
 					if(old_json.graph[i].time_frame == 2){ graph_thisday_update(); execute_fetch[1] = true;}
+					if(old_json.graph[i].time_frame == 3){ graph_thisweek_update(); execute_fetch[2] = true;}
+					if(old_json.graph[i].time_frame == 4){graph_thismonth_update(); execute_fetch[3] = true;}
+					if(old_json.graph[i].time_frame == 5){graph_longterm_update(); execute_fetch[4] = true;}
 				}
 				}//if en_list not empty
 				else{
@@ -195,6 +201,20 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				fetch_thisday_file();
 				first_time[1] = false;
 			}
+			if(first_time[2] && execute_fetch[2]){
+				fetch_thisweek_file();
+				first_time[2] = false;
+			}
+			if(first_time[3] && execute_fetch[3]){
+				fetch_thismonth_file();
+				first_time[3] = false;
+			}
+			if(first_time[4] && execute_fetch[4]){
+				fetch_longterm_file();
+				first_time[4] = false;
+			}
+
+
 		});
 	}
 	function save_graph_conf(input){
@@ -283,8 +303,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	}//end of save_graph_conf
 
 	function initiate_graph(time_frame, en_list, id){
-		var hour_time_frame = {unit:'second',stepSize: 300,displayFormats: {second:'HH:mm'}}; //each 5min display unit
-		var day_time_frame = {unit:'second', stepSize: 1800,displayFormats: {second:'ddd - HH:mm'}}; //each 0.5 hour display unit
+		var hour_time_frame = {unit:'second',stepSize: 300,displayFormats: {second:'HH:mm'}}; //each 5min display unit -> 12:11
+		var day_time_frame = {unit:'second', stepSize: 1800,displayFormats: {second:'HH:mm - ddd'}}; //each 0.5 hour display unit -> 12:11 - Tue
+		var week_time_frame = {unit:'second', stepSize: 3600000*6, displayFormats: {second: 'HH:mm - D/MMM'}}; //every 6 hours  -> 12:11 - 1/Jan
+		var month_time_frame ={unit:'minute', stepSize: 1440*2, displayFormats: {minute: 'ddd, DD/MMM/YYYY'}}; //every 1 day
+		var long_time_frame ={unit:'minute', stepSize: 1440*7, displayFormats: {minute: 'ddd, DD/MMM/YYYY'}}; //every 7 day
 		var decimation;
 		if(time_frame == 1){
 			time_frame = hour_time_frame;
@@ -293,11 +316,14 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			time_frame = day_time_frame;
 			decimation = 720;
 		}else if(time_frame == 3){
-
+			time_frame = week_time_frame;
+			decimation = 1008;
 		}else if(time_frame == 4){
-
+			decimation = 2160;
+			time_frame = month_time_frame;
 		}else if(time_frame == 5){
-
+			time_frame = long_time_frame;
+			decimation = 5000;
 		}
 
 		var chart_config = {
@@ -362,15 +388,14 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			}
 		}
 		if(fetch_flag){
-		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/mnt/thisHour.csv?" + Math.random() * Math.random(), true);
-		xhr.send();
-		xhr.onload = function(){
-			var data = xhr.responseText;
-			var psv = d3.dsvFormat(";");
-			thishour_file = psv.parse(data);
-			graph_thishour_update();
-		}//onload finished
+			fetch_graph("/mnt/thisHour.csv", function(u){
+				if(u.res != null){
+					var psv = d3.dsvFormat(";");
+					thishour_file = psv.parse(u.res);
+					graph_thishour_update();
+					
+				}
+			});
 		}//if fetch flag
 	}
 	
@@ -422,15 +447,14 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			}
 		}
 		if(fetch_flag){
-		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "/mnt/thisDay.csv?" + Math.random() * Math.random(), true);
-		xhr.send();
-		xhr.onload = function(){
-			var data = xhr.responseText;
-			var psv = d3.dsvFormat(";");
-			thisday_file = psv.parse(data);
-			graph_thisday_update();
-		}//onload finished
+			fetch_graph("/mnt/thisDay.csv", function(u){
+				if(u.res != null){
+					var psv = d3.dsvFormat(";");
+					thisday_file = psv.parse(u.res);
+					graph_thisday_update();
+					
+				}
+			});
 		}//if fetch flag
 	}
 	
@@ -445,7 +469,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				var graph_info_extract = document.getElementById("graph"+(x+1)+"_info");
 				if(graph_info_extract != null){
 					graph_info_extract = graph_info_extract.innerHTML.split("|");
-					if(graph_info_extract[0] != "" && graph_info_extract[1] == 2){
+					if(graph_info_extract[0] != "" && graph_info_extract[1] == '2'){
 						eval("var chart_entity = chart_graph"+(x+1)+".data.datasets;");
 						for (var i = 0; i< chart_entity.length; i++){
 							var name = chart_entity[i].label;
@@ -466,6 +490,181 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			}//looping for update every existing graph
 		}//thishour file is not null
 	}
+	//////////////////////////////////////////////////////////////////////////////////////////THIS WEEK HANDLER/////////////////////////////////////////////////////////
+	var thisweek_file;
+	function fetch_thisweek_file(){
+		var fetch_flag = false;
+		for (var i = 0; i < graph_max_number; i++){
+			var graph_info_extract = document.getElementById("graph"+(i+1)+"_info");
+			if(graph_info_extract != null){
+			graph_info_extract = graph_info_extract.innerHTML.split("|");
+			if(graph_info_extract[0] != "" && graph_info_extract[1] == '3'){
+				fetch_flag = true;
+				break;
+			}
+			}
+		}
+		if(fetch_flag){
+			fetch_graph("/mnt/thisWeek.csv", function(u){
+				if(u.res != null){
+					var psv = d3.dsvFormat(";");
+					thisweek_file = psv.parse(u.res);
+					graph_thisweek_update();
+					
+				}
+			});
+		}//if fetch flag
+	}
+	
+	function graph_thisweek_update(){
+		if(thisweek_file != null){
+			//parse epoch
+			var base = thisweek_file.map(function(e){
+				return filter_epoch(e.epoch);
+			});
+			//parse other sensor value
+			for(var x = 0; x < graph_max_number; x++){ //itteration for every graph
+				var graph_info_extract = document.getElementById("graph"+(x+1)+"_info");
+				if(graph_info_extract != null){
+					graph_info_extract = graph_info_extract.innerHTML.split("|");
+					if(graph_info_extract[0] != "" && graph_info_extract[1] == '3'){
+						eval("var chart_entity = chart_graph"+(x+1)+".data.datasets;");
+						for (var i = 0; i< chart_entity.length; i++){
+							var name = chart_entity[i].label;
+							var label_log_local = trigger_name.indexOf(name);
+							label_log_local = label_log_name[label_log_local];
+							eval("parsed_data =thisweek_file.map(function(e){  return Number(e."+label_log_local+"== '' ? null : e."+label_log_local+")});"); 
+							var array_sensor = [];
+							//push value to array epoch with values
+							for (j = 0; j < base.length ; j++){
+								array_sensor.push({x: base[j], y: parsed_data[j]});
+							}
+							//set to graph config
+							chart_entity[i].data = array_sensor;
+						}//looping for each available datasets label
+						eval("chart_graph"+(x+1)+".update();");
+					}//if timeframe is thisday
+				}//if graph is not null
+			}//looping for update every existing graph
+		}//thishour file is not null
+	}
+	///////////////////////////////////////////////////////////////////////////////////////////////////////// THIS MONTH HANDLER / ////////////////////////////////////////////////////////////////////////////////////////////////////
+	var thismonth_file;
+	function fetch_thismonth_file(){
+		var fetch_flag = false;
+		for (var i = 0; i < graph_max_number; i++){
+			var graph_info_extract = document.getElementById("graph"+(i+1)+"_info");
+			if(graph_info_extract != null){
+			graph_info_extract = graph_info_extract.innerHTML.split("|");
+			if(graph_info_extract[0] != "" && graph_info_extract[1] == '4'){
+				fetch_flag = true;
+				break;
+			}
+			}
+		}
+		if(fetch_flag){
+			fetch_graph("/mnt/thisMonth.csv", function(u){
+				if(u.res != null){
+					var psv = d3.dsvFormat(";");
+					thismonth_file = psv.parse(u.res);
+					graph_thismonth_update();
+					
+				}
+			});
+		}//if fetch flag
+	}
+	
+	function graph_thismonth_update(){
+		if(thismonth_file != null){
+			//parse epoch
+			var base = thismonth_file.map(function(e){
+				return filter_epoch(e.epoch);
+			});
+			//parse other sensor value
+			for(var x = 0; x < graph_max_number; x++){ //itteration for every graph
+				var graph_info_extract = document.getElementById("graph"+(x+1)+"_info");
+				if(graph_info_extract != null){
+					graph_info_extract = graph_info_extract.innerHTML.split("|");
+					if(graph_info_extract[0] != "" && graph_info_extract[1] == '4'){
+						eval("var chart_entity = chart_graph"+(x+1)+".data.datasets;");
+						for (var i = 0; i< chart_entity.length; i++){
+							var name = chart_entity[i].label;
+							var label_log_local = trigger_name.indexOf(name);
+							label_log_local = label_log_name[label_log_local];
+							eval("parsed_data =thismonth_file.map(function(e){  return Number(e."+label_log_local+"== '' ? null : e."+label_log_local+")});"); 
+							var array_sensor = [];
+							//push value to array epoch with values
+							for (j = 0; j < base.length ; j++){
+								array_sensor.push({x: base[j], y: parsed_data[j]});
+							}
+							//set to graph config
+							chart_entity[i].data = array_sensor;
+						}//looping for each available datasets label
+						eval("chart_graph"+(x+1)+".update();");
+					}//if timeframe is thisday
+				}//if graph is not null
+			}//looping for update every existing graph
+		}//thishour file is not null
+	}
+	///////////////////////////////////////////////////////////////////////////////////////////////////////// LONG TERM HANDLER / ////////////////////////////////////////////////////////////////////////////////////////////////////
+	var longterm_file;
+	function fetch_longterm_file(){
+		var fetch_flag = false;
+		for (var i = 0; i < graph_max_number; i++){
+			var graph_info_extract = document.getElementById("graph"+(i+1)+"_info");
+			if(graph_info_extract != null){
+			graph_info_extract = graph_info_extract.innerHTML.split("|");
+			if(graph_info_extract[0] != "" && graph_info_extract[1] == '5'){
+				fetch_flag = true;
+				break;
+			}
+			}
+		}
+		if(fetch_flag){
+			fetch_graph("/mnt/longTermData.csv", function(u){
+				if(u.res != null){
+					var psv = d3.dsvFormat(";");
+					longterm_file = psv.parse(u.res);
+					graph_longterm_update();
+					
+				}
+			});
+		}//if fetch flag
+	}
+	
+	function graph_longterm_update(){
+		if(longterm_file != null){
+			//parse epoch
+			var base = longterm_file.map(function(e){
+				return filter_epoch(e.epoch);
+			});
+			//parse other sensor value
+			for(var x = 0; x < graph_max_number; x++){ //itteration for every graph
+				var graph_info_extract = document.getElementById("graph"+(x+1)+"_info");
+				if(graph_info_extract != null){
+					graph_info_extract = graph_info_extract.innerHTML.split("|");
+					if(graph_info_extract[0] != "" && graph_info_extract[1] == '4'){
+						eval("var chart_entity = chart_graph"+(x+1)+".data.datasets;");
+						for (var i = 0; i< chart_entity.length; i++){
+							var name = chart_entity[i].label;
+							var label_log_local = trigger_name.indexOf(name);
+							label_log_local = label_log_name[label_log_local];
+							eval("parsed_data =longterm_file.map(function(e){  return Number(e."+label_log_local+"== '' ? null : e."+label_log_local+")});"); 
+							var array_sensor = [];
+							//push value to array epoch with values
+							for (j = 0; j < base.length ; j++){
+								array_sensor.push({x: base[j], y: parsed_data[j]});
+							}
+							//set to graph config
+							chart_entity[i].data = array_sensor;
+						}//looping for each available datasets label
+						eval("chart_graph"+(x+1)+".update();");
+					}//if timeframe is thisday
+				}//if graph is not null
+			}//looping for update every existing graph
+		}//thishour file is not null
+	}
+
 	function fetch_sensor_log_value(){
 		xhr_send_nojson("req.log_value", null, function(u){
 			if(u.code != 200){return;}
@@ -496,6 +695,23 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	}
 
 
+	function fetch_graph(file_name, callback){
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", file_name + "?" + Math.random() * Math.random(), true);
+		xhr.send();
+		xhr.timeout = timeout_global;
+		xhr.ontimeout = function (e) {
+			callback({code:400, res: null});
+		};
+		xhr.onreadystatechange = function() {
+			if(xhr.readyState != 4){return;}
+			if(xhr.status == 200){
+				callback({code:200, res: xhr.responseText});
+			}else{
+				callback({code: 404, res: null});
+			}
+		}
+	}
 </script>
 <style>
 
