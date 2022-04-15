@@ -1,6 +1,6 @@
 author: alifnl
-description: complete graph and some adjustments
-version: 0.10.9.4.1
+description: add widget null on flag, datalog finishing left
+version: 0.10.9.5
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

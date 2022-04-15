@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.9.5: add widget null on flag, datalog finishing left<br>
 0.10.9.4.2: complete graph and some adjustments<br>
 0.10.9.4: creating graph page (hourly and daily)<br>
 0.10.9.3: increase sensitivity for button, link en_i2c to pin from setting page, delete bme struct before initiate<br>

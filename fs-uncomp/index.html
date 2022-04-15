@@ -148,13 +148,14 @@ function initiate_widget_content(){
 			var text= "";
 			var sens = ""; var init_gauge1 =false; init_gauge2 = false;
 			x = JSON.parse(x);
-			if(x.pri_on != "" || x.pri_off != ""){	
+			if((x.pri_on != "" || x.pri_off != "") || program_list[i-1].output == '5'){	
 				text += "<span id=\"gaugetxt_"+i +"_" + v+ "\" class=\"gaugetxt\"></span>";
 				text += "<canvas id=\"gaugecanvas_"+i +"_" + v + "\" height=\"150\" width=\"300\"> </canvas>";
 				sens += "<div class=\"widget_place\">" + text + "</div>";
 				init_gauge1 = true;
-			}	
-		    text = "";
+			}
+
+		   text = "";
 			console.log(i + " " + w);
 			if(w >= 1 && w <= 20){
 				if(program_list[i-1].setting.type == 1){

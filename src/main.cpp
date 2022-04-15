@@ -202,7 +202,8 @@ std::vector<int> sensor_online;
 std::vector<std::string> sensor_name;
 std::vector<bool> sensor_en;
 std::vector<bool> sensor_init;
-
+std::vector<bool> sensor_new;
+std::vector<bool> sensor_new_file;
 std::vector<std::string> sensor_name_log; //put sensor name specification as logging column name
 std::vector<float> sensor_value_log; //keep sensor value based on sensor name, depend on sensor_online and sensor_en
 std::vector<bool> sensor_en_log; //indicate that column is logging enabled
@@ -456,42 +457,56 @@ static void logging_cb(void *arg){
     			sensor_en_log.at(a) = sensor_en.at(i);
 				sensor_en_log.at(a+1) = sensor_en.at(i);
 				sensor_en_log.at(a+2) = sensor_en.at(i);
+				if(sensor_new_file.at(i)){
+					sensor_new.at(a) = true;
+					sensor_new.at(a+1) = true;
+					sensor_new.at(a+2) = true;
+				}
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x76){
 				int a = get_index_name(sensor_name_log, "BMEx76_H");
 				sensor_value_ephemeral.at(a)   = sensor_online.at(i) ?  mgos_bme280_read_humidity(bme76) : -1;
 				sensor_value_ephemeral.at(a+1) = sensor_online.at(i) ?  mgos_bme280_read_temperature(bme76) : -1;
-				sensor_value_ephemeral.at(a+2) = sensor_online.at(i) ?  mgos_bme280_read_pressure(bme76) : -1;
+				sensor_value_ephemeral.at(a+2) = sensor_online.at(i) ?  mgos_bme280_read_pressure(bme76)*0.01 : -1;
 				sensor_value_log.at(a)   = (sense_available) ? sensor_value_ephemeral.at(a)     : -1;
 				sensor_value_log.at(a+1) = (sense_available) ? sensor_value_ephemeral.at(a+1)   : -1;
 				sensor_value_log.at(a+2) = (sense_available) ? sensor_value_ephemeral.at(a+2)   : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
 				sensor_en_log.at(a+1) = sensor_en.at(i);
 				sensor_en_log.at(a+2) = sensor_en.at(i);
+				sensor_new.at(a) = sensor_new_file.at(i);
+				sensor_new.at(a+1) = sensor_new_file.at(i);
+				sensor_new.at(a+2) = sensor_new_file.at(i);
+				
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x77){
 				int a = get_index_name(sensor_name_log, "BMEx77_H");
 				sensor_value_ephemeral.at(a)   = sensor_online.at(i) ?  mgos_bme280_read_humidity(bme77) : -1;
 				sensor_value_ephemeral.at(a+1) = sensor_online.at(i) ?  mgos_bme280_read_temperature(bme77) : -1;
-				sensor_value_ephemeral.at(a+2) = sensor_online.at(i) ?  mgos_bme280_read_pressure(bme77) : -1;
+				sensor_value_ephemeral.at(a+2) = sensor_online.at(i) ?  mgos_bme280_read_pressure(bme77)*0.01 : -1;
 				sensor_value_log.at(a)   = (sense_available) ? sensor_value_ephemeral.at(a)     : -1;
 				sensor_value_log.at(a+1) = (sense_available) ? sensor_value_ephemeral.at(a+1)   : -1;
 				sensor_value_log.at(a+2) = (sense_available) ? sensor_value_ephemeral.at(a+2)   : -1;
 				sensor_en_log.at(a) = sensor_en.at(i);
 				sensor_en_log.at(a+1) = sensor_en.at(i);
 				sensor_en_log.at(a+2) = sensor_en.at(i);
+				sensor_new.at(a) = sensor_new_file.at(i);
+				sensor_new.at(a+1) = sensor_new_file.at(i);
+				sensor_new.at(a+2) = sensor_new_file.at(i);
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x10){
 				int a = get_index_name(sensor_name_log, "L10");
 				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? light10.readLight() : (float)-1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i);
+				sensor_new.at(a) = sensor_new_file.at(i);
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x48){
 				int a = get_index_name(sensor_name_log, "L48");
 				sensor_value_ephemeral.at(a) = sensor_online.at(i) ? light48.readLight() : (float)-1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i);
+				sensor_new.at(a) = sensor_new_file.at(i);
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x44){
 				int a = get_index_name(sensor_name_log, "SHTx44_T");
@@ -500,6 +515,8 @@ static void logging_cb(void *arg){
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_value_log.at(a+1) = (sense_available) ?sensor_value_ephemeral.at(a+1):(float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) =sensor_en.at(i); 
+				sensor_new.at(a) = sensor_new_file.at(i); sensor_new.at(a+1) = sensor_new_file.at(i);
+				
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x45){
 				int a = get_index_name(sensor_name_log, "SHTx45_T");
@@ -508,6 +525,8 @@ static void logging_cb(void *arg){
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : (float)-1;
 				sensor_value_log.at(a+1) = (sense_available) ?sensor_value_ephemeral.at(a+1):(float)-1;
 				sensor_en_log.at(a) = sensor_en.at(i); sensor_en_log.at(a+1) = sensor_en.at(i);
+				sensor_new.at(a) = sensor_new_file.at(i); sensor_new.at(a+1) = sensor_new_file.at(i);
+				
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x60){
 				int a = get_index_name(sensor_name_log, "T60");
@@ -516,6 +535,8 @@ static void logging_cb(void *arg){
 				sense_available = sense_available && online && no_probe;
 				sensor_value_ephemeral.at(a)  = online && no_probe ? MCPx60.getThermocoupleTemp() : -1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : -1;
+				//sensor_value_ephemeral.at(a) = 20;
+				//sensor_value_log.at(a) = 20;
 				sensor_en_log.at(a) = sensor_en.at(i);
 				//LOG(LL_WARN,("T60 available %d", sense_available));
 				if(!online){
@@ -525,6 +546,8 @@ static void logging_cb(void *arg){
 				}else if(online && no_probe){
 					sensor_online.at(i) = 1;
 				}
+				sensor_new.at(a) = sensor_new_file.at(i);
+				
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
@@ -534,6 +557,8 @@ static void logging_cb(void *arg){
 				//LOG(LL_WARN,("T67 available %d", sense_available));
 				sensor_value_ephemeral.at(a) = online && no_probe ? MCPx67.getThermocoupleTemp() : -1;
 				sensor_value_log.at(a) = (sense_available) ? sensor_value_ephemeral.at(a) : -1;
+				//sensor_value_ephemeral.at(a) = 27;
+				//sensor_value_log.at(a) = 27;
 				sensor_en_log.at(a) = sensor_en.at(i);
 				if(!online){
 					sensor_online.at(i) = 0; //offline status
@@ -542,6 +567,8 @@ static void logging_cb(void *arg){
 				}else if(online && no_probe){
 					sensor_online.at(i) = 1;
 				}
+				sensor_new.at(a) = sensor_new_file.at(i);
+				
 				mgos_msleep(messageDelay);
 			}	
 	}
@@ -635,7 +662,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_adc_enable(INPUT_A);
 	mgos_adc_enable(INPUT_B);
 	LOG(LL_WARN,("initiating sensors"));
-	init_sensor();
+	
 	
 	//timer function
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
@@ -664,6 +691,9 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_msleep(1000);
 	LOG(LL_WARN,("wifi initiate"));
 	load_wifi_setting();
+
+	//init_sensor();
+	logging_cb(NULL);
 	return MGOS_APP_INIT_SUCCESS;
 }
 
@@ -3242,7 +3272,8 @@ bool check_sensor(char addr){
 void update_sensor_info(){ //update online and exist	
 	const char* tmp_name = "tmp.json";
 	for(int i = 0; i < sensor_addr_list.size() ; i++){
-		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exist
+		std::string a = ".sensors[" + std::to_string(i) + "].ext"; //exists
+		std::string b = ".sensors[" + std::to_string(i) + "].new"; ///new
 		bool ext = false;
 		bool on = false;
 		if(sensor_addr_list.at(i) != 0x67 && sensor_addr_list.at(i) != 0x60){
@@ -3251,18 +3282,27 @@ void update_sensor_info(){ //update online and exist
 			ext = (on == true) ? true : sensor_ext.at(i);
 		}else{
 			//for mcp sensors no need to update variable
-			ext = sensor_ext.at(i);
-			on = sensor_online.at(i);
+			ext = true;//sensor_ext.at(i);
+			on = true;//sensor_online.at(i);
 		}
 		//LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
 		if(on == true && sensor_ext.at(i) == false){
-			char* buff = (char*)malloc(1024);
+			char* buff = (char*)malloc(1500);
 			buff = json_fread("sensors.json");
 			FILE *fp = fopen(tmp_name, "w");
 			struct json_out out = JSON_OUT_FILE(fp);
 			json_setf(buff, strlen(buff), &out, a.c_str(), "%B", ext);
 			fclose(fp);
 			rename(tmp_name, "sensors.json");
+
+			//set new to true
+			buff = json_fread("sensors.json");
+			fp = fopen(tmp_name, "w");
+			out = JSON_OUT_FILE(fp);
+			json_setf(buff, strlen(buff), &out, b.c_str(), "%B", true);
+			fclose(fp);
+			rename(tmp_name, "sensors.json");
+			sensor_new_file.at(i) = true;
 			free(buff);	
 		}
 		sensor_ext.at(i) = ext;
@@ -3286,11 +3326,12 @@ void update_sensor_logging(bool update){
 	int log_number = 0;
 	for (int i = 0; json_scanf_array_elem(buff, strlen(buff), ".sensors", i, &t) > 0; i++) {
 		char value = 0; bool ext = false;
-		char* name; bool en = false;
-		json_scanf(t.ptr, t.len, "{addr: %d, ext: %B, name: %Q, en:%B}", &value, &ext, &name, &en); 
+		char* name; bool en = false; bool sensor_new = false;
+		json_scanf(t.ptr, t.len, "{addr: %d, ext: %B, name: %Q, en:%B, new:%B}", &value, &ext, &name, &en, &sensor_new); 
 		std::string name_x = name;
 		if(!update){ //this information should not change
 			sensor_ext.push_back(ext); 
+			sensor_new_file.push_back(sensor_new);
 			sensor_en.push_back(en);
 			sensor_name.push_back(name_x);	
 			sensor_online.push_back(false);
@@ -3397,7 +3438,11 @@ void update_sensor_logging(bool update){
 
 void scan_sensor_at_boot(){
 	update_sensor_logging();
-	update_sensor_info();
+	for(int i = 0; i < sensor_value_log.size(); i++){
+		sensor_new.push_back(false);
+	}
+	//update_sensor_info();
+	
 }
 
 void init_sensor(){ //based on online
@@ -3536,15 +3581,37 @@ void init_sensor(){ //based on online
 
 std::string build_log_value_list(){
 	std::string ret = "";
+	bool reset_flag = false;
 	for (int i = 0; i < sensor_value_log.size(); i++){
 		std::string num = std::to_string(sensor_value_ephemeral.at(i));
 		std::string en_log = std::to_string((int)sensor_en_log.at(i));
 		num = (dec_place_global == 0) ? num.substr(0, num.find(",")) : num.substr(0, num.find(".") + dec_place_global + 1);
-		ret += sensor_label_log.at(i) + "," +num + "," + en_log + "," + sensor_name_log.at(i);
+		//sensor_name_log for checking csv file, label for labeling in page
+		//need to add sensor new
+		ret += sensor_label_log.at(i) + "," +num + "," + en_log + "," + sensor_name_log.at(i) + "," + (sensor_new.at(i)==true ? '1' : '0');
 		if(i != sensor_value_log.size() - 1){
 			ret += "|";
 		}
+		if(sensor_new.at(i) == true){
+			//sensor_new.at(i) = false;
+			reset_flag = true;
+		}
 	}
+	const char* tmp_name = "tmp.json";
+	//reset_flag = false;
+	if(reset_flag){
+		for(int i = 0; i < sensor_addr_list.size(); i++){
+			sensor_new_file.at(i) = false;
+			std::string b = ".sensors[" + std::to_string(i) + "].new"; ///new
+			char* buff = (char*)malloc(1500);
+			buff = json_fread("sensors.json");
+			FILE *fp = fopen(tmp_name, "w");
+			struct json_out out = JSON_OUT_FILE(fp);
+			json_setf(buff, strlen(buff), &out, b.c_str(), "%B", false);
+			fclose(fp);
+			rename(tmp_name, "sensors.json");
+		}
+	}//if reset flag
 	return ret;
 }
 void request_log_value(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){

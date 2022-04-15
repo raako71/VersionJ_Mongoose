@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+ <head>	
+	<title>Datalog</title>
+	<link id="theme" rel="stylesheet" type="text/css" href="dark.css"/>
+    <link rel="stylesheet" type="text/css" href="./general.css" />
+	<script src="./login.js.gz" defer></script>
+</head>
+    <style>
+    	input[type=button] {
+    		width: 150px;
+    		height: 25px;
+    	}
+    </style>
+
+<body>
+
+<div id="overlay_login" class="overlay" style="display:none;font-size:16px">
+	<div class="confirmation_box" id="multipurpose">
+	</div>
+</div>
+<div id="overlay_change_pass" class="overlay" style="display:none;font-size:16px">
+	<div class="confirmation_box">
+	<b>Change Password</b><br>
+	<div style="text-align:left;padding-left:10%; padding-right:10%;margin-top:10px">
+	<span id="old_password_holder">Existing Password: <input type="password" style="width:100%; margin-bottom:5px" id="old_password"></span><br>
+	New Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass1"><br>
+	Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" id="new_pass2"><br>
+	</div>
+	<span style="margin-top:10px;display:block;" id="change_pass_warning"></span>
+	<div style="margin-top:10px">
+	<input type="button" style="margin:10px;width:100px" id="confirm_change_password" onClick="change_pass_info()" value="OK"><input id="cancel_change_password" style="margin:10px;width:100px" type="button" value="CANCEL" onClick="off_overlay_change_pass();on_overlay_login(2)">
+	</div>
+	</div> 
+</div>
+<div id="main_div">
+	<div class="top_panel">
+	<span style="float:left;margin-left:25px" id="clock_info">
+	</span>
+	<span style="float:right;margin-right:25px;">
+	<span id='log_info'>Logged in</span>
+	<span class='dropdown'><input type="button" class="dropbtn" style="margin-left:25px" value = "menu">
+	<div class="dropdown-content" id="dropdown_menu">
+	 </div>
+	 </span>
+	</span>
+	</div>
+    
+       	<h1 id="home_text_disp" style="display:inline"> Socket Controller</h1> <h1 style="display:inline-block">&nbsp;Data Log</h1>
+		<table style="width:100%;" >
+		
+		<tr>
+		<td>
+		<h3>This Hour Logging</h3>
+            <input type="button" onClick='view_raw("/mnt/thisHour.csv")' value="View Raw">
+            <input type="button" value="Download CSV" onClick='download_file("thisHour.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="thishour_del" >
+				<label for= "thishour_del"> thisHour delete </label>	 
+			</div>
+		</td>
+		<td>
+		<h3>1970 Hour Logging</h3>
+        	<input type="button" onClick='view_raw("/mnt/1970Hour.csv")' value="View Raw">
+            <input type="button" value="Download CSV" onClick='download_file("1970Hour.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="1970hour_del" >
+				<label for= "thishour_del"> thisHour delete </label>	 
+			</div>
+		</td>
+		</tr>
+		<tr>
+		<td>
+		
+		<h3>This Day Logging</h3>
+        	<input type="button" value="View Raw" onClick='view_raw("/mnt/thisDay.csv")'>
+            <input type="button" value="Download CSV" onClick='download_file("thisDay.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="thisday_del" >
+				<label for= "thisday_del"> thisDay delete </label>	 
+			</div>
+		</td>
+		
+		<td>
+		<h3>1970 Day Logging</h3>
+        <div class="btn-group">
+            <input type="button" value="View Raw" onClick='view_raw("/mnt/1970Day.csv")'>
+            <input type="button" value="Download CSV" onClick='download_file("1970Day.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="1970day_del" >
+				<label for= "1970day_del"> 1970Day delete </label>	 
+			</div>
+        </div> 
+		</td>
+		</tr>
+		
+		<tr>
+		<td>
+		
+		<h3>This Week Logging</h3>
+        	<input type="button" value="View Raw" onClick='view_raw("/mnt/thisWeek.csv")'>
+            <input type="button" value="Download CSV" onClick='download_file("thisWeek.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="thisweek_del" >
+				<label for= "thisweek_del"> thisWeek delete </label>	 
+			</div>
+		</td>
+		
+		<td>
+		<h3>1970 Week Logging</h3>
+        <div class="btn-group">
+            <input type="button" value="View Raw" onClick='view_raw("/mnt/1970Week.csv")'>
+            <input type="button" value="Download CSV" onClick='download_file("1970Week.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="1970week_del" >
+				<label for= "1970week_del"> 1970Week delete </label>	 
+			</div>
+		</td>
+		</tr>
+		
+        
+		<tr>
+		<td>
+        <h3>This Month Logging</h3>
+        	<input type="button" value="View Raw" onClick='view_raw("/mnt/thisMonth.csv")'>
+            <input type="button" value="Download CSV" onClick='download_file("thisMonth.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="thismonth_del" >
+				<label for= "thismonth_del"> thisMonth delete </label>	 
+			</div>
+		</td>
+		
+		<td>
+		<h3>1970 Month Logging</h3>
+      		<input type="button" value="View Raw" onClick='view_raw("/mnt/1970Month.csv")'>
+            <input type="button" value="Download CSV" onClick='download_file("1970Month.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="1970month_del" >
+				<label for= "1970month_del"> 1970Month delete </label>	 
+			</div>
+		</td>
+		</tr>
+		
+		<tr>
+		<td>
+        <h3>Long Term Logging</h3>
+       		<input type="button" value="View Raw" onClick='view_raw("/mnt/longTermData.csv")'>
+            <input type="button" value="Download CSV" onClick='download_file("longTermData.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="longterm_del" >
+				<label for= "longterm_del"> longTermData delete </label>	 
+			</div>
+		</td>
+		
+		<td>
+		<h3>1970 Long Term Logging</h3>
+			<input type="button" value="View Raw" onClick='view_raw("/mnt/1970longTermData.csv")'>
+            <input type="button" value="Download CSV" onClick='download_file("1970longTermData.csv")'>
+            <div style="display:inline-block">
+				<input type= "checkbox" id="1970longterm_del" >
+				<label for= "1970longterm_del"> 1970 longTermData delete </label>	 
+			</div>
+		</td>
+		</tr>
+		</table>
+		<br>
+		<div style="margin-bottom:15px"> 
+			<span style="font-size: 20px"> delete CSV file </span><br>
+			<input style="margin-top: -10px" type="button" onClick="conDelete()" value="Delete CSV"> 
+		</div>
+		<div style="margin-bottom:15px"> 
+			<span style="font-size: 20px"> delete all sensors </span><br>
+			<input style="margin-top: -10px" type="button"  value="Delete Sensors"> 
+		</div>
+
+
+</div> <!-- main div end -->
+
+</body>
+</html>
+
+
+<script>	
+	function reset_all_sensors(){
+		var con = confirm("Delete all sensors information? this will reset a");
+	}
+
+	function conDelete(){
+		//check checkboxes
+		var hour = document.getElementById("thishour_del").checked;
+		var day = document.getElementById("thisday_del").checked;
+		var week = document.getElementById("thisweek_del").checked;
+		var month = document.getElementById("thismonth_del").checked;
+		var longterm = document.getElementById("longterm_del").checked;
+		
+		var hour_1970 = document.getElementById("1970hour_del").checked;
+		var day_1970 = document.getElementById("1970day_del").checked;
+		var week_1970 = document.getElementById("1970week_del").checked;
+		var month_1970 = document.getElementById("1970month_del").checked;
+		var longterm_1970 = document.getElementById("1970longterm_del").checked;
+		if(!hour && !day && !week && !month && !longterm && !hour_1970 & !day_1970 && !week_1970 && !month_1970 && !longterm_1970){
+			//none selected 
+			alert("none selected");
+		}else{
+		var conText = "Confirm to delete: " + (hour ? "thishour, ": "") + (day ? "thisday, " : "") + (week ? "thisweek, " : "") + (month ? "thismonth, ": "") + (longterm ? "longterm, " : "");
+		conText += (hour_1970 ? "1970hour, ": "") + (day_1970 ? "1970day, ": "") + (week_1970 ? "1970week, ": "")+ (month_1970 ? "1970month, ": "") + (longterm_1970 ? "1970longterm ": "")+  "dataset?";
+		//make confirm request
+		var con = confirm(conText);
+		
+		if (con == true){
+			var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");
+			
+			//proceed to send request to esp
+			jsonobj = {comm:data};
+			var string = JSON.stringify(jsonobj);
+			console.log(string);
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "/rpc/delReq", true);
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.send(string);
+			hour = false; day = false; week = false; month = false; hour_1970 = false; day_1970 = false; week_1970 = false; month_1970 = false; longterm_1970 = false;
+		}
+		}
+	}
+	
+	function view_raw(input){
+		location.href=input +  "?" + Math.random() * Math.random();
+	}
+
+	function download_file(file_name){
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "mnt/" + file_name + "?" + Math.random() * Math.random(), true);
+		xhr.send();
+		xhr.timeout = timeout_global;
+		xhr.ontimeout = function (e) {
+			alert("network timeout");
+			return;
+		};
+		xhr.onreadystatechange = function() {
+			if(xhr.readyState != 4){return;}
+			if(xhr.status == 200){
+				//	callback({code:200, res: xhr.responseText});
+				var data1 = new Blob([xhr.responseText]);
+				var link = document.createElement("a");
+				link.download = file_name;
+				link.href = URL.createObjectURL(data1);
+				link.click();
+			}else{
+				//callback({code: 404, res: null});
+				alert("file is not found!");
+			}
+		}
+	}
+
+</script>

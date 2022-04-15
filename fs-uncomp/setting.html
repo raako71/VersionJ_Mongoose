@@ -12,6 +12,21 @@
 <div class="confirmation_box" id="time_setting_box">
 </div>
 </div>
+<div id="overlay_sensor_pop" class="overlay" style="display:none; font-size:16px">
+	
+<div class="confirmation_box"  style="height:adjust-content;padding:20px;text-align:left">
+	<div style="text-align:center; auto;font-weight:bold">New Sensor!</div>
+	
+	Enable status widget?<br><br>
+	<div id="sensor_pop_box" ></div> <!-- this is for new sensors list-->
+	<br>
+	<div style="text-align:center">
+		<input type="button" style="font-size:16px;padding:0px;width:120px" value="SAVE" onClick="execute_create_program()">
+		<input type="button" style="font-size:16px;padding:0px;width:120px" value="CANCEL" onClick="off_overlay_sensor_pop();">
+	</div>
+</div>
+</div>
+
 <div id="overlay_save" class="overlay" style="display:none;z-index:3;">
   <div class="confirmation_box" >
   <div id="circularG" >
@@ -110,7 +125,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	</div>
 	<div class="section">
 		<b> Local Sensors</b><br>
-		<a href="/graph.html.gz">datalog</a>
+		<a href="/datalog.html.gz">datalog</a>
 		<span id="sensor_list"></span>
 		
 	</div>
@@ -238,7 +253,21 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	window.addEventListener('load', onLoad);	
 	var sys_info ="";
 	var sensor_json;
+	var sensor_name= [];
+	var sensor_label = [];
+	var sensor_list_id= [];
+	var sensor_poped_flag = false; var prog_number= 0;
 	fetch_version();
+
+	var default_program_json = {"id": "", "name":"", "en":true, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "|-1", "off_time_global":"|-1"
+,"control_opt": "5","control_trigger":[{"main_option": "", "main_info": "{\"pri_on\":\"\",\"pri_off\":\"\"}", "sec_option": -1, "sec_info":"{\"sec_on\":\"\",\"sec_off\":\"\"}"}], "setting":""};
+	var gauge_temp_setting = {"type":"1","gauge1":{"max":"50","min":"0","upval":"30","loval":"20","ocolor":"#FDD017","icolor":"#5EFB6E","max_label":"","min_label":"","llabel":"","ulabel":"","esz":true,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""}, graph1:{cubic_en:false}, graph2:{cubic_en:false}};
+	var gauge_light_setting = {"type":"1","gauge1":{"max":"500","min":"0","upval":"-1","loval":"-1","ocolor":"#5EFB6E","icolor":"#5EFB6E","max_label":"","min_label":"","llabel":"","ulabel":"","esz":false,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""},graph1:{cubic_en:false}, graph2:{cubic_en:false} };
+	var gauge_power_setting = {"type":"1","gauge1":{"max":"4000","min":"0","upval":"-1","loval":"-1","ocolor":"#ff0707","icolor":"#ff0707","max_label":"","min_label":"","llabel":"","ulabel":"","esz":false,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""},graph1:{cubic_en:false}, graph2:{cubic_en:false} };
+	var gauge_current_setting = {"type":"1","gauge1":{"max":"15","min":"0","upval":"-1","loval":"-1","ocolor":"#FDD017","icolor":"#FDD017","max_label":"","min_label":"","llabel":"","ulabel":"","esz":false,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""},graph1:{cubic_en:false}, graph2:{cubic_en:false} };
+	var gauge_voltage_setting = {"type":"1","gauge1":{"max":"260","min":"90","upval":"-1","loval":"-1","ocolor":"#e6ff07","icolor":"#e6ff07","max_label":"","min_label":"","llabel":"","ulabel":"","esz":false,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""},graph1:{cubic_en:false}, graph2:{cubic_en:false} };
+	var gauge_humidity_setting = {"type":"1","gauge1":{"max":"100","min":"0","upval":"-1","loval":"-1","ocolor":"#0794ff","icolor":"#0794ff","max_label":"","min_label":"","llabel":"","ulabel":"","esz":false,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""},graph1:{cubic_en:false}, graph2:{cubic_en:false} };
+
 	function onLoad(){
 		console.log("DOM loaded");
 		load_conf();	
@@ -541,10 +570,7 @@ function on_overlay() {
 	document.getElementById("relogin_button").style.display="none";
 	document.getElementById("refresh_button").style.display="none";
 }
-function off_overlay_cb(cb){
-off_overlay();
-cb();
-}
+
 function off_overlay() {
   document.getElementById("overlay_save").style.display = "none";
   document.getElementById("main_div").style.filter = "none";
@@ -574,6 +600,18 @@ function off_overlay_wifi(){
   document.getElementById("main_div").style.filter = "none";
   load_conf();
   
+}
+
+function on_overlay_sensor_pop(){
+	document.getElementById("overlay_sensor_pop").style.display = "block";
+  document.getElementById("main_div").style.filter = "blur(2px)";
+  document.getElementById("overlay_sensor_pop").style.filter = "none";
+}
+
+function off_overlay_sensor_pop(){
+	document.getElementById("overlay_sensor_pop").style.display = "none";
+  document.getElementById("main_div").style.filter = "none";
+  sensor_poped_flag = false;
 }
 var spinner_load= '<div id="circularG" style="margin-top:-5px"><div id="circularG_1" class="circularG"></div>';
 spinner_load += '<div id="circularG_2" class="circularG"></div>';
@@ -779,11 +817,11 @@ function build_sensor_list(input){
 }
 
 function check_sensor_online(){
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "/rpc/req.sense_online", true);
-	xhr.send();
-	xhr.onload = function(){
-		var data = xhr.responseText;
+	xhr_send_plain("req.sense_online", function(i){
+		if(i.code != 200){
+			return;
+		}
+		var data = i.res;
 		data = data.split("|");
 		for (var j = 0; data[j] != null; j++){
 			var datax = data[j].split(",");
@@ -794,9 +832,189 @@ function check_sensor_online(){
 				else if(status == 1){ status = ""}
 				document.getElementById(datax[0] + "_onl_sta").innerHTML = status;
 			}
+		}//for
+
+		//only execute if no pop up
+		if(sensor_poped_flag == false){
+			fetch_program_list();
 		}
-		
+	});//req sense online
+}
+
+function fetch_new_sensor_list(){
+	var pop_up_element = "";
+	sensor_name = [];
+	sensor_label = [];
+	xhr_send_plain("req.log_value", function(u){
+		var pop_up_flag = false;
+		var data = u.res;
+		data = data.split("|");
+		for(var i = 0; data[i] != null; i++){
+			var datax = data[i].split(",");
+			sensor_label[i] = datax[0];
+			sensor_name[i] = datax[3];
+			var new_flag = datax[4];
+			if(new_flag == '1'){
+				pop_up_element += '<input type="checkbox" id="'+datax[3]+'_en_new">'
+				pop_up_element += '<label for="' + datax[3]	+ '_en_new">'+datax[0]+'</label><br>'
+				pop_up_flag = true;
+			}
+			
+		}//end of for
+		if(pop_up_flag){
+			on_overlay_sensor_pop();
+			sensor_poped_flag = true;
+			document.getElementById("sensor_pop_box").innerHTML = pop_up_element;
+		}
+	});//log value for flagging new sensors found
+}
+
+var prog_number_created = 0;
+
+function execute_create_program(){
+	prog_number_created = 0;
+	var create_prog = "";
+	var x = 0;
+	for(var i = 2; sensor_name[i]!= null; i++){
+		if(document.getElementById(sensor_name[i]+"_en_new") != null){
+			
+			if(document.getElementById(sensor_name[i] + "_en_new").checked){
+				if(x != 0) create_prog += "|";
+				create_prog += sensor_label[i] + "," + (i-1);
+				x++;
+			}
+		}
 	}
+	if(create_prog == ""){
+		off_overlay_sensor_pop();
+		return;
+	}
+	if(!check_password()){
+		save_command_new_sensor = true;
+		on_overlay_login(2);
+		return;
+	}
+	on_overlay();
+	document.getElementById("circularG").style.display = 'block';
+	document.getElementById("spinner_info").innerHTML = "Saving..";
+	//validating cookie
+	validate_cookie(function(i){
+		if(i.code == 200 && i.data.status == "illegal"){
+			save_command_new_sensor = true;
+			document.getElementById("circularG").style.display = 'none';
+			document.getElementById("spinner_info").innerHTML = "Session end, please re-login!";
+			document.getElementById("relogin_button").style.display="block";
+			return;
+		}else if(i.code != 200){
+			//save_command_new_sensor = true;
+			document.getElementById("circularG").style.display = 'none';
+			var x = '<input type="button" style="font-size:16px" value="retry" onClick="execute_create_program()">';
+			x += '<input style="font-size:16px" type="button" value="cancel" onClick="off_overlay()">';
+			document.getElementById("spinner_info").innerHTML = i.status + '<br><br>' +  x;
+			
+			return;
+		}
+
+	create_prog = create_prog.split("|");
+	var prog_number_creating = create_prog.length;
+
+	var current_index_id = 0;
+	for(var i = 0; i < create_prog.length; i++){
+		var name_main = create_prog[i].split(",");
+		//searching for avaialble id
+		for (var j = current_index_id; j < 10; j++){
+			if(sensor_list_id[j] == null){
+				console.log("creating null program for " + name_main[0] + " id ->" + (j+1));
+				//id is j+1
+				var sending_json = JSON.stringify(default_program_json);
+				sending_json = JSON.parse(sending_json);
+				sending_json.id = String(j+1);
+				sending_json.control_trigger[0].main_option = name_main[1]; //option
+				sending_json.name = name_main[0] + "-null"; //program name
+				var prog_name = name_main[0].toLowerCase();
+				if(prog_name.indexOf("x60") >= 0 || prog_name.indexOf("x67") >= 0){
+					sending_json.setting = gauge_current_setting;
+					sending_json.setting.gauge1.max = 500;
+				}else if(prog_name.indexOf("temp") >= 0){
+					sending_json.setting = gauge_temp_setting;
+				}else if(prog_name.indexOf("light") >= 0){
+					sending_json.setting = gauge_light_setting;
+				}else if(prog_name.indexOf("hum") >= 0){
+					sending_json.setting = gauge_humidity_setting;
+				}else if(prog_name.indexOf("power") >= 0){
+					sending_json.setting = gauge_power_setting;
+				}else if(prog_name.indexOf("volt") >= 0){
+					sending_json.setting = gauge_voltage_setting;
+				}else if(prog_name.indexOf("current") >= 0){
+					sending_json.setting = gauge_current_setting;
+				}else if(prog_name.indexOf("press") >= 0){
+					sending_json.setting = gauge_humidity_setting;
+					sending_json.setting.gauge1.max = 1084;
+					sending_json.setting.gauge1.min = 870;
+				}
+				current_index_id = j+1;	 
+				//console.log(JSON.stringify(sending_json));
+				
+				var string = window.btoa(JSON.stringify(sending_json));
+				var content = {"filename": "program" + (j+1) +".json", "append":false, "data": string};
+				xhr_send("FS.put", JSON.stringify(content), function(i){
+					if(i.status != "success"){
+					}
+					prog_number_created++;
+					if(prog_number_created == prog_number_creating){
+						var x = "Widget(s) have succesfully been added <br><br>";
+						x += '<input type="button" style="font-size:16px" value="Confirm" onClick="off_overlay();off_overlay_sensor_pop()">';
+						document.getElementById("spinner_info").innerHTML  = x;
+						document.getElementById("circularG").style.display = 'none';
+					}
+					//console.log("program widget saved " + name_main[0] + " id ->" + (j+1));
+				});//end of fs.put
+				break;
+			}
+		}
+	}//for to create program json
+	
+	setTimeout(function(){
+		if(prog_number_created < prog_number_creating){
+				var x = "ERROR: Some widgets may not be added!<br><br>";
+				x += '<input type="button" style="font-size:16px" value="Confirm" onClick="off_overlay();off_overlay_sensor_pop()">';
+				document.getElementById("spinner_info").innerHTML  = x;
+				document.getElementById("circularG").style.display = 'none';
+		}	
+	},10000);
+
+	});//end of validate cookie
+}
+
+function fetch_program_list(){
+	console.log("fetch program list");
+	sensor_list_id = [];//emptying array or reset
+	prog_number = 0;
+	var i ;
+	var j = 0;
+	for(i = 1 ; i <= 10; i++){
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "/rpc/FS.Get", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	var comm = {"filename": "program"+(i)+".json"};
+	xhr.send(JSON.stringify(comm));
+	xhr.onload = function() {
+	var data = JSON.parse(this.responseText);
+	if(data.code == 400){
+		console.log("no good");
+	}else{
+		var prog_json = JSON.parse(window.atob(data.data));
+		var id = prog_json.id;
+		sensor_list_id[id-1]= id;
+		prog_number++;
+	}
+	j++;
+	if(j == 10){
+		fetch_new_sensor_list();	
+	}
+
+	}
+	}//for
 }
 //ota
 const form = document.querySelector("#uploadform");

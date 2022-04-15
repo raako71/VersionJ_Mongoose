@@ -1,12 +1,12 @@
 {"sensors":[
-{"addr":0,  "ext": true, "en": true, "name": "relay", "label": "Log Relay Status"},
-{"addr":96, "ext":false, "en":false, "name": "T60", "label":"Temp #60"}, 
-{"addr":103, "ext":false, "en":false, "name": "T67", "label":"Temp #67"}, 
-{"addr":97, "ext":false, "en":false, "name": "P61", "label":"Power #61"}, 
-{"addr":118, "ext":false, "en":false, "name": "BMEx76", "label":"Humidity, temperature, and pressure #76"}, 
-{"addr":119, "ext":false, "en":false, "name": "BMEx77", "label":"Humidity, temperature, and pressure #77"},
-{"addr":16, "ext":false, "en":false, "name": "L10", "label":"Light #10"},  
-{"addr":72, "ext":false, "en":false, "name": "L48", "label":"Light #48" },
-{"addr":68, "ext":false, "en":false, "name": "SHTx44", "label":"Temperature and Humidity #44"},  
-{"addr":69, "ext":false, "en":false, "name": "SHTx45", "label":"Temperature and Humidity #45"}
+{"new": false, "addr":0,  "ext": true, "en": true, "name": "relay", "label": "Log Relay Status"},
+{"new": false, "addr":96, "ext":false, "en":false, "name": "T60", "label":"Temp #60"}, 
+{"new": false, "addr":103, "ext":false, "en":false, "name": "T67", "label":"Temp #67"}, 
+{"new": false, "addr":97, "ext":false, "en":false, "name": "P61", "label":"Power #61"}, 
+{"new": false, "addr":118, "ext":false, "en":false, "name": "BMEx76", "label":"Humidity, temperature, and pressure #76"}, 
+{"new": false, "addr":119, "ext":false, "en":false, "name": "BMEx77", "label":"Humidity, temperature, and pressure #77"},
+{"new": false, "addr":16, "ext":false, "en":false, "name": "L10", "label":"Light #10"},  
+{"new": false, "addr":72, "ext":false, "en":false, "name": "L48", "label":"Light #48" },
+{"new": false, "addr":68, "ext":false, "en":false, "name": "SHTx44", "label":"Temperature and Humidity #44"},  
+{"new": false, "addr":69, "ext":false, "en":false, "name": "SHTx45", "label":"Temperature and Humidity #45"}
 ]}
