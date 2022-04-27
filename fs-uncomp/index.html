@@ -156,7 +156,6 @@ function initiate_widget_content(){
 			}
 
 		   text = "";
-			console.log(i + " " + w);
 			if(w >= 1 && w <= 20){
 				if(program_list[i-1].setting.type == 1){
 				text += "<span id=\"gaugetxt_"+i +"_" + w+ "\" class=\"gaugetxt\"></span>";
@@ -326,7 +325,7 @@ return a;
 }
 
 function initiate_gauge(progid, ctrl, setting){
-console.log("init gauge");
+//console.log("init gauge");
 var x = JSON.parse(JSON.stringify(gauge_opts));
 
 x.pointer.color = (theme_global == 2) ? "#636363": "black";
@@ -438,21 +437,8 @@ function update_graph(){
 	for (i = 0; i < sensor_list_name_log.length; i++){
 		eval('val_' + (i+1) + " =thishour_file.map(function(e){  return Number(e."+sensor_list_name_log[i]+"== '' ? null : e."+sensor_list_name_log[i]+")});"); 
 	}
-	
-	/*/var temp = thishour_file.map(function(e){
-		var a =  Number(e.column6 == '' ? null : e.column6);
-		return ((temp_unit_login == 2) ? C2F(a) : a);
-	});
-	var hum = thishour_file.map(function(e){
-		return Number(e.column7 == '' ? null : e.column7);
-	});
-	var light = thishour_file.map(function(e){
-		return Number(e.column9 == '' ? null : e.column9);
-	});
-	var power = thishour_file.map(function(e){
-		return Number(e.column4 == '' ? null : e.column4);
-	});*/
-	//var temp_arr = []; var hum_arr = []; var light_arr = []; var power_arr = [];
+
+	//val_x variable an arr_x variable and sensor_list_name_log are related each other with same number of elements
 	
 	//pusing value into array
 	for (i = 0; i < base.length ; i++){
@@ -468,15 +454,49 @@ function update_graph(){
 			if(eval("chart"+(i+1)+".data.datasets[0] != null")){
 				if(program_list[i].var1 >= 1 && program_list[i].var1 <= 20){
 					//eval("chart"+(i+1)+".data.datasets[0].data = sens_val["+(program_list[i].var1 -1)+"]");
+					
+					//check if this widget have temp_unit
+					if(program_list[i].setting.temp_unit != null){
+						if(Number(program_list[i].setting.temp_unit) == 2){ //check if this widget temp_unit is fahrenheit
+							var arr_length = eval("arr_"+program_list[i].var1 + ".length");
+							var label_log = sensor_list_name_log[program_list[i].var1 - 1];
+
+							//only treat temperature variable
+							if(label_log[0] == 'T' || label_log.indexOf("_T") != -1){
+								for(var j = 0; j < arr_length ; j++){
+									eval("arr_"+program_list[i].var1+"["+j+"].y = C2F(arr_"+program_list[i].var1+"["+j+"].y)" );
+								}
+							}
+						}
+					}
+
+					//only chance to change temperature value is here
 					eval("chart"+(i+1)+".data.datasets[0].data = arr_"+program_list[i].var1);
 				}else if(program_list[i].var1 == 9 && program_list[i].var2 != -1){
-					//eval("chart"+(i+1)+".data.datasets[0].data = sens_val["+(program_list[i].var2 -1)+"]");
+					//check if this widget have temp_unit
+					if(program_list[i].setting.temp_unit != null){
+						if(Number(program_list[i].setting.temp_unit) == 2){ //check if this widget temp_unit is fahrenheit
+							var arr_length = eval("arr_"+program_list[i].var2 + ".length");
+							var label_log = sensor_list_name_log[program_list[i].var2 - 1];
+
+							//only treat temperature variable
+							if(label_log[0] == 'T' || label_log.indexOf("_T") != -1){
+								for(var j = 0; j < arr_length ; j++){
+									eval("arr_"+program_list[i].var2+"["+j+"].y = C2F(arr_"+program_list[i].var2+"["+j+"].y)" );
+								}
+							}
+						}
+					}
+
+					//only chance to change temperature value is here
 					eval("chart"+(i+1)+".data.datasets[0].data = arr_"+program_list[i].var2);
+
 				}
-			}
+			}//end of dataset[0] not null
 			if(eval("chart"+(i+1)+".data.datasets[1] != null")){
 				if(program_list[i].var2 >= 1 && program_list[i].var2 <= 20){
 					//eval("chart"+(i+1)+".data.datasets[1].data = sens_val["+(program_list[i].var2 -1)+"]");
+					//only chance to change temperature value is here
 					eval("chart"+(i+1)+".data.datasets[1].data = arr_"+program_list[i].var2);
 				}
 			}
@@ -501,9 +521,9 @@ for (var j = 2; data[j] != null; j++){
 	var datax = data[j].split(",");
 	var num = Number(datax[1]);
 	var en = Number(datax[2]);
-	if(trigger_name[j-2].toLowerCase().indexOf("temp") != -1){
-		num = (temp_unit_login == 2) ? C2F(num) : num; 
-	}
+	//if(trigger_name[j-2].toLowerCase().indexOf("temp") != -1){
+	//	num = (temp_unit_login == 2) ? C2F(num) : num; 
+	//}
 	trigger_value[j-2] = num;
 	if(en == 0 && trigger_en[j-2] == 1){
 		window.location.reload(true);
@@ -566,6 +586,14 @@ for (k = 1 ; k <= 20 ; k++){
 	var os_pt = document.getElementById("gaugetxt_"+(i+1)+"_"+k);
 	if(type == 1 && os_pt != null){
 		if(trigger_value[k-1] != -1){
+			if(program_list[i].setting.temp_unit != null && trigger_unit[k-1].indexOf("&#176;") != -1){
+				if(Number(program_list[i].setting.temp_unit) == 2 ){
+				 trigger_value[k-1] = C2F(trigger_value[k-1]);
+				 trigger_unit[k-1] = "&#176;F";
+				}else{
+					trigger_unit[k-1] = "&#176;C";
+				}
+			}
 			os_pt.innerHTML = trigger_value[k-1] +" "+ trigger_unit[k-1];
 		}else{
 			os_pt.innerHTML = "<span style='color:red'>Error!</span>";
@@ -594,6 +622,7 @@ var pin_element = "Switched: <span " + ((OS[ovr_pin_status[1]] == 0) ? ">&nbsp; 
 });//end of xhr_send req.log_value
 }
 
+
 function off_overlay_setting(){
  document.getElementById("overlay_widget_setting").style.display = "none";
  document.getElementById("main_div").style.filter = "none";
@@ -611,6 +640,8 @@ x += '<div id="setting_info" style="margin-top:10px;font-size:13px"></div>';
 x += '<div style="margin:20px auto"><input type="button" value="SAVE" onclick="save_widget_setting('+input+')">';
 x += '<input type="button" value="CLOSE" onClick="off_overlay_setting()"></div>';
 document.getElementById("widget_setting_box").innerHTML = x;
+
+
 
 //load setting
 var a = document.getElementById("max_val1");
@@ -671,6 +702,16 @@ if(en1 == 0 || en2 == 0){
 	document.getElementById("widget_type_holder").classList.add("unclickable_grey");
 	set_type.style.color = 'grey';
 }
+
+var temp_unit = document.getElementById("temp_unit_select");
+if(set.temp_unit != null){
+	temp_unit.value = set.temp_unit;
+}else{
+	temp_unit.value = 1;
+	document.getElementById("temp_unit_holder").classList.add("unclickable_grey");
+	temp_unit.style.color = 'grey';
+}
+
 }
 
 function setting_page_builder(id){
@@ -679,6 +720,7 @@ var w = program_list[id-1].var2;
 var ret = "<b>" + program_list[id-1].name + " Widget</b><br><br>";
 if((v >= 1 && v <= 20) || (v == 29 && w != -1)){
 ret += '<div id="widget_type_holder"><label for="setting_type">Indicator type: </label><select onchange="indicator_loader(this.value)" name="setting_type" id="setting_type"><option value="1">Gauge</option><option value="2">Graph</option></select></div>';
+ret += '<div id="temp_unit_holder"><label for="temp_unit_select">Temperature Unit: </label><select name="temp_unit_select" id="temp_unit_select"><option value=1> C</option><option value=2> F </option></select></div>';
 ret += '<div id= "graph_setting_holder"><br>';
 if(v != 29){
 ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
@@ -775,6 +817,10 @@ function save_widget_setting(id){
 	var old_json;
 	//verification before everything
 	var info = document.getElementById("setting_info");
+	var temp_unit;
+	if(document.getElementById("temp_unit_select") != null){
+		temp_unit = document.getElementById("temp_unit_select").value;
+	}
 	info.innerHTML = "";
 	if( a != null){ 
 	if( a.value == ""){info.innerHTML = "gauge 1 max value cannot be empty"; return;}
@@ -818,6 +864,9 @@ function save_widget_setting(id){
 	var set = {type:1, gauge1:{max:1000, min: 0, upval:-1, loval:-1, ocolor:"-1", icolor:"-1", max_label:"", min_label:"", llabel:"", ulabel:""}, 
 	gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ocolor:"-1", icolor:"-1", max_label:"", min_label:"", llabel:"", ulabel:""},
 	graph1:{cubic_en:false}, graph2:{cubic_en:false} };
+	if(temp_unit != null){
+		set.temp_unit = temp_unit;
+	}
 	if(a != null){set.gauge1.max = a.value;}
 	if(b != null){set.gauge2.max = b.value;}
 	if(c != null){set.gauge1.min = c.value;}
@@ -837,7 +886,7 @@ function save_widget_setting(id){
 	if(z != null){set.type = z.value;}
 	if(x1 != null){set.graph1.cubic_en = x1.checked;}
 	if(x2 != null){set.graph2.cubic_en = x2.checked;}
-	console.log(set);
+	//console.log(set);
 	//info.innerHTML = spinner_load;
 	xhr_send("FS.get", JSON.stringify({filename:"program"+id+".json"}), function(i){
 		if(i.code != 200){
@@ -981,8 +1030,7 @@ function req_log_value(){ //requesting log label and value
 			trigger_en.push(en);
 			//pushing unit to global variable
 			if(datax[0].toLowerCase().indexOf("temp")  != -1){ //temp unit
-				if(temp_unit_login == 2){ trigger_unit.push("F")} //fahrenheit
-				else{trigger_unit.push("C");} //celcius
+				trigger_unit.push("&#176;C"); //celcius
 			}else if(datax[0].toLowerCase().indexOf("power") != -1){
 				trigger_unit.push("W");
 			}else if(datax[0].toLowerCase().indexOf("light") != -1){

@@ -421,7 +421,10 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 							var array_sensor = [];
 							//push value to array epoch with values
 							for (j = 0; j < base.length ; j++){
-								array_sensor.push({x: base[j], y: parsed_data[j]});
+								if(name.toLowerCase().indexOf("temp") != -1 && temp_unit_login ==2) {
+									parsed_data[j] = C2F(parsed_data[j]);
+								}
+								array_sensor.push({x: base[j], y: parsed_data[j]})
 							}
 							//set to graph config
 							chart_entity[i].data = array_sensor;
@@ -479,6 +482,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 							var array_sensor = [];
 							//push value to array epoch with values
 							for (j = 0; j < base.length ; j++){
+								if(name.toLowerCase().indexOf("temp") != -1 && temp_unit_login ==2) {
+									parsed_data[j] = C2F(parsed_data[j]);
+								}
 								array_sensor.push({x: base[j], y: parsed_data[j]});
 							}
 							//set to graph config
@@ -537,6 +543,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 							var array_sensor = [];
 							//push value to array epoch with values
 							for (j = 0; j < base.length ; j++){
+								if(name.toLowerCase().indexOf("temp") != -1 && temp_unit_login ==2) {
+									parsed_data[j] = C2F(parsed_data[j]);
+								}
 								array_sensor.push({x: base[j], y: parsed_data[j]});
 							}
 							//set to graph config
@@ -595,6 +604,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 							var array_sensor = [];
 							//push value to array epoch with values
 							for (j = 0; j < base.length ; j++){
+								if(name.toLowerCase().indexOf("temp") != -1 && temp_unit_login ==2) {
+									parsed_data[j] = C2F(parsed_data[j]);
+								}
 								array_sensor.push({x: base[j], y: parsed_data[j]});
 							}
 							//set to graph config
@@ -653,6 +665,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 							var array_sensor = [];
 							//push value to array epoch with values
 							for (j = 0; j < base.length ; j++){
+								if(name.toLowerCase().indexOf("temp") != -1 && temp_unit_login ==2) {
+									parsed_data[j] = C2F(parsed_data[j]);
+								}
 								array_sensor.push({x: base[j], y: parsed_data[j]});
 							}
 							//set to graph config

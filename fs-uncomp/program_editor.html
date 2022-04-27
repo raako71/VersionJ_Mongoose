@@ -69,7 +69,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 </span>
 </div>
 
-<h1 id="home_text_disp" style="display:inline"> Socket Controller Dashboard</h1> <h1 style="display:inline-block">&nbsp;Program Editor</h1>
+<h1 id="home_text_disp" style="display:inline">Socket Controller</h1> <h1 style="display:inline-block">&nbsp;Program Editor</h1>
 <br>
 <input type="file" id="selectedFile" style="display: none;"  accept=".json"/>
 <input type="button" value="Import Program" onclick="document.getElementById('selectedFile').value = '';document.getElementById('selectedFile').click();" /><br>	
@@ -229,37 +229,37 @@ function getUrlParam(parameter, defaultvalue){var urlparameter = defaultvalue;if
 
 //duty cycle div builder
 function duty_cycle_builder(name){
-var ret = '<div class="trigger_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
-ret += '<input type="checkbox" id=\"'+name+'_en_sec_on\" onClick=\"toggle_field(this,\''+name+'_sec_on\')\">';
-ret += '<input type="text" id="'+name+ '_sec_on" class="greycolor" readOnly>';
-ret += '<span id="'+name+'_sec_on_label" class="greyed_label">Sec</span>';
-ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_min_on" onClick="toggle_field(this,\''+name+'_min_on\')\"><input type="text" id="'+name+ '_min_on" class="greycolor" readOnly>';
-ret += '<span id="'+name+'_min_on_label" class="greyed_label">Min</span>';
-ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_hrs_on" onClick="toggle_field(this,\''+name+'_hrs_on\')\"><input type="text" id="'+name+ '_hrs_on" class="greycolor" readOnly>';
-ret += '<span id="'+name+'_hrs_on_label" class="greyed_label">Hrs</span>';
-ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_day_on" onClick="toggle_field(this,\''+name+'_day_on\')\"><input type="text" id="'+name+ '_day_on" class="greycolor" readOnly>';
-ret += '<span id="'+name+'_day_on_label" class="greyed_label">Day</span></div>';
-ret += '<div style="margin-top:15px">Switch output off for: &nbsp; ';
-ret += '<input type="checkbox" id=\"'+name+'_en_sec_off\" onClick="toggle_field(this,\''+name+'_sec_off\')\">';
-ret += '<input type="text" id="'+name+'_sec_off" class="greycolor" readOnly>';
-ret += '<span id="'+name+'_sec_off_label" class="greyed_label">Sec</span>';
-ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_min_off\" onClick="toggle_field(this,\''+name+'_min_off\')\">';
-ret += '<input type="text" id="'+name+'_min_off" class="greycolor" readOnly>';
-ret += '<span id="'+name+'_min_off_label" class="greyed_label">Min</span>';
-ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_hrs_off\" onClick="toggle_field(this,\''+name+'_hrs_off\')\">';
-ret += '<input type="text" id="'+name+'_hrs_off" class="greycolor" readOnly>';
-ret += '<span id="'+name+'_hrs_off_label" class="greyed_label">Hrs</span>';
-ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_day_off\" onClick="toggle_field(this,\''+name+'_day_off\')\">';
-ret += '<input type="text" id="'+name+'_day_off" class="greycolor" readOnly>';
-ret += '<span id="'+name+'_day_off_label" class="greyed_label">Day</span></div>';
-ret += '<div  style="margin-top:15px">';
-ret += 'Loop Cycle &nbsp;<label style="position:relative; top:-4px"class="switch2"><input onchange="if(this.checked){document.getElementById(\'' + name + '_init_box\').style.display=\'none\';}';
-ret += 'else{document.getElementById(\'' + name + '_init_box\').style.display = \'block\'};"';
-ret += 'type="checkbox" id="'+name+'_loop"><span class="slider2 round"></label>&nbsp; Run Cycle Once & reset</div>';
-ret += '<div  style="margin-top:10px" id="'+name+'_init_box">';
-ret += 'Initial state: &nbsp;<label style="position:relative; top:-4px" class="switch"><input type="checkbox" id=\"'+name+'_init\"><span class="slider round"></label></div>';
-ret += '</div>';
-return ret;
+	var ret = '<div class="trigger_container" style="border:1px solid; border-radius:10px; padding:10px"><div >Switch output on for: &nbsp; ';
+	ret += '<input type="checkbox" id=\"'+name+'_en_sec_on\" onClick=\"toggle_field(this,\''+name+'_sec_on\')\">';
+	ret += '<input type="text" id="'+name+ '_sec_on" class="greycolor" readOnly>';
+	ret += '<span id="'+name+'_sec_on_label" class="greyed_label">Sec</span>';
+	ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_min_on" onClick="toggle_field(this,\''+name+'_min_on\')\"><input type="text" id="'+name+ '_min_on" class="greycolor" readOnly>';
+	ret += '<span id="'+name+'_min_on_label" class="greyed_label">Min</span>';
+	ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_hrs_on" onClick="toggle_field(this,\''+name+'_hrs_on\')\"><input type="text" id="'+name+ '_hrs_on" class="greycolor" readOnly>';
+	ret += '<span id="'+name+'_hrs_on_label" class="greyed_label">Hrs</span>';
+	ret += '&nbsp;&nbsp;<input type="checkbox" id="'+name+'_en_day_on" onClick="toggle_field(this,\''+name+'_day_on\')\"><input type="text" id="'+name+ '_day_on" class="greycolor" readOnly>';
+	ret += '<span id="'+name+'_day_on_label" class="greyed_label">Day</span></div>';
+	ret += '<div style="margin-top:15px">Switch output off for: &nbsp; ';
+	ret += '<input type="checkbox" id=\"'+name+'_en_sec_off\" onClick="toggle_field(this,\''+name+'_sec_off\')\">';
+	ret += '<input type="text" id="'+name+'_sec_off" class="greycolor" readOnly>';
+	ret += '<span id="'+name+'_sec_off_label" class="greyed_label">Sec</span>';
+	ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_min_off\" onClick="toggle_field(this,\''+name+'_min_off\')\">';
+	ret += '<input type="text" id="'+name+'_min_off" class="greycolor" readOnly>';
+	ret += '<span id="'+name+'_min_off_label" class="greyed_label">Min</span>';
+	ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_hrs_off\" onClick="toggle_field(this,\''+name+'_hrs_off\')\">';
+	ret += '<input type="text" id="'+name+'_hrs_off" class="greycolor" readOnly>';
+	ret += '<span id="'+name+'_hrs_off_label" class="greyed_label">Hrs</span>';
+	ret += '&nbsp;&nbsp;<input type="checkbox" id=\"'+name+'_en_day_off\" onClick="toggle_field(this,\''+name+'_day_off\')\">';
+	ret += '<input type="text" id="'+name+'_day_off" class="greycolor" readOnly>';
+	ret += '<span id="'+name+'_day_off_label" class="greyed_label">Day</span></div>';
+	ret += '<div  style="margin-top:15px">';
+	ret += 'Loop Cycle &nbsp;<label style="position:relative; top:-4px"class="switch2"><input onchange="if(this.checked){document.getElementById(\'' + name + '_init_box\').style.display=\'none\';}';
+	ret += 'else{document.getElementById(\'' + name + '_init_box\').style.display = \'block\'};"';
+	ret += 'type="checkbox" id="'+name+'_loop"><span class="slider2 round"></label>&nbsp; Run Cycle Once & reset</div>';
+	ret += '<div  style="margin-top:10px" id="'+name+'_init_box">';
+	ret += 'Initial state: &nbsp;<label style="position:relative; top:-4px" class="switch"><input type="checkbox" id=\"'+name+'_init\"><span class="slider round"></label></div>';
+	ret += '</div>';
+	return ret;
 }
 
 function toggle(input){
@@ -491,6 +491,23 @@ function load_ctrl_action(){
 	
 	var selection = document.getElementById("ctrl_trigger").value;
 	var el = document.getElementById("trigger_action_holder");
+
+	//ctrl trigger option adjuster
+	var op = document.getElementById("ctrl_trigger").getElementsByTagName("option");
+	for(var x = 0; x < op.length ; x++){
+		if(Number(op[x].value) > 20 ){
+			op[x].disabled = document.getElementById("ctrl_out_opt").value == 5 ? true: false;
+			if(document.getElementById("ctrl_out_opt").value == 5) op[x].selected = false;
+		}
+	}
+
+	if(document.getElementById('ctrl_out_opt').value == 5){
+		el.innerHTML = "";
+		return;
+	}
+
+
+
 	if(selection >= 1 && selection <= 20){
 		el.innerHTML = action_A;
 		setInputFilter(document.getElementById("action_A_value_on"), function(value) {  return /^-?\d*[.,]?\d*$/.test(value); });
@@ -536,16 +553,16 @@ function toggle_field(input, action){
 
 function day_list(){ 
 	if(document.getElementById("day_list_en").checked){
-	var day = document.getElementById("sunday").checked ? "1" : "0";
-	day += document.getElementById("monday").checked ? "1" : "0";
-	day += document.getElementById("tuesday").checked ? "1" : "0";
-	day += document.getElementById("wednesday").checked ? "1" : "0";
-	day += document.getElementById("thursday").checked ? "1" : "0";
-	day += document.getElementById("friday").checked ? "1" : "0";
-	day += document.getElementById("saturday").checked ? "1" : "0";
-	return day;
+		var day = document.getElementById("sunday").checked ? "1" : "0";
+		day += document.getElementById("monday").checked ? "1" : "0";
+		day += document.getElementById("tuesday").checked ? "1" : "0";
+		day += document.getElementById("wednesday").checked ? "1" : "0";
+		day += document.getElementById("thursday").checked ? "1" : "0";
+		day += document.getElementById("friday").checked ? "1" : "0";
+		day += document.getElementById("saturday").checked ? "1" : "0";
+		return day;
 	}else{
-	return "";
+		return "";
 	}
 }
 
@@ -785,32 +802,41 @@ var k = document.getElementById("ctrl_trigger").value;
 old_json.control_trigger[0].main_option = k;
 var m; var y =""; var n =-1;
 if(k >= 1 && k <= 20){
-	var on_val = ((get_chkbox_val("pri_switched_on") == 1) ? (document.getElementById("action_A_cmpr_on").value + "," + save2decimal(document.getElementById("action_A_value_on").value)) : "");
-	var off_val = ((get_chkbox_val("pri_switched_off") == 1)? (document.getElementById("action_A_cmpr_off").value + "," + save2decimal(document.getElementById("action_A_value_off").value)): "");
-	var on_val_sec = "";var off_val_sec = "";
-	var x = document.getElementById("sec_trigger_on");
+	if(old_json.control_opt != 5){
+		var on_val = ((get_chkbox_val("pri_switched_on") == 1) ? (document.getElementById("action_A_cmpr_on").value + "," + save2decimal(document.getElementById("action_A_value_on").value)) : "");
+		var off_val = ((get_chkbox_val("pri_switched_off") == 1)? (document.getElementById("action_A_cmpr_off").value + "," + save2decimal(document.getElementById("action_A_value_off").value)): "");
+		var on_val_sec = "";var off_val_sec = "";
+		var x = document.getElementById("sec_trigger_on");
 	if(x != null){
-	n = x.value;
-	if(x.value >= 1 && x.value <= 20){
-	n = (get_chkbox_val("sec_switched_on") == 1 || get_chkbox_val("sec_switched_off") == 1) ? x.value : -1;
-	on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("sec_comp_on").value + "," + save2decimal(document.getElementById("sec_value_on").value)) : "");
-	off_val_sec = ((get_chkbox_val("sec_switched_off") == 1) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("sec_comp_off").value + "," + save2decimal(document.getElementById("sec_value_off").value)) : "");
-	y = {sec_on: on_val_sec, sec_off: off_val_sec};
-	y = JSON.stringify(y);
-	}else if (x.value == 25){
-	n = (get_chkbox_val("sec_switched_on") == 1) ? x.value : -1;
-	y = (get_chkbox_val("sec_switched_on") == 1) ? document.getElementById("sec_operator_on").value + ","  + JSON.stringify(fetch_duty_cycle_info("sec_dc")) : "";
-	console.log(y);
-	}else{
-	n = (get_chkbox_val("sec_switched_on") == 1 || get_chkbox_val("sec_switched_off") == 1) ? x.value : -1;
-	on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("action_E_sec_value_on").value) : "");
-	off_val_sec = ((get_chkbox_val("sec_switched_off") == 1 ) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("action_E_sec_value_off").value): "");
-	y = {sec_on: on_val_sec, sec_off: off_val_sec};
-	y = JSON.stringify(y);
+		n = x.value;
+		if(x.value >= 1 && x.value <= 20){
+		n = (get_chkbox_val("sec_switched_on") == 1 || get_chkbox_val("sec_switched_off") == 1) ? x.value : -1;
+		on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("sec_comp_on").value + "," + save2decimal(document.getElementById("sec_value_on").value)) : "");
+		off_val_sec = ((get_chkbox_val("sec_switched_off") == 1) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("sec_comp_off").value + "," + save2decimal(document.getElementById("sec_value_off").value)) : "");
+		y = {sec_on: on_val_sec, sec_off: off_val_sec};
+		y = JSON.stringify(y);
+		}else if (x.value == 25){
+		n = (get_chkbox_val("sec_switched_on") == 1) ? x.value : -1;
+		y = (get_chkbox_val("sec_switched_on") == 1) ? document.getElementById("sec_operator_on").value + ","  + JSON.stringify(fetch_duty_cycle_info("sec_dc")) : "";
+		console.log(y);
+		}else{
+		n = (get_chkbox_val("sec_switched_on") == 1 || get_chkbox_val("sec_switched_off") == 1) ? x.value : -1;
+		on_val_sec = ((get_chkbox_val("sec_switched_on") == 1) ? (document.getElementById("sec_operator_on").value + "," + document.getElementById("action_E_sec_value_on").value) : "");
+		off_val_sec = ((get_chkbox_val("sec_switched_off") == 1 ) ? (document.getElementById("sec_operator_off").value + "," + document.getElementById("action_E_sec_value_off").value): "");
+		y = {sec_on: on_val_sec, sec_off: off_val_sec};
+		y = JSON.stringify(y);
+		}
+	}//x != nulll -> sec trigger not null
+		m = {pri_on: on_val,pri_off:off_val};
+		m = JSON.stringify(m);
+	} // ctrl output option is not null
+	else{
+		m = {pri_on: "",pri_off:""};
+		m = JSON.stringify(m);
+		y = {sec_on: "", sec_off: ""};
+		y = JSON.stringify(y);
 	}
-	}//x != nulll
-	m = {pri_on: on_val,pri_off:off_val};
-	m = JSON.stringify(m);
+
 }else if(k == 26){
 	n = -1; y = "";
 	m = JSON.stringify(fetch_duty_cycle_info("action_C"));
@@ -859,6 +885,26 @@ if((z1 >= 1 && z1 <= 20) || (z1 == 29 && z2 != -1)){
 	if(widget_setting == ""){
 		old_json.setting = {type:1, gauge1:{max:1000, min: 0, esz: false, evl: false ,upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}, 
 		gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}, graph1:{cubic_en:false}, graph2:{cubic_en:false}};
+		
+		//adding temp unit if first trigger option is related to temp
+		if(old_json.control_trigger[0].main_option != -1){
+			var sel = document.getElementById("ctrl_trigger");
+			console.log("hola");
+			sel = sel.options[sel.selectedIndex].innerHTML;
+			if(sel.toLowerCase().indexOf("temp") != -1){
+				old_json.setting.temp_unit = 1;
+			}
+		}
+
+		//adding temp if secondary option is temp and temp_unit is not added yet
+		if(old_json.control_trigger[0].sec_option != -1 && old_json.setting.temp_unit != null){
+			var sel = document.getElementById("sec_trigger_on");
+			sel = sel.options[sel.selectedIndex].innerHTML;
+			if(sel.toLowerCase().indexOf("temp") != -1){
+				old_json.setting.temp_unit = 1;
+			}	
+		}
+
 	}else{old_json.setting = widget_setting;}
 }else{
 old_json.setting = "";
@@ -1099,7 +1145,7 @@ function parse_config(input){
 	var c = input.control_trigger[0].sec_option;
 	var d= input.control_trigger[0].sec_info;
 		
-	if(a >= 1 && a <= 20){
+	if(a >= 1 && a <= 20 && input.control_opt != 5){
 	b = JSON.parse(b);
 	var pon = b.pri_on;
 	var poff = b.pri_off;

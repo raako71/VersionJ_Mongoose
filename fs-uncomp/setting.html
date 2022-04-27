@@ -261,7 +261,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 	var default_program_json = {"id": "", "name":"", "en":true, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "|-1", "off_time_global":"|-1"
 ,"control_opt": "5","control_trigger":[{"main_option": "", "main_info": "{\"pri_on\":\"\",\"pri_off\":\"\"}", "sec_option": -1, "sec_info":"{\"sec_on\":\"\",\"sec_off\":\"\"}"}], "setting":""};
-	var gauge_temp_setting = {"type":"1","gauge1":{"max":"50","min":"0","upval":"30","loval":"20","ocolor":"#FDD017","icolor":"#5EFB6E","max_label":"","min_label":"","llabel":"","ulabel":"","esz":true,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""}, graph1:{cubic_en:false}, graph2:{cubic_en:false}};
+	var gauge_temp_setting = {"type":"1","temp_unit": 1, "gauge1":{"max":"50","min":"0","upval":"30","loval":"20","ocolor":"#FDD017","icolor":"#5EFB6E","max_label":"","min_label":"","llabel":"","ulabel":"","esz":true,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""}, graph1:{cubic_en:false}, graph2:{cubic_en:false}};
 	var gauge_light_setting = {"type":"1","gauge1":{"max":"500","min":"0","upval":"-1","loval":"-1","ocolor":"#5EFB6E","icolor":"#5EFB6E","max_label":"","min_label":"","llabel":"","ulabel":"","esz":false,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""},graph1:{cubic_en:false}, graph2:{cubic_en:false} };
 	var gauge_power_setting = {"type":"1","gauge1":{"max":"4000","min":"0","upval":"-1","loval":"-1","ocolor":"#ff0707","icolor":"#ff0707","max_label":"","min_label":"","llabel":"","ulabel":"","esz":false,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""},graph1:{cubic_en:false}, graph2:{cubic_en:false} };
 	var gauge_current_setting = {"type":"1","gauge1":{"max":"15","min":"0","upval":"-1","loval":"-1","ocolor":"#FDD017","icolor":"#FDD017","max_label":"","min_label":"","llabel":"","ulabel":"","esz":false,"evl":true},"gauge2":{"max":1000,"min":0,"esz":false,"evl":false,"upval":-1,"loval":-1,"ocolor":"-1","icolor":"-1","max_label":"","min_label":"","llabel":"","ulabel":""},graph1:{cubic_en:false}, graph2:{cubic_en:false} };
@@ -934,6 +934,7 @@ function execute_create_program(){
 				var prog_name = name_main[0].toLowerCase();
 				if(prog_name.indexOf("x60") >= 0 || prog_name.indexOf("x67") >= 0){
 					sending_json.setting = gauge_current_setting;
+					sending_json.setting.temp_unit = 1;
 					sending_json.setting.gauge1.max = 500;
 				}else if(prog_name.indexOf("temp") >= 0){
 					sending_json.setting = gauge_temp_setting;

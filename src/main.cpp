@@ -347,6 +347,7 @@ static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_f
 static void sensor_log_change(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void checkJSONsetting();
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
+void reset_sensors(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void pushTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void reset_timer(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void get_wifi_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
@@ -547,7 +548,6 @@ static void logging_cb(void *arg){
 					sensor_online.at(i) = 1;
 				}
 				sensor_new.at(a) = sensor_new_file.at(i);
-				
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x67){
 				int a = get_index_name(sensor_name_log, "T67");
@@ -675,6 +675,7 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mg_rpc_add_handler(mgos_rpc_get_global(), "update_sensor_log","", sensor_log_change, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "getTime", "", getTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "delReq", "{comm:%Q}", requestDel, NULL);
+  	mg_rpc_add_handler(mgos_rpc_get_global(), "reset_sensor", "{key:%lu}", reset_sensors, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "pushTime", "{epoch:%ld}", pushTime, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "dnsAdvertise", "", dns_advertise, NULL);
   	mg_rpc_add_handler(mgos_rpc_get_global(), "req_widget", "", request_widget_data, NULL);
@@ -1819,6 +1820,60 @@ void checkJSONsetting(){
 
 	free(buff); free(buff_b);
 }
+
+void reset_sensors(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
+	const char* tmp_name = "tmp.json";
+	unsigned long ver_key_local; //require verification key to reset sensors
+	if (json_scanf(args.p, args.len, ri->args_fmt, &ver_key_local) == 1) {
+   		if(current_ver_key == ver_key_local){
+   			mg_rpc_send_responsef(ri, "OK");	
+		}else{
+			mg_rpc_send_responsef(ri, "WRONG");
+		}	
+  	} else {
+    	mg_rpc_send_errorf(ri, -1, "Bad request");
+    	return;
+  	}
+
+	for(int i = 0; i < sensor_addr_list.size(); i++){
+		sensor_new_file.at(i) = false;
+		std::string b = ".sensors[" + std::to_string(i) + "].new"; ///new
+		char* buff = (char*)malloc(1500);
+		buff = json_fread("sensors.json");
+		FILE *fp = fopen(tmp_name, "w");
+		struct json_out out = JSON_OUT_FILE(fp);
+		json_setf(buff, strlen(buff), &out, b.c_str(), "%B", false);
+		fclose(fp);
+		rename(tmp_name, "sensors.json");
+	}
+
+	for(int i = 0; i < sensor_addr_list.size(); i++){
+		sensor_new_file.at(i) = false;
+		std::string a = ".sensors[" + std::to_string(i) + "].ext"; ///new
+		char* buff = (char*)malloc(1500);
+		buff = json_fread("sensors.json");
+		FILE *fp = fopen(tmp_name, "w");
+		struct json_out out = JSON_OUT_FILE(fp);
+		json_setf(buff, strlen(buff), &out, a.c_str(), "%B", false);
+		fclose(fp);
+		rename(tmp_name, "sensors.json");
+	}
+	//remove all files
+	remove("/mnt/1970longTermData.csv");
+    remove("/mnt/1970Month.csv");
+    remove("/mnt/1970Week.csv");
+	remove("/mnt/1970Day.csv");
+	remove("/mnt/1970Hour.csv");
+    
+    remove("/mnt/longTermData.csv");
+    remove("/mnt/thisMonth.csv");
+    remove("/mnt/thisWeek.csv");
+    remove("/mnt/thisDay.csv");
+    remove("/mnt/thisHour.csv");
+
+	(void) cb_arg;
+	(void) fi;
+}
 void requestDel(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	char *command = (char*)malloc(11);
 	if (json_scanf(args.p, args.len, ri->args_fmt, &command) == 1) {
@@ -2633,7 +2688,7 @@ else if(main_opt == 28){ ///remote push button
 		int loop = sec[1] == '1'; // 0 -> is loop, 1 -> fired once
 		long on_timer = stol(value.substr(0, value.find(",")));
 		long off_timer = stol(value.substr(value.find(",")+1));
-		int sec_info = sec_info_b[0] - '0';
+		//int sec_info = sec_info_b[0] - '0';
 		//determine initial
 		if(prog_timer_state[ctrl_pin-1] == 0){
 			prog_timer_state[ctrl_pin-1] = -1;//this variable is used to indicate first time //timer is idle

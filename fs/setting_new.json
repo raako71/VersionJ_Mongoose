@@ -1,7 +1,7 @@
 {"rc_1970day": true, 
 "rc_thisday":true,
 "eth_en":true, "i2c_en":true,
-"wifi": {"mode": 1, "cfg":[{"ssid": "Intertube5", "pass":"*Vecto4*"}, {"ssid":"Farm", "pass":"farm798!"}, {"ssid":"RumahOrang", "pass":"25051969"}]}, 
+"wifi": {"mode": 1, "cfg":[{"ssid": "Intertube5", "pass":"*Vecto4*"}, {"ssid":"Farm", "pass":"farm798!"}, {"ssid":"poultry pong", "pass":"11081997"}]}, 
 "pwr_sensor":[{"enable":true}],
 "static_IP_conf": [{"enable": false, "IP":"" , "SN":"" , "GW":""}],
 "timezone":0, "dec_place": 2, "dev_mode": false,

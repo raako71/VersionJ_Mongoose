@@ -1,6 +1,6 @@
 author: alifnl
-description: add widget null on flag, datalog finishing left
-version: 0.10.9.5
+description: add reset sensors and reset sensors button on datalog, can set temp unit in widget independently, graph page temp unit based on setting page
+version: 0.10.9.5.1
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
