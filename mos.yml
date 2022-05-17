@@ -1,6 +1,6 @@
 author: alifnl
-description: add reset sensors and reset sensors button on datalog, can set temp unit in widget independently, graph page temp unit based on setting page
-version: 0.10.9.5.1
+description: update to synchronize firmware, some correction as marked in shared doc
+version: 0.10.9.5.2
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
@@ -58,6 +58,13 @@ config_schema:
   - ["i2c.scl_gpio", "i", 33, {title: "GPIO to use for SCL"}]
   - ["wifi.ap.ssid", "Socket Controller"]
   - ["wifi.ap.pass", "lultech1"]
+  - ["wifi.ap.ip", "192.168.1.1"]
+  - ["wifi.ap.netmask", "255.255.255.0"]
+  - ["wifi.ap.gw", "192.168.1.1"]
+  - ["wifi.ap.dhcp_start", "192.168.1.2"]
+  - ["wifi.ap.dhcp_end", "192.168.1.100"]
+  - ["wifi.ap.channel", 6]
+  - ["wifi.ap.max_connections", 10]
   
 libs:
   - origin: https://github.com/mongoose-os-libs/boards

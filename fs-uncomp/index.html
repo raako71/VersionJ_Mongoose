@@ -79,16 +79,16 @@ var gauge_9_1;var gauge_9_2;var gauge_9_3;var gauge_9_4;
 var gauge_10_1;var gauge_10_2;var gauge_10_3;var gauge_10_4;
 
 var chart1; var chart2; var chart3; var chart4; var chart5; var chart6; var chart7; var chart8; var chart9; var chart10;
-var program_list = [{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
-					{"id": "","name": "", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}];
+var program_list = [{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""},
+					{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}];
 
 var gauge_opts = {
    angle: 0.18,
@@ -279,6 +279,7 @@ function fetch_program_list(){
 		var id = prog_json.id;
 		program_list[id-1].name = prog_json.name;
 		program_list[id-1].id = prog_json.id;
+		program_list[id-1].en = prog_json.en;
 		program_list[id-1].output = prog_json.control_opt;
 		program_list[id-1].var1 = prog_json.control_trigger[0].main_option;
 		program_list[id-1].var2 = prog_json.control_trigger[0].sec_option;
@@ -554,7 +555,7 @@ if(document.getElementById("widget_holder_"+(i+1)) != null){
 			}
 		}
 		if(j == 3){
-			if(program_list[i].output == 5){document.getElementById("widget_holder_"+(i+1)).style.display = "inline-block";} //null output
+			if(program_list[i].output == 5 && program_list[i].en){document.getElementById("widget_holder_"+(i+1)).style.display = "inline-block";} //null output
 			else{document.getElementById("widget_holder_"+(i+1)).style.display = "none";}
 		}
 	}
@@ -641,8 +642,6 @@ x += '<div style="margin:20px auto"><input type="button" value="SAVE" onclick="s
 x += '<input type="button" value="CLOSE" onClick="off_overlay_setting()"></div>';
 document.getElementById("widget_setting_box").innerHTML = x;
 
-
-
 //load setting
 var a = document.getElementById("max_val1");
 var b = document.getElementById("min_val1");
@@ -706,12 +705,13 @@ if(en1 == 0 || en2 == 0){
 var temp_unit = document.getElementById("temp_unit_select");
 if(set.temp_unit != null){
 	temp_unit.value = set.temp_unit;
+	//if(set.temp_unit == 2) change_temp_field_setting(2);
 }else{
 	temp_unit.value = 1;
+	//change_temp_field_setting(1);
 	document.getElementById("temp_unit_holder").classList.add("unclickable_grey");
 	temp_unit.style.color = 'grey';
 }
-
 }
 
 function setting_page_builder(id){
@@ -720,7 +720,7 @@ var w = program_list[id-1].var2;
 var ret = "<b>" + program_list[id-1].name + " Widget</b><br><br>";
 if((v >= 1 && v <= 20) || (v == 29 && w != -1)){
 ret += '<div id="widget_type_holder"><label for="setting_type">Indicator type: </label><select onchange="indicator_loader(this.value)" name="setting_type" id="setting_type"><option value="1">Gauge</option><option value="2">Graph</option></select></div>';
-ret += '<div id="temp_unit_holder"><label for="temp_unit_select">Temperature Unit: </label><select name="temp_unit_select" id="temp_unit_select"><option value=1> C</option><option value=2> F </option></select></div>';
+ret += '<div id="temp_unit_holder"><label for="temp_unit_select">Temperature Unit: </label><select name="temp_unit_select" id="temp_unit_select" onChange="change_temp_field_setting(this.value)"><option value=1> C</option><option value=2> F </option></select></div>';
 ret += '<div id= "graph_setting_holder"><br>';
 if(v != 29){
 ret += '<div style="display:inline-block;width:45%;margin-left:5%;margin-top:10px"><b>'+trigger_name[v-1]+ '</b><br>';
@@ -774,6 +774,25 @@ ret += '</div>';
 return ret;
 }
 
+
+function change_temp_field_setting(input){
+	if(document.getElementById("min_val1") != null){
+		document.getElementById("min_val1").value = (input == 1) ? F2C(document.getElementById("min_val1").value) : C2F(document.getElementById("min_val1").value);
+		document.getElementById("max_val1").value = (input == 1) ? F2C(document.getElementById("max_val1").value) : C2F(document.getElementById("max_val1").value);
+	}
+	if(document.getElementById("gauge1_loval") != null){
+		document.getElementById("gauge1_loval").value = (input == 1) ? F2C(document.getElementById("gauge1_loval").value) : C2F(document.getElementById("gauge1_loval").value);
+		document.getElementById("gauge1_upval").value = (input == 1) ? F2C(document.getElementById("gauge1_upval").value) : C2F(document.getElementById("gauge1_upval").value);
+	}
+	if(document.getElementById("min_val2") != null){
+		document.getElementById("min_val2").value = (input == 1) ? F2C(document.getElementById("min_val2").value) : C2F(document.getElementById("min_val2").value);
+		document.getElementById("max_val2").value = (input == 1) ? F2C(document.getElementById("max_val2").value) : C2F(document.getElementById("max_val2").value);
+	}
+	if(document.getElementById("gauge2_loval") != null){
+		document.getElementById("gauge2_loval").value = (input == 1) ? F2C(document.getElementById("gauge2_loval").value) : C2F(document.getElementById("gauge2_loval").value);
+		document.getElementById("gauge2_upval").value = (input == 1) ? F2C(document.getElementById("gauge2_upval").value) : C2F(document.getElementById("gauge2_upval").value);
+	}
+}
 function indicator_loader(input){
 if(input == 1){
 document.getElementById("gauge_setting_holder").style.display="flex";
@@ -909,6 +928,11 @@ function save_widget_setting(id){
 }
 
 function setInputFilter(textbox, inputFilter) {["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {textbox.addEventListener(event, function() {if (inputFilter(this.value)) {this.oldValue = this.value;this.oldSelectionStart = this.selectionStart;this.oldSelectionEnd = this.selectionEnd;} else if (this.hasOwnProperty("oldValue")) {this.value = this.oldValue;this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);} else {this.value = "";}});});}
+
+function F2C(temp){
+	var ret = (temp - 32) * 5/9;
+	return ret;
+}
 
 function C2F(temp){
 var ret = (temp * 9/5)+32;

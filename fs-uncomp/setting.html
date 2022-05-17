@@ -808,6 +808,7 @@ function build_sensor_list(input){
 			b += '<div style="margin-top:5px;margin-bottom:5px"><label for="'+input[i].name+'_en">'+a.substring(point)+'  </label><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
 			b += '<label for="'+input[i].name+'_en">  '+a.substring(0, point-1)+'</label> <span id="'+input[i].name+'_onl_sta" style="margin-left:10px;color:red"></span></div>';
 		}else{
+			console.log("halo");
 			b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
 			b += '<label for="'+input[i].name+'_en">  '+input[i].label+'</label> <span id="'+input[i].name+'_onl_sta" style="margin-left:10px;color:red"></span></div>';
 		}
@@ -930,7 +931,7 @@ function execute_create_program(){
 				sending_json = JSON.parse(sending_json);
 				sending_json.id = String(j+1);
 				sending_json.control_trigger[0].main_option = name_main[1]; //option
-				sending_json.name = name_main[0] + "-null"; //program name
+				sending_json.name = name_main[0] ; //program name
 				var prog_name = name_main[0].toLowerCase();
 				if(prog_name.indexOf("x60") >= 0 || prog_name.indexOf("x67") >= 0){
 					sending_json.setting = gauge_current_setting;

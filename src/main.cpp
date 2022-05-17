@@ -834,7 +834,6 @@ void load_wifi_setting(){
 	int a = mgos_gpio_read(WIFI_BTN);
 	free(buff);
 	free(buff_b);
-	
 	if(a == 1){
 		LOG(LL_WARN,("ap mode override"));
 		ap_button_mode = true;
@@ -1835,7 +1834,7 @@ void reset_sensors(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
     	return;
   	}
 
-	for(int i = 0; i < sensor_addr_list.size(); i++){
+	for(int i = 0; i < sensor_addr_list.size(); i++){ //change new entity in json file
 		sensor_new_file.at(i) = false;
 		std::string b = ".sensors[" + std::to_string(i) + "].new"; ///new
 		char* buff = (char*)malloc(1500);
@@ -1847,8 +1846,8 @@ void reset_sensors(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 		rename(tmp_name, "sensors.json");
 	}
 
-	for(int i = 0; i < sensor_addr_list.size(); i++){
-		sensor_new_file.at(i) = false;
+	for(int i = 0; i < sensor_addr_list.size(); i++){ //change ext entity in json file
+		sensor_ext.at(i) = false;
 		std::string a = ".sensors[" + std::to_string(i) + "].ext"; ///new
 		char* buff = (char*)malloc(1500);
 		buff = json_fread("sensors.json");
@@ -1870,7 +1869,7 @@ void reset_sensors(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
     remove("/mnt/thisWeek.csv");
     remove("/mnt/thisDay.csv");
     remove("/mnt/thisHour.csv");
-
+    update_sensor_info();
 	(void) cb_arg;
 	(void) fi;
 }
@@ -3321,9 +3320,9 @@ bool check_sensor(char addr){
 	if(error == 0){
 		return true;
 	}
-	
 	return false;
 }
+
 void update_sensor_info(){ //update online and exist	
 	const char* tmp_name = "tmp.json";
 	for(int i = 0; i < sensor_addr_list.size() ; i++){
@@ -3333,12 +3332,12 @@ void update_sensor_info(){ //update online and exist
 		bool on = false;
 		if(sensor_addr_list.at(i) != 0x67 && sensor_addr_list.at(i) != 0x60){
 			//not thermocouple mcp sensors
-			on = check_sensor(sensor_addr_list.at(i));
+			on = (sensor_addr_list.at(i) == 0)? true : check_sensor(sensor_addr_list.at(i));
 			ext = (on == true) ? true : sensor_ext.at(i);
 		}else{
 			//for mcp sensors no need to update variable
-			ext = true;//sensor_ext.at(i);
-			on = true;//sensor_online.at(i);
+			ext = sensor_ext.at(i);
+			on = sensor_online.at(i);
 		}
 		//LOG(LL_WARN,("addr: %x -> %d", sensor_addr_list[i], on));
 		if(on == true && sensor_ext.at(i) == false){

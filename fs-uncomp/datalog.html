@@ -170,7 +170,7 @@
 		</div>
 		<div style="margin-bottom:15px"> 
 			<span style="font-size: 20px"> delete all sensors </span><br>
-			<input style="margin-top: -10px" type="button"  value="Delete Sensors"> 
+			<input style="margin-top: -10px" type="button" onClick="reset_all_sensors()"  value="Delete Sensors"> 
 		</div>
 
 
@@ -181,75 +181,164 @@
 
 
 <script>	
-	function reset_all_sensors(){
-		var con = confirm("Delete all sensors information? this will reset a");
+function reset_all_sensors(){
+	if(!check_password()){
+		reset_sensors_command = true;
+		on_overlay_login(2);
+		return;
 	}
 
-	function conDelete(){
-		//check checkboxes
-		var hour = document.getElementById("thishour_del").checked;
-		var day = document.getElementById("thisday_del").checked;
-		var week = document.getElementById("thisweek_del").checked;
-		var month = document.getElementById("thismonth_del").checked;
-		var longterm = document.getElementById("longterm_del").checked;
-		
-		var hour_1970 = document.getElementById("1970hour_del").checked;
-		var day_1970 = document.getElementById("1970day_del").checked;
-		var week_1970 = document.getElementById("1970week_del").checked;
-		var month_1970 = document.getElementById("1970month_del").checked;
-		var longterm_1970 = document.getElementById("1970longterm_del").checked;
-		if(!hour && !day && !week && !month && !longterm && !hour_1970 & !day_1970 && !week_1970 && !month_1970 && !longterm_1970){
-			//none selected 
-			alert("none selected");
-		}else{
-		var conText = "Confirm to delete: " + (hour ? "thishour, ": "") + (day ? "thisday, " : "") + (week ? "thisweek, " : "") + (month ? "thismonth, ": "") + (longterm ? "longterm, " : "");
-		conText += (hour_1970 ? "1970hour, ": "") + (day_1970 ? "1970day, ": "") + (week_1970 ? "1970week, ": "")+ (month_1970 ? "1970month, ": "") + (longterm_1970 ? "1970longterm ": "")+  "dataset?";
-		//make confirm request
-		var con = confirm(conText);
-		
-		if (con == true){
-			var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");
-			
-			//proceed to send request to esp
-			jsonobj = {comm:data};
-			var string = JSON.stringify(jsonobj);
-			console.log(string);
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "/rpc/delReq", true);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-			xhr.send(string);
-			hour = false; day = false; week = false; month = false; hour_1970 = false; day_1970 = false; week_1970 = false; month_1970 = false; longterm_1970 = false;
-		}
-		}
-	}
-	
-	function view_raw(input){
-		location.href=input +  "?" + Math.random() * Math.random();
-	}
-
-	function download_file(file_name){
-		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "mnt/" + file_name + "?" + Math.random() * Math.random(), true);
-		xhr.send();
-		xhr.timeout = timeout_global;
-		xhr.ontimeout = function (e) {
-			alert("network timeout");
+	on_overlay_login(); //just turning on overlay
+	document.getElementById("multipurpose").innerHTML = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+spinner_load+'</div><br>Saving...';
+	validate_cookie(function(i){
+	//cookie validation
+		if(i.code == 200 && i.data.status == "illegal"){
+			reset_sensors_command = true;
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info"> Session end, please re-login! </div>';
+			x+= '<br>  <input type="button" style="font-size:16px;" value="OK" onClick="on_overlay_login(2);"></div>';
+			document.getElementById("multipurpose").innerHTML = x;
 			return;
-		};
-		xhr.onreadystatechange = function() {
-			if(xhr.readyState != 4){return;}
-			if(xhr.status == 200){
-				//	callback({code:200, res: xhr.responseText});
-				var data1 = new Blob([xhr.responseText]);
-				var link = document.createElement("a");
-				link.download = file_name;
-				link.href = URL.createObjectURL(data1);
-				link.click();
-			}else{
-				//callback({code: 404, res: null});
-				alert("file is not found!");
+		}else if(i.code != 200){
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
+			x+= '<input type="button" style="font-size:16px" value="retry" onClick="reset_all_sensors()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+			document.getElementById("multipurpose").innerHTML = x;
+			return;
+		}
+
+
+	var con = confirm("Delete all sensors information? this will delete all csv files");
+	if(con == true){
+		var ver_key = getCookie();
+		var comm = JSON.stringify({key:ver_key});
+		xhr_send_nojson("	reset_sensor", comm,  function(x){
+			if(x.code != 200){//retry
+				var j = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+x.status+'</div>';
+				j+= '<input type="button" style="font-size:16px" value="retry" onClick="reset_all_sensors()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+				document.getElementById("multipurpose").innerHTML = j;
+				return;
 			}
+
+			var m = '<div style="margin-top:30px;font-size:20px" id="spinner_info">sensors\' informations deleted </div>';
+			m+= '<input type="button" style="font-size:16px" value="Confirm" onClick="off_overlay_login()">';
+			document.getElementById("multipurpose").innerHTML = m;
+
+		});//reset_sensors
+	}//if confirmed
+	else{
+		off_overlay_login();
+	}
+
+	});//validate cookie
+}
+
+function conDelete(){
+	if(!check_password()){
+		delete_file_command = true;
+		on_overlay_login(2);
+		return;
+	}
+
+	on_overlay_login(0); //just on overlay login
+	document.getElementById("multipurpose").innerHTML = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+spinner_load+'</div><br>Saving...';
+	validate_cookie(function(i){
+	//cookie validation
+		if(i.code == 200 && i.data.status == "illegal"){
+			delete_file_command = true;
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info"> Session end, please re-login! </div>';
+			x+= '<br>  <input type="button" style="font-size:16px;" value="OK" onClick="on_overlay_login(2);"></div>';
+			document.getElementById("multipurpose").innerHTML = x;
+			return;
+		}else if(i.code != 200){
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
+			x+= '<input type="button" style="font-size:16px" value="retry" onClick="conDelete()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+			document.getElementById("multipurpose").innerHTML = x;
+			return;
+		}
+
+	//check checkboxes
+	var hour = document.getElementById("thishour_del").checked;
+	var day = document.getElementById("thisday_del").checked;
+	var week = document.getElementById("thisweek_del").checked;
+	var month = document.getElementById("thismonth_del").checked;
+	var longterm = document.getElementById("longterm_del").checked;
+	
+	var hour_1970 = document.getElementById("1970hour_del").checked;
+	var day_1970 = document.getElementById("1970day_del").checked;
+	var week_1970 = document.getElementById("1970week_del").checked;
+	var month_1970 = document.getElementById("1970month_del").checked;
+	var longterm_1970 = document.getElementById("1970longterm_del").checked;
+	if(!hour && !day && !week && !month && !longterm && !hour_1970 & !day_1970 && !week_1970 && !month_1970 && !longterm_1970){
+		//none selected 
+		alert("none selected");
+		off_overlay_login();	
+
+	}else{
+	var conText = "Confirm to delete: " + (hour ? "thishour, ": "") + (day ? "thisday, " : "") + (week ? "thisweek, " : "") + (month ? "thismonth, ": "") + (longterm ? "longterm, " : "");
+	conText += (hour_1970 ? "1970hour, ": "") + (day_1970 ? "1970day, ": "") + (week_1970 ? "1970week, ": "")+ (month_1970 ? "1970month, ": "") + (longterm_1970 ? "1970longterm ": "")+  "dataset?";
+	//make confirm request
+	var con = confirm(conText);
+	
+	if (con == true){
+		var data =    (longterm_1970 ? "1" : "0") + (month_1970 ? "1" : "0")+ (week_1970 ? "1" : "0") +   (day_1970 ? "1" : "0") + (hour_1970 ? "1" : "0") + (longterm ? "1":"0") + (month ? "1" : "0") + (week ? "1" : "0") + (day ? "1" : "0" ) + (hour ? "1" : "0");
+		
+		//proceed to send request to esp
+		jsonobj = {comm:data};
+		var string = JSON.stringify(jsonobj);
+		xhr_send_nojson("delReq", string, function(u){
+			if(u.code != 200){//retry
+				var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+u.status+'</div>';
+				x+= '<input type="button" style="font-size:16px" value="retry" onClick="conDelete()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
+				document.getElementById("multipurpose").innerHTML = x;
+				return;
+			}
+			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">File(s) deleted</div>';
+			x+= '<input type="button" style="font-size:16px" value="Confirm" onClick="off_overlay_login()">';
+			document.getElementById("multipurpose").innerHTML = x;
+			var something = ["thishour_del", "thisday_del", "thisweek_del", "thismonth_del", "1970hour_del", "1970day_del", "1970week_del", "1970month_del", "1970longterm_del", "1970longterm_del"];
+			for(var x = 0; x < something.length; x++){
+				document.getElementById(something[x]).checked = false;
+			}
+		});//send command
+		
+		
+	}//confirm
+	else{
+		off_overlay_login();
+		return;
+	}//else not confirm
+
+	}//else something is selected
+
+	}); // validate cookie
+}
+
+function view_raw(input){
+	location.href=input +  "?" + Math.random() * Math.random();
+}
+
+function download_file(file_name){
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "mnt/" + file_name + "?" + Math.random() * Math.random(), true);
+	xhr.send();
+	xhr.timeout = timeout_global;
+	xhr.ontimeout = function (e) {
+		alert("network timeout");
+		return;
+	};
+	xhr.onreadystatechange = function() {
+		if(xhr.readyState != 4){return;}
+		if(xhr.status == 200){
+			//	callback({code:200, res: xhr.responseText});
+			var data1 = new Blob([xhr.responseText]);
+			var link = document.createElement("a");
+			link.download = file_name;
+			link.href = URL.createObjectURL(data1);
+			link.click();
+		}else{
+			//callback({code: 404, res: null});
+			alert("file is not found!");
 		}
 	}
+}
 
 </script>
