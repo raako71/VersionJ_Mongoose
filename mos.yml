@@ -1,10 +1,10 @@
 author: alifnl
-description: update to synchronize firmware, some correction as marked in shared doc
-version: 0.10.9.5.2
+description: note in 18th may accomplished
+version: 0.10.9.5.3
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
-mongoose_os_version: ${mos.version}
+mongoose_os_version: ${mos.version} 
 platform: esp32
 # Optional. List of tags for online search.
 tags:

@@ -3642,7 +3642,7 @@ std::string build_log_value_list(){
 		num = (dec_place_global == 0) ? num.substr(0, num.find(",")) : num.substr(0, num.find(".") + dec_place_global + 1);
 		//sensor_name_log for checking csv file, label for labeling in page
 		//need to add sensor new
-		ret += sensor_label_log.at(i) + "," +num + "," + en_log + "," + sensor_name_log.at(i) + "," + (sensor_new.at(i)==true ? '1' : '0');
+		ret += sensor_label_log.at(i) + "," +num + "," + en_log + "," + sensor_name_log.at(i) + "," + (sensor_new.at(i)==true ? "1" : "0");
 		if(i != sensor_value_log.size() - 1){
 			ret += "|";
 		}

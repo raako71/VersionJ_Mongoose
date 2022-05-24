@@ -705,12 +705,13 @@ if(en1 == 0 || en2 == 0){
 var temp_unit = document.getElementById("temp_unit_select");
 if(set.temp_unit != null){
 	temp_unit.value = set.temp_unit;
+	document.getElementById("temp_unit_holder").style.display = "inline-block"
 	//if(set.temp_unit == 2) change_temp_field_setting(2);
 }else{
 	temp_unit.value = 1;
 	//change_temp_field_setting(1);
-	document.getElementById("temp_unit_holder").classList.add("unclickable_grey");
-	temp_unit.style.color = 'grey';
+	document.getElementById("temp_unit_holder").style.display = 'none';
+	//temp_unit.style.color = 'grey';
 }
 }
 

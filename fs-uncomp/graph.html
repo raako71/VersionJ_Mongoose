@@ -116,11 +116,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				box_contain += '<input type="checkbox" id="'+ trigger_name[a] +  '_en" > <label for="' + trigger_name[a] + '_en">'+trigger_name[a]+'</label><br>'; 
 			}
 		}
-		box_contain += '<br>Time Frame: <label for="frame_hour_en">This Hour</label> <input type="radio" id="frame_hour_en" name="time_frame_select" value="1" checked>&nbsp;';
-		box_contain += '<label for="frame_day_en">This Day</label> <input type="radio" id="frame_day_en" name="time_frame_select" value="2">&nbsp;';
-		box_contain += '<label for="frame_week_en">This Week</label> <input type="radio" id="frame_week_en" name="time_frame_select" value="3">&nbsp;';
-		box_contain += '<label for="frame_month_en">This Month</label> <input type="radio" id="frame_month_en" name="time_frame_select" value="4">&nbsp;';
-		box_contain += '<label for="frame_LT_en">Long Term</label> <input type="radio" id="frame_LT_en" name="time_frame_select" value="5"><br>';
+		box_contain += '<br>Time Frame:  <br><input type="radio" id="frame_hour_en" name="time_frame_select" value="1" checked><label for="frame_hour_en">This Hour</label><br>';
+		box_contain += '<input type="radio" id="frame_day_en" name="time_frame_select" value="2"> <label for="frame_day_en">This Day</label><br>';
+		box_contain += '<input type="radio" id="frame_week_en" name="time_frame_select" value="3"> <label for="frame_week_en">This Week</label> <br>';
+		box_contain += '<input type="radio" id="frame_month_en" name="time_frame_select" value="4"><label for="frame_month_en">This Month</label> <br>';
+		box_contain += '<input type="radio" id="frame_LT_en" name="time_frame_select" value="5"><label for="frame_LT_en">Long Term</label> <br>';
 		box_contain += '<br> <input type="checkbox" id="del_graph" name="del_graph"><label for="del_graph">Delete Graph</label><br>';
 		box_contain += '</div>';
 		box_contain += '<div style="margin:20px auto"><input type="button" style="width:100px" value="SAVE" onClick="save_graph_conf('+input+')">';

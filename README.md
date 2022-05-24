@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
-Changelog:<br/>
+Changelog:<br/>\
+0.10.9.5.3: note in 18th may accomplished<br>
 0.10.9.5.2: update to synchronize firmware, some correction as marked in shared doc<br>
 0.10.9.5.1: add reset sensors and reset sensors button on datalog, can set temp unit in widget independently, graph page temp unit based on setting page<br>
 0.10.9.5: add widget null on flag, datalog finishing left<br>

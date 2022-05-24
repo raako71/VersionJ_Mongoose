@@ -15,7 +15,7 @@
 <div id="overlay_sensor_pop" class="overlay" style="display:none; font-size:16px">
 	
 <div class="confirmation_box"  style="height:adjust-content;padding:20px;text-align:left">
-	<div style="text-align:center; auto;font-weight:bold">New Sensor!</div>
+	<div style="text-align:center; auto;font-weight:bold">Sensor Monitoring Widgets</div>
 	
 	Enable status widget?<br><br>
 	<div id="sensor_pop_box" ></div> <!-- this is for new sensors list-->
@@ -125,7 +125,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	</div>
 	<div class="section">
 		<b> Local Sensors</b><br>
-		<a href="/datalog.html.gz">datalog</a>
+		<a href="/datalog.html.gz">datalog</a> &nbsp;&nbsp;
+		<a href="javascript:void(0)" onClick="fetch_new_sensor_list(2)">Sensor Monitoring Widgets</a>
 		<span id="sensor_list"></span>
 		
 	</div>
@@ -805,11 +806,10 @@ function build_sensor_list(input){
 			if(input[i].name != "relay"){
 			var a= input[i].label;
 			var point= a.search("#");
-			b += '<div style="margin-top:5px;margin-bottom:5px"><label for="'+input[i].name+'_en">'+a.substring(point)+'  </label><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
+			b += '<div style="margin-top:5px;margin-bottom:5px" id="'+input[i].name+'_onl_whole_label"><label for="'+input[i].name+'_en">'+a.substring(point)+'  </label><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
 			b += '<label for="'+input[i].name+'_en">  '+a.substring(0, point-1)+'</label> <span id="'+input[i].name+'_onl_sta" style="margin-left:10px;color:red"></span></div>';
 		}else{
-			console.log("halo");
-			b += '<div style="margin-top:5px;margin-bottom:5px"><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
+			b += '<div style="margin-top:5px;margin-bottom:5px" id="'+input[i].name+'_onl_whole_label"><input type="checkbox" id="'+input[i].name+'_en" value="'+i+'" '+(input[i].en ? 'checked' : '') +'>';
 			b += '<label for="'+input[i].name+'_en">  '+input[i].label+'</label> <span id="'+input[i].name+'_onl_sta" style="margin-left:10px;color:red"></span></div>';
 		}
 		}
@@ -827,10 +827,11 @@ function check_sensor_online(){
 		for (var j = 0; data[j] != null; j++){
 			var datax = data[j].split(",");
 			if(document.getElementById(datax[0] + "_onl_sta") != null){
-			var status = Number(datax[1]);
-				if(status == 0){ status = "OFFLINE"}
-				else if(status == -1){ status = "NO PROBE";}
-				else if(status == 1){ status = ""}
+			  var status = Number(datax[1]);
+				var xy = document.getElementById(datax[0] + "_onl_whole_label");
+				if(status == 0){ status = "OFFLINE"; xy.style.color = 'red';}
+				else if(status == -1){ status = "NO PROBE"; xy.style.color = 'red';}
+				else if(status == 1){ status = ""; xy.style.color = 'none'};
 				document.getElementById(datax[0] + "_onl_sta").innerHTML = status;
 			}
 		}//for
@@ -842,7 +843,9 @@ function check_sensor_online(){
 	});//req sense online
 }
 
-function fetch_new_sensor_list(){
+function fetch_new_sensor_list(select){
+	//if select 1 is auto
+	//if select 2 is displaying existing sensors
 	var pop_up_element = "";
 	sensor_name = [];
 	sensor_label = [];
@@ -854,11 +857,19 @@ function fetch_new_sensor_list(){
 			var datax = data[i].split(",");
 			sensor_label[i] = datax[0];
 			sensor_name[i] = datax[3];
-			var new_flag = datax[4];
-			if(new_flag == '1'){
+			var value = Number(datax[1]);
+			
+			var new_flag = Number(datax[4]);
+			if(new_flag == 1 && select == 1){
 				pop_up_element += '<input type="checkbox" id="'+datax[3]+'_en_new">'
 				pop_up_element += '<label for="' + datax[3]	+ '_en_new">'+datax[0]+'</label><br>'
 				pop_up_flag = true;
+			}
+			if(select == 2 && value != -1 && datax[0].indexOf("relay") == -1){
+				console.log(value);
+				pop_up_element += '<input type="checkbox" id="'+datax[3]+'_en_new">'
+				pop_up_element += '<label for="' + datax[3]	+ '_en_new">'+datax[0]+'</label><br>'
+				pop_up_flag = true;	
 			}
 			
 		}//end of for
@@ -1012,7 +1023,7 @@ function fetch_program_list(){
 	}
 	j++;
 	if(j == 10){
-		fetch_new_sensor_list();	
+		fetch_new_sensor_list(1);	
 	}
 
 	}
