@@ -1857,6 +1857,17 @@ void reset_sensors(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_fr
 		fclose(fp);
 		rename(tmp_name, "sensors.json");
 	}
+	for(int i = 0; i < sensor_addr_list.size(); i++){ //change ext entity in json file
+		sensor_en.at(i) = false;
+		std::string a = ".sensors[" + std::to_string(i) + "].en"; ///new
+		char* buff = (char*)malloc(1500);
+		buff = json_fread("sensors.json");
+		FILE *fp = fopen(tmp_name, "w");
+		struct json_out out = JSON_OUT_FILE(fp);
+		json_setf(buff, strlen(buff), &out, a.c_str(), "%B", false);
+		fclose(fp);
+		rename(tmp_name, "sensors.json");
+	}
 	//remove all files
 	remove("/mnt/1970longTermData.csv");
     remove("/mnt/1970Month.csv");

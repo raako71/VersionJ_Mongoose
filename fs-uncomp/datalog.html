@@ -210,7 +210,7 @@ function reset_all_sensors(){
 	if(con == true){
 		var ver_key = getCookie();
 		var comm = JSON.stringify({key:ver_key});
-		xhr_send_nojson("	reset_sensor", comm,  function(x){
+		xhr_send_nojson("reset_sensor", comm,  function(x){
 			if(x.code != 200){//retry
 				var j = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+x.status+'</div>';
 				j+= '<input type="button" style="font-size:16px" value="retry" onClick="reset_all_sensors()"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
