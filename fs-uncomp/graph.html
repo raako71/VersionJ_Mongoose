@@ -39,7 +39,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 </div> 
 </div>
 <div id="main_div">
-<div class="top_panel">
+<div class="top_panel" style="background-color:#000;">
 <span style="float:left;margin-left:25px;padding:5px" id="clock_info">
 </span>
 <span style="float:right;margin-righ<br>t:25px;padding:5px;">
@@ -54,11 +54,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 <br>
 	
 	<div class="main_row">
-		<div class="main_column" style="width: 10%;">
+		<div class="main_column" style="width: 10%;margin-left:2%">
 			<input type="button" style="white-space: normal;height:32px" value = "Create Graph" onClick="on_overlay_graph_setting(0)">
 		</div>
 	
-		<div class="main_column" style="width: 90%;" id="graph_layout">
+		<div class="main_column" style="width: 95%;margin: auto;" id="graph_layout">
 				<div id="graph1_holder" class="graph_holder" style="display: none; ">
 				</div>
 				<div id="graph2_holder" class="graph_holder" style="display: none; ">
@@ -736,8 +736,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 
 /* Create two equal columns that floats next to each other */
 .main_column {
-  float: left;
   padding: 10px;
+  
 
   box-sizing: border-box;
 
