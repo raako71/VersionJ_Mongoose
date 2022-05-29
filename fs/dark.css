@@ -99,6 +99,10 @@ input:checked + .slider { background-color: #0d8e0a;}
     background: #35a139;
 }
 
+#graph_top {
+background-color:#000;	
+}
+
 @media screen and (max-width: 1500px){
     .top_panel{ background-color:#000; }
 }
