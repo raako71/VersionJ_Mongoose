@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
-Changelog:<br/>\
+Changelog:<br/>
+0.10.9.5.7: fix power sensor error<br>
 0.10.9.5.5-6: graph CSS<br>
 0.10.9.5.4: note in 27th may accomplished<br>
 0.10.9.5.3: note in 18th may accomplished<br>

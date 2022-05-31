@@ -458,11 +458,9 @@ static void logging_cb(void *arg){
     			sensor_en_log.at(a) = sensor_en.at(i);
 				sensor_en_log.at(a+1) = sensor_en.at(i);
 				sensor_en_log.at(a+2) = sensor_en.at(i);
-				if(sensor_new_file.at(i)){
-					sensor_new.at(a) = true;
-					sensor_new.at(a+1) = true;
-					sensor_new.at(a+2) = true;
-				}
+				sensor_new.at(a) = sensor_new_file.at(i);
+				sensor_new.at(a+1) = sensor_new_file.at(i);
+				sensor_new.at(a+2) = sensor_new_file.at(i);
 				mgos_msleep(messageDelay);
 			}else if(current_addr == 0x76){
 				int a = get_index_name(sensor_name_log, "BMEx76_H");
