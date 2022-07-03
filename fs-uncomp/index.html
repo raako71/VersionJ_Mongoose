@@ -610,8 +610,8 @@ for(i=0; i<4; i++){
 var ovr_pin_status = ovr_info[i].split(",");
 var pin_element = "Switched: <span " + ((OS[ovr_pin_status[1]] == 0) ? ">&nbsp; OFF &nbsp;" : "class=\"on_label\">&nbsp; ON &nbsp;") + "</span><span style='color:red'>&nbsp;&nbsp;OVERRIDE</span>";
 	document.getElementById("widget"+(input_mode_list[i])+"_pin").innerHTML = pin_element;
-
-	if(a[i] == '-1' && ovr_pin_status[1] != -1 && ovr_pin_status[0] != -1){
+	console.log(a[ovr_pin_status[1]]);
+	if(Number(a[ovr_pin_status[1]]) == -1 && ovr_pin_status[1] != -1 && ovr_pin_status[0] != -1){
 		document.getElementById("widget"+input_mode_list[i]+"_output").innerHTML = "Output: " + input_mode_list[ovr_pin_status[1]];
 		document.getElementById("widget_holder_"+input_mode_list[i]).style.display = "inline-block";
 	}else{

@@ -165,7 +165,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				}
 				if(old_json.graph[i].en_list != ""){
 				var frame = old_json.graph[i].time_frame;
-				var title = ["Hourly Graph", "Daily Graph", "Weekly Graph", "Monthly Graph", "Long Term Graph"];
+				var title = ["This Hour Graph", "This Day Graph", "This Week Graph", "This Month Graph", "Long Term Graph"];
 				build_element = '<div class="gear-btn" onClick="on_overlay_graph_setting('+(i+1)+')">';
 				build_element += '<svg height="30" width="30" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xmlns:v="https://vecta.io/nano"><circle cx="256" cy="256" r="66.928" fill="#25b6d2"/><path d="M512 294.4v-76.8l-78.112-7.824c-4.464-16.448-11.312-31.904-20.048-46.048l50.368-61.6-54.272-54.304-64.032 52.416c-13.392-7.056-27.776-12.48-42.944-15.888L294.528 0H256.16h-.32-38.368l-8.432 84.352c-15.152 3.424-29.552 8.848-42.944 15.888l-64.032-52.416-54.272 54.304 50.368 61.6c-8.736 14.16-15.568 29.616-20.048 46.048L0 217.6v76.8l78.224 7.824c4.496 16.4 11.248 31.872 19.968 45.984l-50.416 61.648 54.272 54.304 64.032-52.416c13.392 7.056 27.792 12.464 42.96 15.888L217.488 512h38.368.32 38.368l8.432-84.352c15.152-3.424 29.552-8.832 42.96-15.888l64.032 52.416 54.272-54.304-50.416-61.648c8.736-14.144 15.472-29.6 19.968-45.984L512 294.4zm-256.016 77.12c-63.76 0-115.456-51.728-115.456-115.52 0-63.808 51.696-115.52 115.456-115.52S371.44 192.208 371.44 256c0 63.808-51.68 115.52-115.456 115.52z" fill="#32bea6"/></svg>';
 				build_element += '</div>';
@@ -684,16 +684,16 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		xhr_send_nojson("req.log_value", null, function(u){
 			if(u.code != 200){return;}
 			var data = u.data.split("|");
-			for (var j = 2; data[j] != null; j++){
+			for (var j = 0; data[j] != null; j++){
 				var datax = data[j].split(",");
 				var num = Number(datax[1]);
 				var en = Number(datax[2]);
 				var log = datax[3];
 				var name = datax[0];
-				label_log_name[j-2] = log;
-				trigger_name[j-2] = name;
-				trigger_value[j-2] = num;
-				trigger_en[j-2] = en;
+				label_log_name[j] = log;
+				trigger_name[j] = name;
+				trigger_value[j] = num;
+				trigger_en[j] = en;
 			}
 		});
 	}

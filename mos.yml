@@ -1,6 +1,6 @@
 author: alifnl
-description: fix power sensor error
-version: 0.10.9.5.7
+description: fix as in shared doc
+version: 0.10.9.5.8
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

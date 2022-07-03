@@ -2060,6 +2060,7 @@ void check_override_func(){
 			}else{
 				en_ovr_output_C = (en_ovr_output_C == 1) ? 0 : 1;
 			}
+			//LOG(LL_WARN,("en_ovr_output_C -> %d", en_ovr_output_C));
 		}else if(input3_ovr_action == 3 && pin_control != -1){ //turn on output
 			en_ovr_output_C  = 1;
 		}else if(input3_ovr_action == 4 && pin_control != -1){ // turn off output
@@ -2157,9 +2158,10 @@ void check_override_func(){
 	}else{
 	ovr_limit_B_en = false;}
 
-	if(en_ovr_output_C != -1 && input3_mode == 1){
+	if(en_ovr_output_C != -1 && input3_mode == 1){ //always
 		if(input3_ovr_limit == 1){
 			ovr_limit_C_en = true;	
+			//LOG(LL_WARN,("input C ovr always"));
 		}else if(input3_ovr_limit == 2){ //for
 			if(input3_local_val <= 1){
 				ovr_limit_C_en = false;
@@ -2326,6 +2328,7 @@ static int output_C_saved = 0;
 if(en_ovr_output_C != -1  && ((ovr_limit_C_en && input3_mode == 1) || (input3_mode == 2))){
 	prog_pin_state[override_pin_C] = en_ovr_output_C;
 	indicator_C = 1;
+	//LOG(LL_WARN,("overriding (input C) output pin %d -> %d", (override_pin_C), en_ovr_output_C));
 }else if(indicator_C == 1){
 	indicator_C = 0;
 	prog_pin_state[override_pin_C] = output_C_saved;
