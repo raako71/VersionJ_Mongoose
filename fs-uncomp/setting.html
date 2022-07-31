@@ -418,7 +418,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			}
 		//save sensor setting
 		var sen_set = check_sensor_setting();
-		console.log(sen_set);
+		//console.log(sen_set);
 		if(sen_set){
 			document.getElementById("circularG").style.display = 'none';
 			var inn = "Sensor logging changed. This  well reset <br>and delete all logs, confirm?<br><br>";
@@ -462,6 +462,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				old_json.override[i].ovr_act = 0;
 				old_json.override[i].output_opt = 0;
 				old_json.override[i].mode = 1;
+				if(i == 2){ old_json.override[i].dht22_en = false;}
 				}
 			}
 			if(!old_json.dev_mode){old_json.ctrl_page.IO14 = false;}

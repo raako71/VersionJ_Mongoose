@@ -87,7 +87,7 @@ libs:
   - origin: https://github.com/mongoose-os-libs/bme280
   - origin: https://github.com/mongoose-os-libs/adc
   - origin: https://github.com/mongoose-os-libs/sht31-i2c
-
+  - origin: https://github.com/mongoose-os-libs/dht
 
 
 build_vars:

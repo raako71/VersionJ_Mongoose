@@ -32,6 +32,7 @@
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
 #include "mgos_adc.h"
 #include "Wire.h"
+#include "mgos_dht.h"
 //longtermdata trimmer variable
 #define UPPER_LIMIT_SIZE 12000
 #define LOWER_LIMIT_SIZE 10000
@@ -107,6 +108,7 @@ static struct mgos_bme280 *bme76 = NULL;
 static struct mgos_bme280 *bme77 = NULL;
 static struct mgos_sht31 *SHTx44 = NULL;
 static struct mgos_sht31 *SHTx45 = NULL;
+static struct mgos_dht *s_dht = NULL;
 float sensor_value[4] = {0,0,0,0};
 float gain = 0.25;
 SparkFun_Ambient_Light light48(0x48);
@@ -158,6 +160,9 @@ int input3_ovr_limit = 0; // 1-> always, 2 -> duration, 3 -> until
 long input3_ovr_val = 0;
 int input3_ovr_out = 0; // based on output id (1 to 4)
 int input3_ovr_action = 0; // determine override action after triggered
+bool dht22_en_global = false;
+bool sensor_online_dht22 = false;
+bool sensor_init_dht22 = false;
 
 int input4_mode = 1;
 bool input4_as_sens = false;
@@ -373,7 +378,7 @@ static void button_check_cb(void *arg){
 	int input2 = mgos_adc_read(INPUT_B);
 	int input3 = 0;
 	#ifdef INPUT_C
-	input3 = mgos_adc_read(INPUT_C);
+		input3 = (dht22_en_global) ? 0 : mgos_adc_read(INPUT_C);
 	#endif
 	int input4 = 0;
 	#ifdef INPUT_D
@@ -569,6 +574,15 @@ static void logging_cb(void *arg){
 				
 				mgos_msleep(messageDelay);
 			}	
+	}
+	if(dht22_en_global){
+		if(sensor_online_dht22){	
+			float t = mgos_dht_get_temp(s_dht);
+			float h = mgos_dht_get_humidity(s_dht);
+			LOG(LL_WARN,("dht22 t: %.1f, h: %.1f", t, h));
+		}else{
+			LOG(LL_WARN,("dht22 is offline"));
+		}
 	}
     contain_logging();
     //LOG(LL_WARN,("free heap :%ld", (unsigned long)mgos_get_free_heap_size()));
@@ -1749,13 +1763,16 @@ void checkJSONsetting(){
 	int input3_ovr_out_z = input3_ovr_out;
 	int input4_ovr_out_z = input4_ovr_out;
 	json_scanf_array_elem(buff, strlen(buff), ".override",2, &t);
-	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
-	           &input3_mode, &input3_as_sens, &input3_as_ovr, &input3_ovr_limit, &input3_ovr_val, &input3_ovr_out, &input3_ovr_action);
-	//input 4 (RPB)
+	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d, dht22_en: %B}",
+	           &input3_mode, &input3_as_sens, &input3_as_ovr, &input3_ovr_limit, &input3_ovr_val, &input3_ovr_out, &input3_ovr_action, &dht22_en_global);
+	//input 4 (input D)
 	json_scanf_array_elem(buff, strlen(buff), ".override",3, &t);
 	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d}",
 	           &input4_mode, &input4_as_sens, &input4_as_ovr, &input4_ovr_limit, &input4_ovr_val, &input4_ovr_out, &input4_ovr_action);
-	
+
+	if(dht22_en_global){
+		sensor_init_dht22 = true;
+	}
 	//turn off override if output pin is different
 	if(input3_ovr_out_z != input3_ovr_out){
 		en_ovr_output_C = -1;
@@ -1994,7 +2011,7 @@ void check_override_func(){
 		if(en_ovr_output_A == -1){
 			input1_saved_state = pin_control;
 			input1_local_val = input1_ovr_val; //reset timer
-			//LOG(LL_WARN,("trigger A (activate)"));
+			LOG(LL_WARN,("trigger A (activate)"));
 			if(input1_ovr_action == 2 && pin_control != -1){ //toggle output status
 				if(en_ovr_output_A == -1){
 					en_ovr_output_A = pin_control == 1 ? 0: 1;
@@ -2008,7 +2025,7 @@ void check_override_func(){
 			}
 		}else{
 			en_ovr_output_A = -1;
-			///LOG(LL_WARN,("trigger A (deactivate)"));
+			LOG(LL_WARN,("trigger A (deactivate)"));
 			prog_pin_state[override_pin_A] = input1_saved_state;
 			input1_local_val = input1_ovr_val; //reset timer
 		}
@@ -2022,7 +2039,7 @@ void check_override_func(){
 	
 		int pin_control = prog_pin_state[1];
 		if(en_ovr_output_B == -1){ //override is inactive,
-			//LOG(LL_WARN,("trigger B (activate)"));
+			LOG(LL_WARN,("trigger B (activate)"));
 			input2_saved_state = pin_control; 
 			input2_local_val = input2_ovr_val;
 			if(input2_ovr_action == 2 && pin_control != -1){ //toggle output status
@@ -2038,7 +2055,7 @@ void check_override_func(){
 			}
 		}else{
 			en_ovr_output_B = -1;
-			//LOG(LL_WARN,("trigger B (deactivate)"));
+			LOG(LL_WARN,("trigger B (deactivate)"));
 			prog_pin_state[override_pin_B] = input2_saved_state;
 			input2_local_val = input2_ovr_val; //reset timer
 		}
@@ -2051,7 +2068,7 @@ void check_override_func(){
 		int pin_control = prog_pin_state[input3_ovr_out-1];
 		override_pin_C = input3_ovr_out-1;
 		if(en_ovr_output_C == -1){ //override is inactive
-		//LOG(LL_WARN,("trigger C (activate)"));
+		LOG(LL_WARN,("trigger C (activate)"));
 		if(input3_ovr_action == 2 && pin_control != -1){ //toggle output status
 			input3_saved_state = pin_control; //saving state
 			input3_local_val = input3_ovr_val; //and reset timer
@@ -2068,7 +2085,7 @@ void check_override_func(){
 		}
 		}else{ //override is active
 			en_ovr_output_C = -1;
-			//LOG(LL_WARN,("trigger C (deactivate)"));
+			LOG(LL_WARN,("trigger C (deactivate)"));
 			prog_pin_state[override_pin_C] = input3_saved_state;
 			input3_local_val = input3_ovr_val; //reset timer
 		}
@@ -2081,7 +2098,7 @@ void check_override_func(){
 		int pin_control = prog_pin_state[input4_ovr_out-1];
 		override_pin_D = input4_ovr_out-1;
 		if(en_ovr_output_D == -1){ //override is active
-		//LOG(LL_WARN,("trigger D (activate)"));
+		LOG(LL_WARN,("trigger D (activate)"));
 		input4_saved_state = pin_control; //saving state
 		input4_local_val = input4_ovr_val; //and reset timer
 		if(input4_ovr_action == 2 && pin_control != -1){ //toggle output status
@@ -2096,7 +2113,7 @@ void check_override_func(){
 			en_ovr_output_D = 0;
 		}
 		}else{
-			//LOG(LL_WARN,("trigger D (deactivate)"));
+			LOG(LL_WARN,("trigger D (deactivate)"));
 			en_ovr_output_D = -1;
 			prog_pin_state[override_pin_D] = input4_saved_state;
 			input4_local_val = input4_ovr_val; //reset timer
@@ -3643,7 +3660,37 @@ void init_sensor(){ //based on online
 		    }
 		}
 	}
-}
+
+	//DHT22
+	if(dht22_en_global && sensor_init_dht22){
+		LOG(LL_WARN,("initiating dht22 sensor"));
+		if ((s_dht = mgos_dht_create(OUTPUT_C, DHT22)) == NULL){
+			mgos_dht_close(s_dht);
+			sensor_online_dht22 = false;
+			sensor_init_dht22 = true;
+		}else{
+			float t = mgos_dht_get_temp(s_dht);
+			float h = mgos_dht_get_humidity(s_dht);
+			sensor_online_dht22 = (isnan(h) || isnan(t)) ? false : true;
+			sensor_init_dht22 = false;
+		}
+	}else if(!dht22_en_global){
+		if(sensor_online_dht22){
+			mgos_dht_close(s_dht);
+			sensor_online_dht22 = false;
+			sensor_init_dht22 = false;
+		}
+	}
+	/*
+	if(dht22_dev_mode_en){
+		if ((DHT22 = mgos_dht_create(INPUT_C, DHT22)) == NULL){
+			mgos_dht_close(DHT22);
+		}else{
+			//flag that dht22 is online
+		}
+	}
+	*/
+}//end of sensor init
 
 std::string build_log_value_list(){
 	std::string ret = "";
