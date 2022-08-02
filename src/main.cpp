@@ -27,6 +27,7 @@
 #include "ACS71020.h"
 #include "mgos_bme280.h"
 #include "MCP9600.h"
+#include "RTC_PT7C.h"
 #include "mgos_sht31.h"
 ///#include "mgos_i2c.h"
 #include "SparkFun_VEML6030_Ambient_Light_Sensor.h"
@@ -115,6 +116,9 @@ SparkFun_Ambient_Light light48(0x48);
 SparkFun_Ambient_Light light10(0x10);
 MCP9600 MCPx60;
 MCP9600 MCPx67;
+RTC_PT7C myRTC;
+
+bool RTC_initiated_global = false;
 
 int time2 = 100;
 
@@ -308,6 +312,13 @@ void rename_setting_json();
 void copy_wifi_info();
 void rename_sensor_json();
 void rename_graph_conf_json();
+static void update_rtc_cb(void *arg);
+
+//RTC init and read function
+bool RTC_init();
+long RTC_read(); //read RTC on boot and when ntp fails, will return epoch time since 1970
+void RTC_write(long time_epoch); //update rtc daily and first time NTP update
+void RTC_to_system();
 
 //prog timer function ;
 static void prog_timer1_cb (void *arg){
@@ -346,7 +357,7 @@ static void prog_timer4_cb (void *arg){
 	}
 	(void) arg;
 }
-//function prototype
+//function prototype RPC
 static void setting_modifier(struct mg_rpc_request_info *ri, void *cb_arg, struct mg_rpc_frame_info *fi, struct mg_str args);
 static void getTime(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 static void sensor_log_change(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
@@ -372,7 +383,8 @@ void virtual_pb_check(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc
 void request_sensor_status(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void request_log_value(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
 void request_hardware_version(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args);
-//function prototype
+//end of function prototype RPC
+
 static void button_check_cb(void *arg){
 	int input1 = mgos_adc_read(INPUT_A);
 	int input2 = mgos_adc_read(INPUT_B);
@@ -401,7 +413,7 @@ static void button_check_cb(void *arg){
 static void timer_cb(void *arg) { //every 1 sec
 	time_t now;
 	time(&now);
-	if(now > 946684800){
+	if(now > 946684800){ //time from epoch
 		online_epoch = now;
 		NTPflag = true;
 		time_t buff = online_epoch;
@@ -410,7 +422,15 @@ static void timer_cb(void *arg) { //every 1 sec
 		time_day_epoch += tm_gmt->tm_min * (long)60;
 		time_day_epoch += tm_gmt->tm_sec;
 		day_now = tm_gmt->tm_wday;
-	}else{
+	}else if(RTC_initiated_global){ //if NTP fails and rtc installed
+		online_epoch = RTC_read();	
+		time_t buff = online_epoch;
+		tm *tm_gmt = gmtime(&buff);
+		time_day_epoch = tm_gmt->tm_hour * (long)3600;
+		time_day_epoch += tm_gmt->tm_min * (long)60;
+		time_day_epoch += tm_gmt->tm_sec;
+		day_now = tm_gmt->tm_wday;
+	}else{ // NTP fails and RTC disconnects
 		online_epoch++;
 		time_day_epoch = -1;
 		day_now = -1;
@@ -588,7 +608,12 @@ static void logging_cb(void *arg){
     //LOG(LL_WARN,("free heap :%ld", (unsigned long)mgos_get_free_heap_size()));
 	if(NTPflag){
     	if(NTPflag == true && NTPflag_z == false){
-    		manageOffline_files();
+    		// first time ntp
+    		if(RTC_initiated_global){ //if ntp is online for first time since boot will write epoch information to RTC
+    			RTC_write(online_epoch); //put online epoch to rtc	
+    		}else{ //if RTC is not installed will act like old version
+    			manageOffline_files();
+    		}
 		}
     	if(logging_indicator != 0) online_HouseKeeping();
 	}else{
@@ -617,6 +642,8 @@ enum mgos_app_init_result mgos_app_init(void) {
   	
 	//i2c and sensor
 	Wire.begin();
+	RTC_initiated_global = RTC_init();
+	RTC_to_system();
 	LOG(LL_WARN,("scan sensor_on_boot"));
 	scan_sensor_at_boot();
 	current_ver_key= randomGen();
@@ -680,6 +707,8 @@ enum mgos_app_init_result mgos_app_init(void) {
 	mgos_set_timer(1000 /* ms */, MGOS_TIMER_REPEAT, timer_cb, NULL);
   	mgos_set_timer(10000 /* ms */, MGOS_TIMER_REPEAT, logging_cb, NULL);
    	mgos_set_timer(100, MGOS_TIMER_REPEAT, button_check_cb, NULL);
+
+   	mgos_set_timer(86400000 /*ms*/, MGOS_TIMER_REPEAT, update_rtc_cb, NULL);
 	//mgos_set_hw_timer(100000, MGOS_TIMER_REPEAT, button_check_cb, NULL);
   	
   	//RPC handler function
@@ -3778,3 +3807,73 @@ int get_index(std::vector<char> v, char K){ //for sensor checking
     }
     return ret;
 }
+
+
+////////////////////////////////////////////////////////////////////////// RTC FUNCTION ///////////////////////////////////////////////////////////
+
+
+bool RTC_init(){
+	bool a = myRTC.begin(0x68);
+	if(a) LOG(LL_WARN,("RTC found and initialised"));
+	return a;
+}
+
+
+long RTC_read(){
+	//read time
+	int rtc_sec = myRTC.read_sec();
+	int rtc_min = myRTC.read_min();
+	int rtc_hour = myRTC.read_hour();  
+	int rtc_date = myRTC.read_date();
+	int rtc_month = myRTC.read_month();
+	int rtc_year = myRTC.read_month();
+
+	struct tm t = {0};
+	t.tm_year = rtc_year + 100; // 2000 - 1900;
+	t.tm_mon = 	rtc_month - 1;
+	t.tm_mday = rtc_date;
+	t.tm_hour = rtc_hour;
+	t.tm_min = rtc_min;
+	t.tm_sec = rtc_sec;
+
+	time_t rtc_epoch = mktime(&t);
+	return (long)rtc_epoch;
+}
+
+
+void RTC_write(long time_epoch){
+	//convert epoch to time stamp
+	time_t epoch = 	time_epoch;
+	tm *tm_gmt = gmtime(&epoch);
+	int h = tm_gmt->tm_hour;
+	int m = tm_gmt->tm_min;
+	int s = tm_gmt->tm_sec;
+	int dd = tm_gmt->tm_mday;
+	int mm = tm_gmt->tm_mon  + 1;
+	int yy = tm_gmt->tm_year;
+
+	myRTC.write_sec(s);  //0-59
+	myRTC.write_min(m);  //0-59
+	myRTC.write_hour(h); //0-23  for 24H format
+	myRTC.write_date(dd);   //  1 - 31 // depend on months
+	myRTC.write_month(mm);   // 1 - 12
+	myRTC.write_year(yy);   // 0 - 99
+}
+
+
+void RTC_to_system(){
+	if(RTC_initiated_global){
+		online_epoch = RTC_read();
+	}
+}
+
+static void update_rtc_cb(void *arg){
+	if(RTC_initiated_global && NTPflag) RTC_write(online_epoch);
+}
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
