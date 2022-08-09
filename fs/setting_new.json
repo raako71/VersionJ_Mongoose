@@ -1,7 +1,7 @@
 {"rc_1970day": true, 
 "rc_thisday":true,
 "eth_en":true, "i2c_en":true,
-"wifi": {"mode": 1, "cfg":[{"ssid": "Intertube5", "pass":"*Vecto4*"}, {"ssid":"Farm", "pass":"farm798!"}, {"ssid":"rhexeus", "pass":"rhexeus exvius"}]}, 
+"wifi": {"mode": 1, "cfg":[{"ssid": "Intertube5", "pass":"*Vecto4*"}, {"ssid":"Farm", "pass":"farm798!"}, {"ssid":"ipong", "pass":"withmewmew"}]}, 
 "pwr_sensor":[{"enable":true}],
 "static_IP_conf": [{"enable": false, "IP":"" , "SN":"" , "GW":""}],
 "timezone":0, "dec_place": 2, "dev_mode": false,
@@ -14,5 +14,6 @@
 			{"mode":1, "sensor":true, "output_ovr":false, "ovr_limit": 0, "ovr_val":0, "ovr_act":1, "output_opt":0, "dht22_en": false},
 			{"mode":1, "sensor":false, "output_ovr":false, "ovr_limit": 0, "ovr_val":0, "ovr_act":1, "output_opt":0}],
 "webserver": {"timeout":10000},
-"home_text": "Socket Controller"
+"home_text": "Socket Controller",
+"mqtt": {"enable": false, "username": "", "password": "", "server": ""}
 }

@@ -124,6 +124,29 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		<div style="color:red;margin-top:10px;display:none" id="mdns_warning">Reboot is needed to apply mdns change!</div>
 	</div>
 	<div class="section">
+		<b> Enable MQTT </b><br>
+		<label class="switch" style="margin: 15px 0">
+			<input type="checkbox" id="mqtt_en" onClick="mqtt_conf_load()">
+			<span class="slider round"></span>
+		</label><br>
+		<div id="mqtt_info_holder" style="width:95%">
+			<table  width="100%">
+				<tr height="35px">
+					<td width="30%">USERNAME: </td>
+					<td> <input style="width:92%" 	type = "text" id = "mqtt_username" class="input_textbox"  maxlength="32" > </td>
+				</tr>
+				<tr heig width="30%"ht="35px">
+					<td>PASSWORD: </td>
+					<td > <input style="width:92%" type = "text" id = "mqtt_password" class="input_textbox" maxlength="32"> </td>
+				</tr>
+				<tr height="35px">
+					<td width="30%">SERVER: </td>
+					<td > <input style="width:92%" type = "text" id = "mqtt_server" class="input_textbox" maxlength="32"> </td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="section">
 		<b> Local Sensors</b><br>
 		<a href="/datalog.html.gz">datalog</a> &nbsp;&nbsp;
 		<a href="javascript:void(0)" onClick="fetch_new_sensor_list(2)">Sensor Monitoring Widgets</a>
@@ -280,14 +303,25 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	}
 	function LAN_conf(){
 		var logic = document.getElementById("LAN_conf").checked;
+		console.log("LAN conf");
 		if(logic){
 			document.getElementById("IP").readOnly = false;
 			document.getElementById("GW").readOnly = false;
 			document.getElementById("SN").readOnly = false;
 		}else{
-			document.getElementById("IP").readOnly = false;
-			document.getElementById("GW").readOnly = false;
-			document.getElementById("SN").readOnly = false;
+			document.getElementById("IP").readOnly = true;
+			document.getElementById("GW").readOnly = true;
+			document.getElementById("SN").readOnly = true;
+		}
+	}
+
+	function mqtt_conf_load(){
+		var a = document.getElementById("mqtt_en").checked;
+		var b = document.getElementById("mqtt_info_holder");
+		if(a){
+			b.style.display = "inline-block";
+		}else{
+			b.style.display = "none";
 		}
 	}
 	
@@ -330,6 +364,13 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			document.getElementById("dev_mode_en").checked = old_json.dev_mode;
 			document.getElementById("mode").value = old_json.wifi.mode;
 			build_wifi_saved_list(old_json.wifi.cfg);
+
+			//mqtt mode
+			document.getElementById("mqtt_en").checked = old_json.mqtt.enable;
+			mqtt_conf_load();
+			document.getElementById("mqtt_username").value = old_json.mqtt.username;
+			document.getElementById("mqtt_password").value = old_json.mqtt.password;
+			document.getElementById("mqtt_server").value = old_json.mqtt.server;
 			//document.getElementById("pwr_sensor_check").checked = old_json.pwr_sensor[0].enable;
 			var static_conf = old_json.static_IP_conf[0].enable;
 			if(static_conf){
@@ -363,6 +404,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			document.getElementById("remote_brightness").value = old_json.brightness[0].remote;
 			document.getElementById("panel_brightness").value = old_json.brightness[0].panel;
 			fetch_wifi_status();
+
+			mqtt_conf_load();
 		}
 	}
 	function auto_tz(){
@@ -389,9 +432,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		if(!(hour >= 0 && hour <= 12)){alert("invalid hour value ( 0 to 12)"); off_overlay(); return;}
 		if(!(minute >= 0 && minute <= 59)){alert("invalid minute value (0 to 59)"); off_overlay();return;}
 		if(document.getElementById("LAN_conf").checked){		
-			if(!ValidateIPaddress(document.getElementById("IP").value)){return;}
-			if(!ValidateIPaddress(document.getElementById("GW").value)){return;}
-			if(!ValidateIPaddress(document.getElementById("SN").value)){return;}
+			if(!ValidateIPaddress(document.getElementById("IP").value)){document.getElementById("IP").focus(); return;}
+			if(!ValidateIPaddress(document.getElementById("GW").value)){document.getElementById("GW").focus(); return;}
+			if(!ValidateIPaddress(document.getElementById("SN").value)){document.getElementById("SN").focus(); return;}
 		}
 		var old_json;
 		if(!check_password()){
@@ -447,6 +490,18 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json.eth_en = document.getElementById("eth_en").checked;
 			old_json.i2c_en = document.getElementById("i2c_en").checked;
 			old_json.wifi.mode = mode;
+
+			//mqtt mode
+			var mqtt_en = document.getElementById("mqtt_en").checked;
+			var mqtt_username = "";
+			var mqtt_password = "";
+			var mqtt_server = "";
+			if(mqtt_en){
+				mqtt_server = document.getElementById("mqtt_server").value;
+				mqtt_password = document.getElementById("mqtt_password").value;
+				mqtt_username = document.getElementById("mqtt_username").value;
+			}
+			old_json.mqtt.enable = mqtt_en; old_json.mqtt.username = mqtt_username; old_json.mqtt.password = mqtt_password; old_json.mqtt.server = mqtt_server;
 			//old_json.pwr_sensor[0].enable = pwr_sensor_en;
 			old_json.static_IP_conf[0].enable = net_conf_en;
 			old_json.static_IP_conf[0].IP = IP;

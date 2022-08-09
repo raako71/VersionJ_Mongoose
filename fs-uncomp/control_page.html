@@ -70,6 +70,26 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div class="main_container">
 	<h3 id="uptime"> DEVICE UPTIME: </h3>
 	<div class="section">
+	<b>Outputs</b>
+	<br>
+	<div style="margin-bottom:5px; margin-top:5px">
+	A: <span id="relay1_prog" > </span>&nbsp;&nbsp;<span id="relay1_sta" > </span>&nbsp;&nbsp;
+	<span id="ovr_out_A" style="color:red;display:none">OVERRIDE</span>
+	</div>
+	<div style="margin-bottom:5px; margin-top:5px">
+	B: <span id="relay2_prog"></span>&nbsp;&nbsp;<span id="relay2_sta"></span>&nbsp;&nbsp;
+	<span id="ovr_out_B" style="color:red;display:none">OVERRIDE</span>
+	</div>
+	<div style="margin-bottom:5px; margin-top:5px;display:none" id="led_prog_holder">
+	C: <span id="led_prog"></span>&nbsp;&nbsp;<span id="led_sta"></span>&nbsp;&nbsp;
+	<span id="ovr_out_C" style="color:red;display:none">OVERRIDE</span>
+	</div>
+	<div style="margin-bottom:5px; margin-top:5px; display:none" id="IO14_holder" >
+	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> D: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
+	&nbsp;&nbsp; <span id="ovr_out_D" style="color:red;display:none">OVERRIDE</span>
+	</div>
+	</div>
+	<div class="section">
 	<b> Programs (descending priority)</b>
 	<div id="program_link"></div>
 	<div style="margin-bottom:10px; margin-top:10px">
@@ -130,26 +150,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<input type="radio" name="programmable_led" id="prog_stat" onChange="toggle_led_prog(3)"><label for="prog_stat">Show program status (glowing for program active, On for output active, Off for program inactive)</label></div>
 	<span id="prog_led_holder" style="display:block; margin-bottom:10px; margin-top:10px"></span>
 	</div>
-	<div class="section">
-	<b>Outputs</b>
-	<br>
-	<div style="margin-bottom:5px; margin-top:5px">
-	A: <span id="relay1_prog" > </span>&nbsp;&nbsp;<span id="relay1_sta" > </span>&nbsp;&nbsp;
-	<span id="ovr_out_A" style="color:red;display:none">OVERRIDE</span>
-	</div>
-	<div style="margin-bottom:5px; margin-top:5px">
-	B: <span id="relay2_prog"></span>&nbsp;&nbsp;<span id="relay2_sta"></span>&nbsp;&nbsp;
-	<span id="ovr_out_B" style="color:red;display:none">OVERRIDE</span>
-	</div>
-	<div style="margin-bottom:5px; margin-top:5px;display:none" id="led_prog_holder">
-	C: <span id="led_prog"></span>&nbsp;&nbsp;<span id="led_sta"></span>&nbsp;&nbsp;
-	<span id="ovr_out_C" style="color:red;display:none">OVERRIDE</span>
-	</div>
-	<div style="margin-bottom:5px; margin-top:5px; display:none" id="IO14_holder" >
-	<input type="checkbox" id="IO14_en" onClick="IO14_en_func(this)"> <label for="IO14_en"> D: </label><span id="IO14_prog"></span>&nbsp;&nbsp;<span id="IO14_sta"></span>
-	&nbsp;&nbsp; <span id="ovr_out_D" style="color:red;display:none">OVERRIDE</span>
-	</div>
-	</div>
+	
 	</div>
 	<input type="button" style="margin: 15px auto;" value="SAVE" onClick="save_conf()">
 </div>
