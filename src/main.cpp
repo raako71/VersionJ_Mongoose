@@ -44,7 +44,7 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define V3
+#define R1
 
 #ifdef V1
 #define WIFI_LED 4
@@ -86,6 +86,23 @@
 #define EN_I2C 16
 #define RL_LED_EN 15
 #endif
+
+#ifdef R1
+#define WIFI_LED 2
+#define WIFI_BTN 36
+#define INPUT_A 35
+#define INPUT_B 39
+#define INPUT_C 34
+#define OUTPUT_A 15 //outputs PWM signal at boot
+#define OUTPUT_B 12
+#define OUTPUT_C 14 //outputs PWM signal at boot
+#define DHT_PIN 4
+#define EN_I2C 13
+#define ATX_PIN 16 //Pull low to activate PSU
+// #define RL_LED_EN ** NOT USED **
+#endif
+
+
 bool rc_1970day = 0, rc_thisday = 0;
 int header_size = 0;
 int logColumn = 13;
@@ -449,7 +466,9 @@ static void timer_cb(void *arg) { //every 1 sec
 	ext_PB_state[1] = 0;
 	ext_PB_state[2] = 0;
 	ext_PB_state[3] = 0;
+	#ifdef RL_LED_EN
 	mgos_pwm_set(RL_LED_EN, 333, (float)panel_brightness/65535);
+	#endif
 	//mgos_gpio_write(RL_LED_EN, 1);
   (void) arg;
 }
@@ -667,8 +686,9 @@ enum mgos_app_init_result mgos_app_init(void) {
   	
 	mgos_gpio_setup_output(WIFI_LED, 0);
 	//mgos_gpio_set_mode(WIFI_LED, MGOS_GPIO_MODE_OUTPUT);
-	
+	#ifdef RL_LED_EN
   	mgos_gpio_setup_output(RL_LED_EN, 0);
+  	#endif
   	mgos_gpio_setup_input(WIFI_BTN, MGOS_GPIO_PULL_DOWN ); 
 
 	#ifdef INPUT_C
@@ -695,8 +715,9 @@ enum mgos_app_init_result mgos_app_init(void) {
 	
 	mgos_gpio_set_mode(OUTPUT_A, MGOS_GPIO_MODE_OUTPUT);
   	mgos_gpio_set_mode(OUTPUT_B, MGOS_GPIO_MODE_OUTPUT);
+  	#ifdef RL_LED_EN
 	mgos_gpio_set_mode(RL_LED_EN, MGOS_GPIO_MODE_OUTPUT);	
-	
+	#endif
 	//enabling adc
 	mgos_adc_enable(INPUT_A);
 	mgos_adc_enable(INPUT_B);
@@ -748,6 +769,9 @@ void request_hardware_version(struct mg_rpc_request_info *ri, void *cb_arg,struc
 	#endif
 	#ifdef V3	
 		const char* version = "V3";	
+	#endif
+	#ifdef R1 
+		const char* version = "R1";
 	#endif
 	mg_rpc_send_responsef(ri, "%Q",version);
 	(void) cb_arg;
@@ -3691,9 +3715,10 @@ void init_sensor(){ //based on online
 	}
 
 	//DHT22
+	#ifdef OUTPUT_C
 	if(dht22_en_global && sensor_init_dht22){
 		LOG(LL_WARN,("initiating dht22 sensor"));
-		if ((s_dht = mgos_dht_create(OUTPUT_C, DHT22)) == NULL){
+		if ((s_dht = mgos_dht_create(OUTPUT_C, DHT21)) == NULL){
 			mgos_dht_close(s_dht);
 			sensor_online_dht22 = false;
 			sensor_init_dht22 = true;
@@ -3710,6 +3735,7 @@ void init_sensor(){ //based on online
 			sensor_init_dht22 = false;
 		}
 	}
+	#endif
 	/*
 	if(dht22_dev_mode_en){
 		if ((DHT22 = mgos_dht_create(INPUT_C, DHT22)) == NULL){
@@ -3837,6 +3863,7 @@ long RTC_read(){
 	t.tm_sec = rtc_sec;
 
 	time_t rtc_epoch = mktime(&t);
+	LOG(LL_WARN,("RTC read time = %d:%d:%d %d/%d/%d (epoch = %ld) success", rtc_hour, rtc_min, rtc_sec, rtc_date, rtc_month, rtc_year, rtc_epoch));
 	return (long)rtc_epoch;
 }
 
@@ -3858,6 +3885,8 @@ void RTC_write(long time_epoch){
 	myRTC.write_date(dd);   //  1 - 31 // depend on months
 	myRTC.write_month(mm);   // 1 - 12
 	myRTC.write_year(yy);   // 0 - 99
+
+	LOG(LL_WARN,("RTC write time = %d:%d:%d %d/%d/%d (epoch = %ld) success", h, m, s, dd, mm, yy, time_epoch));
 }
 
 
