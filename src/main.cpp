@@ -44,7 +44,7 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define V3
+#define R1
 
 #ifdef V1
 #define WIFI_LED 4
@@ -86,6 +86,24 @@
 #define EN_I2C 16
 #define RL_LED_EN 15
 #endif
+
+#ifdef R1
+#define WIFI_LED 2
+#define WIFI_BTN 36
+#define INPUT_A 35
+#define INPUT_B 39
+#define INPUT_C 34
+#define OUTPUT_A 15 //outputs PWM signal at boot
+#define OUTPUT_B 12
+#define OUTPUT_C 14 //outputs PWM signal at boot
+#define DHT_PIN 4
+#define EN_I2C 13
+#define ATX_PIN 16 //Pull low to activate PSU
+// #define RL_LED_EN ** NOT USED **
+#endif
+
+
+
 bool rc_1970day = 0, rc_thisday = 0;
 int header_size = 0;
 int logColumn = 13;
