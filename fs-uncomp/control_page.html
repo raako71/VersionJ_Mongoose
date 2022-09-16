@@ -114,7 +114,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	</div>
 	<div style="margin-top:15px">Input Control C</div>
 	<div id="DHT22_switch_holder"> <!-- DIV for DHT22 checkbox -->
-	DHT22 &nbsp;
+	DHT21 &nbsp;
 	<label class="switch" style="margin: 15px 0">
 		<input type="checkbox" id="DHT22_en">
 		<span class="slider round"></span>
@@ -305,7 +305,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 function toggle_output_override(input, num){
 	input = String(input);
 	var dropdown_menu =  '<div style="margin-bottom:10px;margin-top:10px; display:block;">';
-	dropdown_menu += 'Apply over ride  <input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr('+(num+1)+')"> <br>';
+	dropdown_menu += 'Apply over ride  <input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global('+(num+1)+')"> <br>';
 	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_always_'+input+'" onChange="toggle_override(\''+input+'\')" checked><label for="apply_always_'+input+'" >Always</label><br>';
 	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_for_'+input+'" onChange="toggle_override(\''+input+'\')"><label for="apply_for_'+input+'" >For</label><br>';
 	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px; color:grey" id="ovr_for_holder_'+input+'">';
@@ -316,19 +316,25 @@ function toggle_output_override(input, num){
 	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_until_'+input+'" onChange="toggle_override(\''+input+'\')" ><label for="apply_until_'+input+'">Until</label>';
 	dropdown_menu += '<div style="padding-left:20px; margin-bottom:10px; margin-top:5px" id="ovr_until_holder_C">';
 	dropdown_menu += '<input type=time id="until_time_'+input+'" readOnly></div>';
-	dropdown_menu += '<label for="override_action_'+input+'" >Override Actions: </label> <select name="override_action_'+input+'" id="override_action_'+input+'">';
+	dropdown_menu += '<label for="override_action_'+input+'" >Override Actions: </label> <select name="override_action_'+input+'" ';
+	dropdown_menu += 'id="override_action_'+input+'" onChange="ovr_schedule_opt_handler(\''+input+'\')">'; //adding event handler here
 	dropdown_menu += '<option value="2">Invert output status</option><option value="3">Turn on Output</option><option value="4">Turn off Output</option>';
-	dropdown_menu += '<option value="5">Override Program Scheduling</option></select>';
+	dropdown_menu += '<option value="5">Override Program Schedulling</option></select>';
 	var output_addition = "";
 	if(input == 'C' || input == 'D'){
-		output_addition += '<label for="override_output_'+input+'"> Apply Override to Output: </label> <select name="override_output_'+input+'" id="override_output_'+input+'"> <option value="1">A</option>';
-		output_addition += '<option value="2">B</option><option value="3">C</option><option value="4">D</option></select>';
+		output_addition += '<label for="override_output_'+input+'"> Apply Override to Output: &nbsp;</label> <select name="override_output_'+input+'" id="override_output_'+input+'" onChange="ovr_schedule_opt_handler(\''+input+'\')"> <option value="1">A</option>';
+		output_addition += '<option value="2">B</option><option value="3">C</option><option value="4">D</option></select><br>';
 	}
-	dropdown_menu += '<br>' + output_addition + '<div id="override_en_status_'+input+'" style="color:red;display:none">OVERRIDE ACTIVE</div></div>';
+	var ovr_schedule_addition = '<span id="ovr_schedule_holder_'+input+'" style="margin-top:5px"><label for="ovr_schedule_label_'+input+'">';
+	ovr_schedule_addition += 'apply override schedule to: &nbsp;</label><select name="ovr_schedule_label_'+input+'" id="ovr_schedule_prog_'+input+'"></select></span>';
+	
 	if(document.getElementById("cont_prog_"+input).checked && document.getElementById("input_"+input+"_mode").value == 1){
+		dropdown_menu += '<br>' + output_addition +ovr_schedule_addition+ '<div id="override_en_status_'+input+'" style="color:red;display:none">OVERRIDE ACTIVE</div></div>';
 		document.getElementById("ovr_holder_"+input).innerHTML = dropdown_menu;
+		ovr_schedule_opt_handler(input); 
 	}else if(document.getElementById("cont_prog_"+input).checked && document.getElementById("input_"+input+"_mode").value == 2){
 		document.getElementById("ovr_holder_"+input).innerHTML = output_addition;
+		ovr_schedule_opt_handler(input); 
 	}else{
 		document.getElementById("ovr_holder_"+input).innerHTML = "";
 	}
@@ -340,7 +346,28 @@ function toggle_output_override(input, num){
 		}
 	}
 }
-	
+
+function ovr_schedule_opt_handler(input){
+	var holder = document.getElementById("ovr_schedule_holder_"+input);
+	var selection = document.getElementById("override_action_"+input);
+	holder.style.display = (selection.value != 5) ? "none" : "block";
+	var i = input_mode_list.indexOf(input);
+	if(i >= 2){
+		i = document.getElementById("override_output_"+input).value-1;
+	}
+	var ovr_prog_list = document.getElementById("ovr_schedule_prog_"+input);
+	ovr_prog_list.innerHTML = "";
+	//checking program 
+	for(var x = 0; x < 10; x++){
+		var output_ovrrdn = program_list[x].control_opt;
+		if(Number(output_ovrrdn) == (i+1)){
+			var opt = document.createElement("option");
+			opt.text = program_list[x].name;
+			opt.value = x+1;
+			ovr_prog_list.add(opt);
+		}
+	}
+}	
 	function IO14_en_func(halo){
 		if(halo.checked){
 			var conf = confirm("Are you sure want to enable this output?");
@@ -447,6 +474,9 @@ function toggle_output_override(input, num){
 		
 		if(old_json.override[i].output_ovr && old_json.override[i].mode == 1){ //if set as override output
 			document.getElementById("override_action_"+input_mode_list[i]).value = old_json.override[i].ovr_act;
+			//handler for ovr schedule after signing the value to override action
+			ovr_schedule_opt_handler(input_mode_list[i]);
+			document.getElementById("ovr_schedule_prog_"+input_mode_list[i]).value = old_json.override[i].ovr_prog;
 			var a = old_json.override[i].ovr_limit;
 			var b = old_json.override[i].ovr_val;
 		//apply override limit
@@ -481,8 +511,10 @@ function toggle_output_override(input, num){
 	
 			document.getElementById("until_time_"+input_mode_list[i]).value = all;
 		}		
-		if(i >= 2){
+		if(i >= 2){ //for input C and D override
 			document.getElementById("override_output_"+input_mode_list[i]).value = old_json.override[i].output_opt;
+			ovr_schedule_opt_handler(input_mode_list[i]);
+			document.getElementById("ovr_schedule_prog_"+input_mode_list[i]).value = old_json.override[i].ovr_prog;
 		}
 		}//end of if input set as override output and mode 1
 		else if(old_json.override[i].output_ovr && old_json.override[i].mode == 2){ //if input as override output and mode2
@@ -585,9 +617,10 @@ function toggle_output_override(input, num){
 				var b1 =0;
 				old_json.override[i].mode = document.getElementById("input_"+input_mode_list[i]+"_mode").value;
 				var e =0;var f ="";
-				var c; var d; var d1; var override_action = 0;
+				var c; var d; var d1; var override_action = 0; var ovr_prog_schedule = 0;
 				if(b && old_json.override[i].mode == 1){
 					c = document.getElementById("apply_always_"+input_mode_list[i]).checked;d = document.getElementById("apply_for_"+input_mode_list[i]).checked;	d1 = document.getElementById("apply_until_"+input_mode_list[i]).checked; override_action = document.getElementById("override_action_"+input_mode_list[i]).value;	
+					ovr_prog_schedule = document.getElementById("ovr_schedule_prog_"+input_mode_list[i]).value;
 					if(c){e = 1;}else if(d){
 						e = 2;f=Number(document.getElementById("ovr_sec_"+input_mode_list[i]).value);f+=Number(document.getElementById("ovr_min_"+input_mode_list[i]).value) * 60;f+=Number(document.getElementById("ovr_hour_"+input_mode_list[i]).value) * 3600;f+=Number(document.getElementById("ovr_day_"+input_mode_list[i]).value) *3600 * 24;
 					}else if(d1){
@@ -606,7 +639,7 @@ function toggle_output_override(input, num){
 				old_json.override[i].ovr_val = f;
 				old_json.override[i].ovr_limit = e;
 				old_json.override[i].ovr_act = override_action;
-			
+				old_json.override[i].ovr_prog = (override_action == 5) ? Number(ovr_prog_schedule) : 0;
 			}
 		xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
 			if(u.status != "success"){
@@ -777,43 +810,6 @@ function toggle_output_override(input, num){
 	  document.getElementById("overlay_save").style.display = "none";
 	  document.getElementById("main_div").style.filter = "none";
 	}
-	
-function send_trigger_ovr(input){
-if(!check_password()){
-	trigger_ovr_command = input;
-	on_overlay_login(2);
-	return;
-}
-on_overlay_login(0); //just on overlay login
-document.getElementById("multipurpose").innerHTML = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+spinner_load+'</div><br>Sending...';
-validate_cookie(function(i){
-	if(i.code == 200 && i.data.status == "illegal"){
-		trigger_ovr_command = input;
-		var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info"> Session end, please re-login! </div>';
-		x+= '<br>  <input type="button" style="font-size:16px;" value="OK" onClick="on_overlay_login(2);"></div>';
-		document.getElementById("multipurpose").innerHTML = x;
-		return;
-	}else if(i.code != 200){
-		var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
-		x+= '<input type="button" style="font-size:16px" value="retry" onClick="send_trigger_ovr('+input+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
-		document.getElementById("multipurpose").innerHTML = x;
-		return;
-	}
-	xhr_send_nojson("VT.GPIO", JSON.stringify({pin:input, val: 2}), function(i){
-		if(i.code != 200){
-			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+i.status+'</div>';
-			x+= '<input type="button" style="font-size:16px" value="retry" onClick="send_trigger_ovr('+input+')"> <input style="font-size:16px" type="button" value="cancel" onClick="off_overlay_login()">';
-			document.getElementById("multipurpose").innerHTML = x;
-			return;
-		}
-		var x = '<div style="margin-top:30px;margin-bottom:10px;font-size:20px" id="spinner_info">Trigger sent!</div>';
-		x+= '<input style="font-size:16px" type="button" value="OK" onClick="off_overlay_login()">';
-		document.getElementById("multipurpose").innerHTML = x;
-	}); //end of xhr send
-
-});//end of validate cookie
-trigger_ovr_command = 0;
-}
 
 function toggle_mode_grey(input, num){
 	if(input == 1){

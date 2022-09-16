@@ -442,7 +442,6 @@ setInputFilter(document.getElementById(name+"_day_off"), function(value) { retur
 }
 
 function load_ctrl_action(){
-	widget_setting = "";
 	var action_A = '<div class="trigger_container" style="border:1px solid; padding:10px;border-radius:10px">';
 	action_A += ' <label class="switch" style="position:relative; top:-5px"><input type="checkbox" id="pri_switched_on" checked><span class="slider round"></span>';
 	action_A += '</label>&nbsp;&nbsp;Switched On:&nbsp;&nbsp;';
@@ -883,7 +882,7 @@ document.getElementById("spinner_info").innerHTML = "Saving..";
 var z1 = old_json.control_trigger[0].main_option;
 var z2 = old_json.control_trigger[0].sec_option;
 if((z1 >= 1 && z1 <= 20) || (z1 == 29 && z2 != -1)){
-	if(widget_setting == ""){
+	if(widget_setting == ""){//if no widget setting
 		old_json.setting = {type:1, gauge1:{max:1000, min: 0, esz: false, evl: false ,upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}, 
 		gauge2:{max:1000, min: 0, esz: false, evl: false, upval:-1, loval:-1, ocolor:"#FDD017", icolor:"#5EFB6E"}, graph1:{cubic_en:false}, graph2:{cubic_en:false}};
 		
@@ -964,11 +963,11 @@ return ret;}
 
 function make_day_epoch(h){ //h must string
   if(h == ""){ return -1;}
-  var offset = new Date(); offset = offset.getTimezoneOffset()*60;
+  //var offset = new Date(); offset = offset.getTimezoneOffset()*60;
   var time_day = h.substring(0, h.indexOf(":"))* 3600;
   time_day += h.substring(h.indexOf(":")+1) * 60;
-  time_day += offset;
-  time_day = (time_day < 0)  ?  86400 + time_day: time_day;
+  //time_day += offset;
+  //time_day = (time_day < 0)  ?  86400 + time_day: time_day;
   return time_day;
 }
 
@@ -1105,6 +1104,7 @@ function parse_config(input){
 	document.getElementById("program_name").value = input.name;
 	document.getElementById("program_en").checked = input.en;
 	widget_setting = input.setting;
+	console.log(input.setting);
 	if(input.start_date != ""){document.getElementById("start_date_en").checked = true; toggle("start_date"); document.getElementById("start_date").value = from_epoch(input.start_date);}
 	else{document.getElementById("start_date_en").checked = false;}
 	if(input.end_date != ""){document.getElementById("end_date_en").checked = true; toggle("end_date"); document.getElementById("end_date").value = from_epoch(input.end_date);}

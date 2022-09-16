@@ -289,6 +289,7 @@ function fetch_program_list(){
 	}
 	j++;
 	if(j == 10){
+	widget_content += widget_builder_ovr();
 	for(k = 0; k  < 4; k++){
 		widget_content += widget_builder_plain(input_mode_list[k]);
 	}
@@ -299,18 +300,36 @@ function fetch_program_list(){
 	}
 	document.getElementById("widget_cluster").innerHTML = widget_content;
 	initiate_widget_content();
-	
+	fetch_ovr_config();
 	}//if j == 10
 	}// xhr onload
 	}//for
 	
 }
 
-function widget_builder_plain(input){ //for output only
+function widget_builder_ovr(){
+	var a = '<div class="widget_holder fadeIn" id="widget_holder_ovr" style="display:none"><br><br>';
+	a += '<div id="input_A_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_A_prog"></span> <br> Output: A <br>';
+	a += '<input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global(1)"> <br></div>';
+	
+	a += '<div id="input_B_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_B_prog"></span> <br> Output: B <br>';
+	a += '<input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global(2)"> <br></div>';
+	
+	a += '<div id="input_C_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_C_prog"></span> <br> Output: <span id="pin_C_name"></span> <br>';
+	a += '<input type="button" id="ovr_C_button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global(3)"> <br></div>';
+	
+	a += '<div id="input_D_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_D_prog"></span> <br> Output: <span id="pin_D_name"></span> <br>';
+	a += '<input type="button" id="ovr_D_button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global(4)"> <br>';
+	a += '</div>';
+	a += '</div>';
+	return a;
+}
+
+function widget_builder_plain(input){ //for output only, without active program for that output
 var a = '<div class="widget_holder fadeIn" id="widget_holder_'+input+'"><br><br>';
 a += '<span class="widget-txt" id="widget'+input+'_pin"> Switch Status </span>';
 a += '<span class="widget-txt" id="widget'+input+'_output"> Output: '+input+'</span>';
-a += '<div id="widget'+input+'_tanker"></div></div>';
+a += '</div>';
 return a;
 }
 
@@ -514,6 +533,44 @@ function filter_epoch(input){
 	return ret;
 }
 
+function fetch_ovr_config(){
+	xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(v){
+		var ovr_info = JSON.parse(window.atob(v.data.data));
+		ovr_info = ovr_info.override;
+		var widget_ovr_show_flag = false;
+		for (var i = 0; i < 4; i++){
+			var ovr_en = ovr_info[i].output_ovr;
+			document.getElementById("input_"+input_mode_list[i]+"_ovr").style.display = (ovr_en) ? "block" : "none";
+			if(ovr_en){
+				widget_ovr_show_flag = true;
+			}
+			if(i >= 2 && ovr_en){
+				document.getElementById("pin_"+input_mode_list[i]+"_name").innerHTML = input_mode_list[ovr_info[i].output_opt-1];
+			}
+		}
+		//show widget override
+		document.getElementById("widget_holder_ovr").style.display = (widget_ovr_show_flag) ? "inline-block" : "none";
+		//fetch program name 
+		xhr_send("req_widget", null, function(w){
+			var program_active = w.data.IO_info.prog_name;
+			program_active = program_active.split(",");
+			for(var i = 0; i < 4; i++){
+							
+				//for input C and D
+				if(i >= 2){
+					var active_pin = ovr_info[i].output_opt;
+					if(active_pin != 0){
+						active_pin -= 1;
+						active_pin = program_active[active_pin];
+						document.getElementById("pin_"+input_mode_list[i]+"_prog").innerHTML = active_pin > 0 ? program_list[active_pin-1].name : "No active program!";
+					}
+				}else{ //for input A and B
+					document.getElementById("pin_"+input_mode_list[i]+"_prog").innerHTML = program_active[i] > 0 ? program_list[program_active[i]-1].name : "No active program!";
+				}
+			}
+		});
+	});
+}
 function fetch_io_status(){
 xhr_send_nojson("req.log_value", null, function(u){
 if(u.code != 200){return;}
@@ -610,7 +667,7 @@ for(i=0; i<4; i++){
 var ovr_pin_status = ovr_info[i].split(",");
 var pin_element = "Switched: <span " + ((OS[ovr_pin_status[1]] == 0) ? ">&nbsp; OFF &nbsp;" : "class=\"on_label\">&nbsp; ON &nbsp;") + "</span><span style='color:red'>&nbsp;&nbsp;OVERRIDE</span>";
 	document.getElementById("widget"+(input_mode_list[i])+"_pin").innerHTML = pin_element;
-	console.log(a[ovr_pin_status[1]]);
+	//console.log(a[ovr_pin_status[1]]);
 	if(Number(a[ovr_pin_status[1]]) == -1 && ovr_pin_status[1] != -1 && ovr_pin_status[0] != -1){
 		document.getElementById("widget"+input_mode_list[i]+"_output").innerHTML = "Output: " + input_mode_list[ovr_pin_status[1]];
 		document.getElementById("widget_holder_"+input_mode_list[i]).style.display = "inline-block";

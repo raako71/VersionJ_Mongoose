@@ -513,10 +513,11 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				for(i=0; i<4; i++){
 				old_json.override[i].sensor = true;
 				old_json.override[i].output_ovr = false;
-				old_json.override[i].ovr_limit = 0;
+				old_json.override[i].ovr_limit = 0; ovr_val = 0;
 				old_json.override[i].ovr_act = 0;
 				old_json.override[i].output_opt = 0;
 				old_json.override[i].mode = 1;
+				old_json.override[i].ovr_prog = 0;
 				if(i == 2){ old_json.override[i].dht22_en = false;}
 				}
 			}

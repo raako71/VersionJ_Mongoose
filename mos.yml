@@ -1,6 +1,6 @@
 author: alifnl
-description: 18th milestone finishing
-version: 0.10.9.6.2
+description: 16th sep version, fixing shared doc issue, dht21, and RTC
+version: 0.10.9.7
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
