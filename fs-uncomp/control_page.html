@@ -113,13 +113,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div id="ovr_holder_B" style="padding-left:20px;">
 	</div>
 	<div style="margin-top:15px">Input Control C</div>
-	<div id="DHT22_switch_holder"> <!-- DIV for DHT22 checkbox -->
-	DHT21 &nbsp;
-	<label class="switch" style="margin: 15px 0">
-		<input type="checkbox" id="DHT22_en">
-		<span class="slider round"></span>
-	</label>
-	</div>
+	
 	<div id="sens_in_C_holder"><input type="checkbox" id = "sens_in_C" ><label for="sens_in_C"> As Sensor Input </label></div>
 	<div id="ovr_C_option_holder">
 	<input type="checkbox" onClick="toggle_output_override('C',2)" id = "cont_prog_C"><label for="cont_prog_C"> Output Override (Hold 3 seconds)</label>
@@ -319,14 +313,14 @@ function toggle_output_override(input, num){
 	dropdown_menu += '<label for="override_action_'+input+'" >Override Actions: </label> <select name="override_action_'+input+'" ';
 	dropdown_menu += 'id="override_action_'+input+'" onChange="ovr_schedule_opt_handler(\''+input+'\')">'; //adding event handler here
 	dropdown_menu += '<option value="2">Invert output status</option><option value="3">Turn on Output</option><option value="4">Turn off Output</option>';
-	dropdown_menu += '<option value="5">Override Program Schedulling</option></select>';
+	dropdown_menu += '<option value="5">Toggle Program Enable</option></select>';
 	var output_addition = "";
 	if(input == 'C' || input == 'D'){
 		output_addition += '<label for="override_output_'+input+'"> Apply Override to Output: &nbsp;</label> <select name="override_output_'+input+'" id="override_output_'+input+'" onChange="ovr_schedule_opt_handler(\''+input+'\')"> <option value="1">A</option>';
 		output_addition += '<option value="2">B</option><option value="3">C</option><option value="4">D</option></select><br>';
 	}
 	var ovr_schedule_addition = '<span id="ovr_schedule_holder_'+input+'" style="margin-top:5px"><label for="ovr_schedule_label_'+input+'">';
-	ovr_schedule_addition += 'apply override schedule to: &nbsp;</label><select name="ovr_schedule_label_'+input+'" id="ovr_schedule_prog_'+input+'"></select></span>';
+	ovr_schedule_addition += 'Program: &nbsp;</label><select name="ovr_schedule_label_'+input+'" id="ovr_schedule_prog_'+input+'"></select></span>';
 	
 	if(document.getElementById("cont_prog_"+input).checked && document.getElementById("input_"+input+"_mode").value == 1){
 		dropdown_menu += '<br>' + output_addition +ovr_schedule_addition+ '<div id="override_en_status_'+input+'" style="color:red;display:none">OVERRIDE ACTIVE</div></div>';
@@ -447,11 +441,11 @@ function ovr_schedule_opt_handler(input){
 	input_A_sense = old_json.override[0].sensor;
 	input_B_sense = old_json.override[1].sensor;
 	input_D_sense = old_json.override[3].sensor;
-	if(cx){
+	/*if(cx){
 		document.getElementById("DHT22_switch_holder").style.display = 'inline-block';
 	}else{
 		document.getElementById("DHT22_switch_holder").style.display = 'none';
-	}
+	}*/
 	for(i = 0; i < 4; i++){
 		if(document.getElementById("sens_in_"+input_mode_list[i]) != null){
 		document.getElementById("input_"+input_mode_list[i]+"_mode").value = old_json.override[i].mode;
@@ -464,8 +458,8 @@ function ovr_schedule_opt_handler(input){
 		//toggle and push button dropdown
 		if(cx){
 			if(i == 2){ // if dev mode enabled will load dht22
-				document.getElementById("DHT22_en").checked = old_json.override[i].dht22_en;
-				toggle_dht22_holder();
+				//document.getElementById("DHT22_en").checked = old_json.override[i].dht22_en;
+				//toggle_dht22_holder();
 			}
 			document.getElementById("input_"+input_mode_list[i]+"_mode").style.display = 'inline-block';
 		}else{
@@ -610,7 +604,7 @@ function ovr_schedule_opt_handler(input){
 			old_json.ctrl_page.LED = g;old_json.ctrl_page.IO14 = h;old_json.ctrl_page.LED_prog = g1;
 		
 			//save setting set as override output
-			old_json.override[2].dht22_en = document.getElementById("DHT22_en").checked;
+			//old_json.override[2].dht22_en = document.getElementById("DHT22_en").checked;
 			for(i=0; i < 4 ; i++){
 				var a = document.getElementById("sens_in_"+input_mode_list[i]).checked;
 				var b= document.getElementById("cont_prog_"+input_mode_list[i]).checked;	
@@ -822,7 +816,7 @@ function toggle_mode_grey(input, num){
 	toggle_output_override(input_mode_list[num], num);
 }
 
-function toggle_dht22_holder(){
+/*function toggle_dht22_holder(){
 	if(document.getElementById("DHT22_en").checked){
 		document.getElementById("sens_in_C").checked = false;
 		document.getElementById("ovr_C_option_holder").classList.add("unclickable_grey");
@@ -834,7 +828,7 @@ function toggle_dht22_holder(){
 	}
 }
 document.getElementById("DHT22_en").addEventListener("change", toggle_dht22_holder);
-
+*/
 </script>
 
 <style>

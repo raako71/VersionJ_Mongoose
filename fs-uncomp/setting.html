@@ -239,7 +239,14 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div class="section">
 		<b>  <abbr title="Allow secondary outputs to be used" style="cursor:help">Dev Mode</abbr></b><br>
 		<label class="switch" style="margin: 15px 0">
-			<input type="checkbox" id="dev_mode_en">
+			<input type="checkbox" id="dev_mode_en" onClick="dht_modifier(this.checked)">
+			<span class="slider round"></span>
+		</label><br>
+	</div>
+	<div class="section" style="display:none" id="dht21_holder">
+		<b>DHT21 Enable<br>
+		<label class="switch" style="margin: 15px 0">
+			<input type="checkbox" id="dht21_en">
 			<span class="slider round"></span>
 		</label><br>
 	</div>
@@ -281,6 +288,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	var sensor_label = [];
 	var sensor_list_id= [];
 	var sensor_poped_flag = false; var prog_number= 0;
+	var dht_exist = 0;
 	fetch_version();
 
 	var default_program_json = {"id": "", "name":"", "en":true, "start_date": "", "end_date":"", "days_active": "", "on_time_global": "|-1", "off_time_global":"|-1"
@@ -334,6 +342,14 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	  alert("You have entered an invalid IP address!")  
 	  return (false)  
 	} 
+	
+	function dht_modifier(value){
+		if(dht_exist == 1 && value){
+			document.getElementById("dht21_holder").style.display = "block";
+		}else{
+			document.getElementById("dht21_holder").style.display = "none";
+		}
+	}
 	function load_conf(){
 		var old_json;
 		var xhr1 = new XMLHttpRequest();
@@ -362,6 +378,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				getconfig();
 			}
 			document.getElementById("dev_mode_en").checked = old_json.dev_mode;
+			document.getElementById("dht21_en").checked = old_json.dht_en;
+			dht_modifier(old_json.dev_mode);
 			document.getElementById("mode").value = old_json.wifi.mode;
 			build_wifi_saved_list(old_json.wifi.cfg);
 
@@ -508,6 +526,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			old_json.static_IP_conf[0].GW = GW;
 			old_json.static_IP_conf[0].SN = SN;
 			var dev_mode = document.getElementById("dev_mode_en").checked;
+			var dht_en = document.getElementById("dht21_en").checked;
+			
 			if(old_json.dev_mode && !dev_mode && old_json.ctrl_page.LED == 1){old_json.ctrl_page.LED = 0;}
 			if(old_json.dev_mode && !dev_mode){ //reset input D
 				for(i=0; i<4; i++){
@@ -518,11 +538,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 				old_json.override[i].output_opt = 0;
 				old_json.override[i].mode = 1;
 				old_json.override[i].ovr_prog = 0;
-				if(i == 2){ old_json.override[i].dht22_en = false;}
+				
 				}
 			}
-			if(!old_json.dev_mode){old_json.ctrl_page.IO14 = false;}
+			if(!dev_mode){old_json.ctrl_page.IO14 = false; dht_en = false;}
 			old_json.dev_mode = dev_mode;
+			old_json.dht_en = dht_en;
 			old_json.timezone = time_zone;
 			old_json.temp_scale = temp_mode;
 			old_json.theme = theme_mode;
@@ -612,8 +633,12 @@ function fetch_version(){
 	xhr.open("GET", "/rpc/req.hw_version", true);
 	xhr.send();
 	xhr.onload = function(){
-		console.log(this.responseText);
-		document.getElementById("hw_version").innerHTML = "HW Version: " + this.responseText ;
+		var a = this.responseText;
+		a = a.split("+");
+		document.getElementById("hw_version").innerHTML = "HW Version: " + a[0] ;
+		if(a[1] == '1\r\n'){
+			dht_exist = 1;
+		}else{dht_exist = 0;}
 	}
 }
 function getconfig(){

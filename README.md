@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.9.7b: 18th sep fix<br>
 0.10.9.7: 16th sep version, fixing shared doc issue, dht21, and RTC
 0.10.9.6.2: 18th milestone finishing<br>
 0.10.9.6.1: flexible time frame on graph page <br>

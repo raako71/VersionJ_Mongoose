@@ -771,18 +771,24 @@ enum mgos_app_init_result mgos_app_init(void) {
 
 void request_hardware_version(struct mg_rpc_request_info *ri, void *cb_arg,struct mg_rpc_frame_info *fi, struct mg_str args){
 	#ifdef V1	
-		const char* version = "V1";	
+		std::string version = "V1+";	
 	#endif
 	#ifdef V2	
-		const char* version = "V2";	
+		std::string version = "V2+";	
 	#endif
 	#ifdef V3	
-		const char* version = "V3";	
+		std::string version = "V3+";	
 	#endif
 	#ifdef R1 
-		const char* version = "R1";
+		std::string version = "R1+";
 	#endif
-	mg_rpc_send_responsef(ri, "%Q",version);
+	
+	bool dht_exist = 0;
+	#ifdef DHT_PIN
+		dht_exist = 1;
+	#endif
+	version += dht_exist ? "1": "0";
+	mg_rpc_send_responsef(ri, "%Q",version.c_str());
 	(void) cb_arg;
 	(void) fi;
 }
@@ -1834,16 +1840,14 @@ void checkJSONsetting(){
 	int input3_ovr_out_z = input3_ovr_out;
 	int input4_ovr_out_z = input4_ovr_out;
 	json_scanf_array_elem(buff, strlen(buff), ".override",2, &t);
-	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d, dht22_en: %B, ovr_prog:%d}",
-	           &input3_mode, &input3_as_sens, &input3_as_ovr, &input3_ovr_limit, &input3_ovr_val, &input3_ovr_out, &input3_ovr_action, &dht22_en_global, &input3_ovr_prog_schdl);
+	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d, ovr_prog:%d}",
+	           &input3_mode, &input3_as_sens, &input3_as_ovr, &input3_ovr_limit, &input3_ovr_val, &input3_ovr_out, &input3_ovr_action, &input3_ovr_prog_schdl);
 	//input 4 (input D)
 	json_scanf_array_elem(buff, strlen(buff), ".override",3, &t);
 	json_scanf(t.ptr, t.len, "{mode: %d, sensor:%B, output_ovr:%B, ovr_limit: %d, ovr_val: %ld, output_opt: %d, ovr_act: %d, ovr_prog: %d}",
 	           &input4_mode, &input4_as_sens, &input4_as_ovr, &input4_ovr_limit, &input4_ovr_val, &input4_ovr_out, &input4_ovr_action, &input4_ovr_prog_schdl);
 
-	if(dht22_en_global){
-		sensor_init_dht22 = true;
-	}
+	
 	//turn off override if output pin is different
 	if(input3_ovr_out_z != input3_ovr_out){
 		en_ovr_output_C = -1;
@@ -1852,10 +1856,13 @@ void checkJSONsetting(){
 		en_ovr_output_D = -1;
 	}
 	//char* dns_name_local = (char*)malloc(100);
-	json_scanf(buff, strlen(buff), "{timezone: %ld, dec_place: %d, dev_mode: %B}",  &timezone_global, &dec_place_global, &dev_mode_global);
+	json_scanf(buff, strlen(buff), "{timezone: %ld, dec_place: %d, dev_mode: %B, dht_en: %B}",  &timezone_global, &dec_place_global, &dev_mode_global, &dht22_en_global);
 	//std::string dns_name = dns_name_local;
 	//free(dns_name_local);
 	//mgos_dns_sd_set_host_name(dns_name.c_str());
+	if(dht22_en_global){
+		sensor_init_dht22 = true;
+	}
 	if(LED_opt == 2){
 		mgos_clear_timer(prog_led_timer);
 		prog_led_timer = mgos_set_timer(1000, MGOS_TIMER_REPEAT, led_red_ctrl_asprog, NULL);
@@ -3482,7 +3489,7 @@ void update_sensor_info(){ //update online and exist
 		bool on = false;
 		if(sensor_addr_list.at(i) != 0x67 && sensor_addr_list.at(i) != 0x60){
 			//not thermocouple mcp sensors
-			on = (sensor_addr_list.at(i) == 0) || (sensor_addr_list.at(i) == 0x10) ? true : check_sensor(sensor_addr_list.at(i));
+			on = (sensor_addr_list.at(i) == 0) ? true : check_sensor(sensor_addr_list.at(i));
 			ext = (on == true) ? true : sensor_ext.at(i);
 		}else{
 			//for mcp sensors no need to update variable
