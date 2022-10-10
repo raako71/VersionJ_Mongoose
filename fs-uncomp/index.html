@@ -65,7 +65,7 @@ var trigger_unit =[];
 var trigger_value=[];
 var trigger_en=[]; //indicate which sensor is enabled logging
 
-
+var warning_en; 
 var input_mode_list=["A","B","C","D"];
 var gauge_1_1;var gauge_1_2;var gauge_1_3;var gauge_1_4;
 var gauge_2_1;var gauge_2_2;var gauge_2_3;var gauge_2_4;
@@ -77,6 +77,7 @@ var gauge_7_1;var gauge_7_2;var gauge_7_3;var gauge_7_4;
 var gauge_8_1;var gauge_8_2;var gauge_8_3;var gauge_8_4;
 var gauge_9_1;var gauge_9_2;var gauge_9_3;var gauge_9_4;
 var gauge_10_1;var gauge_10_2;var gauge_10_3;var gauge_10_4;
+var ovr_out_info;
 
 var chart1; var chart2; var chart3; var chart4; var chart5; var chart6; var chart7; var chart8; var chart9; var chart10;
 var program_list = [{"id": "","name": "", "en":"", "output":"", "var1":"", "var2":"", "info1":"", "info2":"", "setting":""}, 
@@ -116,6 +117,29 @@ setInterval(update_graph, 10000);
 update_time();
 setInterval(update_time, 1000);	
 
+}
+
+function show_warning(enable){
+	if(enable){
+		on_overlay_login(0);
+		var x = '<div style="margin-top:25px;font-size:20px">This software is in Beta, please let us know of any issues!</div><br>';
+		x += '<input type="checkbox" id="warning_check" name="warning_check"><label for="warning_check">';
+		x += 'Do not show this message</label><br>';
+		x+= '<input style="font-size:16px" type="button" value="OK" onClick="save_warning_config()">';
+			
+		document.getElementById("multipurpose").innerHTML = x;
+	}
+}
+
+function save_warning_config(){
+	var en = document.getElementById("warning_check").checked;
+	if(en){
+		warning_en = false;
+		off_overlay_login();
+		save_home_text();
+	}else{
+		off_overlay_login();
+	}
 }
 
 function initiate_widget_content(){
@@ -300,7 +324,6 @@ function fetch_program_list(){
 	}
 	document.getElementById("widget_cluster").innerHTML = widget_content;
 	initiate_widget_content();
-	fetch_ovr_config();
 	}//if j == 10
 	}// xhr onload
 	}//for
@@ -310,16 +333,16 @@ function fetch_program_list(){
 function widget_builder_ovr(){
 	var a = '<div class="widget_holder fadeIn" id="widget_holder_ovr" style="display:none"><br><br>';
 	a += '<div id="input_A_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_A_prog"></span> <br> Output: A <br>';
-	a += '<input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global(1)"> <br></div>';
+	a += '<input type="button" style="margin-left:40px;font-weight:bold" value="Trigger Override" onClick="send_trigger_ovr_global(1)" id="ovr_A_btn"> <br></div>';
 	
 	a += '<div id="input_B_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_B_prog"></span> <br> Output: B <br>';
-	a += '<input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global(2)"> <br></div>';
+	a += '<input type="button" style="margin-left:40px;font-weight:bold" value="Trigger Override" onClick="send_trigger_ovr_global(2)" id="ovr_B_btn"> <br></div>';
 	
 	a += '<div id="input_C_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_C_prog"></span> <br> Output: <span id="pin_C_name"></span> <br>';
-	a += '<input type="button" id="ovr_C_button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global(3)"> <br></div>';
+	a += '<input type="button" style="margin-left:40px;font-weight:bold" value="Trigger Override" onClick="send_trigger_ovr_global(3)" id="ovr_C_btn"> <br></div>';
 	
 	a += '<div id="input_D_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_D_prog"></span> <br> Output: <span id="pin_D_name"></span> <br>';
-	a += '<input type="button" id="ovr_D_button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global(4)"> <br>';
+	a += '<input type="button style="margin-left:40px;font-weight:bold" value="Trigger Override" onClick="send_trigger_ovr_global(4)" id="ovr_D_btn"> <br>';
 	a += '</div>';
 	a += '</div>';
 	return a;
@@ -533,44 +556,6 @@ function filter_epoch(input){
 	return ret;
 }
 
-function fetch_ovr_config(){
-	xhr_send("FS.get", JSON.stringify({filename:"setting.json"}), function(v){
-		var ovr_info = JSON.parse(window.atob(v.data.data));
-		ovr_info = ovr_info.override;
-		var widget_ovr_show_flag = false;
-		for (var i = 0; i < 4; i++){
-			var ovr_en = ovr_info[i].output_ovr;
-			document.getElementById("input_"+input_mode_list[i]+"_ovr").style.display = (ovr_en) ? "block" : "none";
-			if(ovr_en){
-				widget_ovr_show_flag = true;
-			}
-			if(i >= 2 && ovr_en){
-				document.getElementById("pin_"+input_mode_list[i]+"_name").innerHTML = input_mode_list[ovr_info[i].output_opt-1];
-			}
-		}
-		//show widget override
-		document.getElementById("widget_holder_ovr").style.display = (widget_ovr_show_flag) ? "inline-block" : "none";
-		//fetch program name 
-		xhr_send("req_widget", null, function(w){
-			var program_active = w.data.IO_info.prog_name;
-			program_active = program_active.split(",");
-			for(var i = 0; i < 4; i++){
-							
-				//for input C and D
-				if(i >= 2){
-					var active_pin = ovr_info[i].output_opt;
-					if(active_pin != 0){
-						active_pin -= 1;
-						active_pin = program_active[active_pin];
-						document.getElementById("pin_"+input_mode_list[i]+"_prog").innerHTML = active_pin > 0 ? program_list[active_pin-1].name : "No active program!";
-					}
-				}else{ //for input A and B
-					document.getElementById("pin_"+input_mode_list[i]+"_prog").innerHTML = program_active[i] > 0 ? program_list[program_active[i]-1].name : "No active program!";
-				}
-			}
-		});
-	});
-}
 function fetch_io_status(){
 xhr_send_nojson("req.log_value", null, function(u){
 if(u.code != 200){return;}
@@ -597,6 +582,64 @@ var io_info = res.IO_info;
 var a = io_info.prog_name.split(",");
 var b = io_info.pin_state;
 var ovr_info = res.ovr_out.split("|");
+if(ovr_out_info == null){
+	ovr_out_info = ovr_info;
+	//setting.json first
+	var warning_en_local = setting_json_conf_global.warning_show;
+	//warning box is here
+	if(warning_en == null){
+		warning_en = warning_en_local;
+		show_warning(warning_en);
+	}
+	var ovr_info_setting_json = setting_json_conf_global.override;
+	var widget_ovr_show_flag = false;
+	for (var i = 0; i < 4; i++){
+		var ovr_en = ovr_info_setting_json[i].output_ovr;
+		document.getElementById("input_"+input_mode_list[i]+"_ovr").style.display = (ovr_en) ? "block" : "none";
+		if(ovr_en){
+			widget_ovr_show_flag = true;
+		}
+		if(i >= 2 && ovr_en){
+			document.getElementById("pin_"+input_mode_list[i]+"_name").innerHTML = input_mode_list[ovr_info_setting_json[i].output_opt-1];
+		}
+	}
+	//show widget override
+	document.getElementById("widget_holder_ovr").style.display = (widget_ovr_show_flag) ? "inline-block" : "none";
+
+	//and then ovr_out from req_widget
+	var program_active = res.IO_info.prog_name;
+	program_active = program_active.split(",");
+	for(var i = 0; i < 4; i++){
+		//for input C and D
+		if(i >= 2){
+			var active_pin = ovr_info[i].output_opt;
+			if(active_pin != 0){
+				active_pin -= 1;
+				active_pin = program_active[active_pin];
+				document.getElementById("pin_"+input_mode_list[i]+"_prog").innerHTML = active_pin > 0 ? program_list[active_pin-1].name : "No active program!";
+			}
+		}else{ //for input A and B
+			document.getElementById("pin_"+input_mode_list[i]+"_prog").innerHTML = program_active[i] > 0 ? program_list[program_active[i]-1].name : "No active program!";
+		}
+	}
+}//if first time of the page
+if(ovr_out_info != null){
+for(z = 0; z < 4; z++){
+		var ovr_state_x = ovr_info[z].split(",");
+		var x = document.getElementById("ovr_"+input_mode_list[z]+"_btn").style;
+		if(Number(ovr_state_x[0]) != -1){
+			x.color = "white";
+			x.backgroundColor = "#0d8e0a"
+			x.borderColor = "#0d8e0a";
+		}else{
+			x.color = "white";
+			x.backgroundColor = "red"
+			x.borderColor = "red";
+		}
+	
+}
+}
+
 var unit = trigger_unit;
 for (i = 0 ; i < 10 ; i++){
 //show or hide widget
@@ -630,10 +673,12 @@ if(program_list[i].output == 5){
 
 if(document.getElementById("widget"+(i+1)+"_pin") != null){
 var pin_element = "Switched: <span " + ((OS[program_list[i].output-1] == 0) ? ">&nbsp; OFF &nbsp;" : "class=\"on_label\">&nbsp; ON &nbsp;") + "</span><span style='color:red'>&nbsp;&nbsp;";
-//scanning ovr_info
+//scanning ovr_info out
+
 for(k=0; k<4; k++){
 	var ovr_pin_status = ovr_info[k].split(",");
 	pin_element += (ovr_pin_status[0] != '-1' && (Number(ovr_pin_status[1])+1 == Number(program_list[i].output))) ? "(OVERRIDE)" :""; //update output status
+	var x = document.getElementById("ovr_"+input_mode_list[i]+"_btn").style;
 }
 pin_element += "</span>";
 
@@ -765,9 +810,9 @@ if(set.temp_unit != null){
 	document.getElementById("temp_unit_holder").style.display = "inline-block"
 	//if(set.temp_unit == 2) change_temp_field_setting(2);
 }else{
-	temp_unit.value = 1;
+	//temp_unit.value = 1;
 	//change_temp_field_setting(1);
-	document.getElementById("temp_unit_holder").style.display = 'none';
+	if(document.getElementById("temp_unit_holder") != null)	document.getElementById("temp_unit_holder").style.display = 'none';
 	//temp_unit.style.color = 'grey';
 }
 }
@@ -1049,6 +1094,7 @@ function change_home_text(input){
 function transfer_title_text(){
 	document.getElementById("home_text_disp").innerHTML = document.getElementById("home_text").value;
 }
+
 function save_home_text(){
 var old_json;
 if(!check_password()){
@@ -1079,7 +1125,8 @@ validate_cookie(function(i){
 			return;
 		}
 		old_json = JSON.parse(window.atob(v.data.data));
-		old_json.home_text = document.getElementById("home_text_disp").innerHTML;
+		old_json.warning_show = warning_en;
+		if(document.getElementById("homte_text_disp") != null) old_json.home_text = document.getElementById("home_text_disp").innerHTML;
 	xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
 		if(u.code != 200){
 			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+u.status+'</div>';
@@ -1129,6 +1176,8 @@ function req_log_value(){ //requesting log label and value
 			
 		}
 		fetch_program_list();
+		
+		//show_warning(warning_en);
 	}
 }
 </script>

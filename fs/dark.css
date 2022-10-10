@@ -30,6 +30,7 @@ input[type=button]{
     background: linear-gradient(to bottom left, #19171499, #0e0e0e99);
     box-shadow: 0px 0px 10px -1px #8a7a05;
 }
+
 .widget_holder{
 	border:1px solid #FFA700;
 	background-color:#0e0e0e;

@@ -100,15 +100,15 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<b> Input Mode</b><br>
 	<div style="margin-top:15px">Input Control A</div>
 	<div id="sens_in_A_holder"><input type="checkbox" id = "sens_in_A" ><label for="sens_in_A"> As Sensor Input </label></div>
-	<input type="checkbox" onClick="toggle_output_override('A',0)" id = "cont_prog_A"><label for="cont_prog_A"> Output Override (Hold 3 seconds)</label>
-	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 0)" id="input_A_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
+	<input type="checkbox" onClick="onchange_ovr_check('A',0)" id = "cont_prog_A"><label for="cont_prog_A"> Output Override (Hold 3 seconds)</label>
+	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 0);" id="input_A_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
 	<br>
 	<div id="ovr_holder_A" style="padding-left:20px;">
 	</div>
 	<div style="margin-top:15px">Input Control B</div>
 	<div id="sens_in_B_holder"><input type="checkbox" id = "sens_in_B" ><label for="sens_in_B"> As Sensor Input </label></div>
-	<input type="checkbox" onClick="toggle_output_override('B',1)" id = "cont_prog_B"><label for="cont_prog_B"> Output Override (Hold 3 seconds)</label>
-	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 1)" id="input_B_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
+	<input type="checkbox" onClick="onchange_ovr_check('B',1)" id = "cont_prog_B"><label for="cont_prog_B"> Output Override (Hold 3 seconds)</label>
+	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 1);" id="input_B_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
 	<br>
 	<div id="ovr_holder_B" style="padding-left:20px;">
 	</div>
@@ -116,8 +116,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	
 	<div id="sens_in_C_holder"><input type="checkbox" id = "sens_in_C" ><label for="sens_in_C"> As Sensor Input </label></div>
 	<div id="ovr_C_option_holder">
-	<input type="checkbox" onClick="toggle_output_override('C',2)" id = "cont_prog_C"><label for="cont_prog_C"> Output Override (Hold 3 seconds)</label>
-	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 2)" id="input_C_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
+	<input type="checkbox" onClick="onchange_ovr_check('C',2)" id = "cont_prog_C"><label for="cont_prog_C"> Output Override (Hold 3 seconds)</label>
+	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 2);" id="input_C_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
 	</div>
 	<br>
 	<div id="ovr_holder_C" style="padding-left:20px;">
@@ -125,7 +125,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div id="input_control_D_holder" style="margin-top:15px;display:none">
 		<div>Input Control D</div>
 		<div id="sens_in_D_holder"><input type="checkbox" id = "sens_in_D" ><label for="sens_in_D"> As Sensor Input </label></div>
-		<input type="checkbox" onClick="toggle_output_override('D',3)" id = "cont_prog_D"><label for="cont_prog_D"> Output Override (Hold 3 seconds)</label>
+		<input type="checkbox" onClick="onchange_ovr_check('D',3);" id = "cont_prog_D"><label for="cont_prog_D"> Output Override (Hold 3 seconds)</label>
 		<select style="margin-left:30px" onChange="toggle_mode_grey(this.value,3)" id="input_D_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
 		<br>
 		<div id="ovr_holder_D" style="padding-left:20px;">
@@ -154,18 +154,8 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	var dev_offset;
 	var dev_mode_global;
 	var input_mode_list=["A","B","C","D"];
-	var program_list =
-	[{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}, 
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1},
-	{"id": "","name": "", "control_opt":"", "start_date":"","end_date":"","days_active":"","on_time_global":"|-1","off_time_global":"|-1", "main_option":-1, "main_info":-1}];
-	var prog_number =0;
+	var ovr_out_global;
+	var program_list=[];
 	var LED; var IO14;
 	var input_C_sense;var input_A_sense; var input_B_sense;	var input_D_sense;
 	window.addEventListener('load', onLoad);
@@ -193,18 +183,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			console.log("no good");
 		}else{
 			var prog_json = JSON.parse(window.atob(data.data));
-			var id = prog_json.id;
-			program_list[id-1].name = prog_json.name;
-			program_list[id-1].id = prog_json.id;
-			program_list[id-1].control_opt = prog_json.control_opt;
-			program_list[id-1].end_date = prog_json.end_date;
-			program_list[id-1].start_date = prog_json.start_date;
-			program_list[id-1].days_active = prog_json.days_active;
-			program_list[id-1].on_time_global = prog_json.on_time_global;
-			program_list[id-1].off_time_global = prog_json.off_time_global;
-			program_list[id-1].main_option = prog_json.control_trigger[0].main_option;
-			program_list[id-1].main_info = prog_json.control_trigger[0].main_info;
-			prog_number++;
+			program_list[prog_json.id-1] = JSON.parse(window.atob(data.data));
 		}
 		j++;
 		if(j == 10){
@@ -221,7 +200,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		var id;
 		for(i = 0; i < 11; i++){
 			if(i == 10){ alert("program full"); return;};
-			if(program_list[i].id == ""){
+			if(program_list[i] == null){
 				id = i+1;
 				break;
 			}
@@ -247,7 +226,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 		var link = '<ul style="padding-left:20px; margin-top:10px">';
 		var i = 0;
 		while(i < 10){
-			if( program_list[i].name != ""){
+			if( program_list[i] != null){
 			link += '<table><td><li></li> </td><td style="width:100px"><a href="program_editor.html.gz?x=program' + (i+1) +'&y='+program_list[i].id+'&'+ Math.random() * Math.random()+'">' + program_list[i].name + '</a></td>';
 			link+= '<td style="width:15px">';
 			if(program_list[i].control_opt == 3 && !LED){
@@ -264,7 +243,9 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			}else{
 			link+= '</td>';
 			}
-			link += '<td><input type="button" style="margin-left:10px; margin-right:2px" value="Export" onClick="download_file(\'program'+program_list[i].id+'.json\')"> <input type="button" style="margin-right:10px" value="Delete" onClick="delete_prog('+program_list[i].id+')"></td></table>';
+			link += '<td><input type="button" style="margin-left:10px; margin-right:2px" value="Export" onClick="download_file(\'program'+program_list[i].id+'.json\')"> <input type="button" style="margin-right:10px" value="Delete" onClick="delete_prog('+program_list[i].id+')"></td>';
+			link += '<td><label class="mini_switch"><input type="checkbox" id="toggle_program_en_'+(i+1)+'" '+(program_list[i].en ? "checked" : "")+'><span class="mini_slider round" ></span></label>'
+			link += '</table>';
 			}
 			i++;
 		}
@@ -285,7 +266,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	function create_dropdown(){
 		var i;
 		for(i = 0 ; i < 10; i++){
-			if(program_list[i].name != ""){
+			if(program_list[i] != null){
 			var x = document.getElementById("prog_list");
 			var opt = document.createElement("option");
 			opt.text = program_list[i].name;
@@ -299,7 +280,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 function toggle_output_override(input, num){
 	input = String(input);
 	var dropdown_menu =  '<div style="margin-bottom:10px;margin-top:10px; display:block;">';
-	dropdown_menu += 'Apply over ride  <input type="button" style="margin-left:40px" value="Trigger Override" onClick="send_trigger_ovr_global('+(num+1)+')"> <br>';
+	dropdown_menu += 'Apply over ride  <input type="button" style="margin-left:40px" value="Trigger Override" id="ovr_'+input+'_btn" onClick="send_trigger_ovr_global('+(num+1)+')"> <br>';
 	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_always_'+input+'" onChange="toggle_override(\''+input+'\')" checked><label for="apply_always_'+input+'" >Always</label><br>';
 	dropdown_menu += '<input type="radio" name="override_'+input+'" id="apply_for_'+input+'" onChange="toggle_override(\''+input+'\')"><label for="apply_for_'+input+'" >For</label><br>';
 	dropdown_menu += '<div style="padding-left:20px; margin-bottom:5px; margin-top:5px; color:grey" id="ovr_for_holder_'+input+'">';
@@ -311,7 +292,7 @@ function toggle_output_override(input, num){
 	dropdown_menu += '<div style="padding-left:20px; margin-bottom:10px; margin-top:5px" id="ovr_until_holder_C">';
 	dropdown_menu += '<input type=time id="until_time_'+input+'" readOnly></div>';
 	dropdown_menu += '<label for="override_action_'+input+'" >Override Actions: </label> <select name="override_action_'+input+'" ';
-	dropdown_menu += 'id="override_action_'+input+'" onChange="ovr_schedule_opt_handler(\''+input+'\')">'; //adding event handler here
+	dropdown_menu += 'id="override_action_'+input+'" onChange="onchange_ovr_program_en(\''+input+'\')">;'; //adding event handler here
 	dropdown_menu += '<option value="2">Invert output status</option><option value="3">Turn on Output</option><option value="4">Turn off Output</option>';
 	dropdown_menu += '<option value="5">Toggle Program Enable</option></select>';
 	var output_addition = "";
@@ -353,14 +334,18 @@ function ovr_schedule_opt_handler(input){
 	ovr_prog_list.innerHTML = "";
 	//checking program 
 	for(var x = 0; x < 10; x++){
-		var output_ovrrdn = program_list[x].control_opt;
-		if(Number(output_ovrrdn) == (i+1)){
-			var opt = document.createElement("option");
-			opt.text = program_list[x].name;
-			opt.value = x+1;
-			ovr_prog_list.add(opt);
+		if(program_list[x] != null){
+			var output_ovrrdn = program_list[x].control_opt;
+			if(Number(output_ovrrdn) == (i+1)){
+				var opt = document.createElement("option");
+				opt.text = program_list[x].name;
+				opt.value = x+1;
+				ovr_prog_list.add(opt);
+			}
 		}
 	}
+	//console.log(input);
+	//ovr_btn_color_change();
 }	
 	function IO14_en_func(halo){
 		if(halo.checked){
@@ -380,7 +365,7 @@ function ovr_schedule_opt_handler(input){
 		}else if(input == 3){ //as program status
 			inner.innerHTML = a;
 			for(var i = 0 ; i < 10; i++){
-			if(program_list[i].name != ""){ //will add existing program to select dropdown
+			if(program_list[i] != null){ //will add existing program to select dropdown
 			var x = document.getElementById("prog_led_list");
 			var opt = document.createElement("option");
 			opt.text = program_list[i].name;
@@ -423,15 +408,11 @@ function ovr_schedule_opt_handler(input){
 	}
 
 	function load_conf(){
-//	create_dropdown();
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "/rpc/FS.Get", true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	var comm = {"filename": "setting.json"};
-	xhr.send(JSON.stringify(comm));
-	xhr.onload = function() {
-	var data = JSON.parse(this.responseText);
-	var old_json = JSON.parse(window.atob(data.data));
+	if(typeof setting_json_conf_global === 'undefined'){
+		setTimeout(load_conf,100);
+		return;
+	}
+	var old_json = setting_json_conf_global;
 	//load theme first
 	dev_offset = old_json.timezone;
 	
@@ -446,26 +427,32 @@ function ovr_schedule_opt_handler(input){
 	}else{
 		document.getElementById("DHT22_switch_holder").style.display = 'none';
 	}*/
+	
 	for(i = 0; i < 4; i++){
 		if(document.getElementById("sens_in_"+input_mode_list[i]) != null){
 		document.getElementById("input_"+input_mode_list[i]+"_mode").value = old_json.override[i].mode;
 		document.getElementById("sens_in_"+input_mode_list[i]).checked = old_json.override[i].sensor;
 		document.getElementById("cont_prog_"+input_mode_list[i]).checked = old_json.override[i].output_ovr;
-		toggle_mode_grey(old_json.override[i].mode, i);
-		//toggle_output_override(input_mode_list[i], i);
-		//toggle_mode_grey(old_json.override[i].mode, i);
 		
+		//toggle_output_override(input_mode_list[i], i);
+		var zz = i;
+		toggle_mode_grey(old_json.override[i].mode, zz);
 		//toggle and push button dropdown
+		var input_mode_element = document.getElementById("input_"+input_mode_list[i]+"_mode");
+		if(input_mode_element != null){
 		if(cx){
 			if(i == 2){ // if dev mode enabled will load dht22
 				//document.getElementById("DHT22_en").checked = old_json.override[i].dht22_en;
 				//toggle_dht22_holder();
 			}
-			document.getElementById("input_"+input_mode_list[i]+"_mode").style.display = 'inline-block';
+			input_mode_element.style.display = 'inline-block';
 		}else{
-			document.getElementById("input_"+input_mode_list[i]+"_mode").style.display = 'none';
+			input_mode_element.style.display = 'none';
 		}
-		
+		}
+		//console.log(old_json.override);
+		//console.log(i);
+		//console.log(old_json.override[i]);
 		if(old_json.override[i].output_ovr && old_json.override[i].mode == 1){ //if set as override output
 			document.getElementById("override_action_"+input_mode_list[i]).value = old_json.override[i].ovr_act;
 			//handler for ovr schedule after signing the value to override action
@@ -519,7 +506,7 @@ function ovr_schedule_opt_handler(input){
 		}//if element is not null
 	}	
 	
-	
+	ovr_btn_color_change();
 	LED = false;
 	if(c == 0){
 		document.getElementById("led_disable").checked = true;
@@ -549,8 +536,8 @@ function ovr_schedule_opt_handler(input){
 	
 	
 	create_program_link();
-	}//onload
-	}
+	}//end of function
+	
 	function save_conf(){
 	var old_json;
 	var ovr_output_1 = document.getElementById("cont_prog_A").checked;
@@ -640,20 +627,61 @@ function ovr_schedule_opt_handler(input){
 				document.getElementById("circularG").style.display = 'none';
 				document.getElementById("spinner_info").innerHTML = u.status;
 				document.getElementById("failed_button").style.display="block";
-			}else{
-				document.getElementById("circularG").style.display = 'none';
-				document.getElementById("spinner_info").innerHTML = "Configuration Saved"
-				document.getElementById("success_button").style.display="block";
-				var xhttp2 = new XMLHttpRequest();
-				xhttp2.open("POST", "/rpc/setting", true);
-				xhttp2.send();
+				return;
 			}
+			
+		//save program enable if any change detected
+		for(prog_num = 0; prog_num < 10 ; prog_num++){ //prog_num is just an index
+			if(program_list[prog_num] != null){
+				var en_change = document.getElementById("toggle_program_en_"+(prog_num+1)).checked;
+				if(en_change != program_list[prog_num].en){ //change detected
+					program_list[prog_num].en = en_change;
+					xhr_send("FS.put", JSON.stringify({filename:"program"+(prog_num+1)+".json", append:false, data: window.btoa(JSON.stringify(program_list[prog_num]))}), function(v){
+					});
+				}
+			}
+		}
+		
+			document.getElementById("circularG").style.display = 'none';
+			document.getElementById("spinner_info").innerHTML = "Configuration Saved"
+			document.getElementById("success_button").style.display="block";
+			var xhttp2 = new XMLHttpRequest();
+			xhttp2.open("POST", "/rpc/setting", true);
+			xhttp2.send();
+		
 			});//end of fs put
 			});//end of fs.get
 		});//end of validate_cookie
 		save_command = false;
 	}//end of function
+	function ovr_btn_color_change(){
 	
+		if(ovr_out_global != null){
+			for(i = 0; i< 4; i++){
+			//trigger override button color change
+			var x = ovr_out_global[i].split(",");
+			var xy = document.getElementById("ovr_"+input_mode_list[i]+"_btn");
+			if(xy != null){
+			if(Number(x[0]) != -1 ){
+				xy.style.color = "white";
+				xy.style.backgroundColor = "#0d8e0a"
+				xy.style.borderColor = "#0d8e0a";
+			}else{
+				xy.style.color = "white";
+				xy.style.backgroundColor = "red"
+				xy.style.borderColor = "red";
+			}
+			
+			if(document.getElementById("override_action_"+input_mode_list[i]).value == 5){
+				xy.style.color = null;
+				xy.style.backgroundColor = null;
+				xy.style.borderColor = null;
+			}
+			}//element is not null
+			}//end of for
+		
+		}
+	}
 	function fetch_IO_status(){
 		var xhttp = new XMLHttpRequest();
 		xhttp.open("POST", "/rpc/req_widget", true);
@@ -662,15 +690,16 @@ function ovr_schedule_opt_handler(input){
 		xhttp.onload = function(){
 			var json_data = JSON.parse(xhttp.responseText);
 			var ovr_en = json_data.ovr_en;
-			var ovr_out_global = json_data.ovr_out;
-			ovr_out_global = ovr_out_global.split("|");
+			var ovr_out_local = json_data.ovr_out;
+			ovr_out_global = ovr_out_local.split("|");
 			document.getElementById("ovr_out_A").style.display = 'none';
 			document.getElementById("ovr_out_B").style.display = 'none';
 			document.getElementById("ovr_out_C").style.display = 'none';
 			document.getElementById("ovr_out_D").style.display = 'none';
+			ovr_btn_color_change();
 			for (i = 0; i < 4; i++){
-				var x = ovr_out_global[i].split(",");	
-				
+				var x = ovr_out_global[i].split(",");
+						
 				if(x[1] != -1){
 					if(document.getElementById("ovr_out_"+input_mode_list[x[1]]) != null){
 					if(x[0] != -1){
@@ -816,44 +845,79 @@ function toggle_mode_grey(input, num){
 	toggle_output_override(input_mode_list[num], num);
 }
 
-/*function toggle_dht22_holder(){
-	if(document.getElementById("DHT22_en").checked){
-		document.getElementById("sens_in_C").checked = false;
-		document.getElementById("ovr_C_option_holder").classList.add("unclickable_grey");
-		document.getElementById("cont_prog_C").checked = false;
-		toggle_output_override('C',2);
-	}else{
-		document.getElementById("sens_in_C").checked = true;
-		document.getElementById("ovr_C_option_holder").classList.remove("unclickable_grey");
-	}
+function onchange_ovr_check(input,num){
+	toggle_output_override(input,num);
+	ovr_btn_color_change();
 }
-document.getElementById("DHT22_en").addEventListener("change", toggle_dht22_holder);
-*/
+function onchange_ovr_program_en(input){
+	ovr_schedule_opt_handler(input);
+	ovr_btn_color_change();
+}
 </script>
 
 <style>
-	
-	.on_label{
-		background-color: green;
-		color:white;
-	}
-	.off_label{
-		background-color: red;
-		color: white;
-	}
-	.off_label_prog{
-		background-color: orange;
-		color: white;
-	}
-	.title_attr{
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		user-select: none;
-	}
-	.unclickable_grey{
-		color: grey;
-		pointer-events: none;
-	}
+.on_label{
+	background-color: green;
+	color:white;
+}
+.off_label{
+	background-color: red;
+	color: white;
+}
+.off_label_prog{
+	background-color: orange;
+	color: white;
+}
+.title_attr{
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.unclickable_grey{
+	color: grey;
+	pointer-events: none;
+}
+.mini_switch {
+	position: relative;
+	display: inline-block;
+	width: 30px;
+	height: 18px;
+}
+.mini_slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: red;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.mini_slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2.5px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .mini_slider {
+	background-color: #0d8e0a;
+}
+input:checked + .mini_slider:before {
+	-webkit-transform: translateX(13px);
+	-ms-transform: translateX(13px);
+	transform: translateX(13px);
+}
+.mini_slider.round {border-radius: 15px;}
+
+.mini_slider.round:before { border-radius: 50%;}
 </style>
 </html>

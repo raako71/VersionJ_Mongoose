@@ -2627,6 +2627,9 @@ int check_program_state(const char* file_read){
 	}
 	
 	int state = (date_state == 1 && day_state == 1 && time_state == 1) ? 1 : 0;
+	if(start_date == 0 && end_date == 0 && on_conv == -1 && off_conv == -1 && days == ""){
+		state = 1;
+	} 
 	return state;	
 }
 

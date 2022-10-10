@@ -352,6 +352,12 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	}
 	function load_conf(){
 		var old_json;
+		if(typeof setting_json_conf_global === 'undefined'){
+			setTimeout(load_conf,100);
+			return;
+		}
+		old_json = setting_json_conf_global;
+		var old_json;
 		var xhr1 = new XMLHttpRequest();
 		xhr1.open("POST", "/rpc/FS.Get", true);
 		xhr1.setRequestHeader('Content-Type', 'application/json');
@@ -362,15 +368,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 			var dat = JSON.parse(window.atob(data.data));
 			sensor_json = dat;
 			build_sensor_list(dat.sensors);
-		};
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "/rpc/FS.Get", true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		var comm = {"filename": "setting.json"};
-		xhr.send(JSON.stringify(comm));
-		xhr.onload = function() {
-			var data = JSON.parse(this.responseText);
-			old_json = JSON.parse(window.atob(data.data));
+		
 			//document.getElementById("mdns_name").value = old_json.dns_name;
 			document.getElementById("eth_en").checked = old_json.eth_en;
 			document.getElementById("i2c_en").checked = old_json.i2c_en;
