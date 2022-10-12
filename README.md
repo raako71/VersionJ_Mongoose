@@ -1,8 +1,8 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.10.9.8b: same as 0.10.9.8 with some addition and bug fix
-0.10.9.8: 2oct and 30sep work done<br>
+0.10.9.8b-c: Bug fix
+0.10.9.8: Beta overlay message, Override Colours, prog enable switch on CL page<br>
 0.10.9.7b: 18th sep fix<br>
 0.10.9.7: 16th sep version, fixing shared doc issue, dht21, and RTC
 0.10.9.6.2: 18th milestone finishing<br>

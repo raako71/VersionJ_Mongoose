@@ -44,9 +44,9 @@
 #define THISMONTH_INTERVAL 600
 #define LONGTERM_INTERVAL 1800
 
-#define R1
+#define V2
 
-#define LONG_PRESS_DETECTION 6000
+#define LONG_PRESS_DETECTION 2000
 #ifdef V1
 #define WIFI_LED 4
 #define WIFI_BTN 35
