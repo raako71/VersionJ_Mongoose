@@ -582,6 +582,7 @@ var io_info = res.IO_info;
 var a = io_info.prog_name.split(",");
 var b = io_info.pin_state;
 var ovr_info = res.ovr_out.split("|");
+
 if(ovr_out_info == null){
 	ovr_out_info = ovr_info;
 	//setting.json first
@@ -594,7 +595,7 @@ if(ovr_out_info == null){
 	var ovr_info_setting_json = setting_json_conf_global.override;
 	var widget_ovr_show_flag = false;
 	for (var i = 0; i < 4; i++){
-		var ovr_en = ovr_info_setting_json[i].output_ovr;
+		var ovr_en = ovr_info_setting_json[i].output_ovr ;
 		document.getElementById("input_"+input_mode_list[i]+"_ovr").style.display = (ovr_en) ? "block" : "none";
 		if(ovr_en){
 			widget_ovr_show_flag = true;
@@ -623,20 +624,26 @@ if(ovr_out_info == null){
 		}
 	}
 }//if first time of the page
-if(ovr_out_info != null){
+if(ovr_out_info != null){ //change override button color
 for(z = 0; z < 4; z++){
+		var ovr_act_arr = setting_json_conf_global.override[z];
 		var ovr_state_x = ovr_info[z].split(",");
 		var x = document.getElementById("ovr_"+input_mode_list[z]+"_btn").style;
-		if(Number(ovr_state_x[0]) != -1){
+		if(Number(ovr_state_x[0]) == 1){
 			x.color = "white";
 			x.backgroundColor = "#0d8e0a"
 			x.borderColor = "#0d8e0a";
-		}else{
+		}else if(Number(ovr_state_x[0]) == 0){
 			x.color = "white";
 			x.backgroundColor = "red"
 			x.borderColor = "red";
 		}
-	
+		
+		if(Number(ovr_state_x[0]) == -1 || ovr_act_arr.ovr_act == 5 ){
+			x.color = null;
+			x.backgroundColor = null;
+			x.borderColor = null;
+		}
 }
 }
 
@@ -677,8 +684,8 @@ var pin_element = "Switched: <span " + ((OS[program_list[i].output-1] == 0) ? ">
 
 for(k=0; k<4; k++){
 	var ovr_pin_status = ovr_info[k].split(",");
-	pin_element += (ovr_pin_status[0] != '-1' && (Number(ovr_pin_status[1])+1 == Number(program_list[i].output))) ? "(OVERRIDE)" :""; //update output status
-	var x = document.getElementById("ovr_"+input_mode_list[i]+"_btn").style;
+	var ovr_act_arr = setting_json_conf_global.override[k];
+	pin_element += (ovr_act_arr.ovr_act != 5 && ovr_pin_status[0] != '-1' && (Number(ovr_pin_status[1])+1 == Number(program_list[i].output))) ? "(OVERRIDE)" :""; //update output status
 }
 pin_element += "</span>";
 

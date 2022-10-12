@@ -1,6 +1,6 @@
 author: alifnl
 description: 2oct and 30sep work done
-version: 0.10.9.8
+version: 0.10.9.8b
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

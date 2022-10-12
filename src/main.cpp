@@ -46,6 +46,7 @@
 
 #define R1
 
+#define LONG_PRESS_DETECTION 6000
 #ifdef V1
 #define WIFI_LED 4
 #define WIFI_BTN 35
@@ -3200,9 +3201,9 @@ int read_R1_button(int button) { // read button if there is logic change
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button - button_z >= 3000) { //rising edge
+  if (button - button_z >= LONG_PRESS_DETECTION) { //rising edge
     state_button = 1;
-  } else if (button_z - button >= 3000) { //falling edge
+  } else if (button_z - button >= LONG_PRESS_DETECTION) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
@@ -3236,9 +3237,9 @@ int read_R2_button(int button) { // read button if there is logic change
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button - button_z >= 3000) { //rising edge
+  if (button - button_z >= LONG_PRESS_DETECTION) { //rising edge
     state_button = 1;
-  } else if (button_z - button >= 3000) { //falling edge
+  } else if (button_z - button >= LONG_PRESS_DETECTION) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
@@ -3271,9 +3272,9 @@ int read_RPB_button(int button) { // read button if there is logic change
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button - button_z >= 3000/*button_z3 < 1000 && button > 3000*/) { //rising edge
+  if (button - button_z >= LONG_PRESS_DETECTION/*button_z3 < 1000 && button > 3000*/) { //rising edge
     state_button = 1;
-  } else if (button_z - button >= 3000 /*button_z3 > 3000 && button < 1000*/) { //falling edge
+  } else if (button_z - button >= LONG_PRESS_DETECTION /*button_z3 > 3000 && button < 1000*/) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;
@@ -3306,9 +3307,9 @@ int read_R4_button(int button) { // read button if there is logic change
   static int button_z = 0;
   static int timer = 0;
   int result = 0;
-  if (button - button_z >= 3000) { //rising edge
+  if (button - button_z >= LONG_PRESS_DETECTION) { //rising edge
     state_button = 1;
-  } else if (button_z - button >= 3000) { //falling edge
+  } else if (button_z - button >= LONG_PRESS_DETECTION) { //falling edge
     if (state_button != 2) {
       if (timer >= 10) { //over 1sec
         result = 0;

@@ -100,14 +100,14 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<b> Input Mode</b><br>
 	<div style="margin-top:15px">Input Control A</div>
 	<div id="sens_in_A_holder"><input type="checkbox" id = "sens_in_A" ><label for="sens_in_A"> As Sensor Input </label></div>
-	<input type="checkbox" onClick="onchange_ovr_check('A',0)" id = "cont_prog_A"><label for="cont_prog_A"> Output Override (Hold 3 seconds)</label>
+	<input type="checkbox" onClick="onchange_ovr_check('A',0)" id = "cont_prog_A"><label for="cont_prog_A"> Output Override (Hold 6 seconds)</label>
 	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 0);" id="input_A_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
 	<br>
 	<div id="ovr_holder_A" style="padding-left:20px;">
 	</div>
 	<div style="margin-top:15px">Input Control B</div>
 	<div id="sens_in_B_holder"><input type="checkbox" id = "sens_in_B" ><label for="sens_in_B"> As Sensor Input </label></div>
-	<input type="checkbox" onClick="onchange_ovr_check('B',1)" id = "cont_prog_B"><label for="cont_prog_B"> Output Override (Hold 3 seconds)</label>
+	<input type="checkbox" onClick="onchange_ovr_check('B',1)" id = "cont_prog_B"><label for="cont_prog_B"> Output Override (Hold 6 seconds)</label>
 	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 1);" id="input_B_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
 	<br>
 	<div id="ovr_holder_B" style="padding-left:20px;">
@@ -116,7 +116,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	
 	<div id="sens_in_C_holder"><input type="checkbox" id = "sens_in_C" ><label for="sens_in_C"> As Sensor Input </label></div>
 	<div id="ovr_C_option_holder">
-	<input type="checkbox" onClick="onchange_ovr_check('C',2)" id = "cont_prog_C"><label for="cont_prog_C"> Output Override (Hold 3 seconds)</label>
+	<input type="checkbox" onClick="onchange_ovr_check('C',2)" id = "cont_prog_C"><label for="cont_prog_C"> Output Override (Hold 6 seconds)</label>
 	<select style="margin-left:30px" onChange="toggle_mode_grey(this.value, 2);" id="input_C_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
 	</div>
 	<br>
@@ -125,7 +125,7 @@ Confirm Password: <input type="password" style="width:100%; margin-bottom:5px" i
 	<div id="input_control_D_holder" style="margin-top:15px;display:none">
 		<div>Input Control D</div>
 		<div id="sens_in_D_holder"><input type="checkbox" id = "sens_in_D" ><label for="sens_in_D"> As Sensor Input </label></div>
-		<input type="checkbox" onClick="onchange_ovr_check('D',3);" id = "cont_prog_D"><label for="cont_prog_D"> Output Override (Hold 3 seconds)</label>
+		<input type="checkbox" onClick="onchange_ovr_check('D',3);" id = "cont_prog_D"><label for="cont_prog_D"> Output Override (Hold 6 seconds)</label>
 		<select style="margin-left:30px" onChange="toggle_mode_grey(this.value,3)" id="input_D_mode"><option value=1>Push Button</option><option value=2>Toggle</option></select>
 		<br>
 		<div id="ovr_holder_D" style="padding-left:20px;">
@@ -641,7 +641,7 @@ function ovr_schedule_opt_handler(input){
 				}
 			}
 		}
-		
+			setting_json_conf_global = old_json;
 			document.getElementById("circularG").style.display = 'none';
 			document.getElementById("spinner_info").innerHTML = "Configuration Saved"
 			document.getElementById("success_button").style.display="block";
@@ -662,17 +662,17 @@ function ovr_schedule_opt_handler(input){
 			var x = ovr_out_global[i].split(",");
 			var xy = document.getElementById("ovr_"+input_mode_list[i]+"_btn");
 			if(xy != null){
-			if(Number(x[0]) != -1 ){
+			if(Number(x[0]) == 1 ){
 				xy.style.color = "white";
 				xy.style.backgroundColor = "#0d8e0a"
 				xy.style.borderColor = "#0d8e0a";
-			}else{
+			}else if(Number(x[0]) == 0){
 				xy.style.color = "white";
 				xy.style.backgroundColor = "red"
 				xy.style.borderColor = "red";
 			}
 			
-			if(document.getElementById("override_action_"+input_mode_list[i]).value == 5){
+			if(document.getElementById("override_action_"+input_mode_list[i]).value == 5 || Number(x[0]) == -1){
 				xy.style.color = null;
 				xy.style.backgroundColor = null;
 				xy.style.borderColor = null;

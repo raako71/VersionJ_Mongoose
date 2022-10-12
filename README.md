@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.9.8b: same as 0.10.9.8 with some addition and bug fix
 0.10.9.8: 2oct and 30sep work done<br>
 0.10.9.7b: 18th sep fix<br>
 0.10.9.7: 16th sep version, fixing shared doc issue, dht21, and RTC
