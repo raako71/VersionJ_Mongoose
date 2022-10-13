@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.9.9a: setting page bug console<br>
 0.10.9.8b-c: Bug fix
 0.10.9.8: Beta overlay message, Override Colours, prog enable switch on CL page<br>
 0.10.9.7b: 18th sep fix<br>

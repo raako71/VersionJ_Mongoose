@@ -3493,7 +3493,7 @@ void update_sensor_info(){ //update online and exist
 		bool on = false;
 		if(sensor_addr_list.at(i) != 0x67 && sensor_addr_list.at(i) != 0x60){
 			//not thermocouple mcp sensors
-			on = (sensor_addr_list.at(i) == 0) ? true : check_sensor(sensor_addr_list.at(i));
+			on = (sensor_addr_list.at(i) == 0 ) ? true : check_sensor(sensor_addr_list.at(i));
 			ext = (on == true) ? true : sensor_ext.at(i);
 		}else{
 			//for mcp sensors no need to update variable
