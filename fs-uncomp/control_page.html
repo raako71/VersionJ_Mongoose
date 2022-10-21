@@ -544,14 +544,30 @@ function ovr_schedule_opt_handler(input){
 	var ovr_output_2 = document.getElementById("cont_prog_B").checked;
 	var ovr_output_3 = document.getElementById("cont_prog_C").checked;
 	var ovr_output_4 = false;
+	var ovr_D_act = -1;
+	var ovr_D_pin = -1;
 	if(document.getElementById("cont_prog_D") != null){
 		ovr_output_4 = document.getElementById("cont_prog_D").checked;
 	}
+	if(	ovr_D_act = document.getElementById("override_action_D") != null){
+		ovr_D_act = document.getElementById("override_action_D").value;
+		ovr_D_pin = document.getElementById("override_output_D").value;
+	}
+	var ovr_C_pin = -1; var ovr_C_act = -1;
+	if(	ovr_C_act = document.getElementById("override_action_C") != null){
+		ovr_C_act = document.getElementById("override_action_C").value;
+		ovr_C_pin = document.getElementById("override_output_C").value;
+	}
 	
-	if(ovr_output_1 && ovr_output_3){if(document.getElementById("override_output_C").value == 1){alert("Input C overrides same output as Input A!");return;}}
-	if(ovr_output_2 && ovr_output_3){if(document.getElementById("override_output_C").value == 2){alert("Input C overrides same output as Input B!");return;}}
-	if(ovr_output_1 && ovr_output_4){if(document.getElementById("override_output_D").value == 1){alert("Input D overrides same output as Input A!");return;}}
-	if(ovr_output_2 && ovr_output_4){if(document.getElementById("override_output_D").value == 2){alert("Input D overrides same output as Input B!");return;}}
+	
+	var ovr_A_act = (document.getElementById("override_action_A") != null) ? document.getElementById("override_action_A").value : -1;
+	var ovr_B_act = (document.getElementById("override_action_B") != null) ? document.getElementById("override_action_B").value : -1;
+	
+	
+	if(ovr_output_1 && ovr_output_3){if(ovr_C_pin == 1 && !((ovr_A_act == 5 && ovr_C_act != 5) || (ovr_A_act != 5 && ovr_C_act == 5)) ){alert("Input C overrides same output as Input A!");return;}}
+	if(ovr_output_2 && ovr_output_3){if(ovr_C_pin == 2 && !((ovr_B_act == 5 && ovr_C_act != 5) || (ovr_B_act != 5 && ovr_C_act == 5))){alert("Input C overrides same output as Input B!");return;}}
+	if(ovr_output_1 && ovr_output_4){if(ovr_D_pin == 1 && !((ovr_A_act == 5 && ovr_C_act != 5) || (ovr_A_act != 5 && ovr_C_act == 5))){alert("Input D overrides same output as Input A!");return;}}
+	if(ovr_output_2 && ovr_output_4){if(ovr_D_pin == 2 && !((ovr_B_act == 5 && ovr_C_act != 5) || (ovr_B_act != 5 && ovr_C_act == 5))){alert("Input D overrides same output as Input B!");return;}}
 	if(ovr_output_3 && ovr_output_4){
 		if(document.getElementById("override_output_D").value == document.getElementById("override_output_C").value){alert("input C overrides same output as Input D!"); return;}
 	}
@@ -599,7 +615,7 @@ function ovr_schedule_opt_handler(input){
 				old_json.override[i].mode = document.getElementById("input_"+input_mode_list[i]+"_mode").value;
 				var e =0;var f ="";
 				var c; var d; var d1; var override_action = 0; var ovr_prog_schedule = 0;
-				if(b && old_json.override[i].mode == 1){
+				if(b && old_json.override[i].mode == 1){ //pb mode
 					c = document.getElementById("apply_always_"+input_mode_list[i]).checked;d = document.getElementById("apply_for_"+input_mode_list[i]).checked;	d1 = document.getElementById("apply_until_"+input_mode_list[i]).checked; override_action = document.getElementById("override_action_"+input_mode_list[i]).value;	
 					ovr_prog_schedule = document.getElementById("ovr_schedule_prog_"+input_mode_list[i]).value;
 					if(c){e = 1;}else if(d){

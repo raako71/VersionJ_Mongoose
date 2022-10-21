@@ -1,6 +1,6 @@
 author: alifnl
-description: setting page bug console
-version: 0.10.9.9a
+description: 8oct and 10oct milestone
+version: 0.10.10.1
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
