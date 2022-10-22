@@ -1,12 +1,10 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
-0.10.10.1: 8oct and 10oct milestone<br>
-0.10.9.9a: setting page bug console<br>
-0.10.9.8b-c: Bug fix
+0.10.9.9a-b: can override same output with different option/adding console to debug setting page<br><br>
+0.10.9.8b-c: Bug fix found in setting page for 8oct and 10oct milestone<br>
 0.10.9.8: Beta overlay message, Override Colours, prog enable switch on CL page<br>
-0.10.9.7b: 18th sep fix<br>
-0.10.9.7: 16th sep version, fixing shared doc issue, dht21, and RTC
+0.10.9.7a-b: 16th sep version, fixing shared doc issue, dht21, and RTC/18th sep fix<br>
 0.10.9.6.2: 18th milestone finishing<br>
 0.10.9.6.1: flexible time frame on graph page <br>
 0.10.9.6: next milestone RTC<br>
