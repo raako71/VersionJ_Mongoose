@@ -332,16 +332,24 @@ function fetch_program_list(){
 
 function widget_builder_ovr(){
 	var a = '<div class="widget_holder fadeIn" id="widget_holder_ovr" style="display:none"><br><br>';
-	a += '<div id="input_A_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_A_prog"></span> <br> Output: A <br>';
+	a += '<div id="input_A_ovr" class="widget-txt" style="margin-bottom:10px">';
+	a += 'Input Button: <span>A</span><br>';
+	a += 'Program: <span id="pin_A_prog"></span> <br> Output: A <br>';
 	a += '<input type="button" style="margin-left:40px;font-weight:bold" value="Trigger Override" onClick="send_trigger_ovr_global(1)" id="ovr_A_btn"> <br></div>';
 	
-	a += '<div id="input_B_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_B_prog"></span> <br> Output: B <br>';
+	a += '<div id="input_B_ovr" class="widget-txt" style="margin-bottom:10px">';
+	a += 'Input Button: <span>B</span><br>';
+	a += 'Program: <span id="pin_B_prog"></span> <br> Output: B <br>';
 	a += '<input type="button" style="margin-left:40px;font-weight:bold" value="Trigger Override" onClick="send_trigger_ovr_global(2)" id="ovr_B_btn"> <br></div>';
 	
-	a += '<div id="input_C_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_C_prog"></span> <br> Output: <span id="pin_C_name"></span> <br>';
+	a += '<div id="input_C_ovr" class="widget-txt" style="margin-bottom:10px">';
+	a += 'Input Button: <span>C</span><br>';
+	a += 'Program: <span id="pin_C_prog"></span> <br> Output: <span id="pin_C_name"></span> <br>';
 	a += '<input type="button" style="margin-left:40px;font-weight:bold" value="Trigger Override" onClick="send_trigger_ovr_global(3)" id="ovr_C_btn"> <br></div>';
 	
-	a += '<div id="input_D_ovr" class="widget-txt" style="margin-bottom:10px">Program: <span id="pin_D_prog"></span> <br> Output: <span id="pin_D_name"></span> <br>';
+	a += '<div id="input_D_ovr" class="widget-txt" style="margin-bottom:10px">';
+	a += 'Input Button: <span>D</span><br>';
+	a += 'Program: <span id="pin_D_prog"></span> <br> Output: <span id="pin_D_name"></span> <br>';
 	a += '<input type="button style="margin-left:40px;font-weight:bold" value="Trigger Override" onClick="send_trigger_ovr_global(4)" id="ovr_D_btn"> <br>';
 	a += '</div>';
 	a += '</div>';
@@ -594,7 +602,7 @@ if(ovr_out_info == null){
 	}
 	var ovr_info_setting_json = setting_json_conf_global.override;
 	var widget_ovr_show_flag = false;
-	for (var i = 0; i < 4; i++){
+	for (var i = 0; i < 4; i++){ //override widget content fill
 		var ovr_en = ovr_info_setting_json[i].output_ovr ;
 		document.getElementById("input_"+input_mode_list[i]+"_ovr").style.display = (ovr_en) ? "block" : "none";
 		if(ovr_en){
@@ -1134,7 +1142,9 @@ validate_cookie(function(i){
 		}
 		old_json = JSON.parse(window.atob(v.data.data));
 		old_json.warning_show = warning_en;
-		if(document.getElementById("homte_text_disp") != null) old_json.home_text = document.getElementById("home_text_disp").innerHTML;
+		if(document.getElementById("home_text_disp") != null) old_json.home_text = document.getElementById("home_text_disp").innerHTML;
+		
+		console.log(old_json.home_text);
 	xhr_send("FS.put", JSON.stringify({filename:"setting.json", append:false, data: window.btoa(JSON.stringify(old_json))}), function(u){
 		if(u.code != 200){
 			var x = '<div style="margin-top:30px;font-size:20px" id="spinner_info">'+u.status+'</div>';
@@ -1253,15 +1263,27 @@ flex-wrap: wrap;
 	0% {opacity: 0;}
 	100% {opacity: 1;}
  }
- 
+ @-webkit-keyframes fadeOut {
+	0% {opacity: 1;}
+	100% {opacity: 0;}
+ }
  @keyframes fadeIn {
 	0% {opacity: 0;}
 	100% {opacity: 1;}
+ }
+ @keyframes fadeOut {
+	0% {opacity: 1;}
+	100% {opacity: 0;}
  }
  
  .fadeIn {
 	-webkit-animation-name: fadeIn;
 	animation-name: fadeIn;
+ }
+ 
+ .fadeOut {
+	-webkit-animation-name: fadeOut;
+	animation-name: fadeOut;	
  }
 .unclickable_grey{
 	color: grey;

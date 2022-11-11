@@ -1,6 +1,6 @@
 author: alifnl
-description: 8oct and 10oct milestone
-version: 0.10.10.1
+description: start working on 24oct issue
+version: 0.10.9.10
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}
