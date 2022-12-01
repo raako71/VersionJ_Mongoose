@@ -1,6 +1,7 @@
 # VersionJ_Mongoose
 
 Changelog:<br/>
+0.10.10.2: 10th oct to 2nd nov fix <br>
 0.10.10.1: can override same output with different option<br>
 0.10.9.9: adding console to debug setting page<br>
 0.10.9.8b-c: Bug fix found in setting page for 8oct and 10oct milestone<br>

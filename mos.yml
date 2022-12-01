@@ -1,6 +1,6 @@
 author: alifnl
-description: start working on 24oct issue
-version: 0.10.9.10
+description: 10oct to 2 nov fix
+version: 0.10.10.2
 
 libs_version: ${mos.version}
 modules_version: ${mos.version}

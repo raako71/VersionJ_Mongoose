@@ -1662,7 +1662,7 @@ void online_HouseKeeping(){ //(picked from last version)
 	if(read_epoch_first_entry("/mnt/thisHour.csv")  <= -1){
 		//fresh file, append immediatelly
 		appendFile("/mnt/thisHour.csv", use_contain.c_str());  
-	}else{ // no fresh file
+	}else if (online_epoch > read_epoch_first_entry("/mnt/thisHour.csv")){ // no fresh file, submitted online_epoch must be larger than previous
 		if(online_epoch - read_epoch_first_entry("/mnt/thisHour.csv") <= 3600){ //not 1 hour yet, append file
 		  //append file
 		
@@ -2187,13 +2187,14 @@ void check_override_func(){
 			en_ovr_output_B = (en_ovr_output_B == -1) ? !program_ovrrdn : -1; 
 		}
 	}
-
+	
+	override_pin_C = input3_ovr_out-1;
 	if((ext_PB_state[2] == 2 || vt_PB_state[2] == 2) && input3_as_ovr && input3_mode == 1){ //long push event// check override function (input3 / RPB)
 		ext_PB_state[2] = 0;
 		if(vt_PB_state[2] == 2) {vt_PB_state[2] = 0;}
 		
 		int pin_control = prog_pin_state[input3_ovr_out-1];
-		override_pin_C = input3_ovr_out-1;
+		
 		if(en_ovr_output_C == -1 && input3_ovr_action != 5){ //override is inactive
 			LOG(LL_WARN,("trigger C (activate)"));
 			if(input3_ovr_action == 2 && pin_control != -1){ //toggle output status
@@ -2230,12 +2231,12 @@ void check_override_func(){
 		}
 	}
 
+	override_pin_D = input4_ovr_out-1;
 	if((ext_PB_state[3] == 2 || vt_PB_state[3] == 2) && input4_as_ovr == 1 && input4_mode == 1){ //long push event// check override function (input4 / input_D)
 		ext_PB_state[3] = 0;
 		if(vt_PB_state[3] == 2) {vt_PB_state[3] = 0;}
 
 		int pin_control = prog_pin_state[input4_ovr_out-1];
-		override_pin_D = input4_ovr_out-1;
 		if(en_ovr_output_D == -1 && input4_ovr_action != 5){ //if override is deactivated, will override pin
 		LOG(LL_WARN,("trigger D (activate)"));
 		//input4_saved_state = pin_control; //saving state
