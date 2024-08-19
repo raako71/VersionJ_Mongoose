@@ -1,5 +1,7 @@
 # VersionJ_Mongoose
 
+Git repo made public 19 Aug 2024 with CC0 1.0 Universal licence.
+
 Changelog:<br/>
 0.10.10.2: 10th oct to 2nd nov fix <br>
 0.10.10.1: can override same output with different option<br>
