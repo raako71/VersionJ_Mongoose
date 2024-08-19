@@ -1,5 +1,7 @@
 # VersionJ_Mongoose
 
+Git repo made public 19 Aug 2024 with CC0 1.0 Universal licence.
+
 Changelog:<br/>
 0.10.5b - main: merge to main
 0.10.4j - main: transparancy
