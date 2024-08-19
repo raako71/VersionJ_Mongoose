@@ -1,5 +1,7 @@
 # VersionJ_Mongoose
 
+Git repo made public 19 Aug 2024 with CC0 1.0 Universal licence.
+
 Changelog:<br/>
 0.10.6d.1: add PB2<br>
 0.10.6d: fix 12 nov issue, adding login before reboot<br>
