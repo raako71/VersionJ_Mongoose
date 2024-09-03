@@ -3,8 +3,9 @@
 Git repo made public 19 Aug 2024 with CC0 1.0 Universal licence.
 
 To Do:
-Phy Eth causing failure.
-Memory management (runtime usually around a day (orm something) before a reboot)
+- Phy Eth causing failure.
+
+- Memory management (runtime usually around a day (or something) before a reboot)
 
 Changelog:<br/>
 0.10.10.2: 10th oct to 2nd nov fix <br>
